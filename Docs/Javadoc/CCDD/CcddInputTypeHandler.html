@@ -279,7 +279,7 @@ extends java.lang.Object</pre>
 <td class="colFirst"><code>protected java.lang.String[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddInputTypeHandler.html#getNames-boolean-">getNames</a></span>(boolean&nbsp;customOnly)</code>
 <div class="block">Get an array of the input type names (all or user-defined only), excluding separators and
- breaks</div>
+ breaks, sorted alphabetically</div>
 </td>
 </tr>
 <tr id="i9" class="rowColor">
@@ -434,7 +434,7 @@ extends java.lang.Object</pre>
 <div class="block">Input type handler class constructor</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>ccddMain</code> - main class</dd>
+<dd><code>ccddMain</code> - Main class</dd>
 </dl>
 </li>
 </ul>
@@ -448,7 +448,7 @@ extends java.lang.Object</pre>
 <div class="block">Input type handler class constructor</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>inputTypesArray</code> - array of custom input type definitions</dd>
+<dd><code>inputTypesArray</code> - Array of custom input type definitions</dd>
 </dl>
 </li>
 </ul>
@@ -470,7 +470,7 @@ extends java.lang.Object</pre>
 <div class="block">Check if the an input type exists with the specified name</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>inputTypeName</code> - input type name to match (case insensitive)</dd>
+<dd><code>inputTypeName</code> - Input type name to match (case insensitive)</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>true if an input exists with the specified name</dd>
 </dl>
@@ -487,8 +487,8 @@ extends java.lang.Object</pre>
 <div class="block">Check if the two input types differ</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>inputTypeA</code> - first input type to compare</dd>
-<dd><code>inputTypeB</code> - second input type to compare</dd>
+<dd><code>inputTypeA</code> - First input type to compare</dd>
+<dd><code>inputTypeB</code> - Second input type to compare</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>true if the input types differ</dd>
 </dl>
@@ -518,7 +518,7 @@ extends java.lang.Object</pre>
 <div class="block">Set the input types by combining the default types with those in the supplied array</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>customInputTypes</code> - array containing the custom input type definitions</dd>
+<dd><code>customInputTypes</code> - Array containing the custom input type definitions</dd>
 </dl>
 </li>
 </ul>
@@ -570,7 +570,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the input type with the name that matches the one specified</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>inputTypeName</code> - input type name to match (case insensitive)</dd>
+<dd><code>inputTypeName</code> - Input type name to match (case insensitive)</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Input type with the name that matches the one specified; returns the input type for
          text if the input type doesn't exist</dd>
@@ -587,7 +587,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the input type with the name that matches that of the specified default input type</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>defaultInputType</code> - default input type to match (DefaultInputType)</dd>
+<dd><code>defaultInputType</code> - Default input type to match (DefaultInputType)</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Input type with the name that matches the one specified; returns the input type for
          text if the input type doesn't exist</dd>
@@ -619,9 +619,9 @@ extends java.lang.Object</pre>
  expression</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>itemString</code> - string containing the acceptable values for this input type, separated by the
-            selection item list separator; null or blank if the input type doesn't constrain
-            the inputs to items from a list</dd>
+<dd><code>itemString</code> - String containing the acceptable values for this input type, separated by
+                   the selection item list separator; null or blank if the input type doesn't
+                   constrain the inputs to items from a list</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Regular expression that matches only the items in the selection list</dd>
 </dl>
@@ -649,10 +649,11 @@ extends java.lang.Object</pre>
 <h4>getNames</h4>
 <pre>protected&nbsp;java.lang.String[]&nbsp;getNames(boolean&nbsp;customOnly)</pre>
 <div class="block">Get an array of the input type names (all or user-defined only), excluding separators and
- breaks</div>
+ breaks, sorted alphabetically</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>customOnly</code> - true to only include user-defined input types; false to include all input types</dd>
+<dd><code>customOnly</code> - True to only include user-defined input types; false to include all input
+                   types</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Array of all or only user-defined input type names, sorted alphabetically; an empty
          list if no user-defined input types are defined and only user-defined types are
@@ -689,11 +690,11 @@ extends java.lang.Object</pre>
  zeroes from integer and floating point values</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>valueS</code> - value, represented as a string, to reformat</dd>
-<dd><code>inputFormat</code> - input type format (InputTypeFormat)</dd>
-<dd><code>preserveZeroes</code> - true to preserve leading zeroes in hexadecimal values; false to eliminate the
-            extra zeroes (this is useful when comparing the text representation of two
-            hexadecimal values)</dd>
+<dd><code>valueS</code> - Value, represented as a string, to reformat</dd>
+<dd><code>inputFormat</code> - Input type format (InputTypeFormat)</dd>
+<dd><code>preserveZeroes</code> - True to preserve leading zeroes in hexadecimal values; false to
+                       eliminate the extra zeroes (this is useful when comparing the text
+                       representation of two hexadecimal values)</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Input value reformatted based on its input type</dd>
 </dl>
@@ -712,7 +713,7 @@ extends java.lang.Object</pre>
  internal tables are searched</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>inputTypeName</code> - input type name for which to search</dd>
+<dd><code>inputTypeName</code> - Input type name for which to search</dd>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>List containing the tables in the database that reference the specified input type
@@ -731,10 +732,10 @@ extends java.lang.Object</pre>
 <div class="block">Add new input types and check for matches with existing ones</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>inputTypeDefinitions</code> - list of input type definitions</dd>
+<dd><code>inputTypeDefinitions</code> - List of input type definitions</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If an input type with the same same already exists and the imported type doesn't
-             match</dd>
+<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If an input type with the same same already exists and the imported
+                       type doesn't match</dd>
 </dl>
 </li>
 </ul>
@@ -750,7 +751,7 @@ extends java.lang.Object</pre>
  for the specified default input type</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>inputType</code> - default input type for which to search (DefaultInputType)</dd>
+<dd><code>inputType</code> - Default input type for which to search (DefaultInputType)</dd>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Reference to the ReferenceCheckResults containing the list of references in the

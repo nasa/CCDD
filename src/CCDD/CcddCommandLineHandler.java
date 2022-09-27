@@ -773,6 +773,23 @@ public class CcddCommandLineHandler
             }
         });
 
+        // Font scale factor command
+        argument.add(new CommandHandler("fontScale",
+                                        "Set font scale factor",
+                                        "0.1 <= scale <= 25",
+                                        CommandLineType.NAME,
+                                        CommandLinePriority.PRE_START.getStartPriority())
+        {
+            /**************************************************************************************
+             * Set the font scale factor
+             *************************************************************************************/
+            @Override
+            protected void doCommand(Object parmVal)
+            {
+                ccddMain.setFontScaleFactor((String) parmVal, null);
+            }
+        });
+
         // Main window size command
         argument.add(new CommandHandler("mainSize",
                                         "Set main window size",

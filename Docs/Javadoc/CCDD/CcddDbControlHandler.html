@@ -17,7 +17,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":10,"i35":10,"i36":10,"i37":10,"i38":10,"i39":10,"i40":10,"i41":10,"i42":10,"i43":10,"i44":10,"i45":10,"i46":10,"i47":10,"i48":10,"i49":10,"i50":10,"i51":10,"i52":10,"i53":10,"i54":10,"i55":10,"i56":10,"i57":10,"i58":10,"i59":10,"i60":10,"i61":10,"i62":10,"i63":10,"i64":10,"i65":10,"i66":10,"i67":10,"i68":10,"i69":10,"i70":10,"i71":10,"i72":10,"i73":10,"i74":10,"i75":10,"i76":10,"i77":10,"i78":10,"i79":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":10,"i35":10,"i36":10,"i37":10,"i38":10,"i39":10,"i40":10,"i41":10,"i42":10,"i43":10,"i44":10,"i45":10,"i46":10,"i47":10,"i48":10,"i49":10,"i50":10,"i51":10,"i52":10,"i53":10,"i54":10,"i55":10,"i56":10,"i57":10,"i58":10,"i59":10,"i60":10,"i61":10,"i62":10,"i63":10,"i64":10,"i65":10,"i66":10,"i67":10,"i68":10,"i69":10,"i70":10,"i71":10,"i72":10,"i73":10,"i74":10,"i75":10,"i76":10,"i77":10,"i78":10,"i79":10,"i80":10,"i81":10,"i82":10,"i83":10,"i84":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -175,24 +175,32 @@ extends java.lang.Object</pre>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#activeUser">activeUser</a></span></code>&nbsp;</td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>private boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#addDefaultDataTypes">addDefaultDataTypes</a></span></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>private java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#backupFileName">backupFileName</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>private <a href="../CCDD/CcddMain.html" title="class in CCDD">CcddMain</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#ccddMain">ccddMain</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>private java.sql.Connection</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#connection">connection</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>private <a href="../CCDD/CcddConstants.ConnectionType.html" title="enum in CCDD">CcddConstants.ConnectionType</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#connectionStatus">connectionStatus</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>private <a href="../CCDD/CcddDbCommandHandler.html" title="class in CCDD">CcddDbCommandHandler</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#dbCommand">dbCommand</a></span></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private <a href="../CCDD/CcddDbTableCommandHandler.html" title="class in CCDD">CcddDbTableCommandHandler</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#dbTableCommand">dbTableCommand</a></span></code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>private <a href="../CCDD/CcddEventLogDialog.html" title="class in CCDD">CcddEventLogDialog</a></code></td>
@@ -273,35 +281,51 @@ extends java.lang.Object</pre>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
+<td class="colFirst"><code>protected void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#backupAndRenameDatabase-java.lang.String-java.lang.String-CCDD.CcddClassesComponent.FileEnvVar-">backupAndRenameDatabase</a></span>(java.lang.String&nbsp;projectName,
+                       java.lang.String&nbsp;newProjectName,
+                       <a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;backupFile)</code>
+<div class="block">Rename a project database, back it up and revert the rename.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>protected void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#backupAndRenameDatabaseInBackground-java.lang.String-java.lang.String-CCDD.CcddClassesComponent.FileEnvVar-">backupAndRenameDatabaseInBackground</a></span>(java.lang.String&nbsp;projectName,
+                                   java.lang.String&nbsp;newProjectName,
+                                   <a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;backupFile)</code>
+<div class="block">Backup a project database.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#backupDatabase-java.lang.String-CCDD.CcddClassesComponent.FileEnvVar-">backupDatabase</a></span>(java.lang.String&nbsp;projectName,
               <a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;backupFile)</code>
 <div class="block">Backup a project database</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#backupDatabaseInBackground-java.lang.String-CCDD.CcddClassesComponent.FileEnvVar-">backupDatabaseInBackground</a></span>(java.lang.String&nbsp;projectName,
                           <a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;backupFile)</code>
 <div class="block">Backup a project database.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>protected java.lang.String</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#buildDatabaseCommentCommand-java.lang.String-java.lang.String-boolean-java.lang.String-">buildDatabaseCommentCommand</a></span>(java.lang.String&nbsp;projectName,
-                           java.lang.String&nbsp;administrator,
-                           boolean&nbsp;lockStatus,
-                           java.lang.String&nbsp;description)</code>
-<div class="block">Build the command to create the database comment.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#buildDatabaseCommentCommandAndUpdateInternalTable-java.lang.String-java.lang.String-boolean-java.lang.String-">buildDatabaseCommentCommandAndUpdateInternalTable</a></span>(java.lang.String&nbsp;projectName,
+                                                 java.lang.String&nbsp;administrator,
+                                                 boolean&nbsp;lockStatus,
+                                                 java.lang.String&nbsp;description)</code>
+<div class="block">Build the command to create the database comment and updated the internal table _dub_info.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>protected java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#buildInformationTableCommand-CCDD.CcddConstants.InternalTable-">buildInformationTableCommand</a></span>(<a href="../CCDD/CcddConstants.InternalTable.html" title="enum in CCDD">CcddConstants.InternalTable</a>&nbsp;intTable)</code>
 <div class="block">Build the command to create an internal table</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>protected java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#buildOwnerCommand-CCDD.CcddConstants.DatabaseObject-java.lang.String-">buildOwnerCommand</a></span>(<a href="../CCDD/CcddConstants.DatabaseObject.html" title="enum in CCDD">CcddConstants.DatabaseObject</a>&nbsp;object,
                  java.lang.String&nbsp;objectName)</code>
@@ -309,7 +333,7 @@ extends java.lang.Object</pre>
  currently active database owner</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>private java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#buildOwnerCommand-java.lang.String-CCDD.CcddConstants.DatabaseObject-java.lang.String-">buildOwnerCommand</a></span>(java.lang.String&nbsp;ownerName,
                  <a href="../CCDD/CcddConstants.DatabaseObject.html" title="enum in CCDD">CcddConstants.DatabaseObject</a>&nbsp;object,
@@ -318,7 +342,7 @@ extends java.lang.Object</pre>
  specified database owner</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#changeProjectOwner-java.lang.String-java.lang.String-java.lang.String-java.awt.Component-">changeProjectOwner</a></span>(java.lang.String&nbsp;projectName,
                   java.lang.String&nbsp;currentOwner,
@@ -327,13 +351,13 @@ extends java.lang.Object</pre>
 <div class="block">Change the owner of the specified project</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#closeDatabase--">closeDatabase</a></span>()</code>
 <div class="block">Close the currently open database</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#connectToDatabase-java.lang.String-java.lang.String-boolean-">connectToDatabase</a></span>(java.lang.String&nbsp;projectName,
                  java.lang.String&nbsp;databaseName,
@@ -341,19 +365,19 @@ extends java.lang.Object</pre>
 <div class="block">Connect to a database</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#connectToServer--">connectToServer</a></span>()</code>
 <div class="block">Connect to the server (default database)</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>protected java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#convertProjectNameToDatabase-java.lang.String-">convertProjectNameToDatabase</a></span>(java.lang.String&nbsp;projectName)</code>
 <div class="block">Convert the specified project name into its equivalent PostgreSQL database name.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#copyDatabaseInBackground-java.lang.String-java.lang.String-java.lang.String-">copyDatabaseInBackground</a></span>(java.lang.String&nbsp;targetProject,
                         java.lang.String&nbsp;copyProject,
@@ -361,7 +385,7 @@ extends java.lang.Object</pre>
 <div class="block">Copy a database.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#createDatabase-java.lang.String-java.lang.String-java.lang.String-java.lang.String-">createDatabase</a></span>(java.lang.String&nbsp;projectName,
               java.lang.String&nbsp;ownerName,
@@ -370,7 +394,7 @@ extends java.lang.Object</pre>
 <div class="block">Create a project database</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#createDatabaseInBackground-java.lang.String-java.lang.String-java.lang.String-java.lang.String-">createDatabaseInBackground</a></span>(java.lang.String&nbsp;projectName,
                           java.lang.String&nbsp;ownerName,
@@ -379,240 +403,254 @@ extends java.lang.Object</pre>
 <div class="block">Create a project database.</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#createStructureColumnFunctions--">createStructureColumnFunctions</a></span>()</code>
 <div class="block">Create the reusable database functions for obtaining structure table members and
  structure-defining column values</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>private boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#createTablesAndFunctions--">createTablesAndFunctions</a></span>()</code>
 <div class="block">Create the reusable database functions and default tables.</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#createTemporaryTable--">createTemporaryTable</a></span>()</code>
 <div class="block">Create a temporary table for storing the results returned by the database functions</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#deleteDatabase-java.lang.String-">deleteDatabase</a></span>(java.lang.String&nbsp;projectName)</code>
 <div class="block">Delete the database</div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#deleteDatabaseInBackground-java.lang.String-">deleteDatabaseInBackground</a></span>(java.lang.String&nbsp;projectName)</code>
 <div class="block">Delete the project database.</div>
 </td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><code>private java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#deleteFunction-java.lang.String-">deleteFunction</a></span>(java.lang.String&nbsp;functionName)</code>
 <div class="block">Build the command to delete a database function.</div>
 </td>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i23" class="rowColor">
 <td class="colFirst"><code>protected java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#executeProcess-java.lang.String-int-">executeProcess</a></span>(java.lang.String&nbsp;command,
               int&nbsp;numArgs)</code>
 <div class="block">Execute an operating system command</div>
 </td>
 </tr>
-<tr id="i22" class="altColor">
+<tr id="i24" class="altColor">
 <td class="colFirst"><code>protected java.sql.Connection</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#getConnection--">getConnection</a></span>()</code>
 <div class="block">Get the SQL database connection</div>
 </td>
 </tr>
-<tr id="i23" class="rowColor">
+<tr id="i25" class="rowColor">
 <td class="colFirst"><code>protected java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#getDatabaseAdmins-java.lang.String-">getDatabaseAdmins</a></span>(java.lang.String&nbsp;databaseName)</code>
 <div class="block">Get the project database administrator user name(s)</div>
 </td>
 </tr>
-<tr id="i24" class="altColor">
+<tr id="i26" class="altColor">
 <td class="colFirst"><code>protected java.lang.String[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#getDatabaseComment-java.lang.String-">getDatabaseComment</a></span>(java.lang.String&nbsp;databaseName)</code>
 <div class="block">Get the array containing the database comment fields (without the CFS project identifier)</div>
 </td>
 </tr>
-<tr id="i25" class="rowColor">
+<tr id="i27" class="rowColor">
 <td class="colFirst"><code>protected java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#getDatabaseDescription-java.lang.String-">getDatabaseDescription</a></span>(java.lang.String&nbsp;databaseName)</code>
 <div class="block">Get the database description</div>
 </td>
 </tr>
-<tr id="i26" class="altColor">
+<tr id="i28" class="altColor">
 <td class="colFirst"><code>protected java.lang.Boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#getDatabaseLockStatus-java.lang.String-">getDatabaseLockStatus</a></span>(java.lang.String&nbsp;databaseName)</code>
 <div class="block">Get the database lock status</div>
 </td>
 </tr>
-<tr id="i27" class="rowColor">
+<tr id="i29" class="rowColor">
 <td class="colFirst"><code>protected java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#getDatabaseName--">getDatabaseName</a></span>()</code>
 <div class="block">Get the active database name</div>
 </td>
 </tr>
-<tr id="i28" class="altColor">
+<tr id="i30" class="altColor">
 <td class="colFirst"><code>protected java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#getDatabaseURL-java.lang.String-">getDatabaseURL</a></span>(java.lang.String&nbsp;databaseName)</code>
 <div class="block">Get the database URL.</div>
 </td>
 </tr>
-<tr id="i29" class="rowColor">
+<tr id="i31" class="rowColor">
 <td class="colFirst"><code>protected java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#getDatabaseVersion--">getDatabaseVersion</a></span>()</code>
 <div class="block">Get the PostgreSQL server version</div>
 </td>
 </tr>
-<tr id="i30" class="altColor">
+<tr id="i32" class="altColor">
 <td class="colFirst"><code>protected java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#getHost--">getHost</a></span>()</code>
 <div class="block">Get the PostgreSQL server host</div>
 </td>
 </tr>
-<tr id="i31" class="rowColor">
+<tr id="i33" class="rowColor">
 <td class="colFirst"><code>protected java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#getJDBCVersion--">getJDBCVersion</a></span>()</code>
 <div class="block">Get the JDBC version number</div>
 </td>
 </tr>
-<tr id="i32" class="altColor">
+<tr id="i34" class="altColor">
 <td class="colFirst"><code>protected java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#getOwner--">getOwner</a></span>()</code>
 <div class="block">Get the database owner name</div>
 </td>
 </tr>
-<tr id="i33" class="rowColor">
+<tr id="i35" class="rowColor">
 <td class="colFirst"><code>protected java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#getPort--">getPort</a></span>()</code>
 <div class="block">Get the PostgreSQL server port</div>
 </td>
 </tr>
-<tr id="i34" class="altColor">
+<tr id="i36" class="altColor">
 <td class="colFirst"><code>protected int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#getPostgreSQLMajorVersion--">getPostgreSQLMajorVersion</a></span>()</code>
 <div class="block">Get the PostgreSQL major version number</div>
 </td>
 </tr>
-<tr id="i35" class="rowColor">
+<tr id="i37" class="rowColor">
 <td class="colFirst"><code>protected java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#getProjectName--">getProjectName</a></span>()</code>
 <div class="block">Get the active project name</div>
 </td>
 </tr>
-<tr id="i36" class="altColor">
+<tr id="i38" class="altColor">
 <td class="colFirst"><code>protected java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#getProjectName-java.lang.String-">getProjectName</a></span>(java.lang.String&nbsp;databaseName)</code>
 <div class="block">Get the project name for the specified database</div>
 </td>
 </tr>
-<tr id="i37" class="rowColor">
+<tr id="i39" class="rowColor">
 <td class="colFirst"><code>protected java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#getProjectOwner-java.lang.String-java.awt.Component-">getProjectOwner</a></span>(java.lang.String&nbsp;projectName,
                java.awt.Component&nbsp;parent)</code>
 <div class="block">Get the owner of the specified project</div>
 </td>
 </tr>
-<tr id="i38" class="altColor">
+<tr id="i40" class="altColor">
 <td class="colFirst"><code>protected java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#getQuotedName-java.lang.String-">getQuotedName</a></span>(java.lang.String&nbsp;name)</code>
 <div class="block">Force the supplied table or column name to lower case.</div>
 </td>
 </tr>
-<tr id="i39" class="rowColor">
+<tr id="i41" class="rowColor">
 <td class="colFirst"><code>protected java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#getServer--">getServer</a></span>()</code>
 <div class="block">Set the PostgreSQL server information</div>
 </td>
 </tr>
-<tr id="i40" class="altColor">
+<tr id="i42" class="altColor">
 <td class="colFirst"><code>private java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#getServerAndDatabase-java.lang.String-">getServerAndDatabase</a></span>(java.lang.String&nbsp;databaseName)</code>
 <div class="block">Get the server + database</div>
 </td>
 </tr>
-<tr id="i41" class="rowColor">
+<tr id="i43" class="rowColor">
 <td class="colFirst"><code>protected java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#getUser--">getUser</a></span>()</code>
 <div class="block">Get the server user name</div>
 </td>
 </tr>
-<tr id="i42" class="altColor">
+<tr id="i44" class="altColor">
 <td class="colFirst"><code>protected java.util.List&lt;java.lang.String&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#getUserAdminAccess--">getUserAdminAccess</a></span>()</code>
 <div class="block">Get the list of databases for which the user has administrative access</div>
 </td>
 </tr>
-<tr id="i43" class="rowColor">
+<tr id="i45" class="rowColor">
 <td class="colFirst"><code>private java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#getUserHostAndPort--">getUserHostAndPort</a></span>()</code>
 <div class="block">Build the portion of the backup and restore commands that specifies the user name, server
  host, and server port</div>
 </td>
 </tr>
-<tr id="i44" class="altColor">
+<tr id="i46" class="altColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#isAccessAdmin--">isAccessAdmin</a></span>()</code>
 <div class="block">Check if the user has administrative access</div>
 </td>
 </tr>
-<tr id="i45" class="rowColor">
+<tr id="i47" class="rowColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#isAccessReadWrite--">isAccessReadWrite</a></span>()</code>
 <div class="block">Check if the user has read-write access</div>
 </td>
 </tr>
-<tr id="i46" class="altColor">
+<tr id="i48" class="altColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#isDatabaseConnected--">isDatabaseConnected</a></span>()</code>
 <div class="block">Get the database connection status</div>
 </td>
 </tr>
-<tr id="i47" class="rowColor">
+<tr id="i49" class="rowColor">
+<td class="colFirst"><code>protected boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#isDatabaseNameInUse-java.lang.String-">isDatabaseNameInUse</a></span>(java.lang.String&nbsp;queryDatabaseName)</code>
+<div class="block">Query the list of all databases and determine if one exists with the given name</div>
+</td>
+</tr>
+<tr id="i50" class="altColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#isKeyWord-java.lang.String-">isKeyWord</a></span>(java.lang.String&nbsp;name)</code>
 <div class="block">Check if the supplied table or column name is a PostgreSQL reserved word</div>
 </td>
 </tr>
-<tr id="i48" class="altColor">
+<tr id="i51" class="rowColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#isPasswordNonBlank--">isPasswordNonBlank</a></span>()</code>
 <div class="block">Check if the user's database password is not a blank</div>
 </td>
 </tr>
-<tr id="i49" class="rowColor">
+<tr id="i52" class="altColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#isServerConnected--">isServerConnected</a></span>()</code>
 <div class="block">Get the server connection status</div>
 </td>
 </tr>
-<tr id="i50" class="altColor">
+<tr id="i53" class="rowColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#isSSL--">isSSL</a></span>()</code>
 <div class="block">Get the status of the flag that indicates if an SSL connection is enabled</div>
 </td>
 </tr>
-<tr id="i51" class="rowColor">
+<tr id="i54" class="altColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#openDatabase-java.lang.String-">openDatabase</a></span>(java.lang.String&nbsp;projectName)</code>
 <div class="block">Open a database.</div>
 </td>
 </tr>
-<tr id="i52" class="altColor">
+<tr id="i55" class="rowColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#openDatabase-java.lang.String-boolean-">openDatabase</a></span>(java.lang.String&nbsp;projectName,
             boolean&nbsp;createFunctions)</code>
 <div class="block">Open a database using the current host, port, and SSL settings</div>
 </td>
 </tr>
-<tr id="i53" class="rowColor">
+<tr id="i56" class="altColor">
+<td class="colFirst"><code>protected boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#openDatabase-java.lang.String-boolean-boolean-">openDatabase</a></span>(java.lang.String&nbsp;projectName,
+            boolean&nbsp;createFunctions,
+            boolean&nbsp;addDefaultDataTypes)</code>
+<div class="block">Open a database using the current host, port, and SSL settings</div>
+</td>
+</tr>
+<tr id="i57" class="rowColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#openDatabase-java.lang.String-java.lang.String-java.lang.String-boolean-boolean-">openDatabase</a></span>(java.lang.String&nbsp;projectName,
             java.lang.String&nbsp;serverHost,
@@ -622,13 +660,13 @@ extends java.lang.Object</pre>
 <div class="block">Open a database using the project name, host, port, and SSL settings provided</div>
 </td>
 </tr>
-<tr id="i54" class="altColor">
+<tr id="i58" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#openDatabaseInBackground-java.lang.String-">openDatabaseInBackground</a></span>(java.lang.String&nbsp;projectName)</code>
 <div class="block">Open a database using the current host, port, and SSL settings provided.</div>
 </td>
 </tr>
-<tr id="i55" class="rowColor">
+<tr id="i59" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#openDatabaseInBackground-java.lang.String-java.lang.String-java.lang.String-boolean-">openDatabaseInBackground</a></span>(java.lang.String&nbsp;projectName,
                         java.lang.String&nbsp;serverHost,
@@ -637,20 +675,20 @@ extends java.lang.Object</pre>
 <div class="block">Open a database using the host, port, and SSL settings provided.</div>
 </td>
 </tr>
-<tr id="i56" class="altColor">
+<tr id="i60" class="altColor">
 <td class="colFirst"><code>protected java.lang.String[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#parseDatabaseComment-java.lang.String-java.lang.String-">parseDatabaseComment</a></span>(java.lang.String&nbsp;databaseName,
                     java.lang.String&nbsp;comment)</code>
 <div class="block">Parse the supplied database comment string into an array of the comment's separate fields</div>
 </td>
 </tr>
-<tr id="i57" class="rowColor">
+<tr id="i61" class="rowColor">
 <td class="colFirst"><code>protected java.lang.String[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#queryActiveList-java.awt.Component-">queryActiveList</a></span>(java.awt.Component&nbsp;parent)</code>
 <div class="block">Retrieve a list of databases with active connections by user</div>
 </td>
 </tr>
-<tr id="i58" class="altColor">
+<tr id="i62" class="altColor">
 <td class="colFirst"><code>protected java.lang.String[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#queryDatabaseByUserList-java.awt.Component-java.lang.String-">queryDatabaseByUserList</a></span>(java.awt.Component&nbsp;parent,
                        java.lang.String&nbsp;userName)</code>
@@ -658,38 +696,46 @@ extends java.lang.Object</pre>
  access</div>
 </td>
 </tr>
-<tr id="i59" class="rowColor">
+<tr id="i63" class="rowColor">
 <td class="colFirst"><code>protected java.lang.String[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#queryDatabaseList-java.awt.Component-">queryDatabaseList</a></span>(java.awt.Component&nbsp;parent)</code>
 <div class="block">Retrieve a list of all databases registered on the server</div>
 </td>
 </tr>
-<tr id="i60" class="altColor">
+<tr id="i64" class="altColor">
 <td class="colFirst"><code>protected java.lang.String[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#queryDatabaseOwner-java.lang.String-java.awt.Component-">queryDatabaseOwner</a></span>(java.lang.String&nbsp;databaseName,
                   java.awt.Component&nbsp;parent)</code>
 <div class="block">Retrieve the name of the specified database's owner</div>
 </td>
 </tr>
-<tr id="i61" class="rowColor">
+<tr id="i65" class="rowColor">
 <td class="colFirst"><code>protected java.lang.String[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#queryRoleList-java.awt.Component-">queryRoleList</a></span>(java.awt.Component&nbsp;parent)</code>
 <div class="block">Retrieve a list of all roles registered on the server</div>
 </td>
 </tr>
-<tr id="i62" class="altColor">
+<tr id="i66" class="altColor">
 <td class="colFirst"><code>protected java.lang.String[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#queryUserList-java.awt.Component-">queryUserList</a></span>(java.awt.Component&nbsp;parent)</code>
 <div class="block">Retrieve a list of all users registered on the server</div>
 </td>
 </tr>
-<tr id="i63" class="rowColor">
+<tr id="i67" class="rowColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#reconnectToDatabase--">reconnectToDatabase</a></span>()</code>
 <div class="block">Reconnect to the active database</div>
 </td>
 </tr>
-<tr id="i64" class="altColor">
+<tr id="i68" class="altColor">
+<td class="colFirst"><code>protected void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#renameDatabase-java.lang.String-java.lang.String-java.lang.String-">renameDatabase</a></span>(java.lang.String&nbsp;oldProject,
+              java.lang.String&nbsp;newProject,
+              java.lang.String&nbsp;description)</code>
+<div class="block">Rename a project and/or add/update the database description.</div>
+</td>
+</tr>
+<tr id="i69" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#renameDatabaseInBackground-java.lang.String-java.lang.String-java.lang.String-">renameDatabaseInBackground</a></span>(java.lang.String&nbsp;oldProject,
                           java.lang.String&nbsp;newProject,
@@ -697,13 +743,13 @@ extends java.lang.Object</pre>
 <div class="block">Rename a project and/or add/update the database description.</div>
 </td>
 </tr>
-<tr id="i65" class="rowColor">
+<tr id="i70" class="altColor">
 <td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#resetAutoCommit--">resetAutoCommit</a></span>()</code>
 <div class="block">Disable the database change auto-commit mode</div>
 </td>
 </tr>
-<tr id="i66" class="altColor">
+<tr id="i71" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#restoreDatabase-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.io.File-boolean-">restoreDatabase</a></span>(java.lang.String&nbsp;projectName,
                java.lang.String&nbsp;ownerName,
@@ -714,7 +760,7 @@ extends java.lang.Object</pre>
 <div class="block">Restore a database</div>
 </td>
 </tr>
-<tr id="i67" class="rowColor">
+<tr id="i72" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#restoreDatabaseInBackground-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.io.File-boolean-">restoreDatabaseInBackground</a></span>(java.lang.String&nbsp;projectName,
                            java.lang.String&nbsp;ownerName,
@@ -725,75 +771,75 @@ extends java.lang.Object</pre>
 <div class="block">Restore a database.</div>
 </td>
 </tr>
-<tr id="i68" class="altColor">
+<tr id="i73" class="rowColor">
 <td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#setAccessLevel--">setAccessLevel</a></span>()</code>
 <div class="block">Set the user access level from the user authorization table.</div>
 </td>
 </tr>
-<tr id="i69" class="rowColor">
+<tr id="i74" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#setBackupFileName-java.lang.String-">setBackupFileName</a></span>(java.lang.String&nbsp;backupFileName)</code>
 <div class="block">Set the file path and name to automatically backup the database to on first connecting</div>
 </td>
 </tr>
-<tr id="i70" class="altColor">
+<tr id="i75" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#setDatabaseAdmins-java.lang.String-java.awt.Component-">setDatabaseAdmins</a></span>(java.lang.String&nbsp;admins,
                  java.awt.Component&nbsp;parent)</code>
 <div class="block">Set the project database administrator user name(s)</div>
 </td>
 </tr>
-<tr id="i71" class="rowColor">
+<tr id="i76" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#setDatabaseLockStatus-java.lang.String-boolean-">setDatabaseLockStatus</a></span>(java.lang.String&nbsp;projectName,
                      boolean&nbsp;lockStatus)</code>
 <div class="block">Set the database lock status.</div>
 </td>
 </tr>
-<tr id="i72" class="altColor">
+<tr id="i77" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#setDatabaseName-java.lang.String-">setDatabaseName</a></span>(java.lang.String&nbsp;databaseName)</code>
 <div class="block">Set the active project and database names based on the database name</div>
 </td>
 </tr>
-<tr id="i73" class="rowColor">
+<tr id="i78" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#setEventLog--">setEventLog</a></span>()</code>
 <div class="block">Create a reference to the session event log.</div>
 </td>
 </tr>
-<tr id="i74" class="altColor">
+<tr id="i79" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#setHost-java.lang.String-">setHost</a></span>(java.lang.String&nbsp;host)</code>
 <div class="block">Set the PostgreSQL server host</div>
 </td>
 </tr>
-<tr id="i75" class="rowColor">
+<tr id="i80" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#setPassword-java.lang.String-">setPassword</a></span>(java.lang.String&nbsp;password)</code>
 <div class="block">Set the user's database password</div>
 </td>
 </tr>
-<tr id="i76" class="altColor">
+<tr id="i81" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#setPort-java.lang.String-">setPort</a></span>(java.lang.String&nbsp;port)</code>
 <div class="block">Set the PostgreSQL server port</div>
 </td>
 </tr>
-<tr id="i77" class="rowColor">
+<tr id="i82" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#setProjectName-java.lang.String-">setProjectName</a></span>(java.lang.String&nbsp;projectName)</code>
 <div class="block">Set the active project and database names based on the project name</div>
 </td>
 </tr>
-<tr id="i78" class="altColor">
+<tr id="i83" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#setSSL-boolean-">setSSL</a></span>(boolean&nbsp;enable)</code>
 <div class="block">Set the status of the flag that indicates if an SSL connection is enabled</div>
 </td>
 </tr>
-<tr id="i79" class="rowColor">
+<tr id="i84" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#setUser-java.lang.String-">setUser</a></span>(java.lang.String&nbsp;user)</code>
 <div class="block">Set the database user</div>
@@ -837,6 +883,15 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>dbCommand</h4>
 <pre>private final&nbsp;<a href="../CCDD/CcddDbCommandHandler.html" title="class in CCDD">CcddDbCommandHandler</a> dbCommand</pre>
+</li>
+</ul>
+<a name="dbTableCommand">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>dbTableCommand</h4>
+<pre>private&nbsp;<a href="../CCDD/CcddDbTableCommandHandler.html" title="class in CCDD">CcddDbTableCommandHandler</a> dbTableCommand</pre>
 </li>
 </ul>
 <a name="eventLog">
@@ -995,7 +1050,7 @@ extends java.lang.Object</pre>
 <a name="TEMP_TABLE_NAME">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>TEMP_TABLE_NAME</h4>
 <pre>private static final&nbsp;java.lang.String TEMP_TABLE_NAME</pre>
@@ -1003,6 +1058,15 @@ extends java.lang.Object</pre>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../constant-values.html#CCDD.CcddDbControlHandler.TEMP_TABLE_NAME">Constant Field Values</a></dd>
 </dl>
+</li>
+</ul>
+<a name="addDefaultDataTypes">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>addDefaultDataTypes</h4>
+<pre>private&nbsp;boolean addDefaultDataTypes</pre>
 </li>
 </ul>
 </li>
@@ -1023,7 +1087,7 @@ extends java.lang.Object</pre>
 <div class="block">Database control handler class constructor</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>ccddMain</code> - main class</dd>
+<dd><code>ccddMain</code> - Main class</dd>
 </dl>
 </li>
 </ul>
@@ -1101,7 +1165,7 @@ extends java.lang.Object</pre>
  database name is truncated if necessary to the maximum length allowed by PostgreSQL</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>projectName</code> - project name</dd>
+<dd><code>projectName</code> - Project name</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The specified project name converted to its equivalent PostgreSQL database name</dd>
 </dl>
@@ -1131,7 +1195,7 @@ extends java.lang.Object</pre>
 <div class="block">Set the active project and database names based on the database name</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>databaseName</code> - database name</dd>
+<dd><code>databaseName</code> - Database name</dd>
 </dl>
 </li>
 </ul>
@@ -1159,7 +1223,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the project name for the specified database</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>databaseName</code> - database name</dd>
+<dd><code>databaseName</code> - Database name</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The project name for the specified database; the database name is used if the
          project name can't be retrieved</dd>
@@ -1176,7 +1240,7 @@ extends java.lang.Object</pre>
 <div class="block">Set the active project and database names based on the project name</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>projectName</code> - project name</dd>
+<dd><code>projectName</code> - Project name</dd>
 </dl>
 </li>
 </ul>
@@ -1274,7 +1338,7 @@ extends java.lang.Object</pre>
 <div class="block">Set the status of the flag that indicates if an SSL connection is enabled</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>enable</code> - true to enable an SSL connection</dd>
+<dd><code>enable</code> - True to enable an SSL connection</dd>
 </dl>
 </li>
 </ul>
@@ -1302,7 +1366,7 @@ extends java.lang.Object</pre>
 <div class="block">Set the database user</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>user</code> - database user</dd>
+<dd><code>user</code> - Database user</dd>
 </dl>
 </li>
 </ul>
@@ -1398,7 +1462,7 @@ extends java.lang.Object</pre>
 <div class="block">Set the user's database password</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>password</code> - user's database password</dd>
+<dd><code>password</code> - User's database password</dd>
 </dl>
 </li>
 </ul>
@@ -1412,7 +1476,7 @@ extends java.lang.Object</pre>
 <div class="block">Set the file path and name to automatically backup the database to on first connecting</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>backupFileName</code> - backup file path and name</dd>
+<dd><code>backupFileName</code> - Backup file path and name</dd>
 </dl>
 </li>
 </ul>
@@ -1427,7 +1491,7 @@ extends java.lang.Object</pre>
  it matches a PostgreSQL reserved word</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>name</code> - table or column name</dd>
+<dd><code>name</code> - Table or column name</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Supplied table or column name in lower case, bounded with double quotes if it
          matches a PostgreSQL reserved word (case insensitive)</dd>
@@ -1444,7 +1508,7 @@ extends java.lang.Object</pre>
 <div class="block">Check if the supplied table or column name is a PostgreSQL reserved word</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>name</code> - table or column name</dd>
+<dd><code>name</code> - Table or column name</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>true if the supplied name matches a reserved word (case insensitive)</dd>
 </dl>
@@ -1554,7 +1618,7 @@ extends java.lang.Object</pre>
 <div class="block">Retrieve the name of the specified database's owner</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>databaseName</code> - name of the database for which the owner is requested</dd>
+<dd><code>databaseName</code> - Name of the database for which the owner is requested</dd>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>String array containing the name of the specified database's owner</dd>
@@ -1591,11 +1655,27 @@ extends java.lang.Object</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
-<dd><code>userName</code> - user name</dd>
+<dd><code>userName</code> - User name</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Array containing the database names and descriptions for which the current user has
          access; empty list if there are no CCDD databases in the server accessible by the
          user</dd>
+</dl>
+</li>
+</ul>
+<a name="isDatabaseNameInUse-java.lang.String-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isDatabaseNameInUse</h4>
+<pre>protected&nbsp;boolean&nbsp;isDatabaseNameInUse(java.lang.String&nbsp;queryDatabaseName)</pre>
+<div class="block">Query the list of all databases and determine if one exists with the given name</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>queryDatabaseName</code> - The Database name to find</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>a database with that name exists or does not</dd>
 </dl>
 </li>
 </ul>
@@ -1609,7 +1689,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the server + database</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>databaseName</code> - database name</dd>
+<dd><code>databaseName</code> - Database name</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>server + database</dd>
 </dl>
@@ -1626,7 +1706,7 @@ extends java.lang.Object</pre>
  validation is bypassed.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>databaseName</code> - database name</dd>
+<dd><code>databaseName</code> - Database name</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Database URL</dd>
 </dl>
@@ -1642,7 +1722,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the array containing the database comment fields (without the CFS project identifier)</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>databaseName</code> - database name</dd>
+<dd><code>databaseName</code> - Database name</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Array containing the database comment in the format &lt;lock status (0 or
          1)&gt;,&lt;visible project database name (with capitalization and special characters
@@ -1661,8 +1741,8 @@ extends java.lang.Object</pre>
 <div class="block">Parse the supplied database comment string into an array of the comment's separate fields</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>databaseName</code> - database name</dd>
-<dd><code>comment</code> - database comment</dd>
+<dd><code>databaseName</code> - Database name</dd>
+<dd><code>comment</code> - Database comment</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Array containing the database comment in the format &lt;lock status (0 or
          1)&gt;,&lt;visible project database name (with capitalization and special characters
@@ -1680,7 +1760,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the database lock status</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>databaseName</code> - database name</dd>
+<dd><code>databaseName</code> - Database name</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>true if the database is locked, false if not locked, or null if the comment cannot
          be retrieved</dd>
@@ -1698,8 +1778,8 @@ extends java.lang.Object</pre>
 <div class="block">Set the database lock status. If the GUI is hidden the lock status is unchanged</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>projectName</code> - project name</dd>
-<dd><code>lockStatus</code> - true if the database is locked; false if unlocked</dd>
+<dd><code>projectName</code> - Project name</dd>
+<dd><code>lockStatus</code> - True if the database is locked; false if unlocked</dd>
 </dl>
 </li>
 </ul>
@@ -1713,7 +1793,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the project database administrator user name(s)</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>databaseName</code> - database name</dd>
+<dd><code>databaseName</code> - Database name</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The project database administrator user name(s), separated by a comma if more than
          one; null if no administrator name is present in the database comment</dd>
@@ -1731,8 +1811,8 @@ extends java.lang.Object</pre>
 <div class="block">Set the project database administrator user name(s)</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>admins</code> - string containing the names of the user(s) with administrative access, separated
-            by a comma</dd>
+<dd><code>admins</code> - String containing the names of the user(s) with administrative access,
+               separated by a comma</dd>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 </dl>
 </li>
@@ -1748,7 +1828,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the owner of the specified project</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>projectName</code> - project name</dd>
+<dd><code>projectName</code> - Project name</dd>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Project's owner; null if the project doen't exist</dd>
@@ -1768,9 +1848,9 @@ extends java.lang.Object</pre>
 <div class="block">Change the owner of the specified project</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>projectName</code> - project name</dd>
-<dd><code>currentOwner</code> - current owner of the database</dd>
-<dd><code>newOwner</code> - new owner of the database</dd>
+<dd><code>projectName</code> - Project name</dd>
+<dd><code>currentOwner</code> - Current owner of the database</dd>
+<dd><code>newOwner</code> - New owner of the database</dd>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 </dl>
 </li>
@@ -1785,30 +1865,31 @@ extends java.lang.Object</pre>
 <div class="block">Get the database description</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>databaseName</code> - database name</dd>
+<dd><code>databaseName</code> - Database name</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The database description; null if no description exists</dd>
 </dl>
 </li>
 </ul>
-<a name="buildDatabaseCommentCommand-java.lang.String-java.lang.String-boolean-java.lang.String-">
+<a name="buildDatabaseCommentCommandAndUpdateInternalTable-java.lang.String-java.lang.String-boolean-java.lang.String-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>buildDatabaseCommentCommand</h4>
-<pre>protected&nbsp;java.lang.String&nbsp;buildDatabaseCommentCommand(java.lang.String&nbsp;projectName,
-                                                       java.lang.String&nbsp;administrator,
-                                                       boolean&nbsp;lockStatus,
-                                                       java.lang.String&nbsp;description)</pre>
-<div class="block">Build the command to create the database comment. Delimit the text so that special
- characters (e.g., single quotes) can be placed in the description</div>
+<h4>buildDatabaseCommentCommandAndUpdateInternalTable</h4>
+<pre>protected&nbsp;java.lang.String&nbsp;buildDatabaseCommentCommandAndUpdateInternalTable(java.lang.String&nbsp;projectName,
+                                                                             java.lang.String&nbsp;administrator,
+                                                                             boolean&nbsp;lockStatus,
+                                                                             java.lang.String&nbsp;description)</pre>
+<div class="block">Build the command to create the database comment and updated the internal table _dub_info.
+ Delimit the text so that special characters (e.g., single quotes) can be placed in the
+ description</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>projectName</code> - project name (with case and special characters preserved)</dd>
-<dd><code>administrator</code> - name of the user(s) with administrative access to the project database</dd>
-<dd><code>lockStatus</code> - true if the database is locked; false if unlocked</dd>
-<dd><code>description</code> - database description</dd>
+<dd><code>projectName</code> - Project name (with case and special characters preserved)</dd>
+<dd><code>administrator</code> - Name of the user(s) with administrative access to the project database</dd>
+<dd><code>lockStatus</code> - True if the database is locked; false if unlocked</dd>
+<dd><code>description</code> - Database description</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Command to create the database comment</dd>
 </dl>
@@ -1827,7 +1908,7 @@ extends java.lang.Object</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>object</code> - DatabaseObjects (DATABASE, TABLE, or FUNCTION)</dd>
-<dd><code>objectName</code> - name of the database object to alter</dd>
+<dd><code>objectName</code> - Name of the database object to alter</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Command to change a database object's owner and grant access privileges to the
          current group</dd>
@@ -1847,9 +1928,9 @@ extends java.lang.Object</pre>
  specified database owner</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>ownerName</code> - name of the role or user that owns the database and its objects</dd>
+<dd><code>ownerName</code> - Name of the role or user that owns the database and its objects</dd>
 <dd><code>object</code> - DatabaseObjects (DATABASE, TABLE, or FUNCTION)</dd>
-<dd><code>objectName</code> - name of the database object to alter</dd>
+<dd><code>objectName</code> - Name of the database object to alter</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Command to change a database object's owner and grant access privileges to the
          specified group</dd>
@@ -1879,10 +1960,11 @@ extends java.lang.Object</pre>
 <div class="block">Create a project database</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>projectName</code> - name of the project to create, with case and special characters preserved</dd>
-<dd><code>ownerName</code> - name of the role or user that owns the database and its objects</dd>
-<dd><code>administrator</code> - project administrator name(s) (comma-separated)</dd>
-<dd><code>description</code> - database description</dd>
+<dd><code>projectName</code> - Name of the project to create, with case and special characters
+                      preserved</dd>
+<dd><code>ownerName</code> - Name of the role or user that owns the database and its objects</dd>
+<dd><code>administrator</code> - Project administrator name(s) (comma-separated)</dd>
+<dd><code>description</code> - Database description</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>true if the command completes successfully; false otherwise</dd>
 </dl>
@@ -1904,10 +1986,10 @@ extends java.lang.Object</pre>
  completes execution</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>projectName</code> - name of the project to create, with case preserved</dd>
-<dd><code>ownerName</code> - name of the role or user that owns the database and its objects</dd>
-<dd><code>administrator</code> - project administrator name(s) (comma-separated)</dd>
-<dd><code>description</code> - database description</dd>
+<dd><code>projectName</code> - Name of the project to create, with case preserved</dd>
+<dd><code>ownerName</code> - Name of the role or user that owns the database and its objects</dd>
+<dd><code>administrator</code> - Project administrator name(s) (comma-separated)</dd>
+<dd><code>description</code> - Database description</dd>
 </dl>
 </li>
 </ul>
@@ -1967,7 +2049,7 @@ extends java.lang.Object</pre>
  the input parameters match</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>functionName</code> - name of the function to delete</dd>
+<dd><code>functionName</code> - Name of the function to delete</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Command to delete the specified database function</dd>
 </dl>
@@ -1983,7 +2065,7 @@ extends java.lang.Object</pre>
 <div class="block">Build the command to create an internal table</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>intTable</code> - type of internal table to build</dd>
+<dd><code>intTable</code> - Type of internal table to build</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Command to build the specified internal table</dd>
 </dl>
@@ -2001,8 +2083,8 @@ extends java.lang.Object</pre>
  database</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>userName</code> - user name</dd>
-<dd><code>password</code> - user password</dd>
+<dd><code>userName</code> - User name</dd>
+<dd><code>password</code> - User password</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>true if the user is allowed access to the currently open database</dd>
 </dl>
@@ -2034,10 +2116,10 @@ extends java.lang.Object</pre>
 <div class="block">Connect to a database</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>projectName</code> - name of the project to open</dd>
-<dd><code>databaseName</code> - name of the database to open</dd>
-<dd><code>isReconnect</code> - true if this is an attempt to reconnect to the database following a failed
-            transaction</dd>
+<dd><code>projectName</code> - Name of the project to open</dd>
+<dd><code>databaseName</code> - Name of the database to open</dd>
+<dd><code>isReconnect</code> - True if this is an attempt to reconnect to the database following a
+                     failed transaction</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>true if the connection attempt failed</dd>
 </dl>
@@ -2067,7 +2149,7 @@ extends java.lang.Object</pre>
 <div class="block">Open a database. Create the database functions</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>projectName</code> - name of the project to open</dd>
+<dd><code>projectName</code> - Name of the project to open</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>true if an error occurred opening the database; false if the database successfully
          opened</dd>
@@ -2085,9 +2167,32 @@ extends java.lang.Object</pre>
 <div class="block">Open a database using the current host, port, and SSL settings</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>projectName</code> - name of the project to open</dd>
-<dd><code>createFunctions</code> - true to create the database functions; false if reopening a database (so the
-            functions already exist)</dd>
+<dd><code>projectName</code> - Name of the project to open</dd>
+<dd><code>createFunctions</code> - True to create the database functions; false if reopening a
+                            database (so the functions already exist)</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>true if an error occurred opening the database; false if the database successfully
+         opened</dd>
+</dl>
+</li>
+</ul>
+<a name="openDatabase-java.lang.String-boolean-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>openDatabase</h4>
+<pre>protected&nbsp;boolean&nbsp;openDatabase(java.lang.String&nbsp;projectName,
+                               boolean&nbsp;createFunctions,
+                               boolean&nbsp;addDefaultDataTypes)</pre>
+<div class="block">Open a database using the current host, port, and SSL settings</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>projectName</code> - Name of the project to open</dd>
+<dd><code>createFunctions</code> - True to create the database functions; false if reopening a
+                            database (so the functions already exist)</dd>
+<dd><code>addDefaultDataTypes</code> - Should the default data type be added to the database? This is
+                            normally false only when restoring a database from JSON or CSV</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>true if an error occurred opening the database; false if the database successfully
          opened</dd>
@@ -2108,12 +2213,12 @@ extends java.lang.Object</pre>
 <div class="block">Open a database using the project name, host, port, and SSL settings provided</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>projectName</code> - name of the project to open</dd>
+<dd><code>projectName</code> - Name of the project to open</dd>
 <dd><code>serverHost</code> - PostgreSQL server host</dd>
 <dd><code>serverPort</code> - PostgreSQL server port</dd>
-<dd><code>isSSL</code> - true if an SSL connection is enabled</dd>
-<dd><code>createFunctions</code> - true to create the database functions; false if reopening a database (so the
-            functions already exist)</dd>
+<dd><code>isSSL</code> - True if an SSL connection is enabled</dd>
+<dd><code>createFunctions</code> - True to create the database functions; false if reopening a database
+                        (so the functions already exist)</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>true if an error occurred opening the database; false if the database successfully
          opened</dd>
@@ -2133,7 +2238,7 @@ extends java.lang.Object</pre>
  however, are disabled until the database command completes execution</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>projectName</code> - name of the project to open</dd>
+<dd><code>projectName</code> - Name of the project to open</dd>
 </dl>
 </li>
 </ul>
@@ -2153,10 +2258,28 @@ extends java.lang.Object</pre>
  are disabled until the database command completes execution</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>projectName</code> - name of the project to open</dd>
+<dd><code>projectName</code> - Name of the project to open</dd>
 <dd><code>serverHost</code> - PostgreSQL server host</dd>
 <dd><code>serverPort</code> - PostgreSQL server port</dd>
-<dd><code>isSSL</code> - true if an SSL connection is enabled</dd>
+<dd><code>isSSL</code> - True if an SSL connection is enabled</dd>
+</dl>
+</li>
+</ul>
+<a name="renameDatabase-java.lang.String-java.lang.String-java.lang.String-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>renameDatabase</h4>
+<pre>protected&nbsp;void&nbsp;renameDatabase(java.lang.String&nbsp;oldProject,
+                              java.lang.String&nbsp;newProject,
+                              java.lang.String&nbsp;description)</pre>
+<div class="block">Rename a project and/or add/update the database description.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>oldProject</code> - Current name of the project</dd>
+<dd><code>newProject</code> - New name of the project</dd>
+<dd><code>description</code> - Database description</dd>
 </dl>
 </li>
 </ul>
@@ -2175,9 +2298,9 @@ extends java.lang.Object</pre>
  are disabled until the database command completes execution</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>oldProject</code> - current name of the project</dd>
-<dd><code>newProject</code> - new name of the project</dd>
-<dd><code>description</code> - database description</dd>
+<dd><code>oldProject</code> - Current name of the project</dd>
+<dd><code>newProject</code> - New name of the project</dd>
+<dd><code>description</code> - Database description</dd>
 </dl>
 </li>
 </ul>
@@ -2196,9 +2319,9 @@ extends java.lang.Object</pre>
  completes execution</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>targetProject</code> - name of the project to copy</dd>
-<dd><code>copyProject</code> - name of the project copy</dd>
-<dd><code>description</code> - database description</dd>
+<dd><code>targetProject</code> - Name of the project to copy</dd>
+<dd><code>copyProject</code> - Name of the project copy</dd>
+<dd><code>description</code> - Database description</dd>
 </dl>
 </li>
 </ul>
@@ -2212,7 +2335,7 @@ extends java.lang.Object</pre>
 <div class="block">Delete the database</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>projectName</code> - name of the project to delete</dd>
+<dd><code>projectName</code> - Name of the project to delete</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>false if the specified database is successfully deleted</dd>
 </dl>
@@ -2231,7 +2354,7 @@ extends java.lang.Object</pre>
  completes execution</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>projectName</code> - name of the project to delete</dd>
+<dd><code>projectName</code> - Name of the project to delete</dd>
 </dl>
 </li>
 </ul>
@@ -2279,8 +2402,53 @@ extends java.lang.Object</pre>
  completes execution</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>projectName</code> - project name</dd>
-<dd><code>backupFile</code> - file to which to backup the database</dd>
+<dd><code>projectName</code> - Project name</dd>
+<dd><code>backupFile</code> - File to which to backup the database</dd>
+</dl>
+</li>
+</ul>
+<a name="backupAndRenameDatabase-java.lang.String-java.lang.String-CCDD.CcddClassesComponent.FileEnvVar-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>backupAndRenameDatabase</h4>
+<pre>protected&nbsp;void&nbsp;backupAndRenameDatabase(java.lang.String&nbsp;projectName,
+                                       java.lang.String&nbsp;newProjectName,
+                                       <a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;backupFile)</pre>
+<div class="block">Rename a project database, back it up and revert the rename. This can be used during a
+ backup operation to change the name of the backed up database to match the backup file name
+ (for instance).
+
+ This will perform the following sequence of operations: 1: Rename an existing database to
+ the new name 2: Backup the newly renamed database (database name and backup file name will
+ match now) 3: Rename the database to its original name</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>projectName</code> - Current project name</dd>
+<dd><code>newProjectName</code> - New project name</dd>
+<dd><code>backupFile</code> - File to which to backup the database</dd>
+</dl>
+</li>
+</ul>
+<a name="backupAndRenameDatabaseInBackground-java.lang.String-java.lang.String-CCDD.CcddClassesComponent.FileEnvVar-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>backupAndRenameDatabaseInBackground</h4>
+<pre>protected&nbsp;void&nbsp;backupAndRenameDatabaseInBackground(java.lang.String&nbsp;projectName,
+                                                   java.lang.String&nbsp;newProjectName,
+                                                   <a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;backupFile)</pre>
+<div class="block">Backup a project database. This command is executed in a separate thread since it can take a
+ noticeable amount time to complete, and by using a separate thread the GUI is allowed to
+ continue to update. The GUI menu commands, however, are disabled until the database command
+ completes execution</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>projectName</code> - Current project name</dd>
+<dd><code>newProjectName</code> - New project name</dd>
+<dd><code>backupFile</code> - File to which to backup the database</dd>
 </dl>
 </li>
 </ul>
@@ -2295,8 +2463,8 @@ extends java.lang.Object</pre>
 <div class="block">Backup a project database</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>projectName</code> - project name</dd>
-<dd><code>backupFile</code> - file to which to backup the database</dd>
+<dd><code>projectName</code> - Project name</dd>
+<dd><code>backupFile</code> - File to which to backup the database</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>true if an the database could not be backed up</dd>
 </dl>
@@ -2320,13 +2488,14 @@ extends java.lang.Object</pre>
  completes execution</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>projectName</code> - name of the project to restore (preserving case and special characters)</dd>
-<dd><code>ownerName</code> - name of the role or user that owns the database and its objects</dd>
-<dd><code>administrator</code> - project administrator name(s) (comma-separated)</dd>
-<dd><code>description</code> - project description</dd>
-<dd><code>restoreFile</code> - file to restore the database from</dd>
-<dd><code>overwriteExisting</code> - true to overwrite the existing project database; false to create a new database
-            ion which to restore the backup file contents</dd>
+<dd><code>projectName</code> - Name of the project to restore (preserving case and special
+                          characters)</dd>
+<dd><code>ownerName</code> - Name of the role or user that owns the database and its objects</dd>
+<dd><code>administrator</code> - Project administrator name(s) (comma-separated)</dd>
+<dd><code>description</code> - Project description</dd>
+<dd><code>restoreFile</code> - File to restore the database from</dd>
+<dd><code>overwriteExisting</code> - True to overwrite the existing project database; false to create a
+                          new database ion which to restore the backup file contents</dd>
 </dl>
 </li>
 </ul>
@@ -2345,13 +2514,14 @@ extends java.lang.Object</pre>
 <div class="block">Restore a database</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>projectName</code> - name of the project to restore (preserving case and special characters)</dd>
-<dd><code>ownerName</code> - name of the role or user that owns the database and its objects</dd>
-<dd><code>administrator</code> - project administrator name(s) (comma-separated)</dd>
-<dd><code>description</code> - project description</dd>
-<dd><code>restoreFile</code> - file to restore the database from</dd>
-<dd><code>overwriteExisting</code> - true to overwrite the existing project database; false to create a new database
-            ion which to restore the backup file contents</dd>
+<dd><code>projectName</code> - Name of the project to restore (preserving case and special
+                          characters)</dd>
+<dd><code>ownerName</code> - Name of the role or user that owns the database and its objects</dd>
+<dd><code>administrator</code> - Project administrator name(s) (comma-separated)</dd>
+<dd><code>description</code> - Project description</dd>
+<dd><code>restoreFile</code> - File to restore the database from</dd>
+<dd><code>overwriteExisting</code> - True to overwrite the existing project database; false to create a
+                          new database ion which to restore the backup file contents</dd>
 </dl>
 </li>
 </ul>
@@ -2366,8 +2536,8 @@ extends java.lang.Object</pre>
 <div class="block">Execute an operating system command</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>command</code> - command to process</dd>
-<dd><code>numArgs</code> - number of arguments in the command</dd>
+<dd><code>command</code> - Command to process</dd>
+<dd><code>numArgs</code> - Number of arguments in the command</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Error message text if an error occurs; empty string is the command completed
          successfully</dd>

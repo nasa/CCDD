@@ -361,8 +361,7 @@ public class CcddSchedulerEditorHandler
                             for (int checkRow = 0; checkRow < tableData.size(); checkRow++)
                             {
                                 // Step through each column containing an ID
-                                for (int checkCol = SchedulerColumn.ID.ordinal(); checkCol < tableData
-                                        .get(checkRow).length; checkCol++)
+                                for (int checkCol = SchedulerColumn.ID.ordinal(); checkCol < tableData.get(checkRow).length; checkCol++)
                                 {
                                     // Check if this isn't the same row and column as the one being
                                     // updated, and that the new ID matches that in another ID cell
@@ -1219,8 +1218,7 @@ public class CcddSchedulerEditorHandler
                 if (numSubMessages > 1 && subIndex < numSubMessages)
                 {
                     // Add the sub-message ID
-                    currentData[msgIndex][SchedulerColumn.ID.ordinal() + subIndex + 1] = messages.get(msgIndex)
-                            .getSubMessage(subIndex).getID();
+                    currentData[msgIndex][SchedulerColumn.ID.ordinal() + subIndex + 1] = messages.get(msgIndex).getSubMessage(subIndex).getID();
                 }
                 // This message has only the default sub-message or doesn't have this sub-message
                 // index

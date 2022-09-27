@@ -1640,8 +1640,8 @@ public class CcddDbControlHandler
                    .append("SELECT CASE WHEN EXISTS(SELECT 1 FROM pg_catalog.pg_language WHERE lanname = 'plpgsql') ")
                    .append("THEN NULL ELSE make_plpgsql() END; ")
                    .append(buildOwnerCommand(DatabaseObject.FUNCTION, "make_plpgsql()"))
-
                    .append("DROP FUNCTION make_plpgsql();");
+
             // Send command to create the procedural language in the database if it does not
             // already exists
             dbCommand.executeDbCommand(command, ccddMain.getMainFrame());
@@ -1969,7 +1969,8 @@ public class CcddDbControlHandler
                         // Get the rate column name (in its database form, quoted if needed to
                         // avoid a conflict with a PostgreSQL reserved word, and not quoted)
                         String rateColNameQuoted = ccddMain.getTableTypeHandler()
-                                .convertVisibleToDatabase(rateInfo.getRateName(), DefaultInputType.RATE.getInputName(),
+                                                           .convertVisibleToDatabase(rateInfo.getRateName(),
+                                                                                     DefaultInputType.RATE.getInputName(),
                                                           true);
                         String rateColName = rateColNameQuoted.replaceAll("\"", "");
 
@@ -2702,14 +2703,13 @@ public class CcddDbControlHandler
                     catch (Exception e)
                     {
                         // Inform the user that there the program preferences can't be stored
-                        new CcddDialogHandler()
-                                .showMessageDialog(ccddMain.getMainFrame(),
-                                                   "<html><b>Cannot store program preference values; cause '</b>"
-                                                   + e.getMessage()
-                                                   + "<b>'",
-                                                   "File Warning",
-                                                   JOptionPane.WARNING_MESSAGE,
-                                                   DialogOption.OK_OPTION);
+                        new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                                  "<html><b>Cannot store program preference values; cause '</b>"
+                                                                  + e.getMessage()
+                                                                  + "<b>'",
+                                                                  "File Warning",
+                                                                  JOptionPane.WARNING_MESSAGE,
+                                                                  DialogOption.OK_OPTION);
                     }
 
                     // Check if an automatic backup was scheduled via the command line argument
@@ -3122,14 +3122,13 @@ public class CcddDbControlHandler
     protected void deleteDatabaseInBackground(final String projectName)
     {
         // Have the user confirm deleting the selected project's database
-        if (new CcddDialogHandler()
-                .showMessageDialog(ccddMain.getMainFrame(),
-                                   "<html><b>Delete project </b>"
-                                   + projectName
-                                   + "<b>?<br><i>Warning: This action cannot be undone!",
-                                   "Delete Project",
-                                   JOptionPane.QUESTION_MESSAGE,
-                                   DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
+        if (new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                      "<html><b>Delete project </b>"
+                                                      + projectName
+                                                      + "<b>?<br><i>Warning: This action cannot be undone!",
+                                                      "Delete Project",
+                                                      JOptionPane.QUESTION_MESSAGE,
+                                                      DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
         {
             // Execute the command in the background
             CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()

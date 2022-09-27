@@ -960,8 +960,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                         && baseContainer.getRestrictionCriteria().getComparisonList() != null)
                     {
                         // Step through each item in the comparison list
-                        for (ComparisonType comparison : baseContainer.getRestrictionCriteria().getComparisonList()
-                                .getComparison())
+                        for (ComparisonType comparison : baseContainer.getRestrictionCriteria().getComparisonList().getComparison())
                         {
                             // Check if the comparison item's parameter reference matches the
                             // application ID name
@@ -1176,8 +1175,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                     if (baseMetaCmd != null && baseMetaCmd.getArgumentAssignmentList() != null)
                     {
                         // Step through each argument assignment
-                        for (ArgumentAssignment argAssn : baseMetaCmd.getArgumentAssignmentList()
-                                .getArgumentAssignment())
+                        for (ArgumentAssignment argAssn : baseMetaCmd.getArgumentAssignmentList().getArgumentAssignment())
                         {
                             // Check if the name and value exist
                             if (argAssn.getArgumentName() != null && argAssn.getArgumentValue() != null)
@@ -1231,7 +1229,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                 // Check if the argument name matches the command argument
                                 // structure column input type name
                                 else if (argAssn.getArgumentName()
-                                        .equals(DefaultInputType.COMMAND_ARGUMENT.getInputName()))
+                                                .equals(DefaultInputType.COMMAND_ARGUMENT.getInputName()))
                                 {
                                     // Store the command argument
                                     cmdRowData[cmdArgumentIndex] = argAssn.getArgumentValue();
@@ -1254,7 +1252,8 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                         // Get the reference to the sequence container's entry list to shorten
                         // subsequent calls
                         List<JAXBElement<? extends SequenceEntryType>> sequenceEntries = metaCmd.getCommandContainer()
-                                .getEntryList().getParameterRefEntryOrParameterSegmentRefEntryOrContainerRefEntry();
+                                                                                                .getEntryList()
+                                                                                                .getParameterRefEntryOrParameterSegmentRefEntryOrContainerRefEntry();
 
                         // Step through each entry in the sequence container
                         for (int seqIndex = 0; seqIndex < sequenceEntries.size(); seqIndex++)
@@ -2550,6 +2549,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
             author.getAuthor().add(dbControl.getUser());
             rootSystem.getHeader().setAuthorSet(author);
             NoteSet note = factory.createHeaderTypeNoteSet();
+            note.getNote().add("Created: " + new Date().toString());
             note.getNote().add("CCDD Version: " + ccddMain.getCCDDVersionInformation());
             note.getNote().add("Date: " + new Date().toString());
             note.getNote().add("Project: " + dbControl.getProjectName());
@@ -4328,7 +4328,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                                         {
                                             // Get the reference to the argument type set
                                             ArgumentTypeSetType argument = spaceSystem.getCommandMetaData()
-                                                    .getArgumentTypeSet();
+                                                                                      .getArgumentTypeSet();
 
                                             // Check if the argument type set doesn't exist
                                             if (argument == null)
@@ -4799,10 +4799,10 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                     }
 
                     // Set the bit order
-                    intEncodingType
-                            .setBitOrder(endianess == EndianType.BIG_ENDIAN || (isHeaderBigEndian && cmdHeaderTable
-                                    .equals(spaceSystem.getName())) ? "mostSignificantBitFirst"
-                                                                    : "leastSignificantBitFirst");
+                    intEncodingType.setBitOrder(endianess == EndianType.BIG_ENDIAN
+                                                || (isHeaderBigEndian
+                                                    && cmdHeaderTable.equals(spaceSystem.getName())) ? "mostSignificantBitFirst"
+                                                                                                     : "leastSignificantBitFirst");
 
                     enumType.setIntegerDataEncoding(intEncodingType);
                     commandDescription = enumType;

@@ -17,7 +17,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":10,"i35":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -299,14 +299,6 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#minimumIndex">minimumIndex</a></span></code>&nbsp;</td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>private int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#numCommandColumns">numCommandColumns</a></span></code>&nbsp;</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>private int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#numStructureColumns">numStructureColumns</a></span></code>&nbsp;</td>
-</tr>
-<tr class="altColor">
 <td class="colFirst"><code>private java.awt.Component</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#parent">parent</a></span></code>&nbsp;</td>
 </tr>
@@ -533,13 +525,13 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>private void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#buildSpaceSystems-java.lang.String:A-">buildSpaceSystems</a></span>(java.lang.String[]&nbsp;tableNames)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#buildSpaceSystems-java.util.List-">buildSpaceSystems</a></span>(java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.TableInfo.html" title="class in CCDD">CcddClassesDataTable.TableInfo</a>&gt;&nbsp;tableDefs)</code>
 <div class="block">Build the space systems</div>
 </td>
 </tr>
 <tr id="i10" class="altColor">
 <td class="colFirst"><code>private void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#convertTablesToXTCE-java.lang.String:A-boolean-CCDD.CcddConstants.EndianType-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-">convertTablesToXTCE</a></span>(java.lang.String[]&nbsp;tableNames,
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#convertTablesToXTCE-java.util.List-boolean-CCDD.CcddConstants.EndianType-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-">convertTablesToXTCE</a></span>(java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.TableInfo.html" title="class in CCDD">CcddClassesDataTable.TableInfo</a>&gt;&nbsp;tableDefs,
                    boolean&nbsp;includeBuildInformation,
                    <a href="../CCDD/CcddConstants.EndianType.html" title="enum in CCDD">CcddConstants.EndianType</a>&nbsp;endianess,
                    boolean&nbsp;isHeaderBigEndian,
@@ -565,54 +557,67 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 </td>
 </tr>
 <tr id="i13" class="rowColor">
-<td class="colFirst"><code>private void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#createTableTypeDefinitions-org.omg.space.xtce.SpaceSystemType-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-CCDD.CcddTableTypeHandler.TypeDefinition-">createTableTypeDefinitions</a></span>(org.omg.space.xtce.SpaceSystemType&nbsp;rootSystem,
-                          <a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
-                          <a href="../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
-                          <a href="../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&nbsp;targetTypeDefn)</code>
-<div class="block">Scan the import file in order to determine if any structure or command tables exist.</div>
-</td>
-</tr>
-<tr id="i14" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#createTelemetryMetadata-org.omg.space.xtce.SpaceSystemType-">createTelemetryMetadata</a></span>(org.omg.space.xtce.SpaceSystemType&nbsp;spaceSystem)</code>
 <div class="block">Create the space system telemetry metadata</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>protected org.omg.space.xtce.BaseDataType.UnitSet</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#createUnitSet-java.lang.String-">createUnitSet</a></span>(java.lang.String&nbsp;units)</code>
 <div class="block">Build a unit set from the supplied units string</div>
 </td>
 </tr>
+<tr id="i15" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#exportInternalCCDDData-boolean:A-CCDD.CcddConstants.exportDataTypes:A-CCDD.CcddClassesComponent.FileEnvVar-java.lang.String-">exportInternalCCDDData</a></span>(boolean[]&nbsp;includes,
+                      <a href="../CCDD/CcddConstants.exportDataTypes.html" title="enum in CCDD">CcddConstants.exportDataTypes</a>[]&nbsp;dataTypes,
+                      <a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;exportFile,
+                      java.lang.String&nbsp;outputType)</code>
+<div class="block">Export script association data, group data, macro data, telemetry scheduler data or
+ application scheduler data to the specified folder</div>
+</td>
+</tr>
 <tr id="i16" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#exportToFile-CCDD.CcddClassesComponent.FileEnvVar-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-java.lang.Object...-">exportToFile</a></span>(<a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;exportFile,
-            java.lang.String[]&nbsp;tableNames,
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#exportTableInfoDefinitions-CCDD.CcddClassesComponent.FileEnvVar-boolean-boolean-boolean-java.lang.String-boolean-boolean-">exportTableInfoDefinitions</a></span>(<a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;exportFile,
+                          boolean&nbsp;includeTableTypes,
+                          boolean&nbsp;includeInputTypes,
+                          boolean&nbsp;includeDataTypes,
+                          java.lang.String&nbsp;outputType,
+                          boolean&nbsp;addEOFMarker,
+                          boolean&nbsp;addSOFMarker)</code>
+<div class="block">Export table type definitions to the specified folder</div>
+</td>
+</tr>
+<tr id="i17" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#exportTables-CCDD.CcddClassesComponent.FileEnvVar-java.util.List-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-boolean-java.lang.String-java.lang.Object...-">exportTables</a></span>(<a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;exportFile,
+            java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.TableInfo.html" title="class in CCDD">CcddClassesDataTable.TableInfo</a>&gt;&nbsp;tableDefs,
             boolean&nbsp;includeBuildInformation,
             boolean&nbsp;replaceMacros,
-            boolean&nbsp;includeAllTableTypes,
-            boolean&nbsp;includeAllDataTypes,
-            boolean&nbsp;includeAllInputTypes,
-            boolean&nbsp;includeAllMacros,
-            boolean&nbsp;includeReservedMsgIDs,
-            boolean&nbsp;includeProjectFields,
-            boolean&nbsp;includeGroups,
-            boolean&nbsp;includeAssociations,
             boolean&nbsp;includeVariablePaths,
             <a href="../CCDD/CcddVariableHandler.html" title="class in CCDD">CcddVariableHandler</a>&nbsp;variableHandler,
             java.lang.String[]&nbsp;separators,
+            boolean&nbsp;addEOFMarker,
+            java.lang.String&nbsp;outputType,
             java.lang.Object...&nbsp;extraInfo)</code>
 <div class="block">Export the specified tables in XTCE XML format to the specified file</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i18" class="altColor">
+<td class="colFirst"><code>java.util.List&lt;java.lang.String[]&gt;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#getAppSchedulerData--">getAppSchedulerData</a></span>()</code>
+<div class="block">Get the list of original and new application scheduler data</div>
+</td>
+</tr>
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>java.util.List&lt;java.lang.String[]&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#getScriptAssociations--">getScriptAssociations</a></span>()</code>
 <div class="block">Get the list of original and new script associations.</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>private org.omg.space.xtce.SpaceSystemType</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#getSpaceSystemByName-java.lang.String-org.omg.space.xtce.SpaceSystemType-">getSpaceSystemByName</a></span>(java.lang.String&nbsp;systemName,
                     org.omg.space.xtce.SpaceSystemType&nbsp;startingSystem)</code>
@@ -620,13 +625,19 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
  space system</div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.TableDefinition.html" title="class in CCDD">CcddClassesDataTable.TableDefinition</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#getTableDefinitions--">getTableDefinitions</a></span>()</code>
 <div class="block">Get the imported table definitions</div>
 </td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i22" class="altColor">
+<td class="colFirst"><code>java.util.List&lt;java.lang.String[]&gt;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#getTlmSchedulerData--">getTlmSchedulerData</a></span>()</code>
+<div class="block">Get the list of original and new telemetry scheduler data</div>
+</td>
+</tr>
+<tr id="i23" class="rowColor">
 <td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#importCommandTable-org.omg.space.xtce.SpaceSystemType-org.omg.space.xtce.CommandMetaDataType-java.lang.String-java.lang.String-boolean-">importCommandTable</a></span>(org.omg.space.xtce.SpaceSystemType&nbsp;system,
                   org.omg.space.xtce.CommandMetaDataType&nbsp;cmdMetaData,
@@ -636,18 +647,38 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <div class="block">Build a command table from the specified command metadata</div>
 </td>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i24" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#importFromFile-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-CCDD.CcddTableTypeHandler.TypeDefinition-boolean-boolean-boolean-">importFromFile</a></span>(<a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#importFromFile-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-CCDD.CcddTableTypeHandler.TypeDefinition-boolean-boolean-boolean-boolean-">importFromFile</a></span>(<a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
               <a href="../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
               <a href="../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&nbsp;targetTypeDefn,
               boolean&nbsp;ignoreErrors,
               boolean&nbsp;replaceExistingMacros,
-              boolean&nbsp;replaceExistingGroups)</code>
-<div class="block">Import the the table definitions from an XTCE XML formatted file</div>
+              boolean&nbsp;replaceExistingGroups,
+              boolean&nbsp;replaceExistingTables)</code>
+<div class="block">Build the information from the table definition(s) in the current file</div>
 </td>
 </tr>
-<tr id="i22" class="altColor">
+<tr id="i25" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#importInputTypes-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-boolean-boolean-boolean-">importInputTypes</a></span>(<a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
+                <a href="../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
+                boolean&nbsp;ignoreErrors,
+                boolean&nbsp;replaceExistingDataTypes,
+                boolean&nbsp;importingEntireDatabase)</code>
+<div class="block">Build the information from the input and data type definition(s) in the current file</div>
+</td>
+</tr>
+<tr id="i26" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#importInternalTables-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-boolean-boolean-">importInternalTables</a></span>(<a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
+                    <a href="../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
+                    boolean&nbsp;ignoreErrors,
+                    boolean&nbsp;replaceExistingAssociations)</code>
+<div class="block">Build the information from the internal table in the current file</div>
+</td>
+</tr>
+<tr id="i27" class="rowColor">
 <td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#importStructureTable-org.omg.space.xtce.SpaceSystemType-org.omg.space.xtce.TelemetryMetaDataType-java.lang.String-java.lang.String-">importStructureTable</a></span>(org.omg.space.xtce.SpaceSystemType&nbsp;system,
                     org.omg.space.xtce.TelemetryMetaDataType&nbsp;tlmMetaData,
@@ -656,7 +687,19 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <div class="block">Build a structure table from the specified telemetry metadata</div>
 </td>
 </tr>
-<tr id="i23" class="rowColor">
+<tr id="i28" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#importTableInfo-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-boolean-boolean-boolean-boolean-">importTableInfo</a></span>(<a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
+               <a href="../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
+               boolean&nbsp;ignoreErrors,
+               boolean&nbsp;replaceExistingMacros,
+               boolean&nbsp;replaceExistingTables,
+               boolean&nbsp;importingEntireDatabase)</code>
+<div class="block">Import the input types, table types, table type data fields and data types from the given
+ file</div>
+</td>
+</tr>
+<tr id="i29" class="rowColor">
 <td class="colFirst"><code>private <a href="../CCDD/CcddXTCEHandler.ParameterInformation.html" title="class in CCDD">CcddXTCEHandler.ParameterInformation</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#processArgumentReference-org.omg.space.xtce.MetaCommandType.ArgumentList.Argument-java.util.List-org.omg.space.xtce.SequenceEntryType-int-">processArgumentReference</a></span>(org.omg.space.xtce.MetaCommandType.ArgumentList.Argument&nbsp;argument,
                         java.util.List&lt;org.omg.space.xtce.NameDescriptionType&gt;&nbsp;argTypeSet,
@@ -666,7 +709,7 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
  array parameter reference to extract the parameter attributes</div>
 </td>
 </tr>
-<tr id="i24" class="altColor">
+<tr id="i30" class="altColor">
 <td class="colFirst"><code>private <a href="../CCDD/CcddXTCEHandler.ParameterInformation.html" title="class in CCDD">CcddXTCEHandler.ParameterInformation</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#processContainerReference-org.omg.space.xtce.SpaceSystemType-java.util.List-java.util.List-org.omg.space.xtce.SequenceEntryType-int-">processContainerReference</a></span>(org.omg.space.xtce.SpaceSystemType&nbsp;system,
                          java.util.List&lt;org.omg.space.xtce.SequenceEntryType&gt;&nbsp;tlmSequenceEntries,
@@ -677,7 +720,7 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
  reference to extract the parameter name, data type, array size, and description</div>
 </td>
 </tr>
-<tr id="i25" class="rowColor">
+<tr id="i31" class="rowColor">
 <td class="colFirst"><code>private <a href="../CCDD/CcddXTCEHandler.ParameterInformation.html" title="class in CCDD">CcddXTCEHandler.ParameterInformation</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#processParameterReference-org.omg.space.xtce.ParameterSetType.Parameter-java.util.List-org.omg.space.xtce.SequenceEntryType-int-">processParameterReference</a></span>(org.omg.space.xtce.ParameterSetType.Parameter&nbsp;parameter,
                          java.util.List&lt;org.omg.space.xtce.NameDescriptionType&gt;&nbsp;parmTypeSet,
@@ -687,7 +730,7 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
  array parameter reference to extract the parameter attributes</div>
 </td>
 </tr>
-<tr id="i26" class="altColor">
+<tr id="i32" class="altColor">
 <td class="colFirst"><code>private org.omg.space.xtce.SpaceSystemType</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#searchSpaceSystemsForName-java.lang.String-org.omg.space.xtce.SpaceSystemType-org.omg.space.xtce.SpaceSystemType-">searchSpaceSystemsForName</a></span>(java.lang.String&nbsp;systemName,
                          org.omg.space.xtce.SpaceSystemType&nbsp;spaceSystem,
@@ -696,7 +739,7 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
  the search name</div>
 </td>
 </tr>
-<tr id="i27" class="rowColor">
+<tr id="i33" class="rowColor">
 <td class="colFirst"><code>protected org.omg.space.xtce.NameDescriptionType</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#setArgumentDataType-org.omg.space.xtce.SpaceSystemType-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-int-java.lang.String-">setArgumentDataType</a></span>(org.omg.space.xtce.SpaceSystemType&nbsp;spaceSystem,
                    java.lang.String&nbsp;argumentName,
@@ -713,7 +756,7 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <div class="block">Set the command argument data type and set the specified attributes</div>
 </td>
 </tr>
-<tr id="i28" class="altColor">
+<tr id="i34" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#setParameterDataType-org.omg.space.xtce.SpaceSystemType-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-int-">setParameterDataType</a></span>(org.omg.space.xtce.SpaceSystemType&nbsp;spaceSystem,
                     java.lang.String&nbsp;parameterName,
@@ -729,7 +772,7 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <div class="block">Create the telemetry parameter data type and set the specified attributes</div>
 </td>
 </tr>
-<tr id="i29" class="rowColor">
+<tr id="i35" class="rowColor">
 <td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#unbuildSpaceSystems-org.omg.space.xtce.SpaceSystemType-java.lang.String-CCDD.CcddImportExportInterface.ImportType-boolean-">unbuildSpaceSystems</a></span>(org.omg.space.xtce.SpaceSystemType&nbsp;system,
                    java.lang.String&nbsp;systemPath,
@@ -744,7 +787,7 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;CCDD.<a href="../CCDD/CcddImportSupportHandler.html" title="class in CCDD">CcddImportSupportHandler</a></h3>
-<code><a href="../CCDD/CcddImportSupportHandler.html#addImportedDataFieldDefinition-boolean-java.lang.Object-java.lang.String:A-java.lang.String-CCDD.CcddInputTypeHandler-CCDD.CcddFieldHandler-java.awt.Component-">addImportedDataFieldDefinition</a>, <a href="../CCDD/CcddImportSupportHandler.html#addImportedGroupDefinition-java.lang.String:A-java.lang.String-boolean-CCDD.CcddGroupHandler-">addImportedGroupDefinition</a>, <a href="../CCDD/CcddImportSupportHandler.html#addImportedScriptAssociation-boolean-java.util.List-java.lang.String:A-java.lang.String-CCDD.CcddScriptHandler-java.awt.Component-">addImportedScriptAssociation</a>, <a href="../CCDD/CcddImportSupportHandler.html#addImportedTableTypeColumnDefinition-boolean-CCDD.CcddClassesDataTable.TableTypeDefinition-java.lang.String:A-java.lang.String-CCDD.CcddInputTypeHandler-java.awt.Component-">addImportedTableTypeColumnDefinition</a>, <a href="../CCDD/CcddImportSupportHandler.html#buildProjectAndGroupDataFields-CCDD.CcddFieldHandler-java.util.List-">buildProjectAndGroupDataFields</a>, <a href="../CCDD/CcddImportSupportHandler.html#checkDataTypeDefinition-java.lang.String:A-">checkDataTypeDefinition</a>, <a href="../CCDD/CcddImportSupportHandler.html#checkInputTypeDefinition-java.lang.String:A-">checkInputTypeDefinition</a>, <a href="../CCDD/CcddImportSupportHandler.html#checkMacroDefinition-java.lang.String:A-">checkMacroDefinition</a>, <a href="../CCDD/CcddImportSupportHandler.html#cleanSystemPath-java.lang.String-">cleanSystemPath</a>, <a href="../CCDD/CcddImportSupportHandler.html#getBaseDataType-java.lang.String-CCDD.CcddDataTypeHandler-">getBaseDataType</a>, <a href="../CCDD/CcddImportSupportHandler.html#getErrorResponse-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-boolean-java.awt.Component-">getErrorResponse</a>, <a href="../CCDD/CcddImportSupportHandler.html#getErrorResponse-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.awt.Component-">getErrorResponse</a>, <a href="../CCDD/CcddImportSupportHandler.html#getMatchingDataType-long-boolean-boolean-boolean-boolean-CCDD.CcddDataTypeHandler-">getMatchingDataType</a>, <a href="../CCDD/CcddImportSupportHandler.html#setProjectHeaderTablesAndVariables-CCDD.CcddFieldHandler-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-">setProjectHeaderTablesAndVariables</a></code></li>
+<code><a href="../CCDD/CcddImportSupportHandler.html#addImportedDataFieldDefinition-boolean-boolean-java.lang.Object-java.lang.String:A-java.lang.String-CCDD.CcddInputTypeHandler-CCDD.CcddFieldHandler-java.awt.Component-">addImportedDataFieldDefinition</a>, <a href="../CCDD/CcddImportSupportHandler.html#addImportedGroupDefinition-java.lang.String:A-java.lang.String-boolean-CCDD.CcddGroupHandler-">addImportedGroupDefinition</a>, <a href="../CCDD/CcddImportSupportHandler.html#addImportedScriptAssociation-boolean-boolean-java.util.List-java.lang.String:A-java.lang.String-CCDD.CcddScriptHandler-java.awt.Component-">addImportedScriptAssociation</a>, <a href="../CCDD/CcddImportSupportHandler.html#addImportedTableTypeColumnDefinition-boolean-CCDD.CcddClassesDataTable.TableTypeDefinition-java.lang.String:A-java.lang.String-CCDD.CcddInputTypeHandler-java.awt.Component-">addImportedTableTypeColumnDefinition</a>, <a href="../CCDD/CcddImportSupportHandler.html#buildProjectAndGroupDataFields-CCDD.CcddFieldHandler-java.util.List-">buildProjectAndGroupDataFields</a>, <a href="../CCDD/CcddImportSupportHandler.html#checkDataTypeDefinition-java.lang.String:A-">checkDataTypeDefinition</a>, <a href="../CCDD/CcddImportSupportHandler.html#checkInputTypeDefinition-java.lang.String:A-">checkInputTypeDefinition</a>, <a href="../CCDD/CcddImportSupportHandler.html#checkMacroDefinition-java.lang.String:A-">checkMacroDefinition</a>, <a href="../CCDD/CcddImportSupportHandler.html#cleanSystemPath-java.lang.String-">cleanSystemPath</a>, <a href="../CCDD/CcddImportSupportHandler.html#convertToUniqueList-java.util.List-">convertToUniqueList</a>, <a href="../CCDD/CcddImportSupportHandler.html#getBaseDataType-java.lang.String-CCDD.CcddDataTypeHandler-">getBaseDataType</a>, <a href="../CCDD/CcddImportSupportHandler.html#getErrorResponse-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-boolean-java.awt.Component-">getErrorResponse</a>, <a href="../CCDD/CcddImportSupportHandler.html#getErrorResponse-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.awt.Component-">getErrorResponse</a>, <a href="../CCDD/CcddImportSupportHandler.html#getMatchingDataType-long-boolean-boolean-boolean-boolean-CCDD.CcddDataTypeHandler-">getMatchingDataType</a>, <a href="../CCDD/CcddImportSupportHandler.html#setMacroHandler-CCDD.CcddMacroHandler-">setMacroHandler</a>, <a href="../CCDD/CcddImportSupportHandler.html#setProjectHeaderTablesAndVariables-CCDD.CcddFieldHandler-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-">setProjectHeaderTablesAndVariables</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
@@ -1127,24 +1170,6 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <pre>private&nbsp;int cmdDescriptionIndex</pre>
 </li>
 </ul>
-<a name="numStructureColumns">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>numStructureColumns</h4>
-<pre>private&nbsp;int numStructureColumns</pre>
-</li>
-</ul>
-<a name="numCommandColumns">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>numCommandColumns</h4>
-<pre>private&nbsp;int numCommandColumns</pre>
-</li>
-</ul>
 <a name="TYPE">
 <!--   -->
 </a>
@@ -1184,9 +1209,10 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <div class="block">XTCE handler class constructor</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>ccddMain</code> - main class</dd>
-<dd><code>scriptEngine</code> - reference to the script engine so that the export methods can be overridden by
-            the script methods; null if the internal methods are to be used</dd>
+<dd><code>ccddMain</code> - Main class</dd>
+<dd><code>scriptEngine</code> - Reference to the script engine so that the export methods can be
+                     overridden by the script methods; null if the internal methods are to be
+                     used</dd>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If an error occurs creating the handler</dd>
@@ -1205,7 +1231,7 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <div class="block">XTCE handler class constructor when importing</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>ccddMain</code> - main class</dd>
+<dd><code>ccddMain</code> - Main class</dd>
 <dd><code>parent</code> - GUI component instantiating this class</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If an error occurs creating the handler</dd>
@@ -1254,7 +1280,146 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 </dl>
 </li>
 </ul>
-<a name="importFromFile-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-CCDD.CcddTableTypeHandler.TypeDefinition-boolean-boolean-boolean-">
+<a name="getTlmSchedulerData--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getTlmSchedulerData</h4>
+<pre>public&nbsp;java.util.List&lt;java.lang.String[]&gt;&nbsp;getTlmSchedulerData()</pre>
+<div class="block">Get the list of original and new telemetry scheduler data</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../CCDD/CcddImportExportInterface.html#getTlmSchedulerData--">getTlmSchedulerData</a></code>&nbsp;in interface&nbsp;<code><a href="../CCDD/CcddImportExportInterface.html" title="interface in CCDD">CcddImportExportInterface</a></code></dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>List of original and new telemetry scheduler data; null if no new associations have
+         been added</dd>
+</dl>
+</li>
+</ul>
+<a name="getAppSchedulerData--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getAppSchedulerData</h4>
+<pre>public&nbsp;java.util.List&lt;java.lang.String[]&gt;&nbsp;getAppSchedulerData()</pre>
+<div class="block">Get the list of original and new application scheduler data</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../CCDD/CcddImportExportInterface.html#getAppSchedulerData--">getAppSchedulerData</a></code>&nbsp;in interface&nbsp;<code><a href="../CCDD/CcddImportExportInterface.html" title="interface in CCDD">CcddImportExportInterface</a></code></dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>List of original and new application scheduler data; null if no new associations
+         have been added</dd>
+</dl>
+</li>
+</ul>
+<a name="importInternalTables-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-boolean-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>importInternalTables</h4>
+<pre>public&nbsp;void&nbsp;importInternalTables(<a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
+                                 <a href="../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
+                                 boolean&nbsp;ignoreErrors,
+                                 boolean&nbsp;replaceExistingAssociations)
+                          throws <a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a>,
+                                 java.io.IOException,
+                                 java.lang.Exception</pre>
+<div class="block">Build the information from the internal table in the current file</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../CCDD/CcddImportExportInterface.html#importInternalTables-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-boolean-boolean-">importInternalTables</a></code>&nbsp;in interface&nbsp;<code><a href="../CCDD/CcddImportExportInterface.html" title="interface in CCDD">CcddImportExportInterface</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>importFile</code> - Import file reference</dd>
+<dd><code>importType</code> - ImportType.IMPORT_ALL to import the table type, data
+                                    type, and macro definitions, and the data from all the
+                                    table definitions; ImportType.FIRST_DATA_ONLY to load
+                                    only the data for the first table defined</dd>
+<dd><code>ignoreErrors</code> - True to ignore all errors in the import file</dd>
+<dd><code>replaceExistingAssociations</code> - True to overwrite internal associations with those from
+                                    the import file</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If a data is missing, extraneous, or in error in the import file</dd>
+<dd><code>java.io.IOException</code> - If an import file I/O error occurs</dd>
+<dd><code>java.lang.Exception</code> - If an unanticipated error occurs</dd>
+</dl>
+</li>
+</ul>
+<a name="importTableInfo-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-boolean-boolean-boolean-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>importTableInfo</h4>
+<pre>public&nbsp;void&nbsp;importTableInfo(<a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
+                            <a href="../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
+                            boolean&nbsp;ignoreErrors,
+                            boolean&nbsp;replaceExistingMacros,
+                            boolean&nbsp;replaceExistingTables,
+                            boolean&nbsp;importingEntireDatabase)
+                     throws <a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a>,
+                            java.io.IOException,
+                            java.lang.Exception</pre>
+<div class="block">Import the input types, table types, table type data fields and data types from the given
+ file</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../CCDD/CcddImportExportInterface.html#importTableInfo-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-boolean-boolean-boolean-boolean-">importTableInfo</a></code>&nbsp;in interface&nbsp;<code><a href="../CCDD/CcddImportExportInterface.html" title="interface in CCDD">CcddImportExportInterface</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>importFile</code> - Import file reference</dd>
+<dd><code>ignoreErrors</code> - True to ignore all errors in the import file</dd>
+<dd><code>replaceExistingMacros</code> - True to replace existing macros</dd>
+<dd><code>replaceExistingTables</code> - True to replace existing tables or table fields</dd>
+<dd><code>importType</code> - ImportType.IMPORT_ALL to import the table type, data type,
+                                and macro definitions, and the data from all the table
+                                definitions; ImportType.FIRST_DATA_ONLY to load only the data
+                                for the first table defined</dd>
+<dd><code>importingEntireDatabase</code> - True to replace existing database internal tables</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If a data is missing, extraneous, or in error in the import file</dd>
+<dd><code>java.io.IOException</code> - If an import file I/O error occurs</dd>
+<dd><code>java.lang.Exception</code> - If an unanticipated error occurs</dd>
+</dl>
+</li>
+</ul>
+<a name="importInputTypes-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-boolean-boolean-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>importInputTypes</h4>
+<pre>public&nbsp;void&nbsp;importInputTypes(<a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
+                             <a href="../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
+                             boolean&nbsp;ignoreErrors,
+                             boolean&nbsp;replaceExistingDataTypes,
+                             boolean&nbsp;importingEntireDatabase)
+                      throws <a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a>,
+                             java.io.IOException,
+                             java.lang.Exception</pre>
+<div class="block">Build the information from the input and data type definition(s) in the current file</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../CCDD/CcddImportExportInterface.html#importInputTypes-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-boolean-boolean-boolean-">importInputTypes</a></code>&nbsp;in interface&nbsp;<code><a href="../CCDD/CcddImportExportInterface.html" title="interface in CCDD">CcddImportExportInterface</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>importFile</code> - Import file reference</dd>
+<dd><code>ignoreErrors</code> - True to ignore all errors in the import file</dd>
+<dd><code>replaceExistingDataTypes</code> - True to replace existing data types that share a name with
+                                 an imported data type</dd>
+<dd><code>importingEntireDatabase</code> - True to replace existing database internal tables</dd>
+<dd><code>importType</code> - ImportType.IMPORT_ALL to import the table type, data type,
+                                 and macro definitions, and the data from all the table
+                                 definitions; ImportType.FIRST_DATA_ONLY to load only the
+                                 data for the first table defined</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If a data is missing, extraneous, or in error in the import file</dd>
+<dd><code>java.io.IOException</code> - If an import file I/O error occurs</dd>
+<dd><code>java.lang.Exception</code> - If an unanticipated error occurs</dd>
+</dl>
+</li>
+</ul>
+<a name="importFromFile-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-CCDD.CcddTableTypeHandler.TypeDefinition-boolean-boolean-boolean-boolean-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1265,57 +1430,31 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
                            <a href="../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&nbsp;targetTypeDefn,
                            boolean&nbsp;ignoreErrors,
                            boolean&nbsp;replaceExistingMacros,
-                           boolean&nbsp;replaceExistingGroups)
+                           boolean&nbsp;replaceExistingGroups,
+                           boolean&nbsp;replaceExistingTables)
                     throws <a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a>,
                            java.io.IOException,
                            java.lang.Exception</pre>
-<div class="block">Import the the table definitions from an XTCE XML formatted file</div>
+<div class="block">Build the information from the table definition(s) in the current file</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../CCDD/CcddImportExportInterface.html#importFromFile-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-CCDD.CcddTableTypeHandler.TypeDefinition-boolean-boolean-boolean-">importFromFile</a></code>&nbsp;in interface&nbsp;<code><a href="../CCDD/CcddImportExportInterface.html" title="interface in CCDD">CcddImportExportInterface</a></code></dd>
+<dd><code><a href="../CCDD/CcddImportExportInterface.html#importFromFile-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-CCDD.CcddTableTypeHandler.TypeDefinition-boolean-boolean-boolean-boolean-">importFromFile</a></code>&nbsp;in interface&nbsp;<code><a href="../CCDD/CcddImportExportInterface.html" title="interface in CCDD">CcddImportExportInterface</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>importFile</code> - reference to the user-specified XML input file</dd>
-<dd><code>importType</code> - ImportType.IMPORT_ALL to import the table type, data type, and macro definitions,
-            and the data from all the table definitions; ImportType.FIRST_DATA_ONLY to load
-            only the data for the first table defined</dd>
-<dd><code>targetTypeDefn</code> - table type definition of the table in which to import the data; ignored if
-            importing all tables</dd>
-<dd><code>replaceExistingMacros</code> - not used for XTCE import</dd>
-<dd><code>replaceExistingGroups</code> - not used for XTCE import</dd>
-<dd><code>ignoreErrors</code> - true to ignore all errors in the import file</dd>
+<dd><code>importFile</code> - Import file reference</dd>
+<dd><code>importType</code> - ImportType.IMPORT_ALL to import the table type, data type, and
+                              macro definitions, and the data from all the table definitions;
+                              ImportType.FIRST_DATA_ONLY to load only the data for the first
+                              table defined</dd>
+<dd><code>targetTypeDefn</code> - Table type definition of the table in which to import the data;
+                              ignored if importing all tables</dd>
+<dd><code>ignoreErrors</code> - True to ignore all errors in the import file</dd>
+<dd><code>replaceExistingMacros</code> - True to replace the values for existing macros</dd>
+<dd><code>replaceExistingGroups</code> - True to replace existing group definitions</dd>
+<dd><code>replaceExistingTables</code> - True to replace existing tables or table fields</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If data is missing, extraneous, or an error in the import file</dd>
+<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If a data is missing, extraneous, or in error in the import file</dd>
 <dd><code>java.io.IOException</code> - If an import file I/O error occurs</dd>
 <dd><code>java.lang.Exception</code> - If an unanticipated error occurs</dd>
-</dl>
-</li>
-</ul>
-<a name="createTableTypeDefinitions-org.omg.space.xtce.SpaceSystemType-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-CCDD.CcddTableTypeHandler.TypeDefinition-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>createTableTypeDefinitions</h4>
-<pre>private&nbsp;void&nbsp;createTableTypeDefinitions(org.omg.space.xtce.SpaceSystemType&nbsp;rootSystem,
-                                        <a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
-                                        <a href="../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
-                                        <a href="../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&nbsp;targetTypeDefn)
-                                 throws <a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></pre>
-<div class="block">Scan the import file in order to determine if any structure or command tables exist. If so,
- create the structure and/or command table type definition that's used to build the new
- tables</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>rootSystem</code> - root space system</dd>
-<dd><code>importFile</code> - reference to the user-specified XML input file</dd>
-<dd><code>importType</code> - ImportType.IMPORT_ALL to import the table type, data type, and macro definitions,
-            and the data from all the table definitions; ImportType.FIRST_DATA_ONLY to load
-            only the data for the first table defined</dd>
-<dd><code>targetTypeDefn</code> - table type definition of the table in which to import the data; ignored if
-            importing all tables</dd>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - Included due to calls to addImportedTableTypeColumnDefinition(); since default
-             column definitions are used this error can't occur</dd>
 </dl>
 </li>
 </ul>
@@ -1334,14 +1473,14 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
  method</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>system</code> - space system to which the new system belongs</dd>
-<dd><code>systemPath</code> - full path name for this space system (based on its nesting within other space
-            systems)</dd>
-<dd><code>importType</code> - import type: ImportType.ALL to import all information in the import file;
-            ImportType.FIRST_DATA_ONLY to import data from the first table defined in the
-            import file</dd>
-<dd><code>onlyCmdToStruct</code> - true to only allow a command header, converted to a structure, to be stored;
-            false to store (non-header) command tables</dd>
+<dd><code>system</code> - Space system to which the new system belongs</dd>
+<dd><code>systemPath</code> - Full path name for this space system (based on its nesting within
+                        other space systems)</dd>
+<dd><code>importType</code> - Import type: ImportType.ALL to import all information in the import
+                        file; ImportType.FIRST_DATA_ONLY to import data from the first table
+                        defined in the import file</dd>
+<dd><code>onlyCmdToStruct</code> - True to only allow a command header, converted to a structure, to be
+                        stored; false to store (non-header) command tables</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If an input error is detected</dd>
 </dl>
@@ -1361,10 +1500,11 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <div class="block">Build a structure table from the specified telemetry metadata</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>system</code> - space system</dd>
-<dd><code>tlmMetaData</code> - reference to the telemetry metadata from which to build the structure table</dd>
-<dd><code>tableName</code> - name table name, including the full system path</dd>
-<dd><code>systemPath</code> - system path</dd>
+<dd><code>system</code> - Space system</dd>
+<dd><code>tlmMetaData</code> - Reference to the telemetry metadata from which to build the structure
+                    table</dd>
+<dd><code>tableName</code> - Name table name, including the full system path</dd>
+<dd><code>systemPath</code> - System path</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If an input error is detected</dd>
 </dl>
@@ -1385,12 +1525,13 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <div class="block">Build a command table from the specified command metadata</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>system</code> - space system</dd>
-<dd><code>cmdMetaData</code> - reference to the command metadata from which to build the command table</dd>
-<dd><code>tableName</code> - name table name, including the full system path</dd>
-<dd><code>systemPath</code> - system path</dd>
-<dd><code>onlyCmdToStruct</code> - true to only allow a command header, converted to a structure, to be stored;
-            false to store (non-header) command tables</dd>
+<dd><code>system</code> - Space system</dd>
+<dd><code>cmdMetaData</code> - Reference to the command metadata from which to build the command
+                        table</dd>
+<dd><code>tableName</code> - Name table name, including the full system path</dd>
+<dd><code>systemPath</code> - System path</dd>
+<dd><code>onlyCmdToStruct</code> - True to only allow a command header, converted to a structure, to be
+                        stored; false to store (non-header) command tables</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If an input error is detected</dd>
 </dl>
@@ -1417,18 +1558,18 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <div class="block">Add a variable definition's column values to a structure table</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>tableDefn</code> - table definition reference</dd>
-<dd><code>rowIndex</code> - index of the row in which to insert the data</dd>
-<dd><code>numArrayMembers</code> - number of array members; 0 if not an array parameter</dd>
-<dd><code>variableName</code> - variable name; null to not specify</dd>
-<dd><code>dataType</code> - parameter data type; null to not specify</dd>
-<dd><code>arraySize</code> - parameter array size; null or blank if the parameter isn't an array</dd>
-<dd><code>bitLength</code> - parameter bit length; null or blank if not a bit-wise parameter</dd>
-<dd><code>description</code> - parameter description; null to not specify</dd>
-<dd><code>units</code> - parameter units; null to not specify</dd>
+<dd><code>tableDefn</code> - Table definition reference</dd>
+<dd><code>rowIndex</code> - Index of the row in which to insert the data</dd>
+<dd><code>numArrayMembers</code> - Number of array members; 0 if not an array parameter</dd>
+<dd><code>variableName</code> - Variable name; null to not specify</dd>
+<dd><code>dataType</code> - Parameter data type; null to not specify</dd>
+<dd><code>arraySize</code> - Parameter array size; null or blank if the parameter isn't an array</dd>
+<dd><code>bitLength</code> - Parameter bit length; null or blank if not a bit-wise parameter</dd>
+<dd><code>description</code> - Parameter description; null to not specify</dd>
+<dd><code>units</code> - Parameter units; null to not specify</dd>
 <dd><code>enumeration</code> - enumeration in the format &lt;enum label&gt;|&lt;enum value&gt;[|...][,...]; null to not specify</dd>
-<dd><code>minimum</code> - minimum parameter value</dd>
-<dd><code>maximum</code> - maximum parameter value</dd>
+<dd><code>minimum</code> - Minimum parameter value</dd>
+<dd><code>maximum</code> - Maximum parameter value</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Updated row index</dd>
 </dl>
@@ -1448,9 +1589,9 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
  array parameter reference to extract the parameter attributes</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>parameter</code> - reference to the parameter in the parameter set</dd>
-<dd><code>parmTypeSet</code> - reference to the parameter type set list</dd>
-<dd><code>seqEntry</code> - reference to the sequence container's entry list item to process</dd>
+<dd><code>parameter</code> - Reference to the parameter in the parameter set</dd>
+<dd><code>parmTypeSet</code> - Reference to the parameter type set list</dd>
+<dd><code>seqEntry</code> - Reference to the sequence container's entry list item to process</dd>
 <dd><code>seqIndex</code> - Index of the sequence container's entry list item to process</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>ParameterInformation for the container reference; null if the reference isn't valid</dd>
@@ -1471,9 +1612,9 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
  array parameter reference to extract the parameter attributes</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>argument</code> - reference to the argument in the argument list</dd>
-<dd><code>argTypeSet</code> - reference to the argument type set list</dd>
-<dd><code>seqEntry</code> - reference to the sequence container's entry list item to process</dd>
+<dd><code>argument</code> - Reference to the argument in the argument list</dd>
+<dd><code>argTypeSet</code> - Reference to the argument type set list</dd>
+<dd><code>seqEntry</code> - Reference to the sequence container's entry list item to process</dd>
 <dd><code>seqIndex</code> - Index of the sequence container's entry list item to process</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>ParameterInformation for the container reference; null if the reference isn't valid</dd>
@@ -1495,39 +1636,33 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
  reference to extract the parameter name, data type, array size, and description</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>system</code> - space system to which the container reference belongs</dd>
-<dd><code>tlmSequenceEntries</code> - reference to the list of telemetry sequence container entries; null if processing
-            a command container reference</dd>
-<dd><code>cmdSequenceEntries</code> - reference to the list of command container entries; null if processing a
-            telemetry sequence container reference</dd>
-<dd><code>seqEntry</code> - reference to the sequence container's entry list item to process</dd>
+<dd><code>system</code> - Space system to which the container reference belongs</dd>
+<dd><code>tlmSequenceEntries</code> - Reference to the list of telemetry sequence container entries;
+                           null if processing a command container reference</dd>
+<dd><code>cmdSequenceEntries</code> - Reference to the list of command container entries; null if
+                           processing a telemetry sequence container reference</dd>
+<dd><code>seqEntry</code> - Reference to the sequence container's entry list item to process</dd>
 <dd><code>seqIndex</code> - Index of the sequence container's entry list item to process</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>ParameterInformation for the container reference; null if the reference isn't valid</dd>
 </dl>
 </li>
 </ul>
-<a name="exportToFile-CCDD.CcddClassesComponent.FileEnvVar-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-java.lang.Object...-">
+<a name="exportTables-CCDD.CcddClassesComponent.FileEnvVar-java.util.List-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-boolean-java.lang.String-java.lang.Object...-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>exportToFile</h4>
-<pre>public&nbsp;void&nbsp;exportToFile(<a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;exportFile,
-                         java.lang.String[]&nbsp;tableNames,
+<h4>exportTables</h4>
+<pre>public&nbsp;void&nbsp;exportTables(<a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;exportFile,
+                         java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.TableInfo.html" title="class in CCDD">CcddClassesDataTable.TableInfo</a>&gt;&nbsp;tableDefs,
                          boolean&nbsp;includeBuildInformation,
                          boolean&nbsp;replaceMacros,
-                         boolean&nbsp;includeAllTableTypes,
-                         boolean&nbsp;includeAllDataTypes,
-                         boolean&nbsp;includeAllInputTypes,
-                         boolean&nbsp;includeAllMacros,
-                         boolean&nbsp;includeReservedMsgIDs,
-                         boolean&nbsp;includeProjectFields,
-                         boolean&nbsp;includeGroups,
-                         boolean&nbsp;includeAssociations,
                          boolean&nbsp;includeVariablePaths,
                          <a href="../CCDD/CcddVariableHandler.html" title="class in CCDD">CcddVariableHandler</a>&nbsp;variableHandler,
                          java.lang.String[]&nbsp;separators,
+                         boolean&nbsp;addEOFMarker,
+                         java.lang.String&nbsp;outputType,
                          java.lang.Object...&nbsp;extraInfo)
                   throws javax.xml.bind.JAXBException,
                          javax.xml.bind.MarshalException,
@@ -1536,44 +1671,37 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <div class="block">Export the specified tables in XTCE XML format to the specified file</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../CCDD/CcddImportExportInterface.html#exportToFile-CCDD.CcddClassesComponent.FileEnvVar-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-java.lang.Object...-">exportToFile</a></code>&nbsp;in interface&nbsp;<code><a href="../CCDD/CcddImportExportInterface.html" title="interface in CCDD">CcddImportExportInterface</a></code></dd>
+<dd><code><a href="../CCDD/CcddImportExportInterface.html#exportTables-CCDD.CcddClassesComponent.FileEnvVar-java.util.List-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-boolean-java.lang.String-java.lang.Object...-">exportTables</a></code>&nbsp;in interface&nbsp;<code><a href="../CCDD/CcddImportExportInterface.html" title="interface in CCDD">CcddImportExportInterface</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>exportFile</code> - reference to the user-specified output file</dd>
-<dd><code>tableNames</code> - array of table names to convert</dd>
-<dd><code>includeBuildInformation</code> - true to include the CCDD version, project, host, and user information</dd>
-<dd><code>replaceMacros</code> - * Not used for XTCE export (all macros are expanded) * true to replace any
-            embedded macros with their corresponding values</dd>
-<dd><code>includeAllTableTypes</code> - * Not used for XTCE export * true to include the all table type definitions in
-            the export file</dd>
-<dd><code>includeAllDataTypes</code> - * Not used for XTCE export * true to include the all data type definitions in the
-            export file</dd>
-<dd><code>includeAllInputTypes</code> - * Not used for XTCE export * true to include the all user-defined input type
-            definitions in the export file</dd>
-<dd><code>includeAllMacros</code> - * Not used for XTCE export * true to include the all macro definitions in the
-            export file</dd>
-<dd><code>includeReservedMsgIDs</code> - * Not used for XTCE export * true to include the contents of the reserved message
-            ID table in the export file</dd>
-<dd><code>includeProjectFields</code> - * Not used for XTCE export * true to include the project-level data field
-            definitions in the export file</dd>
-<dd><code>includeGroups</code> - * Not used for XTCE export * true to include the groups and group data field
-            definitions in the export file</dd>
-<dd><code>includeAssociations</code> - * Not used for XTCE export * true to include the script associations in the
-            export file</dd>
-<dd><code>includeVariablePaths</code> - * Not used for XTCE export * true to include the variable path for each variable
-            in a structure table, both in application format and using the user-defined
-            separator characters</dd>
-<dd><code>variableHandler</code> - * Not used for XTCE export * variable handler class reference; null if
-            includeVariablePaths is false</dd>
-<dd><code>separators</code> - * Not used for XTCE export * string array containing the variable path separator
-            character(s), show/hide data types flag ('true' or 'false'), and data
-            type/variable name separator character(s); null if includeVariablePaths is false</dd>
-<dd><code>extraInfo</code> - [0] endianess (EndianType.BIG_ENDIAN or EndianType.LITTLE_ENDIAN) <br>
-            [1] are the telemetry and command headers big endian (true or false) <br>
-            [2] version attribute <br>
-            [3] validation status attribute <br>
-            [4] first level classification attribute <br>
-            [5] second level classification attribute <br>
-            [6] third level classification attribute</dd>
+<dd><code>exportFile</code> - Reference to the user-specified output file</dd>
+<dd><code>tableDefs</code> - List of table definitions to convert</dd>
+<dd><code>includeBuildInformation</code> - True to include the CCDD version, project, host, and user
+                                information</dd>
+<dd><code>replaceMacros</code> - * Not used for XTCE export (all macros are expanded) * true
+                                to replace any embedded macros with their corresponding
+                                values</dd>
+<dd><code>includeVariablePaths</code> - * Not used for XTCE export * true to include the variable
+                                path for each variable in a structure table, both in
+                                application format and using the user-defined separator
+                                characters</dd>
+<dd><code>variableHandler</code> - * Not used for XTCE export * variable handler class
+                                reference; null if includeVariablePaths is false</dd>
+<dd><code>separators</code> - * Not used for XTCE export * string array containing the
+                                variable path separator character(s), show/hide data types
+                                flag ('true' or 'false'), and data type/variable name
+                                separator character(s); null if includeVariablePaths is false</dd>
+<dd><code>addEOFMarker</code> - Is this the last data to be added to the file?</dd>
+<dd><code>extraInfo</code> - [0] endianess (EndianType.BIG_ENDIAN or
+                                EndianType.LITTLE_ENDIAN) <br>
+                                [1] are the telemetry and command headers big endian (true or
+                                false) <br>
+                                [2] version attribute <br>
+                                [3] validation status attribute <br>
+                                [4] first level classification attribute <br>
+                                [5] second level classification attribute <br>
+                                [6] third level classification attribute</dd>
+<dd><code>outputType</code> - String representing rather the output is going to a single
+                                file or multiple files. Should be "Single" or "Multiple"</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code>javax.xml.bind.JAXBException</code> - If an error occurs marshaling the project</dd>
 <dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If an error occurs executing an external (script) method</dd>
@@ -1582,13 +1710,13 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 </dl>
 </li>
 </ul>
-<a name="convertTablesToXTCE-java.lang.String:A-boolean-CCDD.CcddConstants.EndianType-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-">
+<a name="convertTablesToXTCE-java.util.List-boolean-CCDD.CcddConstants.EndianType-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>convertTablesToXTCE</h4>
-<pre>private&nbsp;void&nbsp;convertTablesToXTCE(java.lang.String[]&nbsp;tableNames,
+<pre>private&nbsp;void&nbsp;convertTablesToXTCE(java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.TableInfo.html" title="class in CCDD">CcddClassesDataTable.TableInfo</a>&gt;&nbsp;tableDefs,
                                  boolean&nbsp;includeBuildInformation,
                                  <a href="../CCDD/CcddConstants.EndianType.html" title="enum in CCDD">CcddConstants.EndianType</a>&nbsp;endianess,
                                  boolean&nbsp;isHeaderBigEndian,
@@ -1601,33 +1729,35 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <div class="block">Convert the project database contents to XTCE XML format</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>tableNames</code> - array of table names to convert</dd>
-<dd><code>includeBuildInformation</code> - true to include the CCDD version, project, host, and user information</dd>
-<dd><code>endianess</code> - EndianType.BIG_ENDIAN for big endian, EndianType.LITTLE_ENDIAN for little endian</dd>
-<dd><code>isHeaderBigEndian</code> - true if the telemetry and command headers are always big endian (e.g., as with
-            CCSDS)</dd>
-<dd><code>version</code> - version attribute</dd>
-<dd><code>validationStatus</code> - validation status attribute</dd>
-<dd><code>classification1</code> - first level classification attribute</dd>
-<dd><code>classification2</code> - second level classification attribute</dd>
-<dd><code>classification3</code> - third level classification attribute</dd>
+<dd><code>tableDefs</code> - List of table definitions to convert</dd>
+<dd><code>includeBuildInformation</code> - True to include the CCDD version, project, host, and user
+                                information</dd>
+<dd><code>endianess</code> - EndianType.BIG_ENDIAN for big endian,
+                                EndianType.LITTLE_ENDIAN for little endian</dd>
+<dd><code>isHeaderBigEndian</code> - True if the telemetry and command headers are always big
+                                endian (e.g., as with CCSDS)</dd>
+<dd><code>version</code> - Version attribute</dd>
+<dd><code>validationStatus</code> - Validation status attribute</dd>
+<dd><code>classification1</code> - First level classification attribute</dd>
+<dd><code>classification2</code> - Second level classification attribute</dd>
+<dd><code>classification3</code> - Third level classification attribute</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - error occurs executing an external (script) method</dd>
 </dl>
 </li>
 </ul>
-<a name="buildSpaceSystems-java.lang.String:A-">
+<a name="buildSpaceSystems-java.util.List-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>buildSpaceSystems</h4>
-<pre>private&nbsp;void&nbsp;buildSpaceSystems(java.lang.String[]&nbsp;tableNames)
+<pre>private&nbsp;void&nbsp;buildSpaceSystems(java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.TableInfo.html" title="class in CCDD">CcddClassesDataTable.TableInfo</a>&gt;&nbsp;tableDefs)
                         throws <a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></pre>
 <div class="block">Build the space systems</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>tableNames</code> - array containing the names of the tables to export</dd>
+<dd><code>tableDefs</code> - List containing the definitions of the tables to export</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - error occurred executing an external (script) method</dd>
 </dl>
@@ -1653,10 +1783,12 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
  root space system</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>parentSystem</code> - parent space system for the new system; null for the root space system</dd>
-<dd><code>systemName</code> - name for the new space system</dd>
-<dd><code>description</code> - space system description</dd>
-<dd><code>fullPath</code> - full table path; null or blank if this space system doesn't describe a table</dd>
+<dd><code>parentSystem</code> - Parent space system for the new system; null for the root space
+                         system</dd>
+<dd><code>systemName</code> - Name for the new space system</dd>
+<dd><code>description</code> - Space system description</dd>
+<dd><code>fullPath</code> - Full table path; null or blank if this space system doesn't describe
+                         a table</dd>
 <dd><code>classification</code> - XML document classification</dd>
 <dd><code>validationStatus</code> - XML document validation status</dd>
 <dd><code>version</code> - XML document version</dd>
@@ -1679,8 +1811,8 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
  space system</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>systemName</code> - name to search for within the space system hierarchy</dd>
-<dd><code>startingSystem</code> - space system in which to start the search</dd>
+<dd><code>systemName</code> - Name to search for within the space system hierarchy</dd>
+<dd><code>startingSystem</code> - Space system in which to start the search</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Reference to the space system with the same name as the search name; null if no
          space system name matches the search name</dd>
@@ -1700,9 +1832,10 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
  the search name</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>systemName</code> - name to search for within the space system hierarchy</dd>
-<dd><code>spaceSystem</code> - current space system to check</dd>
-<dd><code>foundSystem</code> - space system that matches the search name; null if no match has been found</dd>
+<dd><code>systemName</code> - Name to search for within the space system hierarchy</dd>
+<dd><code>spaceSystem</code> - Current space system to check</dd>
+<dd><code>foundSystem</code> - Space system that matches the search name; null if no match has been
+                    found</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Reference to the space system with the same name as the search name; null if no
          space system name matches the search name</dd>
@@ -1724,11 +1857,11 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <div class="block">Set the space system header attributes</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>spaceSystem</code> - space system reference</dd>
-<dd><code>classification</code> - classification attribute</dd>
-<dd><code>validationStatus</code> - validation status attribute</dd>
-<dd><code>version</code> - version attribute</dd>
-<dd><code>date</code> - export creation time and date</dd>
+<dd><code>spaceSystem</code> - Space system reference</dd>
+<dd><code>classification</code> - Classification attribute</dd>
+<dd><code>validationStatus</code> - Validation status attribute</dd>
+<dd><code>version</code> - Version attribute</dd>
+<dd><code>date</code> - Export creation time and date</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If an error occurs executing an external (script) method</dd>
 </dl>
@@ -1744,7 +1877,7 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <div class="block">Create the space system telemetry metadata</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>spaceSystem</code> - space system reference</dd>
+<dd><code>spaceSystem</code> - Space system reference</dd>
 </dl>
 </li>
 </ul>
@@ -1774,22 +1907,27 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <div class="block">Add a structure table's parameters to the telemetry meta data</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>spaceSystem</code> - space system to which the table belongs</dd>
-<dd><code>tableName</code> - table name</dd>
-<dd><code>tableData</code> - array containing the table's data</dd>
-<dd><code>varColumn</code> - variable (parameter) name column index</dd>
-<dd><code>typeColumn</code> - parameter data type column index</dd>
-<dd><code>sizeColumn</code> - parameter array size column index</dd>
-<dd><code>bitColumn</code> - parameter bit length column index</dd>
-<dd><code>enumColumn</code> - parameter enumeration column index; -1 if no the table has no enumeration column</dd>
-<dd><code>descColumn</code> - parameter description column index; -1 if no the table has no description column</dd>
-<dd><code>unitsColumn</code> - parameter units column index; -1 if no the table has no units column</dd>
-<dd><code>minColumn</code> - minimum parameter value column index; -1 if no the table has no minimum column</dd>
-<dd><code>maxColumn</code> - maximum parameter value column index; -1 if no the table has no maximum column</dd>
-<dd><code>isTlmHdrTable</code> - true if this table represents the telemetry header or one of its descendants</dd>
-<dd><code>tlmHdrSysPath</code> - telemetry header table system path; null or blank is none</dd>
-<dd><code>isRootStructure</code> - true if the table is a root structure table</dd>
-<dd><code>applicationID</code> - telemetry header application ID</dd>
+<dd><code>spaceSystem</code> - Space system to which the table belongs</dd>
+<dd><code>tableName</code> - Table name</dd>
+<dd><code>tableData</code> - Array containing the table's data</dd>
+<dd><code>varColumn</code> - Variable (parameter) name column index</dd>
+<dd><code>typeColumn</code> - Parameter data type column index</dd>
+<dd><code>sizeColumn</code> - Parameter array size column index</dd>
+<dd><code>bitColumn</code> - Parameter bit length column index</dd>
+<dd><code>enumColumn</code> - Parameter enumeration column index; -1 if no the table has no
+                        enumeration column</dd>
+<dd><code>descColumn</code> - Parameter description column index; -1 if no the table has no
+                        description column</dd>
+<dd><code>unitsColumn</code> - Parameter units column index; -1 if no the table has no units column</dd>
+<dd><code>minColumn</code> - Minimum parameter value column index; -1 if no the table has no
+                        minimum column</dd>
+<dd><code>maxColumn</code> - Maximum parameter value column index; -1 if no the table has no
+                        maximum column</dd>
+<dd><code>isTlmHdrTable</code> - True if this table represents the telemetry header or one of its
+                        descendants</dd>
+<dd><code>tlmHdrSysPath</code> - Telemetry header table system path; null or blank is none</dd>
+<dd><code>isRootStructure</code> - True if the table is a root structure table</dd>
+<dd><code>applicationID</code> - Telemetry header application ID</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If an error occurs executing an external (script) method</dd>
 </dl>
@@ -1816,17 +1954,18 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <div class="block">Add a parameter with a primitive data type to the parameter set and parameter type set</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>spaceSystem</code> - space system reference</dd>
-<dd><code>parameterName</code> - parameter name</dd>
-<dd><code>dataType</code> - parameter primitive data type</dd>
-<dd><code>arraySize</code> - parameter array size; null or blank if the parameter isn't an array</dd>
-<dd><code>bitLength</code> - parameter bit length; null or blank if not a bit-wise parameter</dd>
+<dd><code>spaceSystem</code> - Space system reference</dd>
+<dd><code>parameterName</code> - Parameter name</dd>
+<dd><code>dataType</code> - Parameter primitive data type</dd>
+<dd><code>arraySize</code> - Parameter array size; null or blank if the parameter isn't an array</dd>
+<dd><code>bitLength</code> - Parameter bit length; null or blank if not a bit-wise parameter</dd>
 <dd><code>enumeration</code> - enumeration in the format &lt;enum label&gt;|&lt;enum value&gt;[|...][,...]; null to not specify</dd>
-<dd><code>units</code> - parameter units</dd>
-<dd><code>minimum</code> - minimum parameter value</dd>
-<dd><code>maximum</code> - maximum parameter value</dd>
-<dd><code>description</code> - parameter description</dd>
-<dd><code>stringSize</code> - size, in characters, of a string parameter; ignored if not a string or character</dd>
+<dd><code>units</code> - Parameter units</dd>
+<dd><code>minimum</code> - Minimum parameter value</dd>
+<dd><code>maximum</code> - Maximum parameter value</dd>
+<dd><code>description</code> - Parameter description</dd>
+<dd><code>stringSize</code> - Size, in characters, of a string parameter; ignored if not a string or
+                      character</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If an error occurs executing an external (script) method</dd>
 </dl>
@@ -1848,13 +1987,14 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <div class="block">Add the parameter to the sequence container entry list</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>spaceSystem</code> - reference to the space system to which the parameter belongs</dd>
-<dd><code>parameterName</code> - parameter name</dd>
-<dd><code>dataType</code> - data type</dd>
-<dd><code>arraySize</code> - array size</dd>
-<dd><code>entryList</code> - reference to the entry list into which to place the parameter (for a primitive
-            data type) or container (for a structure data type) reference</dd>
-<dd><code>isTlmHdrRef</code> - true if this table represents the telemetry header or one of its descendants</dd>
+<dd><code>spaceSystem</code> - Reference to the space system to which the parameter belongs</dd>
+<dd><code>parameterName</code> - Parameter name</dd>
+<dd><code>dataType</code> - Data type</dd>
+<dd><code>arraySize</code> - Array size</dd>
+<dd><code>entryList</code> - Reference to the entry list into which to place the parameter (for a
+                      primitive data type) or container (for a structure data type) reference</dd>
+<dd><code>isTlmHdrRef</code> - True if this table represents the telemetry header or one of its
+                      descendants</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>true if the parameter's data type references the telemetry header or one of its
          descendants; otherwise return the flag status unchanged</dd>
@@ -1884,17 +2024,18 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <div class="block">Create the telemetry parameter data type and set the specified attributes</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>spaceSystem</code> - space system reference</dd>
-<dd><code>parameterName</code> - parameter name; null to not specify</dd>
-<dd><code>dataType</code> - data type; null to not specify</dd>
-<dd><code>arraySize</code> - parameter array size; null or blank if the parameter isn't an array</dd>
-<dd><code>bitLength</code> - parameter bit length; null or empty if not a bit-wise parameter</dd>
+<dd><code>spaceSystem</code> - Space system reference</dd>
+<dd><code>parameterName</code> - Parameter name; null to not specify</dd>
+<dd><code>dataType</code> - Data type; null to not specify</dd>
+<dd><code>arraySize</code> - Parameter array size; null or blank if the parameter isn't an array</dd>
+<dd><code>bitLength</code> - Parameter bit length; null or empty if not a bit-wise parameter</dd>
 <dd><code>enumeration</code> - enumeration in the format &lt;enum label&gt;|&lt;enum value&gt;[|...][,...]; null to not specify</dd>
-<dd><code>units</code> - parameter units; null to not specify</dd>
-<dd><code>minimum</code> - minimum parameter value; null to not specify</dd>
-<dd><code>maximum</code> - maximum parameter value; null to not specify</dd>
-<dd><code>description</code> - parameter description; null to not specify</dd>
-<dd><code>stringSize</code> - size, in characters, of a string parameter; ignored if not a string or character</dd>
+<dd><code>units</code> - Parameter units; null to not specify</dd>
+<dd><code>minimum</code> - Minimum parameter value; null to not specify</dd>
+<dd><code>maximum</code> - Maximum parameter value; null to not specify</dd>
+<dd><code>description</code> - Parameter description; null to not specify</dd>
+<dd><code>stringSize</code> - Size, in characters, of a string parameter; ignored if not a string or
+                      character</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If an error occurs executing an external (script) method</dd>
 </dl>
@@ -1911,7 +2052,7 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <div class="block">Create the space system command metadata</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>spaceSystem</code> - space system reference</dd>
+<dd><code>spaceSystem</code> - Space system reference</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If an error occurs executing an external (script) method</dd>
 </dl>
@@ -1936,15 +2077,15 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <div class="block">Add the command(s) from a table to the specified space system</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>spaceSystem</code> - space system reference</dd>
-<dd><code>tableData</code> - table data array</dd>
-<dd><code>cmdNameColumn</code> - command name column index</dd>
-<dd><code>cmdCodeColumn</code> - command code column index</dd>
-<dd><code>cmdArgumentColumn</code> - command argument column index</dd>
-<dd><code>cmdDescColumn</code> - command description column index</dd>
-<dd><code>isCmdHeader</code> - true if this table represents the command header</dd>
-<dd><code>cmdHdrSysPath</code> - command header table system path</dd>
-<dd><code>applicationID</code> - application ID</dd>
+<dd><code>spaceSystem</code> - Space system reference</dd>
+<dd><code>tableData</code> - Table data array</dd>
+<dd><code>cmdNameColumn</code> - Command name column index</dd>
+<dd><code>cmdCodeColumn</code> - Command code column index</dd>
+<dd><code>cmdArgumentColumn</code> - Command argument column index</dd>
+<dd><code>cmdDescColumn</code> - Command description column index</dd>
+<dd><code>isCmdHeader</code> - True if this table represents the command header</dd>
+<dd><code>cmdHdrSysPath</code> - Command header table system path</dd>
+<dd><code>applicationID</code> - Application ID</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If an error occurs executing an external (script) method</dd>
 </dl>
@@ -1971,18 +2112,18 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <div class="block">Add a command to the command metadata set</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>spaceSystem</code> - space system reference</dd>
-<dd><code>commandName</code> - command name</dd>
-<dd><code>cmdFuncCode</code> - command code</dd>
-<dd><code>cmdArgument</code> - command argument name</dd>
-<dd><code>applicationID</code> - application ID</dd>
-<dd><code>isCmdHeader</code> - true if this table represents the command header</dd>
-<dd><code>cmdHdrSysPath</code> - command header table system path</dd>
-<dd><code>argumentNames</code> - array of command argument names</dd>
-<dd><code>argDataTypes</code> - array of of command argument data types</dd>
-<dd><code>argArraySizes</code> - array of of command argument array sizes; the array item is null or blank if the
-            corresponding argument isn't an array</dd>
-<dd><code>description</code> - description of the command</dd>
+<dd><code>spaceSystem</code> - Space system reference</dd>
+<dd><code>commandName</code> - Command name</dd>
+<dd><code>cmdFuncCode</code> - Command code</dd>
+<dd><code>cmdArgument</code> - Command argument name</dd>
+<dd><code>applicationID</code> - Application ID</dd>
+<dd><code>isCmdHeader</code> - True if this table represents the command header</dd>
+<dd><code>cmdHdrSysPath</code> - Command header table system path</dd>
+<dd><code>argumentNames</code> - Array of command argument names</dd>
+<dd><code>argDataTypes</code> - Array of of command argument data types</dd>
+<dd><code>argArraySizes</code> - Array of of command argument array sizes; the array item is null or
+                      blank if the corresponding argument isn't an array</dd>
+<dd><code>description</code> - Description of the command</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If an error occurs executing an external (script) method</dd>
 </dl>
@@ -2010,21 +2151,22 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <div class="block">Set the command argument data type and set the specified attributes</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>spaceSystem</code> - space system reference</dd>
-<dd><code>argumentName</code> - command argument name; null to not specify</dd>
-<dd><code>dataType</code> - command argument data type; null to not specify</dd>
-<dd><code>arraySize</code> - command argument array size; null or blank if the argument isn't an array</dd>
-<dd><code>bitLength</code> - command argument bit length</dd>
-<dd><code>enumeration</code> - command argument enumeration in the format
-            &lt;enum label&gt;|&lt;enum value&gt;[|...][,...]; null to not specify</dd>
-<dd><code>units</code> - command argument units; null to not specify</dd>
-<dd><code>minimum</code> - minimum parameter value; null to not specify</dd>
-<dd><code>maximum</code> - maximum parameter value; null to not specify</dd>
-<dd><code>description</code> - command argument description ; null to not specify</dd>
-<dd><code>stringSize</code> - string size in bytes; ignored if the command argument does not have a string data
-            type</dd>
-<dd><code>uniqueID</code> - text used to uniquely identify data types with the same name; blank if the data
-            type has no name conflict</dd>
+<dd><code>spaceSystem</code> - Space system reference</dd>
+<dd><code>argumentName</code> - Command argument name; null to not specify</dd>
+<dd><code>dataType</code> - Command argument data type; null to not specify</dd>
+<dd><code>arraySize</code> - Command argument array size; null or blank if the argument isn't an
+                     array</dd>
+<dd><code>bitLength</code> - Command argument bit length</dd>
+<dd><code>enumeration</code> - Command argument enumeration in the format
+                     &lt;enum label&gt;|&lt;enum value&gt;[|...][,...]; null to not specify</dd>
+<dd><code>units</code> - Command argument units; null to not specify</dd>
+<dd><code>minimum</code> - Minimum parameter value; null to not specify</dd>
+<dd><code>maximum</code> - Maximum parameter value; null to not specify</dd>
+<dd><code>description</code> - Command argument description ; null to not specify</dd>
+<dd><code>stringSize</code> - String size in bytes; ignored if the command argument does not have a
+                     string data type</dd>
+<dd><code>uniqueID</code> - Text used to uniquely identify data types with the same name; blank if
+                     the data type has no name conflict</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Command description of the type corresponding to the primitive data type with the
          specified attributes set</dd>
@@ -2048,11 +2190,11 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
  the specified entry list</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>entryList</code> - reference to the telemetry or command entry list into which to place the
-            parameter or parameter array container reference(s)</dd>
-<dd><code>parameterName</code> - parameter name</dd>
-<dd><code>dataType</code> - data type</dd>
-<dd><code>arraySize</code> - parameter array size; null or blank if the parameter isn't an array</dd>
+<dd><code>entryList</code> - Reference to the telemetry or command entry list into which to place
+                      the parameter or parameter array container reference(s)</dd>
+<dd><code>parameterName</code> - Parameter name</dd>
+<dd><code>dataType</code> - Data type</dd>
+<dd><code>arraySize</code> - Parameter array size; null or blank if the parameter isn't an array</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If an error occurs executing an external (script) method</dd>
 </dl>
@@ -2068,7 +2210,7 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <div class="block">Build a unit set from the supplied units string</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>units</code> - parameter or command argument units; null to not specify</dd>
+<dd><code>units</code> - Parameter or command argument units; null to not specify</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Unit set for the supplied units string; an empty unit set if no units are supplied</dd>
 </dl>
@@ -2077,7 +2219,7 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <a name="createEnumerationList-org.omg.space.xtce.SpaceSystemType-java.lang.String-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>createEnumerationList</h4>
 <pre>protected&nbsp;org.omg.space.xtce.EnumeratedDataType.EnumerationList&nbsp;createEnumerationList(org.omg.space.xtce.SpaceSystemType&nbsp;spaceSystem,
@@ -2085,10 +2227,73 @@ implements <a href="../CCDD/CcddImportExportInterface.html" title="interface in 
 <div class="block">Build an enumeration list from the supplied enumeration string</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>spaceSystem</code> - space system reference</dd>
+<dd><code>spaceSystem</code> - Space system reference</dd>
 <dd><code>enumeration</code> - enumeration in the format &lt;enum value&gt;&lt;enum value separator&gt;&lt;enum label&gt;[&lt;enum value separator&gt;...][&lt;enum pair separator&gt;...]</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Enumeration list for the supplied enumeration string</dd>
+</dl>
+</li>
+</ul>
+<a name="exportTableInfoDefinitions-CCDD.CcddClassesComponent.FileEnvVar-boolean-boolean-boolean-java.lang.String-boolean-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>exportTableInfoDefinitions</h4>
+<pre>public&nbsp;void&nbsp;exportTableInfoDefinitions(<a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;exportFile,
+                                       boolean&nbsp;includeTableTypes,
+                                       boolean&nbsp;includeInputTypes,
+                                       boolean&nbsp;includeDataTypes,
+                                       java.lang.String&nbsp;outputType,
+                                       boolean&nbsp;addEOFMarker,
+                                       boolean&nbsp;addSOFMarker)
+                                throws <a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a>,
+                                       java.lang.Exception</pre>
+<div class="block">Export table type definitions to the specified folder</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../CCDD/CcddImportExportInterface.html#exportTableInfoDefinitions-CCDD.CcddClassesComponent.FileEnvVar-boolean-boolean-boolean-java.lang.String-boolean-boolean-">exportTableInfoDefinitions</a></code>&nbsp;in interface&nbsp;<code><a href="../CCDD/CcddImportExportInterface.html" title="interface in CCDD">CcddImportExportInterface</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>exportFile</code> - Reference to the user-specified output file</dd>
+<dd><code>includeTableTypes</code> - Boolean representing if the table types should be included</dd>
+<dd><code>includeInputTypes</code> - Boolean representing if the input types should be included</dd>
+<dd><code>includeDataTypes</code> - Boolean representing if the data types should be included</dd>
+<dd><code>outputType</code> - String representing rather the output is going to a single file or
+                          multiple files. Should be "Single" or "Multiple"</dd>
+<dd><code>addEOFMarker</code> - Is this the last data to be added to the file?</dd>
+<dd><code>addSOFMarker</code> - Is this the first data to be added to the file?</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If a file I/O or parsing error occurs</dd>
+<dd><code>java.lang.Exception</code> - If an unanticipated error occurs</dd>
+</dl>
+</li>
+</ul>
+<a name="exportInternalCCDDData-boolean:A-CCDD.CcddConstants.exportDataTypes:A-CCDD.CcddClassesComponent.FileEnvVar-java.lang.String-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>exportInternalCCDDData</h4>
+<pre>public&nbsp;void&nbsp;exportInternalCCDDData(boolean[]&nbsp;includes,
+                                   <a href="../CCDD/CcddConstants.exportDataTypes.html" title="enum in CCDD">CcddConstants.exportDataTypes</a>[]&nbsp;dataTypes,
+                                   <a href="../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;exportFile,
+                                   java.lang.String&nbsp;outputType)
+                            throws <a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a>,
+                                   java.lang.Exception</pre>
+<div class="block">Export script association data, group data, macro data, telemetry scheduler data or
+ application scheduler data to the specified folder</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../CCDD/CcddImportExportInterface.html#exportInternalCCDDData-boolean:A-CCDD.CcddConstants.exportDataTypes:A-CCDD.CcddClassesComponent.FileEnvVar-java.lang.String-">exportInternalCCDDData</a></code>&nbsp;in interface&nbsp;<code><a href="../CCDD/CcddImportExportInterface.html" title="interface in CCDD">CcddImportExportInterface</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>includes</code> - Array indicating internal file types to include</dd>
+<dd><code>dataTypes</code> - The data type that is about to be exported</dd>
+<dd><code>exportFile</code> - Reference to the user-specified output file</dd>
+<dd><code>outputType</code> - String representing rather the output is going to a single file or
+                   multiple files. Should be "Single" or "Multiple"</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If a file I/O or parsing error occurs</dd>
+<dd><code>java.lang.Exception</code> - If an unanticipated error occurs</dd>
 </dl>
 </li>
 </ul>

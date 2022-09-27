@@ -647,9 +647,9 @@ extends java.lang.Object</pre>
 <div class="block">Scheduler handler class constructor</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>ccddMain</code> - main class</dd>
-<dd><code>rateName</code> - rate column name</dd>
-<dd><code>schedulerDlg</code> - reference to the scheduler dialog that created this class</dd>
+<dd><code>ccddMain</code> - Main class</dd>
+<dd><code>rateName</code> - Rate column name</dd>
+<dd><code>schedulerDlg</code> - Reference to the scheduler dialog that created this class</dd>
 </dl>
 </li>
 </ul>
@@ -728,7 +728,7 @@ extends java.lang.Object</pre>
 <div class="block">Set the variable(s) (application(s)) to be unavailable in the variable (application) tree</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>names</code> - list of variable (application) names to exclude</dd>
+<dd><code>names</code> - List of variable (application) names to exclude</dd>
 </dl>
 </li>
 </ul>
@@ -742,7 +742,7 @@ extends java.lang.Object</pre>
 <div class="block">Set the variable(s) (application(s)) to be available in the variable (application) tree</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>names</code> - list of variable (application) names to include</dd>
+<dd><code>names</code> - List of variable (application) names to include</dd>
 </dl>
 </li>
 </ul>
@@ -776,7 +776,7 @@ extends java.lang.Object</pre>
 <div class="block">Select the specified option in the Options list</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>option</code> - option text to match in the Options list</dd>
+<dd><code>option</code> - Option text to match in the Options list</dd>
 </dl>
 </li>
 </ul>
@@ -884,9 +884,10 @@ extends java.lang.Object</pre>
 <div class="block">Add one or more variables to the specified message</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>variables</code> - list of variables to be added</dd>
+<dd><code>variables</code> - List of variables to be added</dd>
 <dd><code>messageIndices</code> - (sub-)message indices to which the variable will be added</dd>
-<dd><code>parentIndex</code> - parent message index if this is a sub-message; -1 if this is not a sub-message</dd>
+<dd><code>parentIndex</code> - Parent message index if this is a sub-message; -1 if this is not a
+                       sub-message</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>List containing the names of the variables added</dd>
 </dl>
@@ -915,8 +916,8 @@ extends java.lang.Object</pre>
  index</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>option</code> - string representing the option in the format Message[s] #[, # [, ...]][
-            sub-msg[s] #[, # [, ...]]]</dd>
+<dd><code>option</code> - String representing the option in the format Message[s] #[, # [, ...]][
+               sub-msg[s] #[, # [, ...]]]</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Two-element object array. If the option string does not contains only a message name
          or names then the first element is -1 (indicating no sub-messages) and the second
@@ -938,7 +939,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the index of the specified message</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>msgName</code> - message name</dd>
+<dd><code>msgName</code> - Message name</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Message index; -1 if the no message of the specified name exists</dd>
 </dl>
@@ -955,8 +956,8 @@ extends java.lang.Object</pre>
 <div class="block">Find the message option that has the largest message with the least amount of room</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>rate</code> - rate of the options</dd>
-<dd><code>totalSize</code> - size of the variable(s) in bytes</dd>
+<dd><code>rate</code> - Rate of the options</dd>
+<dd><code>totalSize</code> - Size of the variable(s) in bytes</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Message into which the specified bytes can fit; null if no option is chosen</dd>
 </dl>
@@ -1009,7 +1010,8 @@ extends java.lang.Object</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>indices</code> - (sub-)message indices</dd>
-<dd><code>parentIndex</code> - parent message index if this is a sub-message; -1 if this is not a sub-message</dd>
+<dd><code>parentIndex</code> - Parent message index if this is a sub-message; -1 if this is not a
+                    sub-message</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Smallest number of bytes</dd>
 </dl>
@@ -1039,7 +1041,7 @@ extends java.lang.Object</pre>
 <div class="block">Enable/disable the dialog arrow buttons</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>enable</code> - true to enable the arrows, false to disable</dd>
+<dd><code>enable</code> - True to enable the arrows, false to disable</dd>
 </dl>
 </li>
 </ul>
@@ -1055,8 +1057,8 @@ extends java.lang.Object</pre>
  application scheduler then always return true</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>indices</code> - array of subMessge indices</dd>
-<dd><code>numOfVars</code> - number of variables being added</dd>
+<dd><code>indices</code> - Array of subMessge indices</dd>
+<dd><code>numOfVars</code> - Number of variables being added</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>true if there is room for the variable(s); false if there is insufficient room</dd>
 </dl>

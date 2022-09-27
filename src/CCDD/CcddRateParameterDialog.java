@@ -492,7 +492,7 @@ public class CcddRateParameterDialog extends CcddDialogHandler
                                                                                       Integer.valueOf(maxMsgsPerSecFld.getText()),
                                                                                       Integer.valueOf(maxMsgsPerCycleFld[index].getText()),
                                                                                       unevenCb.isSelected()))
-                                     .replaceAll("\\[|\\]", ""));
+                                           .replaceAll("\\[|\\]", ""));
         availRatesFld[index].setCaretPosition(0);
     }
 
@@ -592,8 +592,7 @@ public class CcddRateParameterDialog extends CcddDialogHandler
                     boolean isValid = true;
 
                     // Check if a matching stream name is found for a rate other than this one
-                    if (rateHandler.getRateInformationIndexByStreamName(field.getText()) != tabbedPane
-                            .getSelectedIndex())
+                    if (rateHandler.getRateInformationIndexByStreamName(field.getText()) != tabbedPane.getSelectedIndex())
                     {
                         // Inform the user that a stream name is duplicated
                         new CcddDialogHandler().showMessageDialog(CcddRateParameterDialog.this,

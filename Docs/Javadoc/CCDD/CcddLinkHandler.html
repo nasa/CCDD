@@ -363,8 +363,8 @@ extends java.lang.Object</pre>
 <div class="block">Link handler class constructor</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>ccddMain</code> - main class</dd>
-<dd><code>linkDefinitions</code> - list containing the link definitions</dd>
+<dd><code>ccddMain</code> - Main class</dd>
+<dd><code>linkDefinitions</code> - List containing the link definitions</dd>
 </dl>
 </li>
 </ul>
@@ -379,7 +379,7 @@ extends java.lang.Object</pre>
 <div class="block">Link handler class constructor. Load the link information from the project database</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>ccddMain</code> - main class</dd>
+<dd><code>ccddMain</code> - Main class</dd>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 </dl>
 </li>
@@ -416,7 +416,7 @@ extends java.lang.Object</pre>
 <div class="block">Set the link definitions</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>linkDefinitions</code> - list containing the link definitions</dd>
+<dd><code>linkDefinitions</code> - List containing the link definitions</dd>
 </dl>
 </li>
 </ul>
@@ -430,7 +430,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the link names for the specified rate column name</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>rateName</code> - rate column name</dd>
+<dd><code>rateName</code> - Rate column name</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>List containing the link names for the specified rate column name; an empty list if
          there are no links associated with the rate</dd>
@@ -448,8 +448,8 @@ extends java.lang.Object</pre>
 <div class="block">Get the reference to a specified link's definitions</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>linkName</code> - link name</dd>
-<dd><code>linkRate</code> - link rate name</dd>
+<dd><code>linkName</code> - Link name</dd>
+<dd><code>linkRate</code> - Link rate name</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>List of a link's definitions</dd>
 </dl>
@@ -466,8 +466,8 @@ extends java.lang.Object</pre>
 <div class="block">Return an array of rate and link names to which the specified variable belongs</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>variable</code> - variable path and name</dd>
-<dd><code>useDataStream</code> - true to return the data stream name in place of the rate column name</dd>
+<dd><code>variable</code> - Variable path and name</dd>
+<dd><code>useDataStream</code> - True to return the data stream name in place of the rate column name</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Array containing the rates and links to which the specified variable is a member; an
          empty array if the variable does not belong to a link</dd>
@@ -485,8 +485,8 @@ extends java.lang.Object</pre>
 <div class="block">Return the link name to which the specified variable belongs for the specified rate</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>variable</code> - variable path and name</dd>
-<dd><code>rateName</code> - rate name</dd>
+<dd><code>variable</code> - Variable path and name</dd>
+<dd><code>rateName</code> - Rate name</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Name of the link if the variable and rate match; null if no match exists</dd>
 </dl>
@@ -504,8 +504,8 @@ extends java.lang.Object</pre>
  member</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>rateName</code> - data stream rate column name</dd>
-<dd><code>name</code> - name of the link to calculate the remaining bytes for</dd>
+<dd><code>rateName</code> - Data stream rate column name</dd>
+<dd><code>name</code> - Name of the link to calculate the remaining bytes for</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Number of bytes used in the link; 0 if no variables are in the link</dd>
 </dl>
@@ -522,8 +522,8 @@ extends java.lang.Object</pre>
 <div class="block">Get the description for a specified link</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>rateName</code> - data stream rate column name</dd>
-<dd><code>name</code> - link name</dd>
+<dd><code>rateName</code> - Data stream rate column name</dd>
+<dd><code>name</code> - Link name</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Description of the specified link; returns a blank if the link doesn't exist</dd>
 </dl>
@@ -540,8 +540,8 @@ extends java.lang.Object</pre>
 <div class="block">Get the link rate</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>rateName</code> - data stream rate column name</dd>
-<dd><code>name</code> - name of the link</dd>
+<dd><code>rateName</code> - Data stream rate column name</dd>
+<dd><code>name</code> - Name of the link</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Link rate; blank if the link name doesn't exist</dd>
 </dl>
@@ -558,7 +558,7 @@ extends java.lang.Object</pre>
  members</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>applicationFieldName</code> - name of the application name data field</dd>
+<dd><code>applicationFieldName</code> - Name of the application name data field</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Array containing the application name data field values associated with the
          specified link's variable members. Each application name is listed only once in the

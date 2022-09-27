@@ -1448,8 +1448,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
 
                         // Get the table's type definition. If importing into an existing table
                         // then use its type definition
-                        TypeDefinition typeDefn = importType == ImportType.IMPORT_ALL ? tableTypeHandler
-                                .getTypeDefinition(tableType) : targetTypeDefn;
+                        TypeDefinition typeDefn = importType == ImportType.IMPORT_ALL ? tableTypeHandler.getTypeDefinition(tableType)
+                                                                                      : targetTypeDefn;
 
                         // Check if the table type doesn't exist
                         if (typeDefn == null)
@@ -1651,6 +1651,30 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             OrderedJSONObject outputJO = new OrderedJSONObject();
             JSONArray tableJA = new JSONArray();
 
+            // Check if the build information is to be output
+            if (includeBuildInformation)
+            {
+                // Output the build information
+                outputJO.put(JSONTags.FILE_DESCRIPTION.getTag(),
+                                     "Created "
+                                     + new Date().toString()
+                                     + " : CCDD version = "
+                                     + ccddMain.getCCDDVersionInformation()
+                                     + " : project = "
+                                     + dbControl.getProjectName()
+                                     + " : host = "
+                                     + dbControl.getServer()
+                                     + " : user = "
+                                     + dbControl.getUser());
+
+                // If outputType equals SINGLE_FILE than set includeBuildInformation to false so
+                // that it is not added multiple times
+                if (outputType.contentEquals(EXPORT_SINGLE_FILE))
+                {
+                    includeBuildInformation = false;
+                }
+            }
+
             // Step through each table
             for (int counter = 0; counter < tableDefs.size() && counter < tableDefs.size(); counter++)
             {
@@ -1677,13 +1701,6 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                                             JSONTags.TABLE_FIELD.getTag(),
                                             null,
                                             tableInfoJO);
-
-                // If outputType equals SINGLE_FILE than set includeBuildInformation to false so
-                // that it is not added multiple times
-                if (outputType.contentEquals(EXPORT_SINGLE_FILE))
-                {
-                    includeBuildInformation = false;
-                }
 
                 // Check if the table's data successfully loaded
                 if (tableInfoJO != null && !tableInfoJO.isEmpty())
@@ -1923,12 +1940,13 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                             // Check if the table represents a structure, that the variable path
                             // column is to be included, and that a variable handler and path
                             // separators are supplied
-                            if (typeDefn.isStructure() && includeVariablePaths && variableHandler != null
+                            if (typeDefn.isStructure()
+                                && includeVariablePaths
+                                && variableHandler != null
                                 && separators != null)
                             {
                                 // Get the variable's data type
-                                String dataType = tableInfo.getData().get(row)[typeDefn
-                                        .getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT)].toString();
+                                String dataType = tableInfo.getData().get(row)[typeDefn.getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT)].toString();
 
                                 // Check if the data type is a primitive
                                 if (dataTypeHandler.isPrimitive(dataType))
@@ -2058,8 +2076,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                                 && separators != null)
                             {
                                 // Get the variable's data type
-                                String dataType = tableInfo.getData().get(row)[typeDefn
-                                        .getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT)].toString();
+                                String dataType = tableInfo.getData().get(row)[typeDefn.getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT)].toString();
 
                                 // Check if the data type is a primitive
                                 if (dataTypeHandler.isPrimitive(dataType))

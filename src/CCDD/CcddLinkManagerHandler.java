@@ -433,9 +433,9 @@ public class CcddLinkManagerHandler
         // rates; otherwise choose the first rate if any rates exist, and if none exist set the
         // rate to a dummy value
         selectedRate = Arrays.asList(availableRates)
-                .contains("1") ? "1"
-                               : (availableRates.length != 0 ? CcddUtilities.removeHTMLTags(availableRates[0])
-                                                             : "0");
+                             .contains("1") ? "1"
+                                            : (availableRates.length != 0 ? CcddUtilities.removeHTMLTags(availableRates[0])
+                                                                          : "0");
 
         // Build the variable tree that shows tables and their variables for the selected rate. Use
         // the first rate in the available rates array to determine which variables to display in

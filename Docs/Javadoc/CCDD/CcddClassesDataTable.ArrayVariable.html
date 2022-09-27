@@ -17,7 +17,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":9,"i8":9};
+var methods = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":9,"i8":9,"i9":9,"i10":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -172,36 +172,49 @@ extends java.lang.Object</pre>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
+<td class="colFirst"><code>protected static int[]</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddClassesDataTable.ArrayVariable.html#getArraySizeAndDimensions-CCDD.CcddMacroHandler-java.lang.String-">getArraySizeAndDimensions</a></span>(<a href="../CCDD/CcddMacroHandler.html" title="class in CCDD">CcddMacroHandler</a>&nbsp;newMacroHandler,
+                         java.lang.String&nbsp;arrayInfo)</code>
+<div class="block">Get the array size of 1d, 2d or 3d arrays</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>protected static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddClassesDataTable.ArrayVariable.html#getNumMembersFromArrayDimension-int:A-">getNumMembersFromArrayDimension</a></span>(int[]&nbsp;arraySize)</code>
 <div class="block">Get the total number of array members using the array dimension values</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>protected static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddClassesDataTable.ArrayVariable.html#getNumMembersFromArraySize-java.lang.String-">getNumMembersFromArraySize</a></span>(java.lang.String&nbsp;arraySizeS)</code>
 <div class="block">Get the total number of array members using the data tables array size cell text</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>protected static java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddClassesDataTable.ArrayVariable.html#getVariableArrayIndex-java.lang.String-">getVariableArrayIndex</a></span>(java.lang.String&nbsp;variableName)</code>
 <div class="block">Get the array variable index, if present, from the supplied variable name</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>protected static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddClassesDataTable.ArrayVariable.html#getVariableArrayIndexAsInt-java.lang.String-">getVariableArrayIndexAsInt</a></span>(java.lang.String&nbsp;variableName)</code>
+<div class="block">Get the array variable index, if present, from the supplied variable name</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>protected static boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddClassesDataTable.ArrayVariable.html#isArrayMember-java.lang.Object-">isArrayMember</a></span>(java.lang.Object&nbsp;variableName)</code>
 <div class="block">Check if a variable name represents an array member</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>protected static java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddClassesDataTable.ArrayVariable.html#removeArrayIndex-java.lang.String-">removeArrayIndex</a></span>(java.lang.String&nbsp;variableName)</code>
 <div class="block">Remove the array variable index, if present, from the supplied variable name</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>protected static java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddClassesDataTable.ArrayVariable.html#removeStringSize-java.lang.String-">removeStringSize</a></span>(java.lang.String&nbsp;variableName)</code>
 <div class="block">Remove the string size array variable index, if present, from the supplied variable name</div>
@@ -256,7 +269,7 @@ extends java.lang.Object</pre>
 <div class="block">Remove the array variable index, if present, from the supplied variable name</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>variableName</code> - variable name</dd>
+<dd><code>variableName</code> - Variable name</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The variable name, with the array index removed</dd>
 </dl>
@@ -272,7 +285,7 @@ extends java.lang.Object</pre>
 <div class="block">Remove the string size array variable index, if present, from the supplied variable name</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>variableName</code> - variable name</dd>
+<dd><code>variableName</code> - Variable name</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The variable name, with the string size array index removed</dd>
 </dl>
@@ -288,9 +301,55 @@ extends java.lang.Object</pre>
 <div class="block">Get the array variable index, if present, from the supplied variable name</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>variableName</code> - variable name</dd>
+<dd><code>variableName</code> - Variable name</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The array index, with the variable name removed</dd>
+</dl>
+</li>
+</ul>
+<a name="getVariableArrayIndexAsInt-java.lang.String-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getVariableArrayIndexAsInt</h4>
+<pre>protected static&nbsp;int&nbsp;getVariableArrayIndexAsInt(java.lang.String&nbsp;variableName)</pre>
+<div class="block">Get the array variable index, if present, from the supplied variable name</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>variableName</code> - Variable name</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The array index, with the variable name removed</dd>
+</dl>
+</li>
+</ul>
+<a name="getArraySizeAndDimensions-CCDD.CcddMacroHandler-java.lang.String-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getArraySizeAndDimensions</h4>
+<pre>protected static&nbsp;int[]&nbsp;getArraySizeAndDimensions(<a href="../CCDD/CcddMacroHandler.html" title="class in CCDD">CcddMacroHandler</a>&nbsp;newMacroHandler,
+                                                 java.lang.String&nbsp;arrayInfo)</pre>
+<div class="block">Get the array size of 1d, 2d or 3d arrays</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>newMacroHandler</code> - Macro handler</dd>
+<dd><code>arrayInfo</code> - String representing the dimensions of the array. Example = "4" or "2,2"</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>An array with 4 indexes. The first represents if the array is a 1d, 2d or 3d
+         array. The second represents the number of indexes in the internal 1d arrays.
+         The third represents the total number of 1d arrays. The fourth represents the
+         number of 2d arrays.
+
+         Examples: If we have a single array with size 6 this function will return [1, 6,
+         -1, -1]
+
+         If we have a 2d array of size 3 with each 1d array having a size of 6 the
+         function will return [2, 6, 3, -1]
+
+         If we have a 3d array of size 2 with each index having a 2d array of size 3 with
+         each 1d array having a size of 6 then the function will return [3, 6, 3, 2]</dd>
 </dl>
 </li>
 </ul>
@@ -304,7 +363,7 @@ extends java.lang.Object</pre>
 <div class="block">Check if a variable name represents an array member</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>variableName</code> - variable name</dd>
+<dd><code>variableName</code> - Variable name</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>true if the variable is an array member</dd>
 </dl>
@@ -320,7 +379,7 @@ extends java.lang.Object</pre>
 <div class="block">Add brackets to encompass a variable array index value(s)</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>arrayIndex</code> - array of array variable index value(s)</dd>
+<dd><code>arrayIndex</code> - Array of array variable index value(s)</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Array index value(s), surrounded by brackets</dd>
 </dl>
@@ -336,7 +395,8 @@ extends java.lang.Object</pre>
 <div class="block">Parse an array size into an array of integers representing each array index</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>arrayString</code> - array size value in the format [#]&lt;[#]&lt;...&gt;&gt; or #&lt;,#&lt;,...&gt;&gt;</dd>
+<dd><code>arrayString</code> - Array size value in the format
+                    [#]&lt;[#]&lt;...&gt;&gt; or #&lt;,#&lt;,...&gt;&gt;</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Array of integers representing each array index. An empty array is returned if
          the array size cell is blank</dd>
@@ -353,7 +413,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the total number of array members using the data tables array size cell text</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>arraySizeS</code> - string representing the array variable dimension sizes</dd>
+<dd><code>arraySizeS</code> - String representing the array variable dimension sizes</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Total number of members in the array; 0 if not an array variable</dd>
 </dl>
@@ -369,7 +429,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the total number of array members using the array dimension values</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>arraySize</code> - array of the array variable dimension sizes</dd>
+<dd><code>arraySize</code> - Array of the array variable dimension sizes</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Total number of members in the array; 0 if not an array variable</dd>
 </dl>
@@ -386,8 +446,8 @@ extends java.lang.Object</pre>
 <div class="block">Compare two array variable members by array dimension value(s)</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>arrayVariable1</code> - first array variable member to compare</dd>
-<dd><code>arrayVariable2</code> - second array variable member to compare</dd>
+<dd><code>arrayVariable1</code> - First array variable member to compare</dd>
+<dd><code>arrayVariable2</code> - Second array variable member to compare</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>0 if the array members are the same, -1 if the first array member occurs prior
          to the second array member (based the their array dimension value(s), and 1 if

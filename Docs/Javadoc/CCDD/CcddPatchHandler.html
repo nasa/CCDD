@@ -17,7 +17,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -49,7 +49,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../CCDD/CcddPaddingVariableHandler.StructurePaddingHandler.html" title="class in CCDD"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../CCDD/CcddPreferencesDialog.html" title="class in CCDD"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../CCDD/CcddPatchHandler.PatchUtility.html" title="class in CCDD"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../index.html?CCDD/CcddPatchHandler.html" target="_top">Frames</a></li>
@@ -73,7 +73,7 @@ var activeTableTab = "activeTableTab";
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
@@ -117,6 +117,25 @@ extends java.lang.Object</pre>
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Nested Class Summary table, listing nested classes, and an explanation">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Class and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>(package private) class&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddPatchHandler.PatchUtility.html" title="class in CCDD">CcddPatchHandler.PatchUtility</a></span></code>&nbsp;</td>
+</tr>
+</table>
+</li>
+</ul>
 <!-- =========== FIELD SUMMARY =========== -->
 <ul class="blockList">
 <li class="blockList"><a name="field.summary">
@@ -134,12 +153,36 @@ extends java.lang.Object</pre>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddPatchHandler.html#ccddMain">ccddMain</a></span></code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>private java.lang.String</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddPatchHandler.html#PATCH_06012019">PATCH_06012019</a></span></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private java.lang.String</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddPatchHandler.html#PATCH_06212018">PATCH_06212018</a></span></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private java.lang.String</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddPatchHandler.html#PATCH_07242018">PATCH_07242018</a></span></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private java.lang.String</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddPatchHandler.html#PATCH_08292018">PATCH_08292018</a></span></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private java.lang.String</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddPatchHandler.html#PATCH_11052018">PATCH_11052018</a></span></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>private boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddPatchHandler.html#patch11052018Continue">patch11052018Continue</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>private int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddPatchHandler.html#patch11052018RenamedFields">patch11052018RenamedFields</a></span></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private java.util.HashMap&lt;java.lang.String,<a href="../CCDD/CcddPatchHandler.PatchUtility.html" title="class in CCDD">CcddPatchHandler.PatchUtility</a>&gt;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddPatchHandler.html#patchSet">patchSet</a></span></code>&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -223,6 +266,13 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddPatchHandler.html#UpdateTableTypeAndDataTypeTables--">UpdateTableTypeAndDataTypeTables</a></span>()</code>
+<div class="block">The internal data types table is modified so that the 'size' column has a type of 'text'
+ rather than a size of 'int'.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddPatchHandler.html#updateUserAccess--">updateUserAccess</a></span>()</code>
 <div class="block">Update the project database so that user access levels are supported</div>
 </td>
@@ -249,6 +299,15 @@ extends java.lang.Object</pre>
 <!--   -->
 </a>
 <h3>Field Detail</h3>
+<a name="patchSet">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>patchSet</h4>
+<pre>private&nbsp;java.util.HashMap&lt;java.lang.String,<a href="../CCDD/CcddPatchHandler.PatchUtility.html" title="class in CCDD">CcddPatchHandler.PatchUtility</a>&gt; patchSet</pre>
+</li>
+</ul>
 <a name="ccddMain">
 <!--   -->
 </a>
@@ -256,6 +315,71 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>ccddMain</h4>
 <pre>private final&nbsp;<a href="../CCDD/CcddMain.html" title="class in CCDD">CcddMain</a> ccddMain</pre>
+</li>
+</ul>
+<a name="PATCH_06012019">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PATCH_06012019</h4>
+<pre>private final&nbsp;java.lang.String PATCH_06012019</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../constant-values.html#CCDD.CcddPatchHandler.PATCH_06012019">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a name="PATCH_11052018">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PATCH_11052018</h4>
+<pre>private final&nbsp;java.lang.String PATCH_11052018</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../constant-values.html#CCDD.CcddPatchHandler.PATCH_11052018">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a name="PATCH_08292018">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PATCH_08292018</h4>
+<pre>private final&nbsp;java.lang.String PATCH_08292018</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../constant-values.html#CCDD.CcddPatchHandler.PATCH_08292018">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a name="PATCH_07242018">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PATCH_07242018</h4>
+<pre>private final&nbsp;java.lang.String PATCH_07242018</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../constant-values.html#CCDD.CcddPatchHandler.PATCH_07242018">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a name="PATCH_06212018">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PATCH_06212018</h4>
+<pre>private final&nbsp;java.lang.String PATCH_06212018</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../constant-values.html#CCDD.CcddPatchHandler.PATCH_06212018">Constant Field Values</a></dd>
+</dl>
 </li>
 </ul>
 <a name="patch11052018Continue">
@@ -298,7 +422,7 @@ extends java.lang.Object</pre>
  may have detrimental effects</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>ccddMain</code> - main class</dd>
+<dd><code>ccddMain</code> - Main class</dd>
 </dl>
 </li>
 </ul>
@@ -321,11 +445,12 @@ extends java.lang.Object</pre>
 <div class="block">Apply patches based on the input flag</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>isBeforeHandlerInit</code> - true if the patch must be implemented prior to initializing the handler classes;
-            false if the patch must be implemented after initializing the handler classes</dd>
+<dd><code>isBeforeHandlerInit</code> - True if the patch must be implemented prior to initializing the
+                            handler classes; false if the patch must be implemented after
+                            initializing the handler classes</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If the user elects to not install the patch or an error occurs while applying
-             the patch</dd>
+<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If the user elects to not install the patch or an error occurs while
+                       applying the patch</dd>
 </dl>
 </li>
 </ul>
@@ -342,10 +467,23 @@ extends java.lang.Object</pre>
  combination of the project's database name and the current date/time stamp</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>dbControl</code> - reference to the database control class</dd>
+<dd><code>dbControl</code> - Reference to the database control class</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If the project database cannot be backed up and the user elects to not continue</dd>
+<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If the project database cannot be backed up and the user elects to not
+                       continue</dd>
 </dl>
+</li>
+</ul>
+<a name="UpdateTableTypeAndDataTypeTables--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>UpdateTableTypeAndDataTypeTables</h4>
+<pre>private&nbsp;void&nbsp;UpdateTableTypeAndDataTypeTables()</pre>
+<div class="block">The internal data types table is modified so that the 'size' column has a type of 'text'
+ rather than a size of 'int'. The internal table types table it updated with a new table type
+ called 'ENUM'</div>
 </li>
 </ul>
 <a name="updateCommandTables--">
@@ -368,8 +506,8 @@ extends java.lang.Object</pre>
  not compatible with the project database after applying this patch</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If the user elects to not install the patch or an error occurs while applying
-             the patch</dd>
+<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If the user elects to not install the patch or an error occurs while
+                       applying the patch</dd>
 </dl>
 </li>
 </ul>
@@ -386,8 +524,8 @@ extends java.lang.Object</pre>
  this patch</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If the user elects to not install the patch or an error occurs while applying
-             the patch</dd>
+<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If the user elects to not install the patch or an error occurs while
+                       applying the patch</dd>
 </dl>
 </li>
 </ul>
@@ -404,8 +542,8 @@ extends java.lang.Object</pre>
  with the project database after applying this patch</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If the user elects to not install the patch or an error occurs while applying
-             the patch</dd>
+<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If the user elects to not install the patch or an error occurs while
+                       applying the patch</dd>
 </dl>
 </li>
 </ul>
@@ -424,8 +562,8 @@ extends java.lang.Object</pre>
  are no longer associated with the IDs; this must be done manually</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - if an error occurs performing the update or the user elects to not install the
-             patch</dd>
+<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - if an error occurs performing the update or the user elects to not
+                       install the patch</dd>
 </dl>
 </li>
 </ul>
@@ -440,8 +578,8 @@ extends java.lang.Object</pre>
 <div class="block">Update the project database so that user access levels are supported</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - if an error occurs performing the update or the user elects to not install the
-             patch</dd>
+<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - if an error occurs performing the update or the user elects to not
+                       install the patch</dd>
 </dl>
 </li>
 </ul>
@@ -457,8 +595,8 @@ extends java.lang.Object</pre>
  exports that don't allow leading underscores in variable names (e.g., EDS)</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - if an error occurs performing the update or the user elects to not install the
-             patch</dd>
+<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - if an error occurs performing the update or the user elects to not
+                       install the patch</dd>
 </dl>
 </li>
 </ul>
@@ -491,7 +629,7 @@ extends java.lang.Object</pre>
 <div class="subNav">
 <ul class="navList">
 <li><a href="../CCDD/CcddPaddingVariableHandler.StructurePaddingHandler.html" title="class in CCDD"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../CCDD/CcddPreferencesDialog.html" title="class in CCDD"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../CCDD/CcddPatchHandler.PatchUtility.html" title="class in CCDD"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../index.html?CCDD/CcddPatchHandler.html" target="_top">Frames</a></li>
@@ -515,7 +653,7 @@ extends java.lang.Object</pre>
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>

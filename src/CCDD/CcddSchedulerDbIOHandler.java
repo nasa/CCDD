@@ -566,8 +566,7 @@ public class CcddSchedulerDbIOHandler
                 if (!row[AppSchedulerColumn.APP_INFO.ordinal()].isEmpty())
                 {
                     // Split the member column to extract the application name
-                    String name = row[AppSchedulerColumn.APP_INFO.ordinal()]
-                            .split(",", DefaultApplicationField.values().length)[0];
+                    String name = row[AppSchedulerColumn.APP_INFO.ordinal()].split(",", DefaultApplicationField.values().length)[0];
 
                     // Step through all created variables
                     for (Variable variable : varList)

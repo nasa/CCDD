@@ -163,20 +163,28 @@ extends java.lang.Object</pre>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#argument">argument</a></span></code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>private boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#backupFirst">backupFirst</a></span></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>private <a href="../CCDD/CcddMain.html" title="class in CCDD">CcddMain</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#ccddMain">ccddMain</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>private java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#classification1">classification1</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>private java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#classification2">classification2</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>private java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#classification3">classification3</a></span></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#clearTargetDirectory">clearTargetDirectory</a></span></code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>private java.util.List&lt;<a href="../CCDD/CcddCommandLineHandler.CommandHandler.html" title="class in CCDD">CcddCommandLineHandler.CommandHandler</a>&gt;</code></td>
@@ -203,16 +211,24 @@ extends java.lang.Object</pre>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#dataFile">dataFile</a></span></code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>private boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#deleteAbsentFiles">deleteAbsentFiles</a></span></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>private java.util.List&lt;<a href="../CCDD/CcddCommandLineHandler.CommandHandler.html" title="class in CCDD">CcddCommandLineHandler.CommandHandler</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#deleteArgument">deleteArgument</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>private boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#deleteContinueIfMissing">deleteContinueIfMissing</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>private java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#deleteName">deleteName</a></span></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private <a href="../CCDD/CcddConstants.ManagerDialogType.html" title="enum in CCDD">CcddConstants.ManagerDialogType</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#dialogType">dialogType</a></span></code>&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>private <a href="../CCDD/CcddConstants.EndianType.html" title="enum in CCDD">CcddConstants.EndianType</a></code></td>
@@ -227,36 +243,52 @@ extends java.lang.Object</pre>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#exportArgument">exportArgument</a></span></code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>private boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#exportFullDatabase">exportFullDatabase</a></span></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>private <a href="../CCDD/CcddConstants.FileExtension.html" title="enum in CCDD">CcddConstants.FileExtension</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#fileExtn">fileExtn</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>private java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#filePath">filePath</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>private boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#ignoreErrors">ignoreErrors</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>private java.util.List&lt;<a href="../CCDD/CcddCommandLineHandler.CommandHandler.html" title="class in CCDD">CcddCommandLineHandler.CommandHandler</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#importArgument">importArgument</a></span></code>&nbsp;</td>
 </tr>
+<tr class="altColor">
+<td class="colFirst"><code>private <a href="../CCDD/CcddConstants.FileExtension.html" title="enum in CCDD">CcddConstants.FileExtension</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#importFileType">importFileType</a></span></code>&nbsp;</td>
+</tr>
 <tr class="rowColor">
+<td class="colFirst"><code>private boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#importFullDatabase">importFullDatabase</a></span></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>private boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#includeAllDataTypes">includeAllDataTypes</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>private boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#includeAllInputTypes">includeAllInputTypes</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>private boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#includeAllMacros">includeAllMacros</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>private boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#includeAllTableTypes">includeAllTableTypes</a></span></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#includeAppSched">includeAppSched</a></span></code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>private boolean</code></td>
@@ -280,85 +312,97 @@ extends java.lang.Object</pre>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>private boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#includeVariablePaths">includeVariablePaths</a></span></code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#includeTlmSched">includeTlmSched</a></span></code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>private boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#includeVariablePaths">includeVariablePaths</a></span></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>private boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#isHeaderBigEndian">isHeaderBigEndian</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>private boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#openEditor">openEditor</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>private boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#overwriteFile">overwriteFile</a></span></code>&nbsp;</td>
 </tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#replaceExistingAssociations">replaceExistingAssociations</a></span></code>&nbsp;</td>
+</tr>
 <tr class="altColor">
+<td class="colFirst"><code>private boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#replaceExistingDataTypes">replaceExistingDataTypes</a></span></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>private boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#replaceExistingGroups">replaceExistingGroups</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>private boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#replaceExistingMacros">replaceExistingMacros</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>private boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#replaceExistingTables">replaceExistingTables</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>private boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#replaceMacros">replaceMacros</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>private java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#scriptFileName">scriptFileName</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>private java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#scriptOutPath">scriptOutPath</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>private java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#sessionLogPath">sessionLogPath</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>private boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#showUsage">showUsage</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>private boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#shutdownWhenComplete">shutdownWhenComplete</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>private boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#singleFile">singleFile</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>private boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#stopProcessingCommands">stopProcessingCommands</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>private java.lang.String[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#tablePaths">tablePaths</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>private java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#typeNameSeparator">typeNameSeparator</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>private boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#useExistingFields">useExistingFields</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>private java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#validationStatus">validationStatus</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>private java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#varPathSeparator">varPathSeparator</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>private java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#version">version</a></span></code>&nbsp;</td>
 </tr>
@@ -640,6 +684,69 @@ extends java.lang.Object</pre>
 <pre>private&nbsp;boolean replaceExistingGroups</pre>
 </li>
 </ul>
+<a name="replaceExistingDataTypes">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>replaceExistingDataTypes</h4>
+<pre>private&nbsp;boolean replaceExistingDataTypes</pre>
+</li>
+</ul>
+<a name="replaceExistingAssociations">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>replaceExistingAssociations</h4>
+<pre>private&nbsp;boolean replaceExistingAssociations</pre>
+</li>
+</ul>
+<a name="deleteAbsentFiles">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>deleteAbsentFiles</h4>
+<pre>private&nbsp;boolean deleteAbsentFiles</pre>
+</li>
+</ul>
+<a name="backupFirst">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>backupFirst</h4>
+<pre>private&nbsp;boolean backupFirst</pre>
+</li>
+</ul>
+<a name="importFullDatabase">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>importFullDatabase</h4>
+<pre>private&nbsp;boolean importFullDatabase</pre>
+</li>
+</ul>
+<a name="importFileType">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>importFileType</h4>
+<pre>private&nbsp;<a href="../CCDD/CcddConstants.FileExtension.html" title="enum in CCDD">CcddConstants.FileExtension</a> importFileType</pre>
+</li>
+</ul>
+<a name="dialogType">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>dialogType</h4>
+<pre>private&nbsp;<a href="../CCDD/CcddConstants.ManagerDialogType.html" title="enum in CCDD">CcddConstants.ManagerDialogType</a> dialogType</pre>
+</li>
+</ul>
 <a name="filePath">
 <!--   -->
 </a>
@@ -674,6 +781,15 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>singleFile</h4>
 <pre>private&nbsp;boolean singleFile</pre>
+</li>
+</ul>
+<a name="clearTargetDirectory">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>clearTargetDirectory</h4>
+<pre>private&nbsp;boolean clearTargetDirectory</pre>
 </li>
 </ul>
 <a name="includeAllTableTypes">
@@ -773,6 +889,24 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>includeAssociations</h4>
 <pre>private&nbsp;boolean includeAssociations</pre>
+</li>
+</ul>
+<a name="includeTlmSched">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>includeTlmSched</h4>
+<pre>private&nbsp;boolean includeTlmSched</pre>
+</li>
+</ul>
+<a name="includeAppSched">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>includeAppSched</h4>
+<pre>private&nbsp;boolean includeAppSched</pre>
 </li>
 </ul>
 <a name="fileExtn">
@@ -883,6 +1017,15 @@ extends java.lang.Object</pre>
 <pre>private&nbsp;boolean excludeDataTypes</pre>
 </li>
 </ul>
+<a name="exportFullDatabase">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>exportFullDatabase</h4>
+<pre>private&nbsp;boolean exportFullDatabase</pre>
+</li>
+</ul>
 <a name="createName">
 <!--   -->
 </a>
@@ -974,8 +1117,8 @@ extends java.lang.Object</pre>
 <div class="block">Command line argument handler class constructor</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>ccddMain</code> - main class reference</dd>
-<dd><code>args</code> - array of command line arguments and associated parameters</dd>
+<dd><code>ccddMain</code> - Main class reference</dd>
+<dd><code>args</code> - Array of command line arguments and associated parameters</dd>
 </dl>
 </li>
 </ul>
@@ -998,9 +1141,9 @@ extends java.lang.Object</pre>
  command is present and all command line commands have completed execution</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>priority</code> - command priority range - execute only those commands with a priority &gt;= to the
-            start value (-1 to start with the lowest priority command) and &lt;= to the end
-            value (-1 to end with the highest priority command)</dd>
+<dd><code>priority</code> - Command priority range - execute only those commands with a priority &gt;=
+                 to the start value (-1 to start with the lowest priority command) and &lt;=
+                 to the end value (-1 to end with the highest priority command)</dd>
 </dl>
 </li>
 </ul>
@@ -1017,12 +1160,12 @@ extends java.lang.Object</pre>
 <div class="block">Parse and execute the command line argument(s)</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>startPriority</code> - command priority boundary - ignore commands with a priority less than this value;
-            -1 starts with the lowest priority command</dd>
-<dd><code>endPriority</code> - command priority boundary - ignore commands with a priority greater than this
-            value; -1 ends with the highest priority command</dd>
-<dd><code>cmdLnArgs</code> - array of command line arguments to parse</dd>
-<dd><code>commandArgument</code> - list of valid command line commands</dd>
+<dd><code>startPriority</code> - Command priority boundary - ignore commands with a priority less than
+                        this value; -1 starts with the lowest priority command</dd>
+<dd><code>endPriority</code> - Command priority boundary - ignore commands with a priority greater
+                        than this value; -1 ends with the highest priority command</dd>
+<dd><code>cmdLnArgs</code> - Array of command line arguments to parse</dd>
+<dd><code>commandArgument</code> - List of valid command line commands</dd>
 </dl>
 </li>
 </ul>
@@ -1063,9 +1206,9 @@ extends java.lang.Object</pre>
 <div class="block">Get the main window size parameter</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>arg</code> - window size command line argument</dd>
-<dd><code>parm</code> - window dimensions</dd>
-<dd><code>min</code> - array containing the minimum main window width and minimum main window height</dd>
+<dd><code>arg</code> - Window size command line argument</dd>
+<dd><code>parm</code> - Window dimensions</dd>
+<dd><code>min</code> - Array containing the minimum main window width and minimum main window height</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Main window dimension value (null if an error is found)</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -1086,10 +1229,10 @@ extends java.lang.Object</pre>
 <div class="block">Get an integer value parameter that has minimum and maximum limits</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>arg</code> - integer value command line argument</dd>
-<dd><code>parm</code> - integer value</dd>
-<dd><code>limit</code> - array containing the lower limit value (inclusive) and the upper limit value
-            (inclusive)</dd>
+<dd><code>arg</code> - Integer value command line argument</dd>
+<dd><code>parm</code> - Integer value</dd>
+<dd><code>limit</code> - Array containing the lower limit value (inclusive) and the upper limit value
+              (inclusive)</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Integer value (null if an error is found)</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -1109,13 +1252,13 @@ extends java.lang.Object</pre>
 <div class="block">Get a color parameter</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>arg</code> - color command line argument</dd>
-<dd><code>parm</code> - color in hexadecimal format or a color name</dd>
+<dd><code>arg</code> - Color command line argument</dd>
+<dd><code>parm</code> - Color in hexadecimal format or a color name</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Selected color in hexadecimal format (null if an error is found)</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code>java.lang.Exception</code> - If the color value is not in the expected hexadecimal format or is not a
-             recognized color name</dd>
+                   recognized color name</dd>
 </dl>
 </li>
 </ul>
@@ -1134,10 +1277,10 @@ extends java.lang.Object</pre>
  argument if forced to lower case when comparing to the acceptable options</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>arg</code> - command line argument</dd>
-<dd><code>parm</code> - command option</dd>
-<dd><code>inputOptions</code> - array of valid inputs</dd>
-<dd><code>outputValues</code> - array of output values associated with each input option</dd>
+<dd><code>arg</code> - Command line argument</dd>
+<dd><code>parm</code> - Command option</dd>
+<dd><code>inputOptions</code> - Array of valid inputs</dd>
+<dd><code>outputValues</code> - Array of output values associated with each input option</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Output value for the option selected</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>

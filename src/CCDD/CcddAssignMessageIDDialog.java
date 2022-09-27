@@ -447,7 +447,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                                                                 1,
                                                                 1,
                                                                 1.0,
-                                                                0.0,
+                                                                1.0,
                                                                 GridBagConstraints.LINE_START,
                                                                 GridBagConstraints.BOTH,
                                                                 new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
@@ -958,6 +958,11 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
         tabInfo.getOverwriteCbx().setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         gbc.gridy++;
         tabPnl.add(tabInfo.getOverwriteCbx(), gbc);
+
+        // Add an empty label for alignment purposes
+        gbc.weighty = 1.0;
+        gbc.gridy++;
+        tabPnl.add(new JLabel(), gbc);
 
         // Add the tab
         tabbedPane.addTab(tabInfo.getName(), null, tabPnl, tabInfo.getToolTip());

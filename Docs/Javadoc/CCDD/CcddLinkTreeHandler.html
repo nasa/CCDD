@@ -442,7 +442,7 @@ extends <a href="../CCDD/CcddInformationTreeHandler.html" title="class in CCDD">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;CCDD.<a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddCommonTreeHandler</a></h3>
-<code><a href="../CCDD/CcddCommonTreeHandler.html#addChildNodes-CCDD.CcddClassesComponent.ToolTipTreeNode-java.util.List-java.util.List-boolean-">addChildNodes</a>, <a href="../CCDD/CcddCommonTreeHandler.html#adjustExpansionState-java.lang.String-boolean-boolean-boolean-boolean-boolean-java.util.List-CCDD.CcddGroupHandler-CCDD.CcddTableTypeHandler-">adjustExpansionState</a>, <a href="../CCDD/CcddCommonTreeHandler.html#clearDisabledNodes--">clearDisabledNodes</a>, <a href="../CCDD/CcddCommonTreeHandler.html#createNameFromPath-java.lang.Object:A-int-">createNameFromPath</a>, <a href="../CCDD/CcddCommonTreeHandler.html#expandCollapseSelectedNodes--">expandCollapseSelectedNodes</a>, <a href="../CCDD/CcddCommonTreeHandler.html#getBitPackedVariables-CCDD.CcddClassesComponent.ToolTipTreeNode-">getBitPackedVariables</a>, <a href="../CCDD/CcddCommonTreeHandler.html#getExpansionState--">getExpansionState</a>, <a href="../CCDD/CcddCommonTreeHandler.html#getFullVariablePath-java.lang.Object:A-">getFullVariablePath</a>, <a href="../CCDD/CcddCommonTreeHandler.html#getFullVariablePath-java.lang.Object:A-int-">getFullVariablePath</a>, <a href="../CCDD/CcddCommonTreeHandler.html#getNodeCount-javax.swing.tree.DefaultMutableTreeNode-">getNodeCount</a>, <a href="../CCDD/CcddCommonTreeHandler.html#getPathFromNode-javax.swing.tree.TreeNode-">getPathFromNode</a>, <a href="../CCDD/CcddCommonTreeHandler.html#getStringVariableMembers-CCDD.CcddClassesComponent.ToolTipTreeNode-">getStringVariableMembers</a>, <a href="../CCDD/CcddCommonTreeHandler.html#refreshTree--">refreshTree</a>, <a href="../CCDD/CcddCommonTreeHandler.html#removeAllNodes--">removeAllNodes</a>, <a href="../CCDD/CcddCommonTreeHandler.html#setEnableDataType-boolean-">setEnableDataType</a>, <a href="../CCDD/CcddCommonTreeHandler.html#setExpansionState-java.lang.String-">setExpansionState</a>, <a href="../CCDD/CcddCommonTreeHandler.html#setHighlightPattern-java.util.regex.Pattern-">setHighlightPattern</a>, <a href="../CCDD/CcddCommonTreeHandler.html#setTreeExpansion-boolean-">setTreeExpansion</a>, <a href="../CCDD/CcddCommonTreeHandler.html#setVariableNodeIcon-javax.swing.tree.DefaultTreeCellRenderer-CCDD.CcddClassesComponent.ToolTipTreeNode-int-boolean-">setVariableNodeIcon</a>, <a href="../CCDD/CcddCommonTreeHandler.html#updateTableSelection--">updateTableSelection</a></code></li>
+<code><a href="../CCDD/CcddCommonTreeHandler.html#addChildNodes-CCDD.CcddClassesComponent.ToolTipTreeNode-java.util.List-java.util.List-boolean-">addChildNodes</a>, <a href="../CCDD/CcddCommonTreeHandler.html#adjustExpansionState-java.lang.String-boolean-boolean-boolean-boolean-boolean-java.util.List-CCDD.CcddGroupHandler-CCDD.CcddTableTypeHandler-">adjustExpansionState</a>, <a href="../CCDD/CcddCommonTreeHandler.html#clearDisabledNodes--">clearDisabledNodes</a>, <a href="../CCDD/CcddCommonTreeHandler.html#createNameFromPath-java.lang.Object:A-int-">createNameFromPath</a>, <a href="../CCDD/CcddCommonTreeHandler.html#expandCollapseSelectedNodes--">expandCollapseSelectedNodes</a>, <a href="../CCDD/CcddCommonTreeHandler.html#getBitPackedVariables-CCDD.CcddClassesComponent.ToolTipTreeNode-">getBitPackedVariables</a>, <a href="../CCDD/CcddCommonTreeHandler.html#getExpansionState--">getExpansionState</a>, <a href="../CCDD/CcddCommonTreeHandler.html#getFullVariablePath-java.lang.Object:A-">getFullVariablePath</a>, <a href="../CCDD/CcddCommonTreeHandler.html#getFullVariablePath-java.lang.Object:A-int-">getFullVariablePath</a>, <a href="../CCDD/CcddCommonTreeHandler.html#getNodeCount-javax.swing.tree.DefaultMutableTreeNode-">getNodeCount</a>, <a href="../CCDD/CcddCommonTreeHandler.html#getPathFromNode-javax.swing.tree.TreeNode-">getPathFromNode</a>, <a href="../CCDD/CcddCommonTreeHandler.html#getStringVariableMembers-CCDD.CcddClassesComponent.ToolTipTreeNode-">getStringVariableMembers</a>, <a href="../CCDD/CcddCommonTreeHandler.html#isLeaf-javax.swing.tree.TreeNode-">isLeaf</a>, <a href="../CCDD/CcddCommonTreeHandler.html#refreshTree--">refreshTree</a>, <a href="../CCDD/CcddCommonTreeHandler.html#removeAllNodes--">removeAllNodes</a>, <a href="../CCDD/CcddCommonTreeHandler.html#setEnableDataType-boolean-">setEnableDataType</a>, <a href="../CCDD/CcddCommonTreeHandler.html#setExpansionState-java.lang.String-">setExpansionState</a>, <a href="../CCDD/CcddCommonTreeHandler.html#setHighlightPattern-java.util.regex.Pattern-">setHighlightPattern</a>, <a href="../CCDD/CcddCommonTreeHandler.html#setTreeExpansion-boolean-">setTreeExpansion</a>, <a href="../CCDD/CcddCommonTreeHandler.html#setVariableNodeIcon-javax.swing.tree.DefaultTreeCellRenderer-CCDD.CcddClassesComponent.ToolTipTreeNode-int-boolean-">setVariableNodeIcon</a>, <a href="../CCDD/CcddCommonTreeHandler.html#updateTableSelection--">updateTableSelection</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.javax.swing.JTree">
@@ -595,10 +595,10 @@ extends <a href="../CCDD/CcddInformationTreeHandler.html" title="class in CCDD">
 <div class="block">Link tree handler class constructor</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>ccddMain</code> - main class</dd>
-<dd><code>undoHandler</code> - reference to the undo handler</dd>
-<dd><code>rateName</code> - data stream rate column name associated with the tree; used to filter the links
-            added to the link tree</dd>
+<dd><code>ccddMain</code> - Main class</dd>
+<dd><code>undoHandler</code> - Reference to the undo handler</dd>
+<dd><code>rateName</code> - Data stream rate column name associated with the tree; used to filter the
+                    links added to the link tree</dd>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 </dl>
 </li>
@@ -635,7 +635,7 @@ extends <a href="../CCDD/CcddInformationTreeHandler.html" title="class in CCDD">
 <div class="block">Set the currently selected sample rate and force the link tree to redraw</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>rate</code> - sample rate in samples per second</dd>
+<dd><code>rate</code> - Sample rate in samples per second</dd>
 </dl>
 </li>
 </ul>
@@ -653,9 +653,9 @@ extends <a href="../CCDD/CcddInformationTreeHandler.html" title="class in CCDD">
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../CCDD/CcddInformationTreeHandler.html#initialize-CCDD.CcddMain-CCDD.CcddUndoHandler-java.util.List-">initialize</a></code>&nbsp;in class&nbsp;<code><a href="../CCDD/CcddInformationTreeHandler.html" title="class in CCDD">CcddInformationTreeHandler</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>ccddMain</code> - main class</dd>
-<dd><code>undoHandler</code> - reference to the undo handler</dd>
-<dd><code>linkDefinitions</code> - list containing the link definitions</dd>
+<dd><code>ccddMain</code> - Main class</dd>
+<dd><code>undoHandler</code> - Reference to the undo handler</dd>
+<dd><code>linkDefinitions</code> - List containing the link definitions</dd>
 </dl>
 </li>
 </ul>
@@ -680,7 +680,7 @@ extends <a href="../CCDD/CcddInformationTreeHandler.html" title="class in CCDD">
  link, or of any link if no link name is provided</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>name</code> - link name; null to include all links</dd>
+<dd><code>name</code> - Link name; null to include all links</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>List of variables, including their paths, that are referenced by the specified link,
          of any link if no link name is provided</dd>
@@ -697,7 +697,7 @@ extends <a href="../CCDD/CcddInformationTreeHandler.html" title="class in CCDD">
 <div class="block">Get the reference to a specified link's information</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>name</code> - link name</dd>
+<dd><code>name</code> - Link name</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Reference to the link's information; null if the link doesn't exist</dd>
 </dl>
@@ -716,10 +716,10 @@ extends <a href="../CCDD/CcddInformationTreeHandler.html" title="class in CCDD">
 <div class="block">Add a new link to the link information class</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>rateName</code> - rate column name</dd>
-<dd><code>linkName</code> - link name</dd>
-<dd><code>sampleRate</code> - link rate in samples per second</dd>
-<dd><code>description</code> - link description</dd>
+<dd><code>rateName</code> - Rate column name</dd>
+<dd><code>linkName</code> - Link name</dd>
+<dd><code>sampleRate</code> - Link rate in samples per second</dd>
+<dd><code>description</code> - Link description</dd>
 </dl>
 </li>
 </ul>
@@ -748,11 +748,11 @@ extends <a href="../CCDD/CcddInformationTreeHandler.html" title="class in CCDD">
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="../CCDD/CcddInformationTreeHandler.html#buildTree-boolean-java.lang.String-boolean-java.awt.Component-">buildTree</a></code>&nbsp;in class&nbsp;<code><a href="../CCDD/CcddInformationTreeHandler.html" title="class in CCDD">CcddInformationTreeHandler</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>filterByApp</code> - true if the tree is filtered by application. This is not applicable to the link
-            tree, which can only contain structure references</dd>
-<dd><code>filterValue</code> - string value that may be used to modify the tree building method; null or blank
-            if not filtering</dd>
-<dd><code>filterFlag</code> - flag used to filter the tree content. Not used for the link tree</dd>
+<dd><code>filterByApp</code> - True if the tree is filtered by application. This is not applicable to
+                    the link tree, which can only contain structure references</dd>
+<dd><code>filterValue</code> - String value that may be used to modify the tree building method; null or
+                    blank if not filtering</dd>
+<dd><code>filterFlag</code> - Flag used to filter the tree content. Not used for the link tree</dd>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 </dl>
 </li>
@@ -770,8 +770,8 @@ extends <a href="../CCDD/CcddInformationTreeHandler.html" title="class in CCDD">
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../CCDD/CcddInformationTreeHandler.html#addInformation-java.lang.Object-java.lang.String-">addInformation</a></code>&nbsp;in class&nbsp;<code><a href="../CCDD/CcddInformationTreeHandler.html" title="class in CCDD">CcddInformationTreeHandler</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>linkToCopy</code> - link information object to copy</dd>
-<dd><code>nameOfCopy</code> - name of the copy of the link</dd>
+<dd><code>linkToCopy</code> - Link information object to copy</dd>
+<dd><code>nameOfCopy</code> - Name of the copy of the link</dd>
 </dl>
 </li>
 </ul>
@@ -806,9 +806,9 @@ extends <a href="../CCDD/CcddInformationTreeHandler.html" title="class in CCDD">
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="../CCDD/CcddInformationTreeHandler.html#addLeafDefinition-java.util.List-java.lang.String:A-java.lang.String-">addLeafDefinition</a></code>&nbsp;in class&nbsp;<code><a href="../CCDD/CcddInformationTreeHandler.html" title="class in CCDD">CcddInformationTreeHandler</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>treeDefns</code> - list to which to add the leaf definition</dd>
-<dd><code>leafDefn</code> - leaf definition to add to the list</dd>
-<dd><code>filterValue</code> - data stream rate name</dd>
+<dd><code>treeDefns</code> - List to which to add the leaf definition</dd>
+<dd><code>leafDefn</code> - Leaf definition to add to the list</dd>
+<dd><code>filterValue</code> - Data stream rate name</dd>
 </dl>
 </li>
 </ul>
@@ -825,7 +825,7 @@ extends <a href="../CCDD/CcddInformationTreeHandler.html" title="class in CCDD">
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="../CCDD/CcddCommonTreeHandler.html#removeExtraText-java.lang.String-">removeExtraText</a></code>&nbsp;in class&nbsp;<code><a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddCommonTreeHandler</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>text</code> - string from which to remove the extra text</dd>
+<dd><code>text</code> - String from which to remove the extra text</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Input string minus any HTML tag(s) and text within parentheses (inclusive) preceded
          by a space</dd>
@@ -844,7 +844,7 @@ extends <a href="../CCDD/CcddInformationTreeHandler.html" title="class in CCDD">
  node belongs: black for a match and gray for a mismatch</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>startNode</code> - starting node for which to adjust the text and color</dd>
+<dd><code>startNode</code> - Starting node for which to adjust the text and color</dd>
 </dl>
 </li>
 </ul>
@@ -873,8 +873,8 @@ extends <a href="../CCDD/CcddInformationTreeHandler.html" title="class in CCDD">
  selected rate</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>rootNodeName</code> - name of the root node for the matching links</dd>
-<dd><code>rootNodeDescription</code> - tool tip text for the root node</dd>
+<dd><code>rootNodeName</code> - Name of the root node for the matching links</dd>
+<dd><code>rootNodeDescription</code> - Tool tip text for the root node</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Node with only the links that contain variables with sample rates matching the
          selected rate</dd>
@@ -893,8 +893,8 @@ extends <a href="../CCDD/CcddInformationTreeHandler.html" title="class in CCDD">
  that allows tree expansion/collapse</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>label</code> - link tree title</dd>
-<dd><code>selectionMode</code> - tree item selection mode (single versus multiple)</dd>
+<dd><code>label</code> - Link tree title</dd>
+<dd><code>selectionMode</code> - Tree item selection mode (single versus multiple)</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>JPanel containing the link tree components</dd>
 </dl>

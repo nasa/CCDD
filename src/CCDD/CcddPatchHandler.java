@@ -613,15 +613,15 @@ public class CcddPatchHandler
                                 if (typesData.getInt(TableTypesColumn.INDEX.ordinal() + 1) >= NUM_HIDDEN_COLUMNS)
                                 {
                                     // Check if the column expects a command argument name
-                                    if (typesData.getString(TableTypesColumn.INPUT_TYPE.ordinal() + 1)
-                                            .equals("Argument name"))
+                                    if (typesData.getString(TableTypesColumn.INPUT_TYPE.ordinal() + 1).equals("Argument name"))
                                     {
                                         List<Integer> argColGroup = new ArrayList<Integer>();
 
                                         // Change the input type for the argument name to that for
                                         // a variable so that it's recognized
-                                        typeDefn.getInputTypesList().set(colIndex,
-                                                                         inputTypeHandler.getInputTypeByDefaultType(DefaultColumn.VARIABLE_NAME.getInputType()));
+                                        typeDefn.getInputTypesList()
+                                                .set(colIndex,
+                                                     inputTypeHandler.getInputTypeByDefaultType(DefaultColumn.VARIABLE_NAME.getInputType()));
 
                                         // Add the argument name column index to the list of
                                         // argument columns
@@ -660,7 +660,7 @@ public class CcddPatchHandler
                                             }
                                             // Check if the column expects a command argument name
                                             else if (typesData.getString(TableTypesColumn.COLUMN_NAME_DB.ordinal() + 1)
-                                                    .contains("description"))
+                                                              .contains("description"))
                                             {
                                                 // Change the input type for the argument name to
                                                 // that for a variable so that it's recognized
@@ -904,8 +904,7 @@ public class CcddPatchHandler
                                                 }
                                             }
                                             // Check if this is the minimum input type
-                                            else if (inputType.getInputName()
-                                                    .equals(DefaultInputType.MINIMUM.getInputName()))
+                                            else if (inputType.getInputName().equals(DefaultInputType.MINIMUM.getInputName()))
                                             {
                                                 numMin++;
 
@@ -920,8 +919,7 @@ public class CcddPatchHandler
                                                 }
                                             }
                                             // Check if this is the maximum input type
-                                            else if (inputType.getInputName()
-                                                    .equals(DefaultInputType.MAXIMUM.getInputName()))
+                                            else if (inputType.getInputName().equals(DefaultInputType.MAXIMUM.getInputName()))
                                             {
                                                 numMax++;
 

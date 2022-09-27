@@ -769,11 +769,10 @@ public class CcddDbTableCommandHandler
         try
         {
             // Get the table's comment
-            ResultSet comment = dbCommand
-                    .executeDbQuery(new StringBuilder("SELECT obj_description('public."
-                                                      + tableName.toLowerCase()
-                                                      + "'::regclass, 'pg_class');"),
-                                    parent);
+            ResultSet comment = dbCommand.executeDbQuery(new StringBuilder("SELECT obj_description('public."
+                                                         + tableName.toLowerCase()
+                                                         + "'::regclass, 'pg_class');"),
+                                                         parent);
 
             // Get the comment string from the result set
             comment.next();
@@ -3516,8 +3515,9 @@ public class CcddDbTableCommandHandler
 
             for (int index = 0; index < tableInfo.getData().size(); index++)
             {
-                if (tableInfo.getData().get(index)[mod.getVariableColumn()]
-                        .equals(mod.getRowData()[mod.getVariableColumn()]))
+                if (tableInfo.getData()
+                             .get(index)[mod.getVariableColumn()]
+                             .equals(mod.getRowData()[mod.getVariableColumn()]))
                 {
                     found = true;
                     break;
@@ -9165,20 +9165,20 @@ public class CcddDbTableCommandHandler
                                 {
                                     // Check that the field is applicable to this table before
                                     // adding
-                                    if ((newFields[newIndex][FieldEditorColumnInfo.APPLICABILITY.ordinal()].toString()
-                                         .equals(ApplicabilityType.ROOT_ONLY.getApplicabilityName()))
+                                    if (newFields[newIndex][FieldEditorColumnInfo.APPLICABILITY.ordinal()].toString()
+                                                                                                          .equals(ApplicabilityType.ROOT_ONLY.getApplicabilityName())
                                         && isRootStructure(tableName))
                                     {
                                         addField = true;
                                     }
-                                    else if ((newFields[newIndex][FieldEditorColumnInfo.APPLICABILITY.ordinal()].toString()
-                                              .equals(ApplicabilityType.CHILD_ONLY.getApplicabilityName()))
+                                    else if (newFields[newIndex][FieldEditorColumnInfo.APPLICABILITY.ordinal()].toString()
+                                                                                                               .equals(ApplicabilityType.CHILD_ONLY.getApplicabilityName())
                                              && !isRootStructure(tableName))
                                     {
                                         addField = true;
                                     }
                                     else if (newFields[newIndex][FieldEditorColumnInfo.APPLICABILITY.ordinal()].toString()
-                                             .equals(ApplicabilityType.ALL.getApplicabilityName()))
+                                                                                                               .equals(ApplicabilityType.ALL.getApplicabilityName()))
                                     {
                                         addField = true;
                                     }
@@ -10561,8 +10561,7 @@ public class CcddDbTableCommandHandler
                                 String[] refColumns = CcddUtilities.splitAndRemoveQuotes(tblColCmtAndCntxt[SearchResultsQueryColumn.CONTEXT.ordinal()]);
 
                                 // Check if the context is in a table type definition
-                                if (tblColCmtAndCntxt[SearchResultsQueryColumn.TABLE.ordinal()]
-                                        .equals(InternalTable.TABLE_TYPES.getTableName()))
+                                if (tblColCmtAndCntxt[SearchResultsQueryColumn.TABLE.ordinal()].equals(InternalTable.TABLE_TYPES.getTableName()))
                                 {
                                     // Check if the table type name hasn't already been added to
                                     // the list
@@ -10574,8 +10573,7 @@ public class CcddDbTableCommandHandler
                                     }
                                 }
                                 // Check if the context is in a data field definition
-                                else if (tblColCmtAndCntxt[SearchResultsQueryColumn.TABLE.ordinal()]
-                                        .equals(InternalTable.FIELDS.getTableName()))
+                                else if (tblColCmtAndCntxt[SearchResultsQueryColumn.TABLE.ordinal()].equals(InternalTable.FIELDS.getTableName()))
                                 {
                                     // Add the data field definition to the list of those using the
                                     // input type
@@ -10671,8 +10669,7 @@ public class CcddDbTableCommandHandler
                             {
                                 // Check if the field's value no longer matches the regular
                                 // expression
-                                if (!field[FieldsColumn.FIELD_VALUE.ordinal()]
-                                        .matches(mod.getRowData()[InputTypesColumn.MATCH.ordinal()].toString()))
+                                if (!field[FieldsColumn.FIELD_VALUE.ordinal()].matches(mod.getRowData()[InputTypesColumn.MATCH.ordinal()].toString()))
                                 {
                                     // Build the command to set the field value to blank
                                     fieldCommand.append("UPDATE ")

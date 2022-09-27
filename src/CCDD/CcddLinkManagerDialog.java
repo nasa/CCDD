@@ -861,8 +861,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                         ToolTipTreeNode copyLink = (ToolTipTreeNode) copyLinkPath.getLastPathComponent();
 
                         // Remove any HTML tags and parenthetical text from the selected link name
-                        String nameOnly = activeHandler.getLinkTree()
-                                .removeExtraText(copyLink.getUserObject().toString());
+                        String nameOnly = activeHandler.getLinkTree().removeExtraText(copyLink.getUserObject().toString());
 
                         // Step through each selected data stream name
                         for (int index = 0; index < arrayItemData.length; index++)
@@ -909,8 +908,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                                         linkMgr.setRateFilter(linkInfo.getSampleRate());
 
                                         // Step through each member of the new link
-                                        for (Enumeration<?> element = newLinkNode.preorderEnumeration(); element
-                                                .hasMoreElements();)
+                                        for (Enumeration<?> element = newLinkNode.preorderEnumeration(); element.hasMoreElements();)
                                         {
                                             // Get the node for this variable and convert it to a
                                             // string, removing the link name

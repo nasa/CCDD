@@ -31,10 +31,12 @@ import static CCDD.CcddConstants.LAF_SCROLL_BAR_WIDTH;
 import static CCDD.CcddConstants.RADIO_BUTTON_CHANGE_EVENT;
 import static CCDD.CcddConstants.STORE_ICON;
 import static CCDD.CcddConstants.UNDO_ICON;
+import static CCDD.CcddConstants.FONT_SCALE;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -53,6 +55,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
@@ -66,6 +69,7 @@ import CCDD.CcddClassesComponent.ColorCheckBox;
 import CCDD.CcddClassesComponent.DnDTabbedPane;
 import CCDD.CcddClassesComponent.FileEnvVar;
 import CCDD.CcddClassesComponent.JFontChooser;
+import CCDD.CcddClassesComponent.ModifiableFont;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
@@ -94,6 +98,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
     private JTextField[] spacingFld;
     private JTextField[] pathFld;
     private JTextField[] otherFld;
+    private JTextField fontScale;
 
     // Maximum height, in pixels, based on all of the individual tabs' scroll panes
     private int maxScrollPaneHeight;
@@ -454,7 +459,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
                                                         1,
                                                         0.0,
                                                         0.0,
-                                                        GridBagConstraints.LINE_START,
+                                                        GridBagConstraints.FIRST_LINE_START,
                                                         GridBagConstraints.BOTH,
                                                         new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing(),
                                                                    ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
@@ -463,22 +468,62 @@ public class CcddPreferencesDialog extends CcddDialogHandler
                                                         0,
                                                         0);
 
-        // Create a panel to contain the font components
-        JPanel innerFontPnl = new JPanel(new GridBagLayout());
-        innerFontPnl.setBorder(emptyBorder);
-
-        // Use an outer panel so that the components can be forced to the top of the tab area
-        JPanel fontPnl = new JPanel(new BorderLayout());
+        // Create a panel to contain the font scaling and selection components
+        JPanel fontPnl = new JPanel(new GridBagLayout());
         fontPnl.setBorder(emptyBorder);
-        fontPnl.add(innerFontPnl, BorderLayout.PAGE_START);
+
+        // Create a panel to contain the font scaling components
+        JPanel fontScalePnl = new JPanel(new FlowLayout(FlowLayout.LEADING));
+
+        // Create a panel to contain the font selection components
+        JPanel fontScrollPnl = new JPanel(new GridBagLayout());
+        fontScrollPnl.setBorder(emptyBorder);
+
+        // Create a listener for the font scale update button presses
+        ActionListener fontScaleUpdateListener = new ActionListener()
+        {
+            /**************************************************************************************
+             * Handle a font scale update button press
+             *************************************************************************************/
+            @Override
+            public void actionPerformed(ActionEvent ae)
+            {
+                // Update the GUI using the scale factor
+                ccddMain.setFontScaleFactor(fontScale.getText(), CcddPreferencesDialog.this);
+            }
+        };
+
+        // Add the font scaling input field
+        JLabel fontScaleLbl = new JLabel("Font scale");
+        fontScaleLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        fontScale = new JTextField(ccddMain.getProgPrefs().get(FONT_SCALE, "1"), 3);
+        fontScale.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
+        JButton fontScaleBtn = new JButton("Update");
+        fontScaleBtn.setFont(ModifiableFontInfo.DIALOG_BUTTON.getFont());
+        fontScaleBtn.addActionListener(fontScaleUpdateListener);
+        fontScalePnl.add(fontScaleLbl);
+        fontScalePnl.add(fontScale);
+        fontScalePnl.add(fontScaleBtn);
 
         // Create a scroll pane in which to display the font selection buttons
-        JScrollPane fontScrollPane = new JScrollPane(fontPnl);
+        JScrollPane fontScrollPane = new JScrollPane(fontScrollPnl);
         fontScrollPane.setBorder(emptyBorder);
         fontScrollPane.setViewportBorder(emptyBorder);
 
+        // Add the font scaling and font selection panels to the font panel
+        gbc.weightx = 1.0;
+        fontPnl.add(fontScalePnl, gbc);
+        gbc.gridy++;
+        fontPnl.add(new JSeparator(SwingConstants.HORIZONTAL), gbc);
+        gbc.weighty = 1.0;
+        gbc.gridy++;
+        fontPnl.add(fontScrollPane, gbc);
+        gbc.weightx = 0.0;
+        gbc.weighty = 0.0;
+        gbc.gridy = 0;
+
         // Add the font selection tab to the tabbed pane
-        tabbedPane.addTab(FONT, null, fontScrollPane, "Change program fonts");
+        tabbedPane.addTab(FONT, null, fontPnl, "Change program fonts");
 
         // Create a listener for the font button presses
         ActionListener fontBtnListener = new ActionListener()
@@ -496,8 +541,15 @@ public class CcddPreferencesDialog extends CcddDialogHandler
                 // Create a font chooser
                 final JFontChooser chooser = new JFontChooser();
 
+                // Create a temporary version of the font so that the unscaled size is displayed in
+                // the chooser
+                ModifiableFont modFontTemp = new ModifiableFont(modFont.getPreferenceKey(),
+                                                                modFont.getFont().getFamily(),
+                                                                modFont.getFont().getStyle(),
+                                                                modFont.getUnscaledSize());
+
                 // Set the font chooser controls to reflect the modifiable font
-                chooser.setSelectedFont(modFont.getFont());
+                chooser.setSelectedFont(modFontTemp);
 
                 // Create the font choice dialog
                 final CcddDialogHandler dialog = new CcddDialogHandler();
@@ -579,27 +631,30 @@ public class CcddPreferencesDialog extends CcddDialogHandler
                                                                  ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
             fontBtn[index].setFont(ModifiableFontInfo.DIALOG_BUTTON.getFont());
             fontBtn[index].addActionListener(fontBtnListener);
-            innerFontPnl.add(fontBtn[index], gbc);
+            fontScrollPnl.add(fontBtn[index], gbc);
             fontLbl[index] = new JLabel("sample text: "
                                         + modFont.getFont().getFamily()
                                         + ", "
                                         + fontStyles[modFont.getFont().getStyle()]
                                         + ", "
-                                        + modFont.getFont().getSize());
+                                        +modFont.getUnscaledSize());
             fontLbl[index].setFont(modFont.getFont());
             gbc.weightx = 1.0;
             gbc.gridx++;
-            innerFontPnl.add(fontLbl[index], gbc);
+            fontScrollPnl.add(fontLbl[index], gbc);
             gbc.weightx = 0.0;
             gbc.gridx = 0;
             gbc.gridy++;
             index++;
         }
 
+        // Add a dummy label for alignment purposes
+        gbc.weighty = 1.0;
+        fontScrollPnl.add(new JLabel(), gbc);
+
         // Set the scroll bar scroll increment
-        fontScrollPane.getVerticalScrollBar()
-                .setUnitIncrement(fontBtn[0].getPreferredSize().height / 2
-                                  + ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing());
+        fontScrollPane.getVerticalScrollBar().setUnitIncrement(fontBtn[0].getPreferredSize().height / 2
+                                                               + ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing());
 
         // Calculate the maximum required height of the panel containing the font check boxes (= #
         // of rows * row height)
@@ -1190,8 +1245,7 @@ public class CcddPreferencesDialog extends CcddDialogHandler
                     {
                         // Get the reference to the modifiable spacing information using its
                         // program preferences key, which is stored as the field's name
-                        ModifiableSpacingInfo modSpacing = ModifiableSpacingInfo
-                                .getModifiableSpacingInfo(input.getName());
+                        ModifiableSpacingInfo modSpacing = ModifiableSpacingInfo.getModifiableSpacingInfo(input.getName());
 
                         // Remove any leading or trailing white space characters
                         String spacing = spacingFld.getText().trim();
@@ -1434,14 +1488,13 @@ public class CcddPreferencesDialog extends CcddDialogHandler
                                                         0);
 
         // Create a border for the input fields
-        Border border = BorderFactory
-                .createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED, Color.LIGHT_GRAY,
-                                                                      Color.GRAY),
-                                      BorderFactory
-                                              .createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
-                                                                 ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
+        Border border = BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
+                                                                                           Color.LIGHT_GRAY,
+                                                                                           Color.GRAY),
+                                                           BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                           ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing()));
 
         // Create storage for the description and input field representing each modifiable other
         // setting

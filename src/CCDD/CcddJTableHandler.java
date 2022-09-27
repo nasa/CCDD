@@ -261,12 +261,11 @@ public abstract class CcddJTableHandler extends JTable
                                                      ModifiableSpacingInfo.CELL_HORIZONTAL_PADDING.getSpacing(),
                                                      ModifiableSpacingInfo.CELL_VERTICAL_PADDING.getSpacing(),
                                                      ModifiableSpacingInfo.CELL_HORIZONTAL_PADDING.getSpacing());
-        editBorder = BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(ModifiableColorInfo.FOCUS_BACK
-                .getColor()), BorderFactory
-                        .createEmptyBorder(ModifiableSpacingInfo.CELL_VERTICAL_PADDING.getSpacing() - 1,
-                                           ModifiableSpacingInfo.CELL_HORIZONTAL_PADDING.getSpacing() - 1,
-                                           ModifiableSpacingInfo.CELL_VERTICAL_PADDING.getSpacing() - 3,
-                                           ModifiableSpacingInfo.CELL_HORIZONTAL_PADDING.getSpacing() - 1));
+        editBorder = BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(ModifiableColorInfo.FOCUS_BACK.getColor()),
+                                                        BorderFactory.createEmptyBorder(ModifiableSpacingInfo.CELL_VERTICAL_PADDING.getSpacing() - 1,
+                                                                                        ModifiableSpacingInfo.CELL_HORIZONTAL_PADDING.getSpacing() - 1,
+                                                                                        ModifiableSpacingInfo.CELL_VERTICAL_PADDING.getSpacing() - 3,
+                                                                                        ModifiableSpacingInfo.CELL_HORIZONTAL_PADDING.getSpacing() - 1));
 
         // Create the cell selection container
         selectedCells = new CellSelectionHandler();
@@ -1006,15 +1005,24 @@ public abstract class CcddJTableHandler extends JTable
             {
                 String text = null;
 
-                // Get the index of the column underneath the mouse pointer
-                int column = columnModel.getColumn(columnModel.getColumnIndexAtX(me.getPoint().x)).getModelIndex();
-
-                // Check if tool tip exists
-                if (toolTips != null && column < toolTips.length && toolTips[column] != null
-                    && !toolTips[column].isEmpty())
+                if (toolTips != null)
                 {
-                    // Get the tool tip for the column header
-                    text = toolTips[column];
+                    // Get the index of the column underneath the mouse pointer (view coordinates)
+                    int column = columnModel.getColumnIndexAtX(me.getPoint().x);
+
+                    // Check if the mouse pointer is over a column
+                    if (column != -1)
+                    {
+                        // Convert the column index to model coordinates
+                        column = convertColumnIndexToModel(column);
+
+                        // Check if tool tip exists
+                        if (toolTips[column] != null && !toolTips[column].isEmpty())
+                        {
+                            // Get the tool tip for the column header
+                            text = toolTips[column];
+                        }
+                    }
                 }
 
                 return text;
@@ -1033,10 +1041,10 @@ public abstract class CcddJTableHandler extends JTable
                 return headerSize;
             }
 
-            @Override
             /**************************************************************************************
              * Override the column drag to end the edit sequence
              *************************************************************************************/
+            @Override
             public void setDraggedColumn(TableColumn column)
             {
                 // Set the flag indicating if the column move sequence is complete
@@ -1604,8 +1612,7 @@ public abstract class CcddJTableHandler extends JTable
             if (columnNames[modelColumn].contains("<br>"))
             {
                 // Adjust the font smaller
-                getTableHeader().setFont(ModifiableFontInfo.TABLE_HEADER.getFont()
-                        .deriveFont(Math.max(ModifiableFontInfo.TABLE_HEADER.getFont().getSize() - 3, 9f)));
+                getTableHeader().setFont(ModifiableFontInfo.TABLE_HEADER.getFont().deriveFont(Math.max(ModifiableFontInfo.TABLE_HEADER.getFont().getSize() - 3, 9f)));
             }
             // The column name appears on a single line
             else
@@ -1629,7 +1636,7 @@ public abstract class CcddJTableHandler extends JTable
         // Center the table column header text
         headerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
 
-        // Set the table's column size
+        // Set the table's column renderers
         for (int column = 0; column < getColumnCount(); column++)
         {
             // Get the table column to shorten the calls below
@@ -3843,7 +3850,7 @@ public abstract class CcddJTableHandler extends JTable
      *
      * @param last  Row with which to end height check
      *********************************************************************************************/
-    private void updateRowHeights(int first, int last)
+    protected void updateRowHeights(int first, int last)
     {
         // Step through the specified rows
         for (int row = first; row < last; row++)
@@ -3900,7 +3907,7 @@ public abstract class CcddJTableHandler extends JTable
     public void doLayout()
     {
         // Check if the table width is less than the dialog's
-        if (getPreferredSize().width < getParent().getWidth())
+        if (getScrollableTracksViewportWidth())
         {
             // Set the flag to instruct the super.doLayout() method to add extra width to a
             // subsequent column when the user is adjusting a specific column's width. Note that

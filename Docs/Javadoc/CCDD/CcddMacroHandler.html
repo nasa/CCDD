@@ -17,7 +17,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":9,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":9,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":10,"i35":10,"i36":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":9,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":9,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":10,"i35":10,"i36":10,"i37":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -157,44 +157,52 @@ extends java.lang.Object</pre>
 <th class="colLast" scope="col">Field and Description</th>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>(package private) java.util.List&lt;java.lang.String&gt;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddMacroHandler.html#allMacroReferences">allMacroReferences</a></span></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>private <a href="../CCDD/CcddMain.html" title="class in CCDD">CcddMain</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddMacroHandler.html#ccddMain">ccddMain</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>private <a href="../CCDD/CcddDataTypeHandler.html" title="class in CCDD">CcddDataTypeHandler</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddMacroHandler.html#dataTypeHandler">dataTypeHandler</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>private java.util.List&lt;java.lang.String&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddMacroHandler.html#expandedMacroValues">expandedMacroValues</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>private java.util.List&lt;java.lang.String&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddMacroHandler.html#invalidDataTypes">invalidDataTypes</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>private boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddMacroHandler.html#isMacroRecursive">isMacroRecursive</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>private java.util.List&lt;<a href="../CCDD/CcddMacroHandler.MacroReference.html" title="class in CCDD">CcddMacroHandler.MacroReference</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddMacroHandler.html#loadedReferences">loadedReferences</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>private java.util.regex.Pattern</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddMacroHandler.html#macroPattern">macroPattern</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>private java.util.List&lt;java.lang.String[]&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddMacroHandler.html#macros">macros</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>private java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.TableModification.html" title="class in CCDD">CcddClassesDataTable.TableModification</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddMacroHandler.html#modifications">modifications</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>private java.util.List&lt;java.lang.String&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddMacroHandler.html#popUpToolTips">popUpToolTips</a></span></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddMacroHandler.html#skipSearchingReferences">skipSearchingReferences</a></span></code>&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>private <a href="../CCDD/CcddTableTypeHandler.html" title="class in CCDD">CcddTableTypeHandler</a></code></td>
@@ -419,13 +427,21 @@ extends java.lang.Object</pre>
 </td>
 </tr>
 <tr id="i26" class="altColor">
-<td class="colFirst"><code>protected java.lang.Object[][]</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddMacroHandler.html#replaceAllMacros-java.lang.Object:A:A-">replaceAllMacros</a></span>(java.lang.Object[][]&nbsp;array)</code>
-<div class="block">Replace any macro names embedded in the supplied string array with the associated macro
+<td class="colFirst"><code>protected <a href="../CCDD/CcddClassesDataTable.TableInfo.html" title="class in CCDD">CcddClassesDataTable.TableInfo</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddMacroHandler.html#replaceAllMacros-CCDD.CcddClassesDataTable.TableInfo-">replaceAllMacros</a></span>(<a href="../CCDD/CcddClassesDataTable.TableInfo.html" title="class in CCDD">CcddClassesDataTable.TableInfo</a>&nbsp;data)</code>
+<div class="block">Replace any macro names embedded in the supplied table information data with the associated
+ macro
  values</div>
 </td>
 </tr>
 <tr id="i27" class="rowColor">
+<td class="colFirst"><code>protected java.util.List&lt;java.lang.Object[]&gt;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddMacroHandler.html#replaceAllMacros-java.util.List-">replaceAllMacros</a></span>(java.util.List&lt;java.lang.Object[]&gt;&nbsp;array)</code>
+<div class="block">Replace any macro names embedded in the supplied string array with the associated macro
+ values</div>
+</td>
+</tr>
+<tr id="i28" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddMacroHandler.html#replaceDataTypeReferences-java.lang.String-java.lang.String-">replaceDataTypeReferences</a></span>(java.lang.String&nbsp;oldDataTypeName,
                          java.lang.String&nbsp;newDataTypeName)</code>
@@ -433,7 +449,7 @@ extends java.lang.Object</pre>
  with the new data type name</div>
 </td>
 </tr>
-<tr id="i28" class="altColor">
+<tr id="i29" class="rowColor">
 <td class="colFirst"><code>protected java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddMacroHandler.html#replaceMacroName-java.lang.String-java.lang.String-java.lang.String-">replaceMacroName</a></span>(java.lang.String&nbsp;oldName,
                 java.lang.String&nbsp;newName,
@@ -441,7 +457,7 @@ extends java.lang.Object</pre>
 <div class="block">Replace all instances of the specified macro name in the supplied text string</div>
 </td>
 </tr>
-<tr id="i29" class="rowColor">
+<tr id="i30" class="altColor">
 <td class="colFirst"><code>protected java.lang.String[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddMacroHandler.html#searchMacroReferences-java.lang.String-java.awt.Component-">searchMacroReferences</a></span>(java.lang.String&nbsp;macroName,
                      java.awt.Component&nbsp;parent)</code>
@@ -449,46 +465,46 @@ extends java.lang.Object</pre>
  the specified macro name.</div>
 </td>
 </tr>
-<tr id="i30" class="altColor">
+<tr id="i31" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddMacroHandler.html#setHandlers-CCDD.CcddVariableHandler-CCDD.CcddDataTypeHandler-">setHandlers</a></span>(<a href="../CCDD/CcddVariableHandler.html" title="class in CCDD">CcddVariableHandler</a>&nbsp;variableHandler,
            <a href="../CCDD/CcddDataTypeHandler.html" title="class in CCDD">CcddDataTypeHandler</a>&nbsp;dataTypeHandler)</code>
 <div class="block">Set the reference to the variable size handler class</div>
 </td>
 </tr>
-<tr id="i31" class="rowColor">
+<tr id="i32" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddMacroHandler.html#setMacroData--">setMacroData</a></span>()</code>
 <div class="block">Set the macro data to the list of updated macro definitions</div>
 </td>
 </tr>
-<tr id="i32" class="altColor">
+<tr id="i33" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddMacroHandler.html#setMacroData-java.util.List-">setMacroData</a></span>(java.util.List&lt;java.lang.String[]&gt;&nbsp;macros)</code>
 <div class="block">Set the macro data to the supplied list of macro definitions</div>
 </td>
 </tr>
-<tr id="i33" class="rowColor">
+<tr id="i34" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddMacroHandler.html#updateExistingMacroUsage-java.awt.Component-">updateExistingMacroUsage</a></span>(java.awt.Component&nbsp;parent)</code>
 <div class="block">Update all existing macro instances where the macro name or value has been changed.</div>
 </td>
 </tr>
-<tr id="i34" class="altColor">
+<tr id="i35" class="rowColor">
 <td class="colFirst"><code>protected java.util.List&lt;java.lang.String&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddMacroHandler.html#updateMacros-java.util.List-boolean-">updateMacros</a></span>(java.util.List&lt;java.lang.String[]&gt;&nbsp;macroDefinitions,
             boolean&nbsp;replaceExisting)</code>
 <div class="block">Add new macros and check for matches with existing ones</div>
 </td>
 </tr>
-<tr id="i35" class="rowColor">
+<tr id="i36" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddMacroHandler.html#validateMacroUsage-java.awt.Component-">validateMacroUsage</a></span>(java.awt.Component&nbsp;parent)</code>
 <div class="block">Verify that the updated macros are valid for each instance where the macro is used (e.g., a
  table column with an input type of "Integer" can't accept a text string)</div>
 </td>
 </tr>
-<tr id="i36" class="altColor">
+<tr id="i37" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddMacroHandler.html#validateMacroUsage-java.lang.String-CCDD.CcddMacroHandler-java.awt.Component-">validateMacroUsage</a></span>(java.lang.String&nbsp;macroName,
                   <a href="../CCDD/CcddMacroHandler.html" title="class in CCDD">CcddMacroHandler</a>&nbsp;newMacroHandler,
@@ -627,6 +643,24 @@ extends java.lang.Object</pre>
 <pre>private&nbsp;java.util.List&lt;java.lang.String[]&gt; updatedMacros</pre>
 </li>
 </ul>
+<a name="skipSearchingReferences">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>skipSearchingReferences</h4>
+<pre>private&nbsp;boolean skipSearchingReferences</pre>
+</li>
+</ul>
+<a name="allMacroReferences">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>allMacroReferences</h4>
+<pre>java.util.List&lt;java.lang.String&gt; allMacroReferences</pre>
+</li>
+</ul>
 <a name="loadedReferences">
 <!--   -->
 </a>
@@ -656,8 +690,9 @@ extends java.lang.Object</pre>
  in the project database</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>ccddMain</code> - main class</dd>
-<dd><code>macros</code> - list of string arrays containing macro names and the corresponding macro values</dd>
+<dd><code>ccddMain</code> - Main class</dd>
+<dd><code>macros</code> - List of string arrays containing macro names and the corresponding macro
+                 values</dd>
 </dl>
 </li>
 </ul>
@@ -671,7 +706,7 @@ extends java.lang.Object</pre>
 <div class="block">Macro handler class constructor</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>ccddMain</code> - main class</dd>
+<dd><code>ccddMain</code> - Main class</dd>
 </dl>
 </li>
 </ul>
@@ -694,8 +729,8 @@ extends java.lang.Object</pre>
 <div class="block">Set the reference to the variable size handler class</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>variableHandler</code> - reference to the variable handler</dd>
-<dd><code>dataTypeHandler</code> - reference to the data type handler</dd>
+<dd><code>variableHandler</code> - Reference to the variable handler</dd>
+<dd><code>dataTypeHandler</code> - Reference to the data type handler</dd>
 </dl>
 </li>
 </ul>
@@ -723,8 +758,8 @@ extends java.lang.Object</pre>
 <div class="block">Set the macro data to the supplied list of macro definitions</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>macros</code> - list of string arrays containing macro names and the corresponding unexpanded
-            macro values</dd>
+<dd><code>macros</code> - List of string arrays containing macro names and the corresponding unexpanded
+               macro values</dd>
 </dl>
 </li>
 </ul>
@@ -774,7 +809,7 @@ extends java.lang.Object</pre>
  however the name as used in the internal table can be needed</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>inputName</code> - name of the macro for which to get the stored name</dd>
+<dd><code>inputName</code> - Name of the macro for which to get the stored name</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Macro name as stored in the internal macros table; null if the macro doesn't exist</dd>
 </dl>
@@ -790,7 +825,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the macro name encased in the macro identifier character(s)</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>macroName</code> - macro name</dd>
+<dd><code>macroName</code> - Macro name</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Macro name encased in the macro identifier character(s)</dd>
 </dl>
@@ -806,7 +841,7 @@ extends java.lang.Object</pre>
 <div class="block">Get a list of all macro name locations in the specified text string</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>text</code> - text string to search for macro names</dd>
+<dd><code>text</code> - Text string to search for macro names</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>List of all macro name locations in the specified text string</dd>
 </dl>
@@ -824,9 +859,9 @@ extends java.lang.Object</pre>
 <div class="block">Replace all instances of the specified macro name in the supplied text string</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>oldName</code> - original macro name, including the delimiters</dd>
-<dd><code>newName</code> - new macro name, including the delimiters</dd>
-<dd><code>text</code> - text string in which to replace the macro name</dd>
+<dd><code>oldName</code> - Original macro name, including the delimiters</dd>
+<dd><code>newName</code> - New macro name, including the delimiters</dd>
+<dd><code>text</code> - Text string in which to replace the macro name</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The supplied text string with all references to the specified macro replaced by the
          new macro name</dd>
@@ -845,8 +880,8 @@ extends java.lang.Object</pre>
  with the new data type name</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>oldDataTypeName</code> - original data type name</dd>
-<dd><code>newDataTypeName</code> - new data type name</dd>
+<dd><code>oldDataTypeName</code> - Original data type name</dd>
+<dd><code>newDataTypeName</code> - New data type name</dd>
 </dl>
 </li>
 </ul>
@@ -860,7 +895,7 @@ extends java.lang.Object</pre>
 <div class="block">Check for any recursive reference in the specified macro's value</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>macroName</code> - macro name</dd>
+<dd><code>macroName</code> - Macro name</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>true if a recursive reference is detected in the macro's value</dd>
 </dl>
@@ -878,7 +913,7 @@ extends java.lang.Object</pre>
  macro's expanded value is evaluated from its unexpanded value</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>macroName</code> - name of the macro for which the value is needed</dd>
+<dd><code>macroName</code> - Name of the macro for which the value is needed</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Expanded value associated with the specified macro name; returns null if the macro
          doesn't exist. The isMacroRecursive flag will be set to true if the macro contains a
@@ -898,10 +933,10 @@ extends java.lang.Object</pre>
  macros referencing other macros</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>macroName</code> - macro name</dd>
-<dd><code>referencedMacros</code> - list containing the macros references in a macro value path. This list is used to
-            detect if a macro references itself, which would cause an infinite loop. Set to
-            null to not test for recursion</dd>
+<dd><code>macroName</code> - Macro name</dd>
+<dd><code>referencedMacros</code> - List containing the macros references in a macro value path. This
+                         list is used to detect if a macro references itself, which would
+                         cause an infinite loop. Set to null to not test for recursion</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Value associated with the specified macro name; returns null if the macro doesn't
          exist</dd>
@@ -918,7 +953,7 @@ extends java.lang.Object</pre>
 <div class="block">Check if the supplied text contains any macro references</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>text</code> - text string containing macro names</dd>
+<dd><code>text</code> - Text string containing macro names</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>true if the text contains a macro reference</dd>
 </dl>
@@ -934,7 +969,7 @@ extends java.lang.Object</pre>
 <div class="block">Check if the supplied macro name is already in use (case insensitive)</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>macroName</code> - macro name</dd>
+<dd><code>macroName</code> - Macro name</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>true if the supplied macro name is already in use</dd>
 </dl>
@@ -950,7 +985,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the index for the macro with the supplied name (case insensitive)</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>macroName</code> - macro name</dd>
+<dd><code>macroName</code> - Macro name</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Index for the macro with the supplied name; -1 if no macro with this name exists</dd>
 </dl>
@@ -967,7 +1002,7 @@ extends java.lang.Object</pre>
  macro values and data type sizes</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>text</code> - text string possibly containing macro names and/or sizeof() calls</dd>
+<dd><code>text</code> - Text string possibly containing macro names and/or sizeof() calls</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Text string with any embedded macro names and sizeof() calls replaced with the
          associated macro values and data type sizes</dd>
@@ -987,9 +1022,10 @@ extends java.lang.Object</pre>
  calls set an error flag if the referenced data type is in the list</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>text</code> - text string possibly containing macro names and/or sizeof() calls</dd>
-<dd><code>invalidDataTypes</code> - List containing the invalid data types when evaluating sizeof() calls; null if
-            there are no data type constraints for a sizeof() call</dd>
+<dd><code>text</code> - Text string possibly containing macro names and/or sizeof() calls</dd>
+<dd><code>invalidDataTypes</code> - List containing the invalid data types when evaluating sizeof()
+                         calls; null if there are no data type constraints for a sizeof()
+                         call</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Text string with any embedded macro names and sizeof() calls replaced with the
          associated macro values and data type sizes; if no macro or sizeof() call is present
@@ -997,20 +1033,39 @@ extends java.lang.Object</pre>
 </dl>
 </li>
 </ul>
-<a name="replaceAllMacros-java.lang.Object:A:A-">
+<a name="replaceAllMacros-java.util.List-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>replaceAllMacros</h4>
-<pre>protected&nbsp;java.lang.Object[][]&nbsp;replaceAllMacros(java.lang.Object[][]&nbsp;array)</pre>
+<pre>protected&nbsp;java.util.List&lt;java.lang.Object[]&gt;&nbsp;replaceAllMacros(java.util.List&lt;java.lang.Object[]&gt;&nbsp;array)</pre>
 <div class="block">Replace any macro names embedded in the supplied string array with the associated macro
  values</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>array</code> - array of strings containing macro names</dd>
+<dd><code>array</code> - Array of strings containing macro names</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>String array with any embedded macro names replaced with the associated macro values</dd>
+<dd>List array with any embedded macro names replaced with the associated macro values</dd>
+</dl>
+</li>
+</ul>
+<a name="replaceAllMacros-CCDD.CcddClassesDataTable.TableInfo-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>replaceAllMacros</h4>
+<pre>protected&nbsp;<a href="../CCDD/CcddClassesDataTable.TableInfo.html" title="class in CCDD">CcddClassesDataTable.TableInfo</a>&nbsp;replaceAllMacros(<a href="../CCDD/CcddClassesDataTable.TableInfo.html" title="class in CCDD">CcddClassesDataTable.TableInfo</a>&nbsp;data)</pre>
+<div class="block">Replace any macro names embedded in the supplied table information data with the associated
+ macro
+ values</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>data</code> - Table information reference</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Table information reference with any embedded macro names replaced with the
+         associated macro values</dd>
 </dl>
 </li>
 </ul>
@@ -1024,7 +1079,7 @@ extends java.lang.Object</pre>
 <div class="block">Get a list of macros referenced in the specified text string</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>text</code> - text string containing macro names</dd>
+<dd><code>text</code> - Text string containing macro names</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>List of macros referenced in the specified text string. A macro name only appears
          once in the list even if referenced multiple times in the text string</dd>
@@ -1041,7 +1096,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the list of structure names referenced in sizeof() calls in the specified macro</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>macroName</code> - macro name</dd>
+<dd><code>macroName</code> - Macro name</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>List of structure names referenced in sizeof() calls in the specified macro macro;
          and empty list if no structures are referenced or the macro doesn't exist</dd>
@@ -1058,7 +1113,7 @@ extends java.lang.Object</pre>
 <div class="block">Get a list containing the macros that are dependent on the specified data type</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>dataType</code> - data type name for which to search</dd>
+<dd><code>dataType</code> - Data type name for which to search</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>List containing the macros that are dependent on the specified data type</dd>
 </dl>
@@ -1076,9 +1131,9 @@ extends java.lang.Object</pre>
  value to the supplied list. This is a recursive method</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>macroName</code> - name of the macro for which to find all dependent macros</dd>
-<dd><code>dependentMacros</code> - List of macros that have a value that is dependent on a specified macro (list
-            includes the specified macro)</dd>
+<dd><code>macroName</code> - Name of the macro for which to find all dependent macros</dd>
+<dd><code>dependentMacros</code> - List of macros that have a value that is dependent on a specified
+                        macro (list includes the specified macro)</dd>
 </dl>
 </li>
 </ul>
@@ -1094,7 +1149,7 @@ extends java.lang.Object</pre>
  the specified macro name. Include references in the custom values table</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>macroName</code> - macro name for which to search</dd>
+<dd><code>macroName</code> - Macro name for which to search</dd>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>List containing the search results in the project database for tables that reference
@@ -1124,8 +1179,8 @@ extends java.lang.Object</pre>
 <div class="block">Add new macros and check for matches with existing ones</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>macroDefinitions</code> - list of macro definitions</dd>
-<dd><code>replaceExisting</code> - true to replace the value for an existing macro</dd>
+<dd><code>macroDefinitions</code> - List of macro definitions</dd>
+<dd><code>replaceExisting</code> - True to replace the value for an existing macro</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>List of macro names for macros with values that differ between the existing macro
          and the supplied definitions</dd>
@@ -1156,7 +1211,7 @@ extends java.lang.Object</pre>
  must be called to clear this list, such as after a macro has been altered)</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>macroName</code> - macro name</dd>
+<dd><code>macroName</code> - Macro name</dd>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Reference to the specified macro in the tables</dd>
@@ -1174,7 +1229,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the list containing the name of every table that references the specified macro</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>macroName</code> - macro name</dd>
+<dd><code>macroName</code> - Macro name</dd>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Reference to the specified macro in the tables; an empty list if the macro is unused</dd>
@@ -1213,8 +1268,8 @@ extends java.lang.Object</pre>
  table column with an input type of "Integer" can't accept a text string)</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>macroName</code> - name of the macro to validate</dd>
-<dd><code>newMacroHandler</code> - reference to the macro handler that incorporates the macro updates</dd>
+<dd><code>macroName</code> - Name of the macro to validate</dd>
+<dd><code>newMacroHandler</code> - Reference to the macro handler that incorporates the macro updates</dd>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If a macro's value is invalid in an instance where the macro is used</dd>
@@ -1251,9 +1306,9 @@ extends java.lang.Object</pre>
 <div class="block">Highlight any macros in the the specified text component</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>component</code> - reference to the table cell renderer component</dd>
-<dd><code>text</code> - cell value</dd>
-<dd><code>hightlightColor</code> - color used for highlighting the macro name</dd>
+<dd><code>component</code> - Reference to the table cell renderer component</dd>
+<dd><code>text</code> - Cell value</dd>
+<dd><code>hightlightColor</code> - Color used for highlighting the macro name</dd>
 </dl>
 </li>
 </ul>
@@ -1268,7 +1323,7 @@ extends java.lang.Object</pre>
  associated macro values</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>text</code> - text string containing macro names</dd>
+<dd><code>text</code> - Text string containing macro names</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Tool tip text string showing any embedded macro names in the supplied text replaced
          with the associated macro values</dd>
@@ -1287,10 +1342,10 @@ extends java.lang.Object</pre>
 <div class="block">Get the list of items to display in the macro pop-up combo box</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>textComp</code> - text component over which to display the pop-up combo box and insert the selected
-            macro name</dd>
-<dd><code>inputType</code> - input type of the text component (InputType)</dd>
-<dd><code>validDataTypes</code> - list of valid data types from which to choose</dd>
+<dd><code>textComp</code> - Text component over which to display the pop-up combo box and insert
+                       the selected macro name</dd>
+<dd><code>inputType</code> - Input type of the text component (InputType)</dd>
+<dd><code>validDataTypes</code> - List of valid data types from which to choose</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>List of items to display in the macro pop-up combo box</dd>
 </dl>

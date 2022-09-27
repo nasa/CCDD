@@ -17,7 +17,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":9,"i8":10,"i9":10,"i10":10,"i11":9};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":9,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -49,7 +49,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../CCDD/CcddClassesDataTable.RateInformation.html" title="class in CCDD"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../CCDD/CcddClassesDataTable.TableInformation.html" title="class in CCDD"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../CCDD/CcddClassesDataTable.TableInfo.html" title="class in CCDD"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../index.html?CCDD/CcddClassesDataTable.TableDefinition.html" target="_top">Frames</a></li>
@@ -202,65 +202,111 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddClassesDataTable.TableDefinition.html#addDataField-java.lang.String:A-">addDataField</a></span>(java.lang.String[]&nbsp;fieldDefn)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddClassesDataTable.TableDefinition.html#addDataField-CCDD.CcddClassesDataTable.FieldInformation-">addDataField</a></span>(<a href="../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&nbsp;fieldDefn)</code>
 <div class="block">Add a data field definition to the list of table data fields</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
+<td class="colFirst"><code>protected void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddClassesDataTable.TableDefinition.html#addDataField-java.lang.String:A-">addDataField</a></span>(java.lang.String[]&nbsp;fieldDefn)</code>
+<div class="block">Add a data field definition to the list of table data fields</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>protected void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddClassesDataTable.TableDefinition.html#addDataFieldToIndex-java.lang.String:A-int-">addDataFieldToIndex</a></span>(java.lang.String[]&nbsp;fieldDefn,
+                   int&nbsp;index)</code>
+<div class="block">Add a data field definition to the list of table data fields in the given index</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>protected int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddClassesDataTable.TableDefinition.html#contains-java.lang.String-">contains</a></span>(java.lang.String&nbsp;fieldName)</code>
+<div class="block">Does a field with the current name already exist? if so return the index of the field.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>protected java.util.List&lt;java.lang.String&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddClassesDataTable.TableDefinition.html#getData--">getData</a></span>()</code>
 <div class="block">Get the table data</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>protected java.util.List&lt;java.lang.String[]&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddClassesDataTable.TableDefinition.html#getDataFields--">getDataFields</a></span>()</code>
 <div class="block">Get the list containing the table data field definition</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>protected java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddClassesDataTable.TableDefinition.html#getDescription--">getDescription</a></span>()</code>
 <div class="block">Get the table description</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>protected java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddClassesDataTable.TableDefinition.html#getName--">getName</a></span>()</code>
 <div class="block">Get the table name (including path, if applicable)</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>protected java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddClassesDataTable.TableDefinition.html#getTypeName--">getTypeName</a></span>()</code>
 <div class="block">Get the table type name</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>protected static boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddClassesDataTable.TableDefinition.html#isPathFormatValid-java.lang.String-">isPathFormatValid</a></span>(java.lang.String&nbsp;tablePath)</code>
 <div class="block">Check if the table name/path is in the expected format.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i11" class="rowColor">
+<td class="colFirst"><code>protected void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddClassesDataTable.TableDefinition.html#removeDataFieldByIndex-int-">removeDataFieldByIndex</a></span>(int&nbsp;index)</code>
+<div class="block">Remove a data field definition from the list of table data fields located at the given
+ index</div>
+</td>
+</tr>
+<tr id="i12" class="altColor">
+<td class="colFirst"><code>protected void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddClassesDataTable.TableDefinition.html#removeDataFields--">removeDataFields</a></span>()</code>
+<div class="block">Remove all data field definitions from the list of table data fields</div>
+</td>
+</tr>
+<tr id="i13" class="rowColor">
+<td class="colFirst"><code>protected void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddClassesDataTable.TableDefinition.html#replaceDataFieldByIndex-CCDD.CcddClassesDataTable.FieldInformation-int-">replaceDataFieldByIndex</a></span>(<a href="../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&nbsp;fieldDefn,
+                       int&nbsp;index)</code>
+<div class="block">Replace a data field definition located at the given index</div>
+</td>
+</tr>
+<tr id="i14" class="altColor">
+<td class="colFirst"><code>protected void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddClassesDataTable.TableDefinition.html#replaceDataFieldByIndex-java.lang.String:A-int-">replaceDataFieldByIndex</a></span>(java.lang.String[]&nbsp;fieldDefn,
+                       int&nbsp;index)</code>
+<div class="block">Replace a data field definition located at the given index</div>
+</td>
+</tr>
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddClassesDataTable.TableDefinition.html#setDescription-java.lang.String-">setDescription</a></span>(java.lang.String&nbsp;description)</code>
 <div class="block">Set the table description</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddClassesDataTable.TableDefinition.html#setName-java.lang.String-">setName</a></span>(java.lang.String&nbsp;tableName)</code>
 <div class="block">Set the table name (including path, if applicable)</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddClassesDataTable.TableDefinition.html#setTypeName-java.lang.String-">setTypeName</a></span>(java.lang.String&nbsp;typeName)</code>
 <div class="block">Set the table type name</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>protected static void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddClassesDataTable.TableDefinition.html#validatePathFormat-java.lang.String-">validatePathFormat</a></span>(java.lang.String&nbsp;tablePath)</code>
 <div class="block">Check if the table name/path is in the expected format</div>
@@ -363,8 +409,8 @@ extends java.lang.Object</pre>
 <div class="block">Table definition class constructor</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>tableName</code> - table name, including the path (for a structure child table)</dd>
-<dd><code>description</code> - table description</dd>
+<dd><code>tableName</code> - Table name, including the path (for a structure child table)</dd>
+<dd><code>description</code> - Table description</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If the table name/path is not in the expected format</dd>
 </dl>
@@ -403,7 +449,7 @@ extends java.lang.Object</pre>
 <div class="block">Set the table name (including path, if applicable)</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>tableName</code> - table name (including path, if applicable)</dd>
+<dd><code>tableName</code> - Table name (including path, if applicable)</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If the table name/path is not in the expected format</dd>
 </dl>
@@ -433,7 +479,7 @@ extends java.lang.Object</pre>
 <div class="block">Set the table type name</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>typeName</code> - table type name</dd>
+<dd><code>typeName</code> - Table type name</dd>
 </dl>
 </li>
 </ul>
@@ -461,7 +507,7 @@ extends java.lang.Object</pre>
 <div class="block">Set the table description</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>description</code> - table description</dd>
+<dd><code>description</code> - Table description</dd>
 </dl>
 </li>
 </ul>
@@ -489,7 +535,7 @@ extends java.lang.Object</pre>
 <div class="block">Add the specified row of data to the table data</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>rowData</code> - row of table data to add to the table's data</dd>
+<dd><code>rowData</code> - Row of table data to add to the table's data</dd>
 </dl>
 </li>
 </ul>
@@ -517,7 +563,111 @@ extends java.lang.Object</pre>
 <div class="block">Add a data field definition to the list of table data fields</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>fieldDefn</code> - data field definition</dd>
+<dd><code>fieldDefn</code> - Data field definition</dd>
+</dl>
+</li>
+</ul>
+<a name="addDataField-CCDD.CcddClassesDataTable.FieldInformation-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addDataField</h4>
+<pre>protected&nbsp;void&nbsp;addDataField(<a href="../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&nbsp;fieldDefn)</pre>
+<div class="block">Add a data field definition to the list of table data fields</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>fieldDefn</code> - Data field definition</dd>
+</dl>
+</li>
+</ul>
+<a name="addDataFieldToIndex-java.lang.String:A-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addDataFieldToIndex</h4>
+<pre>protected&nbsp;void&nbsp;addDataFieldToIndex(java.lang.String[]&nbsp;fieldDefn,
+                                   int&nbsp;index)</pre>
+<div class="block">Add a data field definition to the list of table data fields in the given index</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>fieldDefn</code> - Data field definition</dd>
+<dd><code>index</code> - Location to add the definition</dd>
+</dl>
+</li>
+</ul>
+<a name="removeDataFieldByIndex-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>removeDataFieldByIndex</h4>
+<pre>protected&nbsp;void&nbsp;removeDataFieldByIndex(int&nbsp;index)</pre>
+<div class="block">Remove a data field definition from the list of table data fields located at the given
+ index</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>index</code> - Location to remove the field from</dd>
+</dl>
+</li>
+</ul>
+<a name="removeDataFields--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>removeDataFields</h4>
+<pre>protected&nbsp;void&nbsp;removeDataFields()</pre>
+<div class="block">Remove all data field definitions from the list of table data fields</div>
+</li>
+</ul>
+<a name="replaceDataFieldByIndex-java.lang.String:A-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>replaceDataFieldByIndex</h4>
+<pre>protected&nbsp;void&nbsp;replaceDataFieldByIndex(java.lang.String[]&nbsp;fieldDefn,
+                                       int&nbsp;index)</pre>
+<div class="block">Replace a data field definition located at the given index</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>fieldDefn</code> - Data field definition</dd>
+<dd><code>index</code> - Location to replace the field</dd>
+</dl>
+</li>
+</ul>
+<a name="replaceDataFieldByIndex-CCDD.CcddClassesDataTable.FieldInformation-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>replaceDataFieldByIndex</h4>
+<pre>protected&nbsp;void&nbsp;replaceDataFieldByIndex(<a href="../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&nbsp;fieldDefn,
+                                       int&nbsp;index)</pre>
+<div class="block">Replace a data field definition located at the given index</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>fieldDefn</code> - Data field definition</dd>
+<dd><code>index</code> - Location to replace the field</dd>
+</dl>
+</li>
+</ul>
+<a name="contains-java.lang.String-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>contains</h4>
+<pre>protected&nbsp;int&nbsp;contains(java.lang.String&nbsp;fieldName)</pre>
+<div class="block">Does a field with the current name already exist? if so return the index of the field.
+ If not return -1</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>fieldName</code> - Data field name</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Index of the data field. -1 if field not found</dd>
 </dl>
 </li>
 </ul>
@@ -532,7 +682,8 @@ extends java.lang.Object</pre>
  delimiters are simply removed</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>tablePath</code> - table path in the format rootName&lt;,childStructure.childName&lt;,...&gt;&gt;</dd>
+<dd><code>tablePath</code> - Table path in the format
+                  rootName&lt;,childStructure.childName&lt;,...&gt;&gt;</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>true if the table name/path is not in the expected format</dd>
 </dl>
@@ -549,7 +700,8 @@ extends java.lang.Object</pre>
 <div class="block">Check if the table name/path is in the expected format</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>tablePath</code> - table path in the format rootName&lt;,childStructure.childName&lt;,...&gt;&gt;</dd>
+<dd><code>tablePath</code> - Table path in the format
+                  rootName&lt;,childStructure.childName&lt;,...&gt;&gt;</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If the table name/path is not in the expected format</dd>
 </dl>
@@ -584,7 +736,7 @@ extends java.lang.Object</pre>
 <div class="subNav">
 <ul class="navList">
 <li><a href="../CCDD/CcddClassesDataTable.RateInformation.html" title="class in CCDD"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../CCDD/CcddClassesDataTable.TableInformation.html" title="class in CCDD"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../CCDD/CcddClassesDataTable.TableInfo.html" title="class in CCDD"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../index.html?CCDD/CcddClassesDataTable.TableDefinition.html" target="_top">Frames</a></li>

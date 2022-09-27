@@ -906,6 +906,24 @@ public class CcddDialogHandler extends JDialog
     }
 
     /**********************************************************************************************
+     * Set the font for all components within a JFileChooser
+     *
+     * @param comp Array of components
+     *********************************************************************************************/
+    public void setFileChooserFont(Component[] comp)
+    {
+        for (int index = 0; index < comp.length; index++)
+        {
+            if (comp[index] instanceof Container)
+            {
+                setFileChooserFont(((Container)comp[index]).getComponents());
+            }
+
+            comp[index].setFont(ModifiableFontInfo.LABEL_PLAIN.getFont());
+        }
+    }
+
+    /**********************************************************************************************
      * Display a dialog that allows the user to select one or more files or a folder. Optionally
      * allow a panel containing other components to be displayed beneath the file chooser portion
      *
@@ -969,6 +987,9 @@ public class CcddDialogHandler extends JDialog
         final JFileChooser chooser = new JFileChooser(FileEnvVar.expandEnvVars(folder, envVars)
                                                       + File.separator
                                                       + ".");
+
+        // Set the font for the chooser components
+        setFileChooserFont(chooser.getComponents());
 
         // True to allow multiple files to be selected
         chooser.setMultiSelectionEnabled(multipleFiles);
@@ -2375,9 +2396,9 @@ public class CcddDialogHandler extends JDialog
                 // to this width to prevent the dialog from being resized smaller than its original
                 // width). Set the minimum height to the packed height of the dialog components
                 setMinimumSize(new Dimension(Math.max(getMinimumWidth(),
-                               getWidth()
-                               + (isContainsComponent(this, JTable.class) ? LAF_SCROLL_BAR_WIDTH : 0) + 1),
-                               getHeight()));
+                                                      getWidth()
+                                                      + (isContainsComponent(this, JTable.class) ? LAF_SCROLL_BAR_WIDTH : 0) + 1),
+                                             getHeight()));
             }
 
             // Position the dialog frame centered on the parent

@@ -809,8 +809,7 @@ public class CcddSearchHandler extends CcddDialogHandler
                                                                                   "$1");
 
                         // Check if the variables are members of the same array
-                        if (ArrayVariable.removeArrayIndex(arrayVariable1)
-                                .equals(ArrayVariable.removeArrayIndex(arrayVariable2)))
+                        if (ArrayVariable.removeArrayIndex(arrayVariable1).equals(ArrayVariable.removeArrayIndex(arrayVariable2)))
                         {
                             // Compare the two array members by dimension value(s)
                             result = ArrayVariable.compareTo(arrayVariable1, arrayVariable2);
@@ -878,8 +877,7 @@ public class CcddSearchHandler extends CcddDialogHandler
                 {
                     // Separate the location into the individual columns. Commas between double
                     // quotes are ignored so that an erroneous column separation doesn't occur
-                    String[] columns = CcddUtilities
-                            .splitAndRemoveQuotes(tblColDescAndCntxt[SearchResultsQueryColumn.CONTEXT.ordinal()]);
+                    String[] columns = CcddUtilities.splitAndRemoveQuotes(tblColDescAndCntxt[SearchResultsQueryColumn.CONTEXT.ordinal()]);
 
                     // Get the index of the variable name column
                     int varNameIndex = typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE);

@@ -209,10 +209,6 @@
 <pre><a href="CCDD/CcddTelemetrySchedulerDialog.html" title="class in CCDD">CcddTelemetrySchedulerDialog</a> schedulerDlg</pre>
 </li>
 <li class="blockList">
-<h4>tableTypeHandler</h4>
-<pre><a href="CCDD/CcddTableTypeHandler.html" title="class in CCDD">CcddTableTypeHandler</a> tableTypeHandler</pre>
-</li>
-<li class="blockList">
 <h4>inputTypeHandler</h4>
 <pre><a href="CCDD/CcddInputTypeHandler.html" title="class in CCDD">CcddInputTypeHandler</a> inputTypeHandler</pre>
 </li>
@@ -233,6 +229,14 @@
 <pre><a href="CCDD/CcddHaltDialog.html" title="class in CCDD">CcddHaltDialog</a> haltDlg</pre>
 </li>
 <li class="blockList">
+<h4>tableTree</h4>
+<pre><a href="CCDD/CcddTableTreeHandler.html" title="class in CCDD">CcddTableTreeHandler</a> tableTree</pre>
+</li>
+<li class="blockList">
+<h4>groupHandler</h4>
+<pre><a href="CCDD/CcddGroupHandler.html" title="class in CCDD">CcddGroupHandler</a> groupHandler</pre>
+</li>
+<li class="blockList">
 <h4>border</h4>
 <pre>javax.swing.border.Border border</pre>
 </li>
@@ -243,6 +247,10 @@
 <li class="blockList">
 <h4>tabbedPane</h4>
 <pre>javax.swing.JTabbedPane tabbedPane</pre>
+</li>
+<li class="blockList">
+<h4>dialogPnl</h4>
+<pre>javax.swing.JPanel dialogPnl</pre>
 </li>
 <li class="blockList">
 <h4>idsInUse</h4>
@@ -2002,6 +2010,10 @@
 <pre>javax.swing.JTextField[] otherFld</pre>
 </li>
 <li class="blockList">
+<h4>fontScale</h4>
+<pre>javax.swing.JTextField fontScale</pre>
+</li>
+<li class="blockList">
 <h4>maxScrollPaneHeight</h4>
 <pre>int maxScrollPaneHeight</pre>
 </li>
@@ -2514,6 +2526,10 @@
 <pre><a href="CCDD/CcddTableTreeHandler.html" title="class in CCDD">CcddTableTreeHandler</a> variableTree</pre>
 </li>
 <li class="blockList">
+<h4>variableHandler</h4>
+<pre><a href="CCDD/CcddVariableHandler.html" title="class in CCDD">CcddVariableHandler</a> variableHandler</pre>
+</li>
+<li class="blockList">
 <h4>searchFld</h4>
 <pre><a href="CCDD/CcddClassesComponent.AutoCompleteTextField.html" title="class in CCDD">CcddClassesComponent.AutoCompleteTextField</a> searchFld</pre>
 </li>
@@ -2526,28 +2542,60 @@
 <pre>javax.swing.JCheckBox allowRegexCb</pre>
 </li>
 <li class="blockList">
+<h4>showAllVarCB</h4>
+<pre>javax.swing.JCheckBox showAllVarCB</pre>
+</li>
+<li class="blockList">
+<h4>searchViaTableTreeCB</h4>
+<pre>javax.swing.JCheckBox searchViaTableTreeCB</pre>
+</li>
+<li class="blockList">
 <h4>numMatchesLbl</h4>
 <pre>javax.swing.JLabel numMatchesLbl</pre>
+</li>
+<li class="blockList">
+<h4>variablesPnl</h4>
+<pre>javax.swing.JPanel variablesPnl</pre>
+</li>
+<li class="blockList">
+<h4>variablesTblPnl</h4>
+<pre>javax.swing.JPanel variablesTblPnl</pre>
+</li>
+<li class="blockList">
+<h4>upperPnl</h4>
+<pre>javax.swing.JPanel upperPnl</pre>
+</li>
+<li class="blockList">
+<h4>inputPnl</h4>
+<pre>javax.swing.JPanel inputPnl</pre>
 </li>
 <li class="blockList">
 <h4>variableTable</h4>
 <pre><a href="CCDD/CcddJTableHandler.html" title="class in CCDD">CcddJTableHandler</a> variableTable</pre>
 </li>
 <li class="blockList">
+<h4>tableTreePane</h4>
+<pre><a href="CCDD/CcddClassesComponent.CustomSplitPane.html" title="class in CCDD">CcddClassesComponent.CustomSplitPane</a> tableTreePane</pre>
+</li>
+<li class="blockList">
+<h4>tableTreeGbc</h4>
+<pre>java.awt.GridBagConstraints tableTreeGbc</pre>
+</li>
+<li class="blockList">
+<h4>numVariablesLbl</h4>
+<pre>javax.swing.JLabel numVariablesLbl</pre>
+</li>
+<li class="blockList">
+<h4>border</h4>
+<pre>javax.swing.border.Border border</pre>
+</li>
+<li class="blockList">
+<h4>tableData</h4>
+<pre>java.lang.Object[][] tableData</pre>
+</li>
+<li class="blockList">
 <h4>searchPattern</h4>
 <pre>java.util.regex.Pattern searchPattern</pre>
-</li>
-<li class="blockList">
-<h4>prevSearchText</h4>
-<pre>java.lang.String prevSearchText</pre>
-</li>
-<li class="blockList">
-<h4>prevIgnoreCase</h4>
-<pre>boolean prevIgnoreCase</pre>
-</li>
-<li class="blockList">
-<h4>prevAllowRegex</h4>
-<pre>boolean prevAllowRegex</pre>
 </li>
 <li class="blockListLast">
 <h4>variablePaths</h4>
@@ -2630,10 +2678,6 @@
 <pre><a href="CCDD/CcddDbTableCommandHandler.html" title="class in CCDD">CcddDbTableCommandHandler</a> dbTable</pre>
 </li>
 <li class="blockList">
-<h4>fileIOHandler</h4>
-<pre><a href="CCDD/CcddFileIOHandler.html" title="class in CCDD">CcddFileIOHandler</a> fileIOHandler</pre>
-</li>
-<li class="blockList">
 <h4>fieldHandler</h4>
 <pre><a href="CCDD/CcddFieldHandler.html" title="class in CCDD">CcddFieldHandler</a> fieldHandler</pre>
 </li>
@@ -2670,8 +2714,20 @@
 <pre>javax.swing.JMenuItem mntmStoreAll</pre>
 </li>
 <li class="blockList">
-<h4>mntmImport</h4>
-<pre>javax.swing.JMenuItem mntmImport</pre>
+<h4>mntmImportJSON</h4>
+<pre>javax.swing.JMenuItem mntmImportJSON</pre>
+</li>
+<li class="blockList">
+<h4>mntmImportCSV</h4>
+<pre>javax.swing.JMenuItem mntmImportCSV</pre>
+</li>
+<li class="blockList">
+<h4>mntmImportXTCE</h4>
+<pre>javax.swing.JMenuItem mntmImportXTCE</pre>
+</li>
+<li class="blockList">
+<h4>mntmImportEDS</h4>
+<pre>javax.swing.JMenuItem mntmImportEDS</pre>
 </li>
 <li class="blockList">
 <h4>mntmExportCSV</h4>
@@ -2788,6 +2844,10 @@
 <li class="blockList">
 <h4>mntmResetOrder</h4>
 <pre>javax.swing.JMenuItem mntmResetOrder</pre>
+</li>
+<li class="blockList">
+<h4>mntmFixedColumn</h4>
+<pre>javax.swing.JCheckBoxMenuItem mntmFixedColumn</pre>
 </li>
 <li class="blockList">
 <h4>mntmManageFields</h4>
@@ -2922,6 +2982,10 @@
 <pre>javax.swing.JCheckBox replaceExistingTablesCb</pre>
 </li>
 <li class="blockList">
+<h4>replaceExistingDataTypesCb</h4>
+<pre>javax.swing.JCheckBox replaceExistingDataTypesCb</pre>
+</li>
+<li class="blockList">
 <h4>appendExistingFieldsCb</h4>
 <pre>javax.swing.JCheckBox appendExistingFieldsCb</pre>
 </li>
@@ -2936,6 +3000,10 @@
 <li class="blockList">
 <h4>replaceExistingGroupsCb</h4>
 <pre>javax.swing.JCheckBox replaceExistingGroupsCb</pre>
+</li>
+<li class="blockList">
+<h4>replaceExistingAssociationsCb</h4>
+<pre>javax.swing.JCheckBox replaceExistingAssociationsCb</pre>
 </li>
 <li class="blockList">
 <h4>singleFileRBtn</h4>
@@ -2954,8 +3022,20 @@
 <pre>javax.swing.JCheckBox backupFirstCb</pre>
 </li>
 <li class="blockList">
+<h4>deleteNonExistingFilesCb</h4>
+<pre>javax.swing.JCheckBox deleteNonExistingFilesCb</pre>
+</li>
+<li class="blockList">
+<h4>importEntireDatabaseCb</h4>
+<pre>javax.swing.JCheckBox importEntireDatabaseCb</pre>
+</li>
+<li class="blockList">
 <h4>replaceMacrosCb</h4>
 <pre>javax.swing.JCheckBox replaceMacrosCb</pre>
+</li>
+<li class="blockList">
+<h4>includeBuildInfoCb</h4>
+<pre>javax.swing.JCheckBox includeBuildInfoCb</pre>
 </li>
 <li class="blockList">
 <h4>includeReservedMsgIDsCb</h4>
@@ -2972,6 +3052,22 @@
 <li class="blockList">
 <h4>includeAssociationsCb</h4>
 <pre>javax.swing.JCheckBox includeAssociationsCb</pre>
+</li>
+<li class="blockList">
+<h4>includeTlmSchedCB</h4>
+<pre>javax.swing.JCheckBox includeTlmSchedCB</pre>
+</li>
+<li class="blockList">
+<h4>includeAppSchedCB</h4>
+<pre>javax.swing.JCheckBox includeAppSchedCB</pre>
+</li>
+<li class="blockList">
+<h4>exportEntireDatabaseCb</h4>
+<pre>javax.swing.JCheckBox exportEntireDatabaseCb</pre>
+</li>
+<li class="blockList">
+<h4>deleteTargetDirectoryCb</h4>
+<pre>javax.swing.JCheckBox deleteTargetDirectoryCb</pre>
 </li>
 <li class="blockList">
 <h4>includeAllTableTypesCb</h4>
@@ -3114,12 +3210,24 @@
 <pre><a href="CCDD/CcddClassesComponent.ToolTipTreeNode.html" title="class in CCDD">CcddClassesComponent.ToolTipTreeNode</a> root</pre>
 </li>
 <li class="blockList">
+<h4>preLoadedGroupRoot</h4>
+<pre><a href="CCDD/CcddClassesComponent.ToolTipTreeNode.html" title="class in CCDD">CcddClassesComponent.ToolTipTreeNode</a> preLoadedGroupRoot</pre>
+</li>
+<li class="blockList">
 <h4>treeType</h4>
 <pre><a href="CCDD/CcddConstants.TableTreeType.html" title="enum in CCDD">CcddConstants.TableTreeType</a> treeType</pre>
 </li>
 <li class="blockList">
+<h4>defaultTreeType</h4>
+<pre><a href="CCDD/CcddConstants.TableTreeType.html" title="enum in CCDD">CcddConstants.TableTreeType</a> defaultTreeType</pre>
+</li>
+<li class="blockList">
 <h4>expandChkBx</h4>
 <pre>javax.swing.JCheckBox expandChkBx</pre>
+</li>
+<li class="blockList">
+<h4>skipMemberTables</h4>
+<pre>boolean skipMemberTables</pre>
 </li>
 <li class="blockList">
 <h4>sortByName</h4>
@@ -3209,9 +3317,25 @@
 <h4>nodeFilter</h4>
 <pre><a href="CCDD/CcddTableTreeHandler.TableTreeNodeFilter.html" title="enum in CCDD">CcddTableTreeHandler.TableTreeNodeFilter</a> nodeFilter</pre>
 </li>
-<li class="blockListLast">
+<li class="blockList">
+<h4>recursionCounter</h4>
+<pre>long recursionCounter</pre>
+</li>
+<li class="blockList">
+<h4>recursionAccumulator</h4>
+<pre>long recursionAccumulator</pre>
+</li>
+<li class="blockList">
 <h4>GROUP_HEADER_LEVEL</h4>
 <pre>int GROUP_HEADER_LEVEL</pre>
+</li>
+<li class="blockList">
+<h4>buildGroupTree</h4>
+<pre>boolean buildGroupTree</pre>
+</li>
+<li class="blockListLast">
+<h4>allTablesNodeIndex</h4>
+<pre>int allTablesNodeIndex</pre>
 </li>
 </ul>
 </li>

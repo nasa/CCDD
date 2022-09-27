@@ -497,8 +497,7 @@ public class CcddRateParameterHandler
                 int offset = index - numStreamParms;
 
                 // Remove the leading and trailing quotes from the rate column name
-                String rateColName = rateValues[RateParameter.RATE_COLUMN_NAME.ordinal() + offset]
-                        .replaceAll("^\"(.*)\"$", "$1");
+                String rateColName = rateValues[RateParameter.RATE_COLUMN_NAME.ordinal() + offset].replaceAll("^\"(.*)\"$", "$1");
 
                 // Get the rate information for this rate column
                 RateInformation rateInfo = getRateInformationByRateName(rateColName);

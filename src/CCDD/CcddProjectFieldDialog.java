@@ -229,8 +229,7 @@ public class CcddProjectFieldDialog extends CcddDialogHandler
                 undoHandler.setFieldHandler(fieldHandler);
 
                 // Get the field information for the project data fields
-                committedFieldInformation = fieldHandler
-                        .getFieldInformationByOwnerCopy(CcddFieldHandler.getFieldProjectName());
+                committedFieldInformation = fieldHandler.getFieldInformationByOwnerCopy(CcddFieldHandler.getFieldProjectName());
 
                 // Create the input field panel
                 fieldPnlHndlr.createDescAndDataFieldPanel(ccddMain,

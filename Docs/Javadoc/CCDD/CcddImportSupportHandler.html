@@ -17,7 +17,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":9,"i6":9,"i7":9,"i8":9,"i9":9,"i10":10,"i11":10,"i12":10,"i13":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":9,"i6":9,"i7":9,"i8":9,"i9":10,"i10":9,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -171,6 +171,10 @@ extends java.lang.Object</pre>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddImportSupportHandler.html#cmdHeaderTable">cmdHeaderTable</a></span></code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>protected static <a href="../CCDD/CcddMacroHandler.html" title="class in CCDD">CcddMacroHandler</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddImportSupportHandler.html#macroHandler">macroHandler</a></span></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>protected java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddImportSupportHandler.html#tlmHeaderTable">tlmHeaderTable</a></span></code>&nbsp;</td>
 </tr>
@@ -208,7 +212,8 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>protected boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddImportSupportHandler.html#addImportedDataFieldDefinition-boolean-java.lang.Object-java.lang.String:A-java.lang.String-CCDD.CcddInputTypeHandler-CCDD.CcddFieldHandler-java.awt.Component-">addImportedDataFieldDefinition</a></span>(boolean&nbsp;continueOnError,
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddImportSupportHandler.html#addImportedDataFieldDefinition-boolean-boolean-java.lang.Object-java.lang.String:A-java.lang.String-CCDD.CcddInputTypeHandler-CCDD.CcddFieldHandler-java.awt.Component-">addImportedDataFieldDefinition</a></span>(boolean&nbsp;continueOnError,
+                              boolean&nbsp;replaceExisting,
                               java.lang.Object&nbsp;defnContainer,
                               java.lang.String[]&nbsp;fieldDefn,
                               java.lang.String&nbsp;fileName,
@@ -231,7 +236,8 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>protected boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddImportSupportHandler.html#addImportedScriptAssociation-boolean-java.util.List-java.lang.String:A-java.lang.String-CCDD.CcddScriptHandler-java.awt.Component-">addImportedScriptAssociation</a></span>(boolean&nbsp;continueOnError,
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddImportSupportHandler.html#addImportedScriptAssociation-boolean-boolean-java.util.List-java.lang.String:A-java.lang.String-CCDD.CcddScriptHandler-java.awt.Component-">addImportedScriptAssociation</a></span>(boolean&nbsp;continueOnError,
+                            boolean&nbsp;replaceExistingAssociations,
                             java.util.List&lt;java.lang.String[]&gt;&nbsp;associations,
                             java.lang.String[]&nbsp;assnDefn,
                             java.lang.String&nbsp;fileName,
@@ -272,7 +278,7 @@ extends java.lang.Object</pre>
 </td>
 </tr>
 <tr id="i7" class="rowColor">
-<td class="colFirst"><code>protected static void</code></td>
+<td class="colFirst"><code>protected static boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddImportSupportHandler.html#checkMacroDefinition-java.lang.String:A-">checkMacroDefinition</a></span>(java.lang.String[]&nbsp;macroDefn)</code>
 <div class="block">Check the supplied macro definition parameters for validity</div>
 </td>
@@ -285,13 +291,19 @@ extends java.lang.Object</pre>
 </td>
 </tr>
 <tr id="i9" class="rowColor">
+<td class="colFirst"><code>protected org.apache.commons.lang3.tuple.ImmutablePair&lt;java.lang.Boolean,java.util.List&lt;java.lang.String[]&gt;&gt;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddImportSupportHandler.html#convertToUniqueList-java.util.List-">convertToUniqueList</a></span>(java.util.List&lt;java.lang.String[]&gt;&nbsp;NewMacroDefns)</code>
+<div class="block">Convert a list to a unique list and detect if there are any duplicate entries</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>protected static <a href="../CCDD/CcddImportSupportHandler.BasePrimitiveDataType.html" title="enum in CCDD">CcddImportSupportHandler.BasePrimitiveDataType</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddImportSupportHandler.html#getBaseDataType-java.lang.String-CCDD.CcddDataTypeHandler-">getBaseDataType</a></span>(java.lang.String&nbsp;dataType,
                <a href="../CCDD/CcddDataTypeHandler.html" title="class in CCDD">CcddDataTypeHandler</a>&nbsp;dataTypeHandler)</code>
 <div class="block">Convert the primitive data type into the base equivalent</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddImportSupportHandler.html#getErrorResponse-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-boolean-java.awt.Component-">getErrorResponse</a></span>(boolean&nbsp;continueOnError,
                 java.lang.String&nbsp;message,
@@ -305,7 +317,7 @@ extends java.lang.Object</pre>
  to an error condition.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddImportSupportHandler.html#getErrorResponse-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.awt.Component-">getErrorResponse</a></span>(boolean&nbsp;continueOnError,
                 java.lang.String&nbsp;message,
@@ -318,7 +330,7 @@ extends java.lang.Object</pre>
  condition.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>protected java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddImportSupportHandler.html#getMatchingDataType-long-boolean-boolean-boolean-boolean-CCDD.CcddDataTypeHandler-">getMatchingDataType</a></span>(long&nbsp;sizeInBytes,
                    boolean&nbsp;isInteger,
@@ -329,7 +341,13 @@ extends java.lang.Object</pre>
 <div class="block">Get the data type name determined by the specified data type size and match criteria</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i14" class="altColor">
+<td class="colFirst"><code>(package private) void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddImportSupportHandler.html#setMacroHandler-CCDD.CcddMacroHandler-">setMacroHandler</a></span>(<a href="../CCDD/CcddMacroHandler.html" title="class in CCDD">CcddMacroHandler</a>&nbsp;macroHandler)</code>
+<div class="block">Set the macro handler</div>
+</td>
+</tr>
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddImportSupportHandler.html#setProjectHeaderTablesAndVariables-CCDD.CcddFieldHandler-boolean-java.lang.String-java.lang.String-java.lang.String-java.lang.String-">setProjectHeaderTablesAndVariables</a></span>(<a href="../CCDD/CcddFieldHandler.html" title="class in CCDD">CcddFieldHandler</a>&nbsp;fieldHandler,
                                   boolean&nbsp;isCreateField,
@@ -394,10 +412,19 @@ extends java.lang.Object</pre>
 <a name="cmdFuncCodeName">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>cmdFuncCodeName</h4>
 <pre>protected&nbsp;java.lang.String cmdFuncCodeName</pre>
+</li>
+</ul>
+<a name="macroHandler">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>macroHandler</h4>
+<pre>protected static&nbsp;<a href="../CCDD/CcddMacroHandler.html" title="class in CCDD">CcddMacroHandler</a> macroHandler</pre>
 </li>
 </ul>
 </li>
@@ -425,6 +452,20 @@ extends java.lang.Object</pre>
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a name="setMacroHandler-CCDD.CcddMacroHandler-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setMacroHandler</h4>
+<pre>void&nbsp;setMacroHandler(<a href="../CCDD/CcddMacroHandler.html" title="class in CCDD">CcddMacroHandler</a>&nbsp;macroHandler)</pre>
+<div class="block">Set the macro handler</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>macroHandler</code> - Macro handler</dd>
+</dl>
+</li>
+</ul>
 <a name="addImportedTableTypeColumnDefinition-boolean-CCDD.CcddClassesDataTable.TableTypeDefinition-java.lang.String:A-java.lang.String-CCDD.CcddInputTypeHandler-java.awt.Component-">
 <!--   -->
 </a>
@@ -441,28 +482,30 @@ extends java.lang.Object</pre>
 <div class="block">Add a table type column definition after verifying the input parameters</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>continueOnError</code> - current state of the flag that indicates if all table type errors should be
-            ignored</dd>
-<dd><code>tableTypeDefn</code> - reference to the TableTypeDefinition to which this column definition applies</dd>
-<dd><code>columnDefn</code> - array containing the table type column definition</dd>
-<dd><code>fileName</code> - import file name</dd>
-<dd><code>inputTypeHandler</code> - input type handler reference</dd>
+<dd><code>continueOnError</code> - Current state of the flag that indicates if all table type errors
+                         should be ignored</dd>
+<dd><code>tableTypeDefn</code> - Reference to the TableTypeDefinition to which this column definition
+                         applies</dd>
+<dd><code>columnDefn</code> - Array containing the table type column definition</dd>
+<dd><code>fileName</code> - Import file name</dd>
+<dd><code>inputTypeHandler</code> - Input type handler reference</dd>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>true if the user elected to ignore the column error</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If the column name is missing or the user elects to stop the import operation
-             due to an invalid input type</dd>
+<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If the column name is missing or the user elects to stop the import
+                       operation due to an invalid input type</dd>
 </dl>
 </li>
 </ul>
-<a name="addImportedDataFieldDefinition-boolean-java.lang.Object-java.lang.String:A-java.lang.String-CCDD.CcddInputTypeHandler-CCDD.CcddFieldHandler-java.awt.Component-">
+<a name="addImportedDataFieldDefinition-boolean-boolean-java.lang.Object-java.lang.String:A-java.lang.String-CCDD.CcddInputTypeHandler-CCDD.CcddFieldHandler-java.awt.Component-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>addImportedDataFieldDefinition</h4>
 <pre>protected&nbsp;boolean&nbsp;addImportedDataFieldDefinition(boolean&nbsp;continueOnError,
+                                                 boolean&nbsp;replaceExisting,
                                                  java.lang.Object&nbsp;defnContainer,
                                                  java.lang.String[]&nbsp;fieldDefn,
                                                  java.lang.String&nbsp;fileName,
@@ -478,20 +521,21 @@ extends java.lang.Object</pre>
  since the new ones either replace existing ones or are ignored, based on the import flags)</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>continueOnError</code> - current state of the flag that indicates if all data field errors should be
-            ignored</dd>
-<dd><code>defnContainer</code> - TableDefinition, TableTypeDefinition, or projectDefinition object to which this
-            data field applies</dd>
-<dd><code>fieldDefn</code> - array containing the data field definition</dd>
-<dd><code>fileName</code> - import file name</dd>
-<dd><code>inputTypeHandler</code> - input type handler reference</dd>
-<dd><code>fieldHandler</code> - data field handler reference</dd>
+<dd><code>continueOnError</code> - Current state of the flag that indicates if all data field errors
+                         should be ignored</dd>
+<dd><code>replaceExisting</code> - Replace any existing fields</dd>
+<dd><code>defnContainer</code> - TableDefinition, TableTypeDefinition, or projectDefinition object to
+                         which this data field applies</dd>
+<dd><code>fieldDefn</code> - Array containing the data field definition</dd>
+<dd><code>fileName</code> - Import file name</dd>
+<dd><code>inputTypeHandler</code> - Input type handler reference</dd>
+<dd><code>fieldHandler</code> - Data field handler reference</dd>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>true if the user elected to ignore the data field error</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If the data field name is missing or the user elects to stop the import
-             operation due to an invalid input type</dd>
+<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If the data field name is missing or the user elects to stop the
+                       import operation due to an invalid input type</dd>
 </dl>
 </li>
 </ul>
@@ -506,8 +550,8 @@ extends java.lang.Object</pre>
 <div class="block">Build the project-level and group data fields</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>fieldHandler</code> - data field handler reference</dd>
-<dd><code>dataFields</code> - list containing the data field definitions from the import file</dd>
+<dd><code>fieldHandler</code> - Data field handler reference</dd>
+<dd><code>dataFields</code> - List containing the data field definitions from the import file</dd>
 </dl>
 </li>
 </ul>
@@ -526,22 +570,23 @@ extends java.lang.Object</pre>
  parameters</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>groupDefn</code> - array containing the group definition</dd>
-<dd><code>fileName</code> - import file name</dd>
-<dd><code>replaceExistingGroups</code> - true to replace existing group definitions</dd>
-<dd><code>groupHandler</code> - group handler reference</dd>
+<dd><code>groupDefn</code> - Array containing the group definition</dd>
+<dd><code>fileName</code> - Import file name</dd>
+<dd><code>replaceExistingGroups</code> - True to replace existing group definitions</dd>
+<dd><code>groupHandler</code> - Group handler reference</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If the group name or member table list is missing</dd>
 </dl>
 </li>
 </ul>
-<a name="addImportedScriptAssociation-boolean-java.util.List-java.lang.String:A-java.lang.String-CCDD.CcddScriptHandler-java.awt.Component-">
+<a name="addImportedScriptAssociation-boolean-boolean-java.util.List-java.lang.String:A-java.lang.String-CCDD.CcddScriptHandler-java.awt.Component-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>addImportedScriptAssociation</h4>
 <pre>protected&nbsp;boolean&nbsp;addImportedScriptAssociation(boolean&nbsp;continueOnError,
+                                               boolean&nbsp;replaceExistingAssociations,
                                                java.util.List&lt;java.lang.String[]&gt;&nbsp;associations,
                                                java.lang.String[]&nbsp;assnDefn,
                                                java.lang.String&nbsp;fileName,
@@ -553,19 +598,21 @@ extends java.lang.Object</pre>
  but different script file or members exists allow the user to determine how to proceed</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>continueOnError</code> - current state of the flag that indicates if all script association errors should
-            be ignored</dd>
-<dd><code>associations</code> - list of the current script associations</dd>
-<dd><code>assnDefn</code> - array containing the script association</dd>
-<dd><code>fileName</code> - import file name</dd>
-<dd><code>scriptHandler</code> - script handler reference</dd>
+<dd><code>continueOnError</code> - Current state of the flag that indicates if all script
+                                    association errors should be ignored</dd>
+<dd><code>replaceExistingAssociations</code> - True to overwrite internal associations with those from
+                                    the import file</dd>
+<dd><code>associations</code> - List of the current script associations</dd>
+<dd><code>assnDefn</code> - Array containing the script association</dd>
+<dd><code>fileName</code> - Import file name</dd>
+<dd><code>scriptHandler</code> - Script handler reference</dd>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>true if the user elected to ignore the data field error</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If the script file name is missing, or an association with the same name but
-             different script file or members exists and the user elects to stop the import
-             operation</dd>
+<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If the script file name is missing, or an association with the same
+                       name but different script file or members exists and the user elects
+                       to stop the import operation</dd>
 </dl>
 </li>
 </ul>
@@ -587,16 +634,16 @@ extends java.lang.Object</pre>
  data fields for these names</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>fieldHandler</code> - data field handler reference</dd>
-<dd><code>isCreateField</code> - true is the project-level data fields are to be created</dd>
-<dd><code>tlmHdrTable</code> - name of the structure table that represents the common header for all telemetry
-            tables; null if not present in the import file</dd>
-<dd><code>cmdHdrTable</code> - name of the structure table that represents the common header for all command
-            tables; null if not present in the import file</dd>
-<dd><code>appIDName</code> - telemetry and command header variable names for the application ID; null if not
-            present in the import file</dd>
-<dd><code>funcCodeName</code> - command header variable name for the command function code; null if not present
-            in the import file</dd>
+<dd><code>fieldHandler</code> - Data field handler reference</dd>
+<dd><code>isCreateField</code> - True is the project-level data fields are to be created</dd>
+<dd><code>tlmHdrTable</code> - Name of the structure table that represents the common header for all
+                      telemetry tables; null if not present in the import file</dd>
+<dd><code>cmdHdrTable</code> - Name of the structure table that represents the common header for all
+                      command tables; null if not present in the import file</dd>
+<dd><code>appIDName</code> - Telemetry and command header variable names for the application ID;
+                      null if not present in the import file</dd>
+<dd><code>funcCodeName</code> - Command header variable name for the command function code; null if not
+                      present in the import file</dd>
 </dl>
 </li>
 </ul>
@@ -619,12 +666,13 @@ extends java.lang.Object</pre>
  instances of this type of error, or cancel the operation</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>continueOnError</code> - current state of the flag that indicates if all errors of this type should be
-            ignored</dd>
-<dd><code>message</code> - text message to display</dd>
-<dd><code>title</code> - title to display in the dialog window frame</dd>
+<dd><code>continueOnError</code> - Current state of the flag that indicates if all errors of this type
+                         should be ignored</dd>
+<dd><code>message</code> - Text message to display</dd>
+<dd><code>title</code> - Title to display in the dialog window frame</dd>
 <dd><code>ignoreToolTip</code> - Ignore button tool tip text; null if no tool tip is to be displayed</dd>
-<dd><code>ignoreAllToolTip</code> - Ignore All button tool tip text; null if no tool tip is to be displayed</dd>
+<dd><code>ignoreAllToolTip</code> - Ignore All button tool tip text; null if no tool tip is to be
+                         displayed</dd>
 <dd><code>cancelToolTip</code> - Cancel button tool tip text; null if no tool tip is to be displayed</dd>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -654,14 +702,15 @@ extends java.lang.Object</pre>
  all instances of this type of error, or cancel the operation</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>continueOnError</code> - current state of the flag that indicates if all errors of this type should be
-            ignored</dd>
-<dd><code>message</code> - text message to display</dd>
-<dd><code>title</code> - title to display in the dialog window frame</dd>
+<dd><code>continueOnError</code> - Current state of the flag that indicates if all errors of this type
+                         should be ignored</dd>
+<dd><code>message</code> - Text message to display</dd>
+<dd><code>title</code> - Title to display in the dialog window frame</dd>
 <dd><code>ignoreToolTip</code> - Ignore button tool tip text; null if no tool tip is to be displayed</dd>
-<dd><code>ignoreAllToolTip</code> - Ignore All button tool tip text; null if no tool tip is to be displayed</dd>
+<dd><code>ignoreAllToolTip</code> - Ignore All button tool tip text; null if no tool tip is to be
+                         displayed</dd>
 <dd><code>cancelToolTip</code> - Cancel button tool tip text; null if no tool tip is to be displayed</dd>
-<dd><code>noIgnore</code> - true to not display the Ignore button</dd>
+<dd><code>noIgnore</code> - True to not display the Ignore button</dd>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>true if the user elected to ignore errors of this type</dd>
@@ -681,7 +730,7 @@ extends java.lang.Object</pre>
 <div class="block">Check input type definition parameters for validity</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>inputTypeDefn</code> - array containing the input type definition</dd>
+<dd><code>inputTypeDefn</code> - Array containing the input type definition</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The input type definition, with the regular expression built if the definition
          contains a selection item list</dd>
@@ -696,12 +745,14 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>checkMacroDefinition</h4>
-<pre>protected static&nbsp;void&nbsp;checkMacroDefinition(java.lang.String[]&nbsp;macroDefn)
-                                    throws <a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></pre>
+<pre>protected static&nbsp;boolean&nbsp;checkMacroDefinition(java.lang.String[]&nbsp;macroDefn)
+                                       throws <a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></pre>
 <div class="block">Check the supplied macro definition parameters for validity</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>macroDefn</code> - array containing the macro definition</dd>
+<dd><code>macroDefn</code> - Array containing the macro definition</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>result Should macro be imported?</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If an invalid macro parameter is detected</dd>
 </dl>
@@ -718,7 +769,7 @@ extends java.lang.Object</pre>
 <div class="block">Check the supplied data type definition parameters for validity</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>dataTypeDefn</code> - array containing the data type definition</dd>
+<dd><code>dataTypeDefn</code> - Array containing the data type definition</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If an invalid data type parameter is detected</dd>
 </dl>
@@ -735,8 +786,8 @@ extends java.lang.Object</pre>
 <div class="block">Convert the primitive data type into the base equivalent</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>dataType</code> - data type</dd>
-<dd><code>dataTypeHandler</code> - reference to the data type handler</dd>
+<dd><code>dataType</code> - Data type</dd>
+<dd><code>dataTypeHandler</code> - Reference to the data type handler</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Base primitive data type corresponding to the specified primitive data type; null if
          no match</dd>
@@ -758,12 +809,12 @@ extends java.lang.Object</pre>
 <div class="block">Get the data type name determined by the specified data type size and match criteria</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>sizeInBytes</code> - data type size in bytes</dd>
-<dd><code>isInteger</code> - true if the data type to match is an integer</dd>
-<dd><code>isUnsigned</code> - true if the data type to match is an unsigned integer</dd>
-<dd><code>isFloat</code> - true if the data type to match is a floating point</dd>
-<dd><code>isString</code> - true if the data type to match is a character or string</dd>
-<dd><code>dataTypeHandler</code> - reference to the data type handler</dd>
+<dd><code>sizeInBytes</code> - Data type size in bytes</dd>
+<dd><code>isInteger</code> - True if the data type to match is an integer</dd>
+<dd><code>isUnsigned</code> - True if the data type to match is an unsigned integer</dd>
+<dd><code>isFloat</code> - True if the data type to match is a floating point</dd>
+<dd><code>isString</code> - True if the data type to match is a character or string</dd>
+<dd><code>dataTypeHandler</code> - Reference to the data type handler</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The name of the data type from the existing data type definitions that matches the
          input criteria; null if there is no match</dd>
@@ -773,7 +824,7 @@ extends java.lang.Object</pre>
 <a name="cleanSystemPath-java.lang.String-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>cleanSystemPath</h4>
 <pre>protected static&nbsp;java.lang.String&nbsp;cleanSystemPath(java.lang.String&nbsp;path)</pre>
@@ -781,10 +832,27 @@ extends java.lang.Object</pre>
  end of each path segment</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>path</code> - system path in the form &lt;&lt;/&gt;path1&lt;/path2&lt;...&gt;&gt;</dd>
+<dd><code>path</code> - System path in the form &lt;&lt;/&gt;path1&lt;/path2&lt;...&gt;&gt;</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Path with each invalid character replaced with an underscore and any leading
          underscores moved to the end of each path segment</dd>
+</dl>
+</li>
+</ul>
+<a name="convertToUniqueList-java.util.List-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>convertToUniqueList</h4>
+<pre>protected&nbsp;org.apache.commons.lang3.tuple.ImmutablePair&lt;java.lang.Boolean,java.util.List&lt;java.lang.String[]&gt;&gt;&nbsp;convertToUniqueList(java.util.List&lt;java.lang.String[]&gt;&nbsp;NewMacroDefns)</pre>
+<div class="block">Convert a list to a unique list and detect if there are any duplicate entries</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>NewMacroDefns</code> - A list of string arrays containing information</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Pair containing a list of unique values and a Boolean indicating if the set was
+         unique</dd>
 </dl>
 </li>
 </ul>

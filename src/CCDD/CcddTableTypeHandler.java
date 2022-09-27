@@ -1255,7 +1255,9 @@ public class CcddTableTypeHandler
      *
      * @return Database column name corresponding to the visible column name
      *********************************************************************************************/
-    protected String convertVisibleToDatabase(String columnName, String inputTypeName, boolean isStructure)
+    protected String convertVisibleToDatabase(String columnName,
+                                              String inputTypeName,
+                                              boolean isStructure)
     {
         String dbColumnName = null;
 
@@ -1286,7 +1288,7 @@ public class CcddTableTypeHandler
             {
                 // Replace any characters that aren't allowed in a database column name with
                 // underscores
-                dbColumnName = columnName.toLowerCase().replaceAll("[^a-z0-9_]", "_");
+                dbColumnName = columnName.toLowerCase().replaceAll("[^a-z0-9_]", "_").replaceFirst("^(\\d)", "_$1");
             }
         }
         // The column doesn't belong to a structure type table
@@ -1294,7 +1296,7 @@ public class CcddTableTypeHandler
         {
             // Replace any characters that aren't allowed in a database column name with
             // underscores
-            dbColumnName = columnName.toLowerCase().replaceAll("[^a-z0-9_]", "_");
+            dbColumnName = columnName.toLowerCase().replaceAll("[^a-z0-9_]", "_").replaceFirst("^(\\d)", "_$1");
         }
 
         return dbControl.getQuotedName(dbColumnName);
@@ -1679,8 +1681,7 @@ public class CcddTableTypeHandler
             if (typeUpdate == TableTypeUpdate.MATCH)
             {
                 // Get the existing data fields
-                List<FieldInformation> currentDataFields = fieldHandler
-                        .getFieldInformationByOwner("Type:" + tableTypeDefn.getTypeName());
+                List<FieldInformation> currentDataFields = fieldHandler.getFieldInformationByOwner("Type:" + tableTypeDefn.getTypeName());
 
                 // Check to see if the same number of data fields exist for both the new and
                 // existing table type definition
@@ -1890,8 +1891,7 @@ public class CcddTableTypeHandler
 
         // Get the existing data fields information and convert it to a list of string arrays for
         // easier use
-        List<FieldInformation> oldDataFieldInformation = fieldHandler
-                .getFieldInformationByOwner("Type:" + newTableTypeDefn.getTypeName());
+        List<FieldInformation> oldDataFieldInformation = fieldHandler.getFieldInformationByOwner("Type:" + newTableTypeDefn.getTypeName());
 
         // Get the new data fields
         List<String[]> newDataFields = newTableTypeDefn.getDataFields();
@@ -1992,6 +1992,7 @@ public class CcddTableTypeHandler
                                 null);
 
         // Update the fieldHandler
-        fieldHandler.replaceFieldInformationByOwner("Type:" + newTableTypeDefn.getTypeName(), newDataFieldInformation);
+        fieldHandler.replaceFieldInformationByOwner("Type:" + newTableTypeDefn.getTypeName(),
+                                                    newDataFieldInformation);
     }
 }

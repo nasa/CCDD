@@ -187,8 +187,7 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
 
                 case COPY:
                     // Delete the copied type definition
-                    tableTypeHandler.getTypeDefinitions()
-                            .remove(tableTypeHandler.getTypeDefinition(typeNameFld.getText()));
+                    tableTypeHandler.getTypeDefinitions().remove(tableTypeHandler.getTypeDefinition(typeNameFld.getText()));
                     break;
 
                 case DELETE:

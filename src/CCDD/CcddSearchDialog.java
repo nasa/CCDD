@@ -428,9 +428,8 @@ public class CcddSearchDialog extends CcddFrameHandler
                 selectedColumnsCb = new JCheckBox("Search selected columns");
                 selectedColumnsCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 selectedColumnsCb.setBorder(emptyBorder);
-                selectedColumnsCb
-                        .setToolTipText(CcddUtilities.wrapText("Search only selected columns in the data tables",
-                                                               ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+                selectedColumnsCb.setToolTipText(CcddUtilities.wrapText("Search only selected columns in the data tables",
+                                                                        ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
                 gbc.insets.bottom = 0;
                 gbc.gridy++;
                 inputPnl.add(selectedColumnsCb, gbc);

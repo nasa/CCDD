@@ -508,11 +508,13 @@ implements <a href="../CCDD/CcddSchedulerInputInterface.html" title="interface i
 <div class="block">Telemetry scheduler input class constructor</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>ccddMain</code> - main class</dd>
-<dd><code>schedulerDlg</code> - reference to the telemetry scheduler dialog that created this class</dd>
-<dd><code>rateName</code> - rate column name</dd>
-<dd><code>allVariableTree</code> - reference to a table tree containing all variables</dd>
-<dd><code>allVariableTreePaths</code> - list containing the paths to all elements in the allVariableTree tree</dd>
+<dd><code>ccddMain</code> - Main class</dd>
+<dd><code>schedulerDlg</code> - Reference to the telemetry scheduler dialog that created this
+                             class</dd>
+<dd><code>rateName</code> - Rate column name</dd>
+<dd><code>allVariableTree</code> - Reference to a table tree containing all variables</dd>
+<dd><code>allVariableTreePaths</code> - List containing the paths to all elements in the allVariableTree
+                             tree</dd>
 </dl>
 </li>
 </ul>
@@ -573,8 +575,8 @@ implements <a href="../CCDD/CcddSchedulerInputInterface.html" title="interface i
 <div class="block">Set the link name for the message variables</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>messages</code> - list of messages</dd>
-<dd><code>rateName</code> - rate column name</dd>
+<dd><code>messages</code> - List of messages</dd>
+<dd><code>rateName</code> - Rate column name</dd>
 </dl>
 </li>
 </ul>
@@ -593,8 +595,9 @@ implements <a href="../CCDD/CcddSchedulerInputInterface.html" title="interface i
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../CCDD/CcddSchedulerInputInterface.html#getVariableRelativeIndex-CCDD.CcddClassesDataTable.Variable-java.util.List-">getVariableRelativeIndex</a></code>&nbsp;in interface&nbsp;<code><a href="../CCDD/CcddSchedulerInputInterface.html" title="interface in CCDD">CcddSchedulerInputInterface</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>newVariable</code> - variable for which to determine the insertion index</dd>
-<dd><code>existingVariables</code> - list of existing variables into which the variable is to be inserted</dd>
+<dd><code>newVariable</code> - Variable for which to determine the insertion index</dd>
+<dd><code>existingVariables</code> - List of existing variables into which the variable is to be
+                          inserted</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Index at which to insert the target variable; -1 if the provided list is empty and
          -2 if the variable is already in the list</dd>
@@ -613,7 +616,7 @@ implements <a href="../CCDD/CcddSchedulerInputInterface.html" title="interface i
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../CCDD/CcddSchedulerInputInterface.html#getSelectedVariableSize-java.util.List-">getSelectedVariableSize</a></code>&nbsp;in interface&nbsp;<code><a href="../CCDD/CcddSchedulerInputInterface.html" title="interface in CCDD">CcddSchedulerInputInterface</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>variables</code> - list of variables; null to use the currently selected variable(s)</dd>
+<dd><code>variables</code> - List of variables; null to use the currently selected variable(s)</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Total number of bytes of the specified variable(s)</dd>
 </dl>
@@ -634,8 +637,8 @@ implements <a href="../CCDD/CcddSchedulerInputInterface.html" title="interface i
  only the first variable</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>variables</code> - list of variables where the first member of the list if the one to be checked for
-            associates</dd>
+<dd><code>variables</code> - List of variables where the first member of the list if the one to be
+                  checked for associates</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>AssociatedVariable object containing the total size in bytes of the variables
          associated with the first variable in the specified list and the list of the
@@ -655,7 +658,7 @@ implements <a href="../CCDD/CcddSchedulerInputInterface.html" title="interface i
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../CCDD/CcddSchedulerInputInterface.html#getVariablesAtRate-java.lang.String-">getVariablesAtRate</a></code>&nbsp;in interface&nbsp;<code><a href="../CCDD/CcddSchedulerInputInterface.html" title="interface in CCDD">CcddSchedulerInputInterface</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>rate</code> - rate column name</dd>
+<dd><code>rate</code> - Rate column name</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>List of variables at the specified rate</dd>
 </dl>
@@ -721,7 +724,7 @@ implements <a href="../CCDD/CcddSchedulerInputInterface.html" title="interface i
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../CCDD/CcddSchedulerInputInterface.html#excludeVariable-java.util.List-">excludeVariable</a></code>&nbsp;in interface&nbsp;<code><a href="../CCDD/CcddSchedulerInputInterface.html" title="interface in CCDD">CcddSchedulerInputInterface</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>varName</code> - list of variables to be added to the excluded variable list</dd>
+<dd><code>varName</code> - List of variables to be added to the excluded variable list</dd>
 </dl>
 </li>
 </ul>
@@ -737,7 +740,7 @@ implements <a href="../CCDD/CcddSchedulerInputInterface.html" title="interface i
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../CCDD/CcddSchedulerInputInterface.html#includeVariable-java.util.List-">includeVariable</a></code>&nbsp;in interface&nbsp;<code><a href="../CCDD/CcddSchedulerInputInterface.html" title="interface in CCDD">CcddSchedulerInputInterface</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>varName</code> - list of variables to be removed from the excluded variable list</dd>
+<dd><code>varName</code> - List of variables to be removed from the excluded variable list</dd>
 </dl>
 </li>
 </ul>
@@ -753,7 +756,7 @@ implements <a href="../CCDD/CcddSchedulerInputInterface.html" title="interface i
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../CCDD/CcddSchedulerInputInterface.html#updateVariableTree-java.lang.String-">updateVariableTree</a></code>&nbsp;in interface&nbsp;<code><a href="../CCDD/CcddSchedulerInputInterface.html" title="interface in CCDD">CcddSchedulerInputInterface</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>rate</code> - rate for filtering the variables</dd>
+<dd><code>rate</code> - Rate for filtering the variables</dd>
 </dl>
 </li>
 </ul>

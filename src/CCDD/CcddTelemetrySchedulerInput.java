@@ -394,7 +394,7 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
                 {
                     // Get the variable's tree node
                     ToolTipTreeNode last = (ToolTipTreeNode) allVariableTree.getPathForRow(treeIndex)
-                            .getLastPathComponent();
+                                                                            .getLastPathComponent();
 
                     // Get the node indices that encompass the packed variables (if applicable)
                     BitPackNodeIndex nodeIndex = allVariableTree.getBitPackedVariables(last);

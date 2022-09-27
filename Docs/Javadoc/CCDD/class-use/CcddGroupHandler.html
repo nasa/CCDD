@@ -107,25 +107,29 @@
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>private <a href="../../CCDD/CcddGroupHandler.html" title="class in CCDD">CcddGroupHandler</a></code></td>
-<td class="colLast"><span class="typeNameLabel">CcddGroupManagerDialog.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddGroupManagerDialog.html#groupHandler">groupHandler</a></span></code>&nbsp;</td>
+<td class="colLast"><span class="typeNameLabel">CcddAssignMessageIDDialog.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddAssignMessageIDDialog.html#groupHandler">groupHandler</a></span></code>&nbsp;</td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>private <a href="../../CCDD/CcddGroupHandler.html" title="class in CCDD">CcddGroupHandler</a></code></td>
+<td class="colLast"><span class="typeNameLabel">CcddGroupManagerDialog.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddGroupManagerDialog.html#groupHandler">groupHandler</a></span></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>private <a href="../../CCDD/CcddGroupHandler.html" title="class in CCDD">CcddGroupHandler</a></code></td>
 <td class="colLast"><span class="typeNameLabel">CcddJSONHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddJSONHandler.html#groupHandler">groupHandler</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>private <a href="../../CCDD/CcddGroupHandler.html" title="class in CCDD">CcddGroupHandler</a></code></td>
 <td class="colLast"><span class="typeNameLabel">CcddWebDataAccessHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddWebDataAccessHandler.html#groupHandler">groupHandler</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>private <a href="../../CCDD/CcddGroupHandler.html" title="class in CCDD">CcddGroupHandler</a></code></td>
 <td class="colLast"><span class="typeNameLabel">CcddGroupTreeHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddGroupTreeHandler.html#groupHandler">groupHandler</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>private <a href="../../CCDD/CcddGroupHandler.html" title="class in CCDD">CcddGroupHandler</a></code></td>
 <td class="colLast"><span class="typeNameLabel">CcddScriptDataAccessHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddScriptDataAccessHandler.html#groupHandler">groupHandler</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>private <a href="../../CCDD/CcddGroupHandler.html" title="class in CCDD">CcddGroupHandler</a></code></td>
 <td class="colLast"><span class="typeNameLabel">CcddTableTreeHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddTableTreeHandler.html#groupHandler">groupHandler</a></span></code>&nbsp;</td>
 </tr>
@@ -139,6 +143,12 @@
 </tr>
 <tbody>
 <tr class="altColor">
+<td class="colFirst"><code><a href="../../CCDD/CcddGroupHandler.html" title="class in CCDD">CcddGroupHandler</a></code></td>
+<td class="colLast"><span class="typeNameLabel">CcddGroupManagerDialog.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddGroupManagerDialog.html#getGroupHandler--">getGroupHandler</a></span>()</code>
+<div class="block">Return the group handler</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>protected <a href="../../CCDD/CcddGroupHandler.html" title="class in CCDD">CcddGroupHandler</a></code></td>
 <td class="colLast"><span class="typeNameLabel">CcddGroupTreeHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddGroupTreeHandler.html#getGroupHandler--">getGroupHandler</a></span>()</code>
 <div class="block">Get the reference to the group handler</div>
@@ -179,19 +189,20 @@
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>private void</code></td>
-<td class="colLast"><span class="typeNameLabel">CcddFileIOHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddFileIOHandler.html#createTablesFromDefinitions-java.util.List-boolean-boolean-boolean-CCDD.CcddGroupHandler-java.awt.Component-">createTablesFromDefinitions</a></span>(java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.TableDefinition.html" title="class in CCDD">CcddClassesDataTable.TableDefinition</a>&gt;&nbsp;tableDefinitions,
+<td class="colLast"><span class="typeNameLabel">CcddFileIOHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddFileIOHandler.html#createTablesFromDefinitions-java.util.List-boolean-boolean-boolean-CCDD.CcddGroupHandler-boolean-java.awt.Component-">createTablesFromDefinitions</a></span>(java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.TableDefinition.html" title="class in CCDD">CcddClassesDataTable.TableDefinition</a>&gt;&nbsp;tableDefinitions,
                            boolean&nbsp;replaceExistingTables,
                            boolean&nbsp;replaceExistingMacros,
                            boolean&nbsp;openEditor,
                            <a href="../../CCDD/CcddGroupHandler.html" title="class in CCDD">CcddGroupHandler</a>&nbsp;groupHandler,
+                           boolean&nbsp;ignoreErrors,
                            java.awt.Component&nbsp;parent)</code>
 <div class="block">Create one or more data tables from the supplied table definitions</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>private void</code></td>
-<td class="colLast"><span class="typeNameLabel">CcddScriptHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddScriptHandler.html#executeScript-java.lang.String-CCDD.CcddClassesDataTable.TableInformation:A-java.util.List-CCDD.CcddLinkHandler-CCDD.CcddGroupHandler-java.awt.Component-">executeScript</a></span>(java.lang.String&nbsp;scriptFileName,
-             <a href="../../CCDD/CcddClassesDataTable.TableInformation.html" title="class in CCDD">CcddClassesDataTable.TableInformation</a>[]&nbsp;tableInformation,
+<td class="colLast"><span class="typeNameLabel">CcddScriptHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddScriptHandler.html#executeScript-java.lang.String-CCDD.CcddClassesDataTable.TableInfo:A-java.util.List-CCDD.CcddLinkHandler-CCDD.CcddGroupHandler-java.awt.Component-">executeScript</a></span>(java.lang.String&nbsp;scriptFileName,
+             <a href="../../CCDD/CcddClassesDataTable.TableInfo.html" title="class in CCDD">CcddClassesDataTable.TableInfo</a>[]&nbsp;tableInformation,
              java.util.List&lt;java.lang.String&gt;&nbsp;groupNames,
              <a href="../../CCDD/CcddLinkHandler.html" title="class in CCDD">CcddLinkHandler</a>&nbsp;linkHandler,
              <a href="../../CCDD/CcddGroupHandler.html" title="class in CCDD">CcddGroupHandler</a>&nbsp;groupHandler,
@@ -210,8 +221,8 @@
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>protected javax.script.ScriptEngine</code></td>
-<td class="colLast"><span class="typeNameLabel">CcddScriptHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddScriptHandler.html#getScriptEngine-java.lang.String-CCDD.CcddClassesDataTable.TableInformation:A-CCDD.CcddLinkHandler-CCDD.CcddGroupHandler-java.util.List-java.awt.Component-">getScriptEngine</a></span>(java.lang.String&nbsp;scriptFileName,
-               <a href="../../CCDD/CcddClassesDataTable.TableInformation.html" title="class in CCDD">CcddClassesDataTable.TableInformation</a>[]&nbsp;tableInformation,
+<td class="colLast"><span class="typeNameLabel">CcddScriptHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddScriptHandler.html#getScriptEngine-java.lang.String-CCDD.CcddClassesDataTable.TableInfo:A-CCDD.CcddLinkHandler-CCDD.CcddGroupHandler-java.util.List-java.awt.Component-">getScriptEngine</a></span>(java.lang.String&nbsp;scriptFileName,
+               <a href="../../CCDD/CcddClassesDataTable.TableInfo.html" title="class in CCDD">CcddClassesDataTable.TableInfo</a>[]&nbsp;tableInformation,
                <a href="../../CCDD/CcddLinkHandler.html" title="class in CCDD">CcddLinkHandler</a>&nbsp;linkHandler,
                <a href="../../CCDD/CcddGroupHandler.html" title="class in CCDD">CcddGroupHandler</a>&nbsp;groupHandler,
                java.util.List&lt;java.lang.String&gt;&nbsp;groupNames,
@@ -248,9 +259,9 @@
 </td>
 </tr>
 <tr class="altColor">
-<td class="colLast"><code><span class="memberNameLink"><a href="../../CCDD/CcddScriptDataAccessHandler.html#CcddScriptDataAccessHandler-CCDD.CcddMain-javax.script.ScriptEngine-CCDD.CcddClassesDataTable.TableInformation:A-CCDD.CcddLinkHandler-CCDD.CcddGroupHandler-java.lang.String-java.util.List-java.awt.Component-">CcddScriptDataAccessHandler</a></span>(<a href="../../CCDD/CcddMain.html" title="class in CCDD">CcddMain</a>&nbsp;ccddMain,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../CCDD/CcddScriptDataAccessHandler.html#CcddScriptDataAccessHandler-CCDD.CcddMain-javax.script.ScriptEngine-CCDD.CcddClassesDataTable.TableInfo:A-CCDD.CcddLinkHandler-CCDD.CcddGroupHandler-java.lang.String-java.util.List-java.awt.Component-">CcddScriptDataAccessHandler</a></span>(<a href="../../CCDD/CcddMain.html" title="class in CCDD">CcddMain</a>&nbsp;ccddMain,
                            javax.script.ScriptEngine&nbsp;scriptEngine,
-                           <a href="../../CCDD/CcddClassesDataTable.TableInformation.html" title="class in CCDD">CcddClassesDataTable.TableInformation</a>[]&nbsp;tableInformation,
+                           <a href="../../CCDD/CcddClassesDataTable.TableInfo.html" title="class in CCDD">CcddClassesDataTable.TableInfo</a>[]&nbsp;tableInformation,
                            <a href="../../CCDD/CcddLinkHandler.html" title="class in CCDD">CcddLinkHandler</a>&nbsp;linkHandler,
                            <a href="../../CCDD/CcddGroupHandler.html" title="class in CCDD">CcddGroupHandler</a>&nbsp;groupHandler,
                            java.lang.String&nbsp;scriptFileName,
@@ -260,7 +271,7 @@
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colLast"><code><span class="memberNameLink"><a href="../../CCDD/CcddTableTreeHandler.html#CcddTableTreeHandler-CCDD.CcddMain-CCDD.CcddGroupHandler-CCDD.CcddConstants.TableTreeType-boolean-boolean-boolean-boolean-boolean-java.lang.String-java.lang.String-java.util.List-boolean-java.lang.String-java.lang.String-java.awt.Component-">CcddTableTreeHandler</a></span>(<a href="../../CCDD/CcddMain.html" title="class in CCDD">CcddMain</a>&nbsp;ccddMain,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../CCDD/CcddTableTreeHandler.html#CcddTableTreeHandler-CCDD.CcddMain-CCDD.CcddGroupHandler-CCDD.CcddConstants.TableTreeType-boolean-boolean-boolean-boolean-boolean-java.lang.String-java.lang.String-java.util.List-boolean-java.lang.String-java.lang.String-boolean-java.awt.Component-">CcddTableTreeHandler</a></span>(<a href="../../CCDD/CcddMain.html" title="class in CCDD">CcddMain</a>&nbsp;ccddMain,
                     <a href="../../CCDD/CcddGroupHandler.html" title="class in CCDD">CcddGroupHandler</a>&nbsp;groupHandler,
                     <a href="../../CCDD/CcddConstants.TableTreeType.html" title="enum in CCDD">CcddConstants.TableTreeType</a>&nbsp;treeType,
                     boolean&nbsp;getDescriptions,
@@ -274,16 +285,18 @@
                     boolean&nbsp;isSilent,
                     java.lang.String&nbsp;prototypeNodeName,
                     java.lang.String&nbsp;instanceNodeName,
+                    boolean&nbsp;skipMemberTables,
                     java.awt.Component&nbsp;parent)</code>
 <div class="block">Table tree handler class constructor</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colLast"><code><span class="memberNameLink"><a href="../../CCDD/CcddTableTreeHandler.html#CcddTableTreeHandler-CCDD.CcddMain-CCDD.CcddGroupHandler-CCDD.CcddConstants.TableTreeType-boolean-boolean-java.awt.Component-">CcddTableTreeHandler</a></span>(<a href="../../CCDD/CcddMain.html" title="class in CCDD">CcddMain</a>&nbsp;ccddMain,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../CCDD/CcddTableTreeHandler.html#CcddTableTreeHandler-CCDD.CcddMain-CCDD.CcddGroupHandler-CCDD.CcddConstants.TableTreeType-boolean-boolean-boolean-java.awt.Component-">CcddTableTreeHandler</a></span>(<a href="../../CCDD/CcddMain.html" title="class in CCDD">CcddMain</a>&nbsp;ccddMain,
                     <a href="../../CCDD/CcddGroupHandler.html" title="class in CCDD">CcddGroupHandler</a>&nbsp;groupHandler,
                     <a href="../../CCDD/CcddConstants.TableTreeType.html" title="enum in CCDD">CcddConstants.TableTreeType</a>&nbsp;treeType,
                     boolean&nbsp;showGroupFilter,
                     boolean&nbsp;addHiddenCheckbox,
+                    boolean&nbsp;skipMemberTables,
                     java.awt.Component&nbsp;parent)</code>
 <div class="block">Table tree handler class constructor</div>
 </td>

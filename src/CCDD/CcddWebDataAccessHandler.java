@@ -2010,8 +2010,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
 
                             // Check if the command description is present
                             if (commandDescriptionIndex != -1
-                                && !(cellValue = tableInfo.getData().get(row)[commandDescriptionIndex].toString())
-                                        .isEmpty())
+                                && !(cellValue = tableInfo.getData().get(row)[commandDescriptionIndex].toString()).isEmpty())
                             {
                                 // Store the command description in the JSON output
                                 commandJO.put(typeDefn.getColumnNamesUser()[commandDescriptionIndex], cellValue);

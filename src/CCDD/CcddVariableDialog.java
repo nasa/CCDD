@@ -189,8 +189,8 @@ public class CcddVariableDialog extends CcddDialogHandler
                 inputPnl.add(typeNameSepFld, gbc);
 
                 // Create a check box for hiding data types
-                hideDataTypeCb = new JCheckBox("Hide data types", Boolean
-                        .parseBoolean(ccddMain.getProgPrefs().get(HIDE_DATA_TYPE, DEFAULT_HIDE_DATA_TYPE)));
+                hideDataTypeCb = new JCheckBox("Hide data types",
+                                               Boolean.parseBoolean(ccddMain.getProgPrefs().get(HIDE_DATA_TYPE, DEFAULT_HIDE_DATA_TYPE)));
                 hideDataTypeCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 hideDataTypeCb.setBorder(emptyBorder);
                 gbc.insets.left = 0;

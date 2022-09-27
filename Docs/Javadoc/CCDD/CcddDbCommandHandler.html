@@ -17,7 +17,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -193,34 +193,49 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>protected boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbCommandHandler.html#executeDbCommand-java.lang.String-java.awt.Component-">executeDbCommand</a></span>(java.lang.String&nbsp;command,
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbCommandHandler.html#executeDbCommand-java.lang.StringBuilder-java.awt.Component-">executeDbCommand</a></span>(java.lang.StringBuilder&nbsp;command,
                 java.awt.Component&nbsp;component)</code>
 <div class="block">Execute a database command and log the command to the session log</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>protected java.sql.ResultSet</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbCommandHandler.html#executeDbQuery-java.lang.String-java.awt.Component-">executeDbQuery</a></span>(java.lang.String&nbsp;command,
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbCommandHandler.html#executeDbQuery-java.lang.StringBuilder-java.awt.Component-">executeDbQuery</a></span>(java.lang.StringBuilder&nbsp;command,
               java.awt.Component&nbsp;component)</code>
 <div class="block">Execute a database query command and log the command to the session log</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>private java.lang.Object</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbCommandHandler.html#executeDbStatement-CCDD.CcddConstants.DbCommandType-java.lang.String-java.awt.Component-">executeDbStatement</a></span>(<a href="../CCDD/CcddConstants.DbCommandType.html" title="enum in CCDD">CcddConstants.DbCommandType</a>&nbsp;commandType,
-                  java.lang.String&nbsp;command,
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbCommandHandler.html#executeDbStatement-CCDD.CcddConstants.DbCommandType-java.lang.StringBuilder-java.awt.Component-">executeDbStatement</a></span>(<a href="../CCDD/CcddConstants.DbCommandType.html" title="enum in CCDD">CcddConstants.DbCommandType</a>&nbsp;commandType,
+                  java.lang.StringBuilder&nbsp;command,
                   java.awt.Component&nbsp;component)</code>
 <div class="block">Execute a database update statement and log the command to the session log</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>protected int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbCommandHandler.html#executeDbUpdate-java.lang.String-java.awt.Component-">executeDbUpdate</a></span>(java.lang.String&nbsp;command,
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbCommandHandler.html#executeDbUpdate-java.lang.StringBuilder-java.awt.Component-">executeDbUpdate</a></span>(java.lang.StringBuilder&nbsp;command,
                java.awt.Component&nbsp;component)</code>
 <div class="block">Execute a database update command and log the command to the session log</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
+<td class="colFirst"><code>java.sql.PreparedStatement</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbCommandHandler.html#executePreparedStatement-java.lang.StringBuilder-java.awt.Component-">executePreparedStatement</a></span>(java.lang.StringBuilder&nbsp;command,
+                        java.awt.Component&nbsp;component)</code>
+<div class="block">Execute a command that is in the format of a PreparedStatement and return the result</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>protected java.lang.String[][]</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbCommandHandler.html#get2DList-CCDD.CcddConstants.DatabaseListCommand-java.lang.String-java.awt.Component-">get2DList</a></span>(<a href="../CCDD/CcddConstants.DatabaseListCommand.html" title="enum in CCDD">CcddConstants.DatabaseListCommand</a>&nbsp;listType,
+         java.lang.String&nbsp;typeName,
+         java.awt.Component&nbsp;parent)</code>
+<div class="block">Retrieve a 2D list from the server or database.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>protected java.lang.String[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbCommandHandler.html#getList-CCDD.CcddConstants.DatabaseListCommand-java.lang.String:A:A-java.awt.Component-">getList</a></span>(<a href="../CCDD/CcddConstants.DatabaseListCommand.html" title="enum in CCDD">CcddConstants.DatabaseListCommand</a>&nbsp;listType,
        java.lang.String[][]&nbsp;listOption,
@@ -228,31 +243,31 @@ extends java.lang.Object</pre>
 <div class="block">Retrieve a list from the server or database.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbCommandHandler.html#releaseSavePoint-java.awt.Component-">releaseSavePoint</a></span>(java.awt.Component&nbsp;component)</code>
 <div class="block">Release the save point if it exists</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbCommandHandler.html#rollbackToSavePoint-java.awt.Component-">rollbackToSavePoint</a></span>(java.awt.Component&nbsp;component)</code>
 <div class="block">Revert any changes to the database back to the save point, if it exists</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbCommandHandler.html#setConnection-java.sql.Connection-">setConnection</a></span>(java.sql.Connection&nbsp;connection)</code>
 <div class="block">Set the database connection</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbCommandHandler.html#setEventLog--">setEventLog</a></span>()</code>
 <div class="block">Create a reference to the session event log.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbCommandHandler.html#setStatement-java.sql.Statement-">setStatement</a></span>(java.sql.Statement&nbsp;statement)</code>
 <div class="block">Set the connection statement</div>
@@ -343,7 +358,7 @@ extends java.lang.Object</pre>
 <div class="block">Database command handler class constructor</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>ccddMain</code> - main class</dd>
+<dd><code>ccddMain</code> - Main class</dd>
 </dl>
 </li>
 </ul>
@@ -376,7 +391,7 @@ extends java.lang.Object</pre>
 <div class="block">Set the database connection</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>connection</code> - database connection</dd>
+<dd><code>connection</code> - Database connection</dd>
 </dl>
 </li>
 </ul>
@@ -390,17 +405,17 @@ extends java.lang.Object</pre>
 <div class="block">Set the connection statement</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>statement</code> - connection statement</dd>
+<dd><code>statement</code> - Connection statement</dd>
 </dl>
 </li>
 </ul>
-<a name="executeDbQuery-java.lang.String-java.awt.Component-">
+<a name="executeDbQuery-java.lang.StringBuilder-java.awt.Component-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>executeDbQuery</h4>
-<pre>protected&nbsp;java.sql.ResultSet&nbsp;executeDbQuery(java.lang.String&nbsp;command,
+<pre>protected&nbsp;java.sql.ResultSet&nbsp;executeDbQuery(java.lang.StringBuilder&nbsp;command,
                                             java.awt.Component&nbsp;component)
                                      throws java.sql.SQLException</pre>
 <div class="block">Execute a database query command and log the command to the session log</div>
@@ -415,13 +430,13 @@ extends java.lang.Object</pre>
 </dl>
 </li>
 </ul>
-<a name="executeDbUpdate-java.lang.String-java.awt.Component-">
+<a name="executeDbUpdate-java.lang.StringBuilder-java.awt.Component-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>executeDbUpdate</h4>
-<pre>protected&nbsp;int&nbsp;executeDbUpdate(java.lang.String&nbsp;command,
+<pre>protected&nbsp;int&nbsp;executeDbUpdate(java.lang.StringBuilder&nbsp;command,
                               java.awt.Component&nbsp;component)
                        throws java.sql.SQLException</pre>
 <div class="block">Execute a database update command and log the command to the session log</div>
@@ -436,13 +451,13 @@ extends java.lang.Object</pre>
 </dl>
 </li>
 </ul>
-<a name="executeDbCommand-java.lang.String-java.awt.Component-">
+<a name="executeDbCommand-java.lang.StringBuilder-java.awt.Component-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>executeDbCommand</h4>
-<pre>protected&nbsp;boolean&nbsp;executeDbCommand(java.lang.String&nbsp;command,
+<pre>protected&nbsp;boolean&nbsp;executeDbCommand(java.lang.StringBuilder&nbsp;command,
                                    java.awt.Component&nbsp;component)
                             throws java.sql.SQLException</pre>
 <div class="block">Execute a database command and log the command to the session log</div>
@@ -458,20 +473,20 @@ extends java.lang.Object</pre>
 </dl>
 </li>
 </ul>
-<a name="executeDbStatement-CCDD.CcddConstants.DbCommandType-java.lang.String-java.awt.Component-">
+<a name="executeDbStatement-CCDD.CcddConstants.DbCommandType-java.lang.StringBuilder-java.awt.Component-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>executeDbStatement</h4>
 <pre>private&nbsp;java.lang.Object&nbsp;executeDbStatement(<a href="../CCDD/CcddConstants.DbCommandType.html" title="enum in CCDD">CcddConstants.DbCommandType</a>&nbsp;commandType,
-                                            java.lang.String&nbsp;command,
+                                            java.lang.StringBuilder&nbsp;command,
                                             java.awt.Component&nbsp;component)
                                      throws java.sql.SQLException</pre>
 <div class="block">Execute a database update statement and log the command to the session log</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>commandType</code> - command type (DbCommandType)</dd>
+<dd><code>commandType</code> - Command type (DbCommandType)</dd>
 <dd><code>command</code> - SQL update command to execute</dd>
 <dd><code>component</code> - GUI component over which to center any error dialog</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -479,6 +494,27 @@ extends java.lang.Object</pre>
          connection exists to the server</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code>java.sql.SQLException</code> - If no connection exists to the server</dd>
+</dl>
+</li>
+</ul>
+<a name="executePreparedStatement-java.lang.StringBuilder-java.awt.Component-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>executePreparedStatement</h4>
+<pre>public&nbsp;java.sql.PreparedStatement&nbsp;executePreparedStatement(java.lang.StringBuilder&nbsp;command,
+                                                           java.awt.Component&nbsp;component)
+                                                    throws java.sql.SQLException</pre>
+<div class="block">Execute a command that is in the format of a PreparedStatement and return the result</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>command</code> - Command string</dd>
+<dd><code>component</code> - Component over which to position the error dialog</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Command in the format of a PreparedStatement</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code>java.sql.SQLException</code> - Command fails</dd>
 </dl>
 </li>
 </ul>
@@ -533,7 +569,7 @@ extends java.lang.Object</pre>
 <a name="getList-CCDD.CcddConstants.DatabaseListCommand-java.lang.String:A:A-java.awt.Component-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>getList</h4>
 <pre>protected&nbsp;java.lang.String[]&nbsp;getList(<a href="../CCDD/CcddConstants.DatabaseListCommand.html" title="enum in CCDD">CcddConstants.DatabaseListCommand</a>&nbsp;listType,
@@ -543,8 +579,30 @@ extends java.lang.Object</pre>
  sort the list alphabetically, without regard to capitalization</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>listType</code> - type of list to be retrieved</dd>
-<dd><code>listOption</code> - array containing replacement text within a command; null if none is needed</dd>
+<dd><code>listType</code> - Type of list to be retrieved</dd>
+<dd><code>listOption</code> - Array containing replacement text within a command; null if none is needed</dd>
+<dd><code>parent</code> - GUI component over which to center any error dialog</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>String array containing the requested list items in alphabetical order; an empty
+         array if no items exist</dd>
+</dl>
+</li>
+</ul>
+<a name="get2DList-CCDD.CcddConstants.DatabaseListCommand-java.lang.String-java.awt.Component-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>get2DList</h4>
+<pre>protected&nbsp;java.lang.String[][]&nbsp;get2DList(<a href="../CCDD/CcddConstants.DatabaseListCommand.html" title="enum in CCDD">CcddConstants.DatabaseListCommand</a>&nbsp;listType,
+                                         java.lang.String&nbsp;typeName,
+                                         java.awt.Component&nbsp;parent)</pre>
+<div class="block">Retrieve a 2D list from the server or database. The command strings are set up to explicitly
+ sort the list alphabetically, without regard to capitalization</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>listType</code> - Type of list to be retrieved</dd>
+<dd><code>typeName</code> - Table type name</dd>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>String array containing the requested list items in alphabetical order; an empty

@@ -17,7 +17,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":10,"i35":10,"i36":10,"i37":10,"i38":10,"i39":10,"i40":10,"i41":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":10,"i35":10,"i36":10,"i37":10,"i38":10,"i39":10,"i40":10,"i41":10,"i42":10,"i43":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -392,7 +392,7 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i28" class="altColor">
 <td class="colFirst"><code>protected int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeHandler.TypeDefinition.html#getRowIndexByColumnValue-java.lang.Object:A:A-java.lang.Object-int-">getRowIndexByColumnValue</a></span>(java.lang.Object[][]&nbsp;tableData,
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeHandler.TypeDefinition.html#getRowIndexByColumnValue-java.util.List-java.lang.Object-int-">getRowIndexByColumnValue</a></span>(java.util.List&lt;java.lang.Object[]&gt;&nbsp;tableData,
                         java.lang.Object&nbsp;columnValue,
                         int&nbsp;columnIndex)</code>
 <div class="block">Get the row index in the structure table for the specified variable name</div>
@@ -418,63 +418,76 @@ extends java.lang.Object</pre>
 </td>
 </tr>
 <tr id="i32" class="altColor">
+<td class="colFirst"><code>protected boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeHandler.TypeDefinition.html#isENUM--">isENUM</a></span>()</code>
+<div class="block">Determine if this table type contains all of the default protected columns of the ENUM
+ table type</div>
+</td>
+</tr>
+<tr id="i33" class="rowColor">
 <td class="colFirst"><code>protected java.lang.Boolean[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeHandler.TypeDefinition.html#isPointerAllowed--">isPointerAllowed</a></span>()</code>
 <div class="block">Get the array of pointer data type allowed flags</div>
 </td>
 </tr>
-<tr id="i33" class="rowColor">
+<tr id="i34" class="altColor">
 <td class="colFirst"><code>protected java.lang.Boolean[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeHandler.TypeDefinition.html#isRequired--">isRequired</a></span>()</code>
 <div class="block">Get the array of column required flags</div>
 </td>
 </tr>
-<tr id="i34" class="altColor">
+<tr id="i35" class="rowColor">
 <td class="colFirst"><code>protected java.lang.Boolean[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeHandler.TypeDefinition.html#isRowValueUnique--">isRowValueUnique</a></span>()</code>
 <div class="block">Get the array of row value unique flags</div>
 </td>
 </tr>
-<tr id="i35" class="rowColor">
+<tr id="i36" class="altColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeHandler.TypeDefinition.html#isStructure--">isStructure</a></span>()</code>
 <div class="block">Determine if this table type contains all of the default protected columns of the
  Structure table type</div>
 </td>
 </tr>
-<tr id="i36" class="altColor">
+<tr id="i37" class="rowColor">
 <td class="colFirst"><code>protected java.lang.Boolean[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeHandler.TypeDefinition.html#isStructureAllowed--">isStructureAllowed</a></span>()</code>
 <div class="block">Get the array of structure data type allowed flags</div>
 </td>
 </tr>
-<tr id="i37" class="rowColor">
+<tr id="i38" class="altColor">
 <td class="colFirst"><code>private boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeHandler.TypeDefinition.html#isTargetType-java.lang.String-">isTargetType</a></span>(java.lang.String&nbsp;typeName)</code>
 <div class="block">Determine if this table type contains all of the default protected columns of the
  specified table type</div>
 </td>
 </tr>
-<tr id="i38" class="altColor">
+<tr id="i39" class="rowColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeHandler.TypeDefinition.html#isTelemetryStructure--">isTelemetryStructure</a></span>()</code>
 <div class="block">Determine if this table type contains all of the default protected columns of the
  Structure table type in addition to a column with the Rate input type</div>
 </td>
 </tr>
-<tr id="i39" class="rowColor">
+<tr id="i40" class="altColor">
+<td class="colFirst"><code>protected java.lang.String</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeHandler.TypeDefinition.html#representsCommandArg--">representsCommandArg</a></span>()</code>
+<div class="block">Does the table represent a command?</div>
+</td>
+</tr>
+<tr id="i41" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeHandler.TypeDefinition.html#setColumnNamesDatabase--">setColumnNamesDatabase</a></span>()</code>
 <div class="block">Convert the visible column names to their database equivalents.</div>
 </td>
 </tr>
-<tr id="i40" class="altColor">
+<tr id="i42" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeHandler.TypeDefinition.html#setDescription-java.lang.String-">setDescription</a></span>(java.lang.String&nbsp;description)</code>
 <div class="block">Set the table type description</div>
 </td>
 </tr>
-<tr id="i41" class="rowColor">
+<tr id="i43" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTypeHandler.TypeDefinition.html#setName-java.lang.String-">setName</a></span>(java.lang.String&nbsp;typeName)</code>
 <div class="block">set the table type name</div>
@@ -619,7 +632,7 @@ extends java.lang.Object</pre>
 <div class="block">Table type definition class constructor</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>tableType</code> - table type name</dd>
+<dd><code>tableType</code> - Table type name</dd>
 </dl>
 </li>
 </ul>
@@ -655,7 +668,7 @@ extends java.lang.Object</pre>
 <div class="block">set the table type name</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>typeName</code> - table type name</dd>
+<dd><code>typeName</code> - Table type name</dd>
 </dl>
 </li>
 </ul>
@@ -900,6 +913,20 @@ extends java.lang.Object</pre>
 </dl>
 </li>
 </ul>
+<a name="representsCommandArg--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>representsCommandArg</h4>
+<pre>protected&nbsp;java.lang.String&nbsp;representsCommandArg()</pre>
+<div class="block">Does the table represent a command?</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>TRUE or FALSE as a string</dd>
+</dl>
+</li>
+</ul>
 <a name="setDescription-java.lang.String-">
 <!--   -->
 </a>
@@ -910,7 +937,7 @@ extends java.lang.Object</pre>
 <div class="block">Set the table type description</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>description</code> - table type description</dd>
+<dd><code>description</code> - Table type description</dd>
 </dl>
 </li>
 </ul>
@@ -938,7 +965,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the index of the first column having the specified input type</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>inputType</code> - column input type (InputType)</dd>
+<dd><code>inputType</code> - Column input type (InputType)</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Index of the first column of the specified input type; -1 if no column of the
          specified type is found</dd>
@@ -955,7 +982,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the index of the first column having the specified default input type</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>inputType</code> - column input type (DefaultInputType)</dd>
+<dd><code>inputType</code> - Column input type (DefaultInputType)</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Index of the first column of the specified default input type; -1 if no column
          of the specified type is found</dd>
@@ -972,7 +999,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the index or indices of the column(s) having the specified input type</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>inputType</code> - column input type (InputType)</dd>
+<dd><code>inputType</code> - Column input type (InputType)</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>List containing the index (or indices) of the column(s) of the specified input
          type; an empty list if no column of the specified type is found</dd>
@@ -989,7 +1016,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the index or indices of the column(s) having the specified default input type</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>inputType</code> - column input type (DefaultInputType)</dd>
+<dd><code>inputType</code> - Column input type (DefaultInputType)</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>List containing the index (or indices) of the column(s) of the specified default
          input type; an empty list if no column of the specified type is found</dd>
@@ -1006,7 +1033,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the visible name of the first column having the specified input type</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>inputType</code> - column input type (InputType)</dd>
+<dd><code>inputType</code> - Column input type (InputType)</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Visible name of the first column with the specified input type; null if no
          column of the specified type is found</dd>
@@ -1023,7 +1050,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the visible name of the first column having the specified default input type</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>inputType</code> - column input type (DefaultInputType)</dd>
+<dd><code>inputType</code> - Column input type (DefaultInputType)</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Visible name of the first column with the specified default input type; null if
          no column of the specified type is found</dd>
@@ -1040,7 +1067,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the database name of the first column having the specified input type</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>inputType</code> - column input type (InputType)</dd>
+<dd><code>inputType</code> - Column input type (InputType)</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Database name of the first column with the specified input type; null if no
          column of the specified type is found</dd>
@@ -1057,7 +1084,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the database name of the first column having the specified default input type</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>inputType</code> - column input type (DefaultInputType)</dd>
+<dd><code>inputType</code> - Column input type (DefaultInputType)</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Database name of the first column with the specified default input type; null if
          no column of the specified type is found</dd>
@@ -1074,7 +1101,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the index of the first column having the specified input type format</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>inputFormat</code> - column input type format (InputTypeFormat)</dd>
+<dd><code>inputFormat</code> - Column input type format (InputTypeFormat)</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Index of the first column of the specified input type format; -1 if no column of
          the specified format is found</dd>
@@ -1091,7 +1118,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the index or indices of the column(s) having the specified input type format</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>inputFormat</code> - column input type format (InputTypeFormat)</dd>
+<dd><code>inputFormat</code> - Column input type format (InputTypeFormat)</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>List containing the index (or indices) of the column(s) of the specified input
          type format; an empty list if no column of the specified format is found</dd>
@@ -1108,7 +1135,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the visible name of the first column having the specified input type format</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>inputFormat</code> - column input type format (InputTypeFormat)</dd>
+<dd><code>inputFormat</code> - Column input type format (InputTypeFormat)</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Visible name of the first column with the specified input type format; null if
          no column of the specified format is found</dd>
@@ -1125,7 +1152,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the database name of the first column having the specified input type format</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>inputFormat</code> - column input type format (InputTypeFormat)</dd>
+<dd><code>inputFormat</code> - Column input type format (InputTypeFormat)</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Database name of the first column with the specified input type format; null if
          no column of the specified format is found</dd>
@@ -1142,7 +1169,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the index of the column having the specified name</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>columnName</code> - column name (as seen by the user)</dd>
+<dd><code>columnName</code> - Column name (as seen by the user)</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Column name index; -1 if no column of the specified name is found</dd>
 </dl>
@@ -1159,7 +1186,7 @@ extends java.lang.Object</pre>
  the hidden columns, primary key and row index</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>columnName</code> - column name (as seen by the user)</dd>
+<dd><code>columnName</code> - Column name (as seen by the user)</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Column name view index; -1 if no column of the specified name is found</dd>
 </dl>
@@ -1175,7 +1202,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the index of the column having the specified name</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>dbColumnName</code> - column name (as used by the database)</dd>
+<dd><code>dbColumnName</code> - Column name (as used by the database)</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Column name index; -1 if no column of the specified name is found</dd>
 </dl>
@@ -1199,16 +1226,19 @@ extends java.lang.Object</pre>
 <div class="block">Add the header and database column names, and the tool tip text to the list</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>index</code> - column index</dd>
-<dd><code>databaseName</code> - name of the column as used in the database</dd>
-<dd><code>visibleName</code> - name of the column as seen by the user; e.g., as table editor column headers</dd>
-<dd><code>comment</code> - column description used as the table editor column header tool tip text</dd>
-<dd><code>inputType</code> - column input type (InputType)</dd>
-<dd><code>isRowValueUnique</code> - true if the each row value in the column must have a unique value</dd>
-<dd><code>isColumnRequired</code> - true if the column must have a value when the type is committed to the
-            database</dd>
-<dd><code>isStructure</code> - true if the the column applies to structure data types</dd>
-<dd><code>isPointer</code> - true if the the column applies to pointer data types</dd>
+<dd><code>index</code> - Column index</dd>
+<dd><code>databaseName</code> - Name of the column as used in the database</dd>
+<dd><code>visibleName</code> - Name of the column as seen by the user; e.g., as table editor
+                         column headers</dd>
+<dd><code>comment</code> - Column description used as the table editor column header tool
+                         tip text</dd>
+<dd><code>inputType</code> - Column input type (InputType)</dd>
+<dd><code>isRowValueUnique</code> - True if the each row value in the column must have a unique
+                         value</dd>
+<dd><code>isColumnRequired</code> - True if the column must have a value when the type is committed
+                         to the database</dd>
+<dd><code>isStructure</code> - True if the the column applies to structure data types</dd>
+<dd><code>isPointer</code> - True if the the column applies to pointer data types</dd>
 </dl>
 </li>
 </ul>
@@ -1225,6 +1255,22 @@ extends java.lang.Object</pre>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>true if this table type contains all of the protected columns of the Structure
          table type; i.e., this table type represents a structure table</dd>
+</dl>
+</li>
+</ul>
+<a name="isENUM--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isENUM</h4>
+<pre>protected&nbsp;boolean&nbsp;isENUM()</pre>
+<div class="block">Determine if this table type contains all of the default protected columns of the ENUM
+ table type</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>true if this table type contains all of the protected columns of the ENUM table
+         type; i.e., this table type represents a ENUM table</dd>
 </dl>
 </li>
 </ul>
@@ -1273,29 +1319,29 @@ extends java.lang.Object</pre>
  specified table type</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>typeName</code> - table type name of the default table type with which to compare this table's
-            columns</dd>
+<dd><code>typeName</code> - Table type name of the default table type with which to compare this
+                 table's columns</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>true if this table type contains all of the protected columns of the specified
          table type</dd>
 </dl>
 </li>
 </ul>
-<a name="getRowIndexByColumnValue-java.lang.Object:A:A-java.lang.Object-int-">
+<a name="getRowIndexByColumnValue-java.util.List-java.lang.Object-int-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>getRowIndexByColumnValue</h4>
-<pre>protected&nbsp;int&nbsp;getRowIndexByColumnValue(java.lang.Object[][]&nbsp;tableData,
+<pre>protected&nbsp;int&nbsp;getRowIndexByColumnValue(java.util.List&lt;java.lang.Object[]&gt;&nbsp;tableData,
                                        java.lang.Object&nbsp;columnValue,
                                        int&nbsp;columnIndex)</pre>
 <div class="block">Get the row index in the structure table for the specified variable name</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>tableData</code> - array of table data</dd>
-<dd><code>columnValue</code> - variable name</dd>
-<dd><code>columnIndex</code> - column index of the variable name column</dd>
+<dd><code>tableData</code> - List of table data</dd>
+<dd><code>columnValue</code> - Variable name</dd>
+<dd><code>columnIndex</code> - Column index of the variable name column</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Row index for the specified variable name; -1 if the variable name is not found</dd>
 </dl>

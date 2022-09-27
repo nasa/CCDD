@@ -279,11 +279,10 @@ public class CcddMessageIDDialog extends CcddDialogHandler
         };
 
         // Open tables button
-        JButton btnOpen = CcddButtonPanelHandler
-                .createButton("Open",
-                              TABLE_ICON,
-                              KeyEvent.VK_O,
-                              "Open the table(s) associated with the selected message ID(s)");
+        JButton btnOpen = CcddButtonPanelHandler.createButton("Open",
+                                                              TABLE_ICON,
+                                                              KeyEvent.VK_O,
+                                                              "Open the table(s) associated with the selected message ID(s)");
 
         // Add a listener for the Open button
         btnOpen.addActionListener(new ActionListener()

@@ -836,12 +836,10 @@ public class CcddInputTypeHandler
             String[] tblColCmtAndCntxt = typeRef.split(TABLE_DESCRIPTION_SEPARATOR, 4);
 
             // Check if the context is in a table type definition
-            if (tblColCmtAndCntxt[SearchResultsQueryColumn.TABLE.ordinal()]
-                    .equals(InternalTable.TABLE_TYPES.getTableName()))
+            if (tblColCmtAndCntxt[SearchResultsQueryColumn.TABLE.ordinal()].equals(InternalTable.TABLE_TYPES.getTableName()))
             {
                 // Extract the table type column values from the reference
-                String[] refColumns = CcddUtilities
-                        .splitAndRemoveQuotes(tblColCmtAndCntxt[SearchResultsQueryColumn.CONTEXT.ordinal()]);
+                String[] refColumns = CcddUtilities.splitAndRemoveQuotes(tblColCmtAndCntxt[SearchResultsQueryColumn.CONTEXT.ordinal()]);
 
                 // Create the reference with the columns names (database and visible) and the names
                 // of the prototype tables of this table type

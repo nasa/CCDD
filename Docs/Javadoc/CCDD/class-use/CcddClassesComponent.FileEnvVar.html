@@ -172,9 +172,64 @@
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code><a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>[]</code></td>
+<td class="colLast"><span class="typeNameLabel">ConvertCStructureToCSV.</span><code><span class="memberNameLink"><a href="../../CCDD/ConvertCStructureToCSV.html#convertFile-CCDD.CcddClassesComponent.FileEnvVar:A-CCDD.CcddMain-">convertFile</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>[]&nbsp;dataFiles,
+           <a href="../../CCDD/CcddMain.html" title="class in CCDD">CcddMain</a>&nbsp;ccddMain)</code>
+<div class="block">Convert the provided C files to CSV format</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static <a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>[]</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddDialogHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddDialogHandler.html#getAllFilesContaining-java.lang.String-java.lang.String-">getAllFilesContaining</a></span>(java.lang.String&nbsp;location,
+                     java.lang.String&nbsp;containing)</code>
+<div class="block">Get all files containing the specified string</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>protected <a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a></code></td>
 <td class="colLast"><span class="typeNameLabel">CcddEventLogDialog.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddEventLogDialog.html#getEventLogFile--">getEventLogFile</a></span>()</code>
 <div class="block">Get the event log file reference</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>[]</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddFileIOHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddFileIOHandler.html#processCSVConversionFile-CCDD.CcddClassesComponent.FileEnvVar-java.awt.Component-">processCSVConversionFile</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;dataFile,
+                        java.awt.Component&nbsp;parent)</code>
+<div class="block">Process the conversion file, which represents data pulled from a C header file, that is
+ being imported and output the data to multiple files to help with the import process</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>[]</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddFileIOHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddFileIOHandler.html#processSingleCSVFileRepresentingDatabase-CCDD.CcddClassesComponent.FileEnvVar-java.awt.Component-">processSingleCSVFileRepresentingDatabase</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;dataFile,
+                                        java.awt.Component&nbsp;parent)</code>
+<div class="block">Process the single file, which represents an entire database, that is being imported and
+ output the data to multiple files.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>[]</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddFileIOHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddFileIOHandler.html#processSingleJSONFileRepresentingDatabase-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddConstants.ManagerDialogType-java.awt.Component-">processSingleJSONFileRepresentingDatabase</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;dataFile,
+                                         <a href="../../CCDD/CcddConstants.ManagerDialogType.html" title="enum in CCDD">CcddConstants.ManagerDialogType</a>&nbsp;dialogType,
+                                         java.awt.Component&nbsp;parent)</code>
+<div class="block">Process the single file, which represents an entire database, that is being imported and
+ output the data to multiple files.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static <a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a></code></td>
+<td class="colLast"><span class="typeNameLabel">CcddBackupName.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddBackupName.html#reconstructBackupFilePath-CCDD.CcddClassesComponent.FileEnvVar:A-java.lang.String-">reconstructBackupFilePath</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>[]&nbsp;selectedPaths,
+                         java.lang.String&nbsp;chosenBackupFileName)</code>
+<div class="block">Take the full path to the backup file and remove the file name portion.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static <a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>[]</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddDialogHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddDialogHandler.html#searchForWildCard-java.util.Map-javax.swing.JFileChooser-java.lang.String:A-java.lang.String-">searchForWildCard</a></span>(java.util.Map&lt;java.lang.String,java.lang.String&gt;&nbsp;envVars,
+                 javax.swing.JFileChooser&nbsp;chooser,
+                 java.lang.String[]&nbsp;fileNames,
+                 java.lang.String&nbsp;ext)</code>
+<div class="block">Search for wild card</div>
 </td>
 </tr>
 </tbody>
@@ -186,6 +241,22 @@
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tbody>
+<tr class="altColor">
+<td class="colFirst"><code>protected void</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddDbControlHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddDbControlHandler.html#backupAndRenameDatabase-java.lang.String-java.lang.String-CCDD.CcddClassesComponent.FileEnvVar-">backupAndRenameDatabase</a></span>(java.lang.String&nbsp;projectName,
+                       java.lang.String&nbsp;newProjectName,
+                       <a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;backupFile)</code>
+<div class="block">Rename a project database, back it up and revert the rename.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected void</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddDbControlHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddDbControlHandler.html#backupAndRenameDatabaseInBackground-java.lang.String-java.lang.String-CCDD.CcddClassesComponent.FileEnvVar-">backupAndRenameDatabaseInBackground</a></span>(java.lang.String&nbsp;projectName,
+                                   java.lang.String&nbsp;newProjectName,
+                                   <a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;backupFile)</code>
+<div class="block">Backup a project database.</div>
+</td>
+</tr>
 <tr class="altColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><span class="typeNameLabel">CcddDbControlHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddDbControlHandler.html#backupDatabase-java.lang.String-CCDD.CcddClassesComponent.FileEnvVar-">backupDatabase</a></span>(java.lang.String&nbsp;projectName,
@@ -201,6 +272,13 @@
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code><a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>[]</code></td>
+<td class="colLast"><span class="typeNameLabel">ConvertCStructureToCSV.</span><code><span class="memberNameLink"><a href="../../CCDD/ConvertCStructureToCSV.html#convertFile-CCDD.CcddClassesComponent.FileEnvVar:A-CCDD.CcddMain-">convertFile</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>[]&nbsp;dataFiles,
+           <a href="../../CCDD/CcddMain.html" title="class in CCDD">CcddMain</a>&nbsp;ccddMain)</code>
+<div class="block">Convert the provided C files to CSV format</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>private void</code></td>
 <td class="colLast"><span class="typeNameLabel">CcddEDSHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddEDSHandler.html#createTableTypeDefinitions-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-CCDD.CcddTableTypeHandler.TypeDefinition-">createTableTypeDefinitions</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
                           <a href="../../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
@@ -208,138 +286,195 @@
 <div class="block">Scan the import file in order to determine if any structure or command tables exist.</div>
 </td>
 </tr>
-<tr class="rowColor">
-<td class="colFirst"><code>private void</code></td>
-<td class="colLast"><span class="typeNameLabel">CcddXTCEHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddXTCEHandler.html#createTableTypeDefinitions-org.omg.space.xtce.SpaceSystemType-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-CCDD.CcddTableTypeHandler.TypeDefinition-">createTableTypeDefinitions</a></span>(org.omg.space.xtce.SpaceSystemType&nbsp;rootSystem,
-                          <a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
-                          <a href="../../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
-                          <a href="../../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&nbsp;targetTypeDefn)</code>
-<div class="block">Scan the import file in order to determine if any structure or command tables exist.</div>
-</td>
-</tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><span class="typeNameLabel">CcddCSVHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddCSVHandler.html#exportToFile-CCDD.CcddClassesComponent.FileEnvVar-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-java.lang.Object...-">exportToFile</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;exportFile,
-            java.lang.String[]&nbsp;tableNames,
-            boolean&nbsp;includeBuildInformation,
-            boolean&nbsp;replaceMacros,
-            boolean&nbsp;includeAllTableTypes,
-            boolean&nbsp;includeAllDataTypes,
-            boolean&nbsp;includeAllInputTypes,
-            boolean&nbsp;includeAllMacros,
-            boolean&nbsp;includeReservedMsgIDs,
-            boolean&nbsp;includeProjectFields,
-            boolean&nbsp;includeGroups,
-            boolean&nbsp;includeAssociations,
-            boolean&nbsp;includeVariablePaths,
-            <a href="../../CCDD/CcddVariableHandler.html" title="class in CCDD">CcddVariableHandler</a>&nbsp;variableHandler,
-            java.lang.String[]&nbsp;separators,
-            java.lang.Object...&nbsp;extraInfo)</code>
-<div class="block">Export the project in CSV format to the specified file</div>
+<td class="colLast"><span class="typeNameLabel">CcddCSVHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddCSVHandler.html#exportInternalCCDDData-boolean:A-CCDD.CcddConstants.exportDataTypes:A-CCDD.CcddClassesComponent.FileEnvVar-java.lang.String-">exportInternalCCDDData</a></span>(boolean[]&nbsp;includes,
+                      <a href="../../CCDD/CcddConstants.exportDataTypes.html" title="enum in CCDD">CcddConstants.exportDataTypes</a>[]&nbsp;dataTypes,
+                      <a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;exportFile,
+                      java.lang.String&nbsp;outputType)</code>
+<div class="block">Export script association data, group data, macro data, telemetry scheduler data or
+ application scheduler data to the specified folder</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><span class="typeNameLabel">CcddJSONHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddJSONHandler.html#exportToFile-CCDD.CcddClassesComponent.FileEnvVar-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-java.lang.Object...-">exportToFile</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;exportFile,
-            java.lang.String[]&nbsp;tableNames,
-            boolean&nbsp;includeBuildInformation,
-            boolean&nbsp;replaceMacros,
-            boolean&nbsp;includeAllTableTypes,
-            boolean&nbsp;includeAllDataTypes,
-            boolean&nbsp;includeAllInputTypes,
-            boolean&nbsp;includeAllMacros,
-            boolean&nbsp;includeReservedMsgIDs,
-            boolean&nbsp;includeProjectFields,
-            boolean&nbsp;includeGroups,
-            boolean&nbsp;includeAssociations,
-            boolean&nbsp;includeVariablePaths,
-            <a href="../../CCDD/CcddVariableHandler.html" title="class in CCDD">CcddVariableHandler</a>&nbsp;variableHandler,
-            java.lang.String[]&nbsp;separators,
-            java.lang.Object...&nbsp;extraInfo)</code>
-<div class="block">Export the project in JSON format to the specified file</div>
+<td class="colLast"><span class="typeNameLabel">CcddJSONHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddJSONHandler.html#exportInternalCCDDData-boolean:A-CCDD.CcddConstants.exportDataTypes:A-CCDD.CcddClassesComponent.FileEnvVar-java.lang.String-">exportInternalCCDDData</a></span>(boolean[]&nbsp;includes,
+                      <a href="../../CCDD/CcddConstants.exportDataTypes.html" title="enum in CCDD">CcddConstants.exportDataTypes</a>[]&nbsp;dataTypes,
+                      <a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;exportFile,
+                      java.lang.String&nbsp;outputType)</code>
+<div class="block">Export script association data, group data, macro data, telemetry scheduler data or
+ application scheduler data to the specified folder</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><span class="typeNameLabel">CcddXTCEHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddXTCEHandler.html#exportToFile-CCDD.CcddClassesComponent.FileEnvVar-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-java.lang.Object...-">exportToFile</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;exportFile,
-            java.lang.String[]&nbsp;tableNames,
+<td class="colLast"><span class="typeNameLabel">CcddXTCEHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddXTCEHandler.html#exportInternalCCDDData-boolean:A-CCDD.CcddConstants.exportDataTypes:A-CCDD.CcddClassesComponent.FileEnvVar-java.lang.String-">exportInternalCCDDData</a></span>(boolean[]&nbsp;includes,
+                      <a href="../../CCDD/CcddConstants.exportDataTypes.html" title="enum in CCDD">CcddConstants.exportDataTypes</a>[]&nbsp;dataTypes,
+                      <a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;exportFile,
+                      java.lang.String&nbsp;outputType)</code>
+<div class="block">Export script association data, group data, macro data, telemetry scheduler data or
+ application scheduler data to the specified folder</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddEDSHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddEDSHandler.html#exportInternalCCDDData-boolean:A-CCDD.CcddConstants.exportDataTypes:A-CCDD.CcddClassesComponent.FileEnvVar-java.lang.String-">exportInternalCCDDData</a></span>(boolean[]&nbsp;includes,
+                      <a href="../../CCDD/CcddConstants.exportDataTypes.html" title="enum in CCDD">CcddConstants.exportDataTypes</a>[]&nbsp;dataTypes,
+                      <a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;exportFile,
+                      java.lang.String&nbsp;outputType)</code>
+<div class="block">Export script association data, group data, macro data, telemetry scheduler data or
+ application scheduler data to the specified folder</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddImportExportInterface.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddImportExportInterface.html#exportInternalCCDDData-boolean:A-CCDD.CcddConstants.exportDataTypes:A-CCDD.CcddClassesComponent.FileEnvVar-java.lang.String-">exportInternalCCDDData</a></span>(boolean[]&nbsp;includes,
+                      <a href="../../CCDD/CcddConstants.exportDataTypes.html" title="enum in CCDD">CcddConstants.exportDataTypes</a>[]&nbsp;dataTypes,
+                      <a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;exportFile,
+                      java.lang.String&nbsp;outputType)</code>
+<div class="block">Export script association data, group data, macro data, telemetry scheduler data or
+ application scheduler data to the specified folder</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddCSVHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddCSVHandler.html#exportTableInfoDefinitions-CCDD.CcddClassesComponent.FileEnvVar-boolean-boolean-boolean-java.lang.String-boolean-boolean-">exportTableInfoDefinitions</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;exportFile,
+                          boolean&nbsp;includeTableTypes,
+                          boolean&nbsp;includeInputTypes,
+                          boolean&nbsp;includeDataTypes,
+                          java.lang.String&nbsp;outputType,
+                          boolean&nbsp;addEOFMarker,
+                          boolean&nbsp;addSOFMarker)</code>
+<div class="block">Export table type definitions to the specified folder</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddJSONHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddJSONHandler.html#exportTableInfoDefinitions-CCDD.CcddClassesComponent.FileEnvVar-boolean-boolean-boolean-java.lang.String-boolean-boolean-">exportTableInfoDefinitions</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;exportFile,
+                          boolean&nbsp;includeTableTypes,
+                          boolean&nbsp;includeInputTypes,
+                          boolean&nbsp;includeDataTypes,
+                          java.lang.String&nbsp;outputType,
+                          boolean&nbsp;addEOFMarker,
+                          boolean&nbsp;addSOFMarker)</code>
+<div class="block">Export table type, input type, and data types definitions to the specified folder</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddXTCEHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddXTCEHandler.html#exportTableInfoDefinitions-CCDD.CcddClassesComponent.FileEnvVar-boolean-boolean-boolean-java.lang.String-boolean-boolean-">exportTableInfoDefinitions</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;exportFile,
+                          boolean&nbsp;includeTableTypes,
+                          boolean&nbsp;includeInputTypes,
+                          boolean&nbsp;includeDataTypes,
+                          java.lang.String&nbsp;outputType,
+                          boolean&nbsp;addEOFMarker,
+                          boolean&nbsp;addSOFMarker)</code>
+<div class="block">Export table type definitions to the specified folder</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddEDSHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddEDSHandler.html#exportTableInfoDefinitions-CCDD.CcddClassesComponent.FileEnvVar-boolean-boolean-boolean-java.lang.String-boolean-boolean-">exportTableInfoDefinitions</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;exportFile,
+                          boolean&nbsp;includeTableTypes,
+                          boolean&nbsp;includeInputTypes,
+                          boolean&nbsp;includeDataTypes,
+                          java.lang.String&nbsp;outputType,
+                          boolean&nbsp;addEOFMarker,
+                          boolean&nbsp;addSOFMarker)</code>
+<div class="block">Export table type definitions to the specified folder</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddImportExportInterface.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddImportExportInterface.html#exportTableInfoDefinitions-CCDD.CcddClassesComponent.FileEnvVar-boolean-boolean-boolean-java.lang.String-boolean-boolean-">exportTableInfoDefinitions</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;exportFile,
+                          boolean&nbsp;includeTableTypes,
+                          boolean&nbsp;includeInputTypes,
+                          boolean&nbsp;includeDataTypes,
+                          java.lang.String&nbsp;outputType,
+                          boolean&nbsp;addEOFMarker,
+                          boolean&nbsp;addSOFMarker)</code>
+<div class="block">Export table type definitions to the specified folder</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddCSVHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddCSVHandler.html#exportTables-CCDD.CcddClassesComponent.FileEnvVar-java.util.List-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-boolean-java.lang.String-java.lang.Object...-">exportTables</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;exportFile,
+            java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.TableInfo.html" title="class in CCDD">CcddClassesDataTable.TableInfo</a>&gt;&nbsp;tableDefs,
             boolean&nbsp;includeBuildInformation,
             boolean&nbsp;replaceMacros,
-            boolean&nbsp;includeAllTableTypes,
-            boolean&nbsp;includeAllDataTypes,
-            boolean&nbsp;includeAllInputTypes,
-            boolean&nbsp;includeAllMacros,
-            boolean&nbsp;includeReservedMsgIDs,
-            boolean&nbsp;includeProjectFields,
-            boolean&nbsp;includeGroups,
-            boolean&nbsp;includeAssociations,
             boolean&nbsp;includeVariablePaths,
             <a href="../../CCDD/CcddVariableHandler.html" title="class in CCDD">CcddVariableHandler</a>&nbsp;variableHandler,
             java.lang.String[]&nbsp;separators,
+            boolean&nbsp;addEOFMarker,
+            java.lang.String&nbsp;outputType,
+            java.lang.Object...&nbsp;extraInfo)</code>
+<div class="block">Export the project tables</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddJSONHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddJSONHandler.html#exportTables-CCDD.CcddClassesComponent.FileEnvVar-java.util.List-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-boolean-java.lang.String-java.lang.Object...-">exportTables</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;exportFile,
+            java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.TableInfo.html" title="class in CCDD">CcddClassesDataTable.TableInfo</a>&gt;&nbsp;tableDefs,
+            boolean&nbsp;includeBuildInformation,
+            boolean&nbsp;replaceMacros,
+            boolean&nbsp;includeVariablePaths,
+            <a href="../../CCDD/CcddVariableHandler.html" title="class in CCDD">CcddVariableHandler</a>&nbsp;variableHandler,
+            java.lang.String[]&nbsp;separators,
+            boolean&nbsp;addEOFMarker,
+            java.lang.String&nbsp;outputType,
+            java.lang.Object...&nbsp;extraInfo)</code>
+<div class="block">Export the project for a JSON export</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddXTCEHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddXTCEHandler.html#exportTables-CCDD.CcddClassesComponent.FileEnvVar-java.util.List-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-boolean-java.lang.String-java.lang.Object...-">exportTables</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;exportFile,
+            java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.TableInfo.html" title="class in CCDD">CcddClassesDataTable.TableInfo</a>&gt;&nbsp;tableDefs,
+            boolean&nbsp;includeBuildInformation,
+            boolean&nbsp;replaceMacros,
+            boolean&nbsp;includeVariablePaths,
+            <a href="../../CCDD/CcddVariableHandler.html" title="class in CCDD">CcddVariableHandler</a>&nbsp;variableHandler,
+            java.lang.String[]&nbsp;separators,
+            boolean&nbsp;addEOFMarker,
+            java.lang.String&nbsp;outputType,
             java.lang.Object...&nbsp;extraInfo)</code>
 <div class="block">Export the specified tables in XTCE XML format to the specified file</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><span class="typeNameLabel">CcddEDSHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddEDSHandler.html#exportToFile-CCDD.CcddClassesComponent.FileEnvVar-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-java.lang.Object...-">exportToFile</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;exportFile,
-            java.lang.String[]&nbsp;tableNames,
+<td class="colLast"><span class="typeNameLabel">CcddEDSHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddEDSHandler.html#exportTables-CCDD.CcddClassesComponent.FileEnvVar-java.util.List-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-boolean-java.lang.String-java.lang.Object...-">exportTables</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;exportFile,
+            java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.TableInfo.html" title="class in CCDD">CcddClassesDataTable.TableInfo</a>&gt;&nbsp;tableDefs,
             boolean&nbsp;includeBuildInformation,
             boolean&nbsp;replaceMacros,
-            boolean&nbsp;includeAllTableTypes,
-            boolean&nbsp;includeAllDataTypes,
-            boolean&nbsp;includeAllInputTypes,
-            boolean&nbsp;includeAllMacros,
-            boolean&nbsp;includeReservedMsgIDs,
-            boolean&nbsp;includeProjectFields,
-            boolean&nbsp;includeGroups,
-            boolean&nbsp;includeAssociations,
             boolean&nbsp;includeVariablePaths,
             <a href="../../CCDD/CcddVariableHandler.html" title="class in CCDD">CcddVariableHandler</a>&nbsp;variableHandler,
             java.lang.String[]&nbsp;separators,
+            boolean&nbsp;addEOFMarker,
+            java.lang.String&nbsp;outputType,
             java.lang.Object...&nbsp;extraInfo)</code>
-<div class="block">Export the project in EDS XML format to the specified file</div>
+<div class="block">Export the project tables in EDS XML format to the specified file</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><span class="typeNameLabel">CcddImportExportInterface.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddImportExportInterface.html#exportToFile-CCDD.CcddClassesComponent.FileEnvVar-java.lang.String:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-java.lang.Object...-">exportToFile</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;exportFile,
-            java.lang.String[]&nbsp;tableNames,
+<td class="colLast"><span class="typeNameLabel">CcddImportExportInterface.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddImportExportInterface.html#exportTables-CCDD.CcddClassesComponent.FileEnvVar-java.util.List-boolean-boolean-boolean-CCDD.CcddVariableHandler-java.lang.String:A-boolean-java.lang.String-java.lang.Object...-">exportTables</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;exportFile,
+            java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.TableInfo.html" title="class in CCDD">CcddClassesDataTable.TableInfo</a>&gt;&nbsp;tableDefs,
             boolean&nbsp;includeBuildInformation,
             boolean&nbsp;replaceMacros,
-            boolean&nbsp;includeAllTableTypes,
-            boolean&nbsp;includeAllDataTypes,
-            boolean&nbsp;includeAllInputTypes,
-            boolean&nbsp;includeAllMacros,
-            boolean&nbsp;includeReservedMsgIDs,
-            boolean&nbsp;includeProjectFields,
-            boolean&nbsp;includeGroups,
-            boolean&nbsp;includeAssociations,
             boolean&nbsp;includeVariablePaths,
             <a href="../../CCDD/CcddVariableHandler.html" title="class in CCDD">CcddVariableHandler</a>&nbsp;variableHandler,
             java.lang.String[]&nbsp;separators,
+            boolean&nbsp;addEOFMarker,
+            java.lang.String&nbsp;outputType,
             java.lang.Object...&nbsp;extraInfo)</code>
-<div class="block">Export the project to the specified file</div>
+<div class="block">Export each table in the project to the specified file</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>protected boolean</code></td>
-<td class="colLast"><span class="typeNameLabel">CcddFileIOHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddFileIOHandler.html#importFile-CCDD.CcddClassesComponent.FileEnvVar:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-java.awt.Component-">importFile</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>[]&nbsp;dataFiles,
-          boolean&nbsp;backupFirst,
-          boolean&nbsp;replaceExistingTables,
-          boolean&nbsp;appendExistingFields,
-          boolean&nbsp;useExistingFields,
-          boolean&nbsp;openEditor,
-          boolean&nbsp;ignoreErrors,
-          boolean&nbsp;replaceExistingMacros,
-          boolean&nbsp;replaceExistingGroups,
-          java.awt.Component&nbsp;parent)</code>
-<div class="block">Import one or more files, creating new tables and optionally replacing existing ones.</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>protected void</code></td>
-<td class="colLast"><span class="typeNameLabel">CcddFileIOHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddFileIOHandler.html#importFileInBackground-CCDD.CcddClassesComponent.FileEnvVar:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-java.awt.Component-">importFileInBackground</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>[]&nbsp;dataFile,
+<td class="colLast"><span class="typeNameLabel">CcddFileIOHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddFileIOHandler.html#importFileInBackground-CCDD.CcddClassesComponent.FileEnvVar:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddConstants.FileExtension-CCDD.CcddConstants.ManagerDialogType-java.util.List-java.awt.Component-">importFileInBackground</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>[]&nbsp;dataFile,
+                      boolean&nbsp;importingEntireDatabase,
                       boolean&nbsp;backupFirst,
                       boolean&nbsp;replaceExisting,
                       boolean&nbsp;appendExistingFields,
@@ -348,63 +483,267 @@
                       boolean&nbsp;ignoreErrors,
                       boolean&nbsp;replaceExistingMacros,
                       boolean&nbsp;replaceExistingGroups,
+                      boolean&nbsp;replaceExistingAssociations,
+                      boolean&nbsp;deleteNonExistingFiles,
+                      boolean&nbsp;replaceExistingDataTypes,
+                      <a href="../../CCDD/CcddConstants.FileExtension.html" title="enum in CCDD">CcddConstants.FileExtension</a>&nbsp;importFileType,
+                      <a href="../../CCDD/CcddConstants.ManagerDialogType.html" title="enum in CCDD">CcddConstants.ManagerDialogType</a>&nbsp;dialogType,
+                      java.util.List&lt;java.lang.String[]&gt;&nbsp;usersAndAccessLevel,
                       java.awt.Component&nbsp;parent)</code>
 <div class="block">Import one or more files, creating new tables and optionally replacing existing ones.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><span class="typeNameLabel">CcddCSVHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddCSVHandler.html#importFromFile-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-CCDD.CcddTableTypeHandler.TypeDefinition-boolean-boolean-boolean-">importFromFile</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
+<td class="colLast"><span class="typeNameLabel">CcddCSVHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddCSVHandler.html#importFromFile-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-CCDD.CcddTableTypeHandler.TypeDefinition-boolean-boolean-boolean-boolean-">importFromFile</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
               <a href="../../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
               <a href="../../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&nbsp;targetTypeDefn,
               boolean&nbsp;ignoreErrors,
               boolean&nbsp;replaceExistingMacros,
-              boolean&nbsp;replaceExistingGroups)</code>
+              boolean&nbsp;replaceExistingGroups,
+              boolean&nbsp;replaceExistingTables)</code>
+<div class="block">Build the information from the table definition(s) in the current file</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddJSONHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddJSONHandler.html#importFromFile-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-CCDD.CcddTableTypeHandler.TypeDefinition-boolean-boolean-boolean-boolean-">importFromFile</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
+              <a href="../../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
+              <a href="../../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&nbsp;targetTypeDefn,
+              boolean&nbsp;ignoreErrors,
+              boolean&nbsp;replaceExistingMacros,
+              boolean&nbsp;replaceExistingGroups,
+              boolean&nbsp;replaceExistingTables)</code>
 <div class="block">Build the information from the table definition(s) in the current file</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><span class="typeNameLabel">CcddJSONHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddJSONHandler.html#importFromFile-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-CCDD.CcddTableTypeHandler.TypeDefinition-boolean-boolean-boolean-">importFromFile</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
+<td class="colLast"><span class="typeNameLabel">CcddXTCEHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddXTCEHandler.html#importFromFile-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-CCDD.CcddTableTypeHandler.TypeDefinition-boolean-boolean-boolean-boolean-">importFromFile</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
               <a href="../../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
               <a href="../../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&nbsp;targetTypeDefn,
               boolean&nbsp;ignoreErrors,
               boolean&nbsp;replaceExistingMacros,
-              boolean&nbsp;replaceExistingGroups)</code>
+              boolean&nbsp;replaceExistingGroups,
+              boolean&nbsp;replaceExistingTables)</code>
 <div class="block">Build the information from the table definition(s) in the current file</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><span class="typeNameLabel">CcddXTCEHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddXTCEHandler.html#importFromFile-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-CCDD.CcddTableTypeHandler.TypeDefinition-boolean-boolean-boolean-">importFromFile</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
+<td class="colLast"><span class="typeNameLabel">CcddEDSHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddEDSHandler.html#importFromFile-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-CCDD.CcddTableTypeHandler.TypeDefinition-boolean-boolean-boolean-boolean-">importFromFile</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
               <a href="../../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
               <a href="../../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&nbsp;targetTypeDefn,
               boolean&nbsp;ignoreErrors,
               boolean&nbsp;replaceExistingMacros,
-              boolean&nbsp;replaceExistingGroups)</code>
-<div class="block">Import the the table definitions from an XTCE XML formatted file</div>
+              boolean&nbsp;replaceExistingGroups,
+              boolean&nbsp;replaceExistingTables)</code>
+<div class="block">Build the information from the table definition(s) in the current file</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><span class="typeNameLabel">CcddEDSHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddEDSHandler.html#importFromFile-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-CCDD.CcddTableTypeHandler.TypeDefinition-boolean-boolean-boolean-">importFromFile</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
+<td class="colLast"><span class="typeNameLabel">CcddImportExportInterface.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddImportExportInterface.html#importFromFile-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-CCDD.CcddTableTypeHandler.TypeDefinition-boolean-boolean-boolean-boolean-">importFromFile</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
               <a href="../../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
               <a href="../../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&nbsp;targetTypeDefn,
               boolean&nbsp;ignoreErrors,
               boolean&nbsp;replaceExistingMacros,
-              boolean&nbsp;replaceExistingGroups)</code>
-<div class="block">Import the the table definitions from an EDS XML formatted file</div>
+              boolean&nbsp;replaceExistingGroups,
+              boolean&nbsp;replaceExistingTables)</code>
+<div class="block">Build the information from the table definition(s) in the current file</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><span class="typeNameLabel">CcddImportExportInterface.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddImportExportInterface.html#importFromFile-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-CCDD.CcddTableTypeHandler.TypeDefinition-boolean-boolean-boolean-">importFromFile</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
-              <a href="../../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
-              <a href="../../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&nbsp;targetTypeDefn,
-              boolean&nbsp;ignoreErrors,
-              boolean&nbsp;replaceExistingMacros,
-              boolean&nbsp;replaceExistingGroups)</code>
-<div class="block">Build the information from the table definition(s) in the current file</div>
+<td class="colLast"><span class="typeNameLabel">CcddCSVHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddCSVHandler.html#importGroupData-java.io.BufferedReader-CCDD.CcddClassesComponent.FileEnvVar-boolean-CCDD.CcddClassesDataTable.ProjectDefinition-boolean-">importGroupData</a></span>(java.io.BufferedReader&nbsp;br,
+               <a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
+               boolean&nbsp;ignoreErrors,
+               <a href="../../CCDD/CcddClassesDataTable.ProjectDefinition.html" title="class in CCDD">CcddClassesDataTable.ProjectDefinition</a>&nbsp;projectDefn,
+               boolean&nbsp;replaceExistingGroups)</code>
+<div class="block">Import group information from a provided csv file</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddCSVHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddCSVHandler.html#importInputTypes-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-boolean-boolean-boolean-">importInputTypes</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
+                <a href="../../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
+                boolean&nbsp;ignoreErrors,
+                boolean&nbsp;replaceExistingDataTypes,
+                boolean&nbsp;importingEntireDatabase)</code>
+<div class="block">Build the information from the input and data type definition(s) in the current file</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddJSONHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddJSONHandler.html#importInputTypes-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-boolean-boolean-boolean-">importInputTypes</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
+                <a href="../../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
+                boolean&nbsp;ignoreErrors,
+                boolean&nbsp;replaceExistingDataTypes,
+                boolean&nbsp;importingEntireDatabase)</code>
+<div class="block">Build the information from the input and data type definition(s) in the current file</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddXTCEHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddXTCEHandler.html#importInputTypes-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-boolean-boolean-boolean-">importInputTypes</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
+                <a href="../../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
+                boolean&nbsp;ignoreErrors,
+                boolean&nbsp;replaceExistingDataTypes,
+                boolean&nbsp;importingEntireDatabase)</code>
+<div class="block">Build the information from the input and data type definition(s) in the current file</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddEDSHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddEDSHandler.html#importInputTypes-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-boolean-boolean-boolean-">importInputTypes</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
+                <a href="../../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
+                boolean&nbsp;ignoreErrors,
+                boolean&nbsp;replaceExistingDataTypes,
+                boolean&nbsp;importingEntireDatabase)</code>
+<div class="block">Build the information from the input and data type definition(s) in the current file</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddImportExportInterface.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddImportExportInterface.html#importInputTypes-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-boolean-boolean-boolean-">importInputTypes</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
+                <a href="../../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
+                boolean&nbsp;ignoreErrors,
+                boolean&nbsp;replaceExistingDataTypes,
+                boolean&nbsp;importingEntireDatabase)</code>
+<div class="block">Build the information from the input and data type definition(s) in the current file</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddCSVHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddCSVHandler.html#importInternalTables-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-boolean-boolean-">importInternalTables</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
+                    <a href="../../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
+                    boolean&nbsp;ignoreErrors,
+                    boolean&nbsp;replaceExistingAssociations)</code>
+<div class="block">Build the information from the internal table in the current file</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddJSONHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddJSONHandler.html#importInternalTables-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-boolean-boolean-">importInternalTables</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
+                    <a href="../../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
+                    boolean&nbsp;ignoreErrors,
+                    boolean&nbsp;replaceExistingAssociations)</code>
+<div class="block">Build the information from the Application scheduler, Telemetry Scheduler and Script
+ Association data in the file</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddXTCEHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddXTCEHandler.html#importInternalTables-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-boolean-boolean-">importInternalTables</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
+                    <a href="../../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
+                    boolean&nbsp;ignoreErrors,
+                    boolean&nbsp;replaceExistingAssociations)</code>
+<div class="block">Build the information from the internal table in the current file</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddEDSHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddEDSHandler.html#importInternalTables-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-boolean-boolean-">importInternalTables</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
+                    <a href="../../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
+                    boolean&nbsp;ignoreErrors,
+                    boolean&nbsp;replaceExistingAssociations)</code>
+<div class="block">Build the information from the internal table in the current file</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddImportExportInterface.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddImportExportInterface.html#importInternalTables-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-boolean-boolean-">importInternalTables</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
+                    <a href="../../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
+                    boolean&nbsp;ignoreErrors,
+                    boolean&nbsp;replaceExistingAssociations)</code>
+<div class="block">Build the information from the internal table in the current file</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddCSVHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddCSVHandler.html#importProjectDataFields-java.io.BufferedReader-CCDD.CcddClassesComponent.FileEnvVar-boolean-boolean-CCDD.CcddClassesDataTable.ProjectDefinition-">importProjectDataFields</a></span>(java.io.BufferedReader&nbsp;br,
+                       <a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
+                       boolean&nbsp;ignoreErrors,
+                       boolean&nbsp;replaceExistingTables,
+                       <a href="../../CCDD/CcddClassesDataTable.ProjectDefinition.html" title="class in CCDD">CcddClassesDataTable.ProjectDefinition</a>&nbsp;projectDefn)</code>
+<div class="block">Import project data field information from a provided csv file</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddCSVHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddCSVHandler.html#importReservedMsgIDData-java.io.BufferedReader-CCDD.CcddClassesComponent.FileEnvVar-boolean-">importReservedMsgIDData</a></span>(java.io.BufferedReader&nbsp;br,
+                       <a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
+                       boolean&nbsp;ignoreErrors)</code>
+<div class="block">Import reserved message id information from a provided csv file</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddCSVHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddCSVHandler.html#importTableDefinitions-java.io.BufferedReader-CCDD.CcddClassesComponent.FileEnvVar-boolean-boolean-CCDD.CcddImportExportInterface.ImportType-CCDD.CcddTableTypeHandler.TypeDefinition-">importTableDefinitions</a></span>(java.io.BufferedReader&nbsp;br,
+                      <a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
+                      boolean&nbsp;ignoreErrors,
+                      boolean&nbsp;replaceExistingTables,
+                      <a href="../../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
+                      <a href="../../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&nbsp;targetTypeDefn)</code>
+<div class="block">Import table definitions from a provided csv file</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddCSVHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddCSVHandler.html#importTableInfo-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-boolean-boolean-boolean-boolean-">importTableInfo</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
+               <a href="../../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
+               boolean&nbsp;ignoreErrors,
+               boolean&nbsp;replaceExistingMacros,
+               boolean&nbsp;replaceExistingTables,
+               boolean&nbsp;importingEntireDatabase)</code>
+<div class="block">Import the table types (and table type data fields) and macros from the given file</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddJSONHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddJSONHandler.html#importTableInfo-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-boolean-boolean-boolean-boolean-">importTableInfo</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
+               <a href="../../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
+               boolean&nbsp;ignoreErrors,
+               boolean&nbsp;replaceExistingMacros,
+               boolean&nbsp;replaceExistingTables,
+               boolean&nbsp;importingEntireDatabase)</code>
+<div class="block">Build the information from the table types (and table type data fields) and macros in the
+ file</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddXTCEHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddXTCEHandler.html#importTableInfo-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-boolean-boolean-boolean-boolean-">importTableInfo</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
+               <a href="../../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
+               boolean&nbsp;ignoreErrors,
+               boolean&nbsp;replaceExistingMacros,
+               boolean&nbsp;replaceExistingTables,
+               boolean&nbsp;importingEntireDatabase)</code>
+<div class="block">Import the input types, table types, table type data fields and data types from the given
+ file</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddEDSHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddEDSHandler.html#importTableInfo-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-boolean-boolean-boolean-boolean-">importTableInfo</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
+               <a href="../../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
+               boolean&nbsp;ignoreErrors,
+               boolean&nbsp;replaceExistingMacros,
+               boolean&nbsp;replaceExistingTables,
+               boolean&nbsp;importingEntireDatabase)</code>
+<div class="block">Import the input types, table types, table type data fields and data types from the given
+ file</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddImportExportInterface.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddImportExportInterface.html#importTableInfo-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-boolean-boolean-boolean-boolean-">importTableInfo</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
+               <a href="../../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
+               boolean&nbsp;ignoreErrors,
+               boolean&nbsp;replaceExistingMacros,
+               boolean&nbsp;replaceExistingTables,
+               boolean&nbsp;importingEntireDatabase)</code>
+<div class="block">Build the information from the input and data type definition(s) in the current file</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -424,9 +763,96 @@
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>protected boolean</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddFileIOHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddFileIOHandler.html#prepareJSONOrCSVImport-CCDD.CcddClassesComponent.FileEnvVar:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddConstants.FileExtension-CCDD.CcddConstants.ManagerDialogType-java.awt.Component-">prepareJSONOrCSVImport</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>[]&nbsp;dataFiles,
+                      boolean&nbsp;importingEntireDatabase,
+                      boolean&nbsp;backupFirst,
+                      boolean&nbsp;replaceExistingTables,
+                      boolean&nbsp;appendExistingFields,
+                      boolean&nbsp;useExistingFields,
+                      boolean&nbsp;openEditor,
+                      boolean&nbsp;ignoreErrors,
+                      boolean&nbsp;replaceExistingMacros,
+                      boolean&nbsp;replaceExistingAssociations,
+                      boolean&nbsp;replaceExistingGroups,
+                      boolean&nbsp;replaceExistingDataTypes,
+                      boolean&nbsp;deleteNonExistingFiles,
+                      <a href="../../CCDD/CcddConstants.FileExtension.html" title="enum in CCDD">CcddConstants.FileExtension</a>&nbsp;importFileType,
+                      <a href="../../CCDD/CcddConstants.ManagerDialogType.html" title="enum in CCDD">CcddConstants.ManagerDialogType</a>&nbsp;dialogType,
+                      java.awt.Component&nbsp;parent)</code>
+<div class="block">This function will accept a file or files with JSON/CSV format.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>[]</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddFileIOHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddFileIOHandler.html#processCSVConversionFile-CCDD.CcddClassesComponent.FileEnvVar-java.awt.Component-">processCSVConversionFile</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;dataFile,
+                        java.awt.Component&nbsp;parent)</code>
+<div class="block">Process the conversion file, which represents data pulled from a C header file, that is
+ being imported and output the data to multiple files to help with the import process</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>[]</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddFileIOHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddFileIOHandler.html#processSingleCSVFileRepresentingDatabase-CCDD.CcddClassesComponent.FileEnvVar-java.awt.Component-">processSingleCSVFileRepresentingDatabase</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;dataFile,
+                                        java.awt.Component&nbsp;parent)</code>
+<div class="block">Process the single file, which represents an entire database, that is being imported and
+ output the data to multiple files.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>[]</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddFileIOHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddFileIOHandler.html#processSingleJSONFileRepresentingDatabase-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddConstants.ManagerDialogType-java.awt.Component-">processSingleJSONFileRepresentingDatabase</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;dataFile,
+                                         <a href="../../CCDD/CcddConstants.ManagerDialogType.html" title="enum in CCDD">CcddConstants.ManagerDialogType</a>&nbsp;dialogType,
+                                         java.awt.Component&nbsp;parent)</code>
+<div class="block">Process the single file, which represents an entire database, that is being imported and
+ output the data to multiple files.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static <a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a></code></td>
+<td class="colLast"><span class="typeNameLabel">CcddBackupName.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddBackupName.html#reconstructBackupFilePath-CCDD.CcddClassesComponent.FileEnvVar:A-java.lang.String-">reconstructBackupFilePath</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>[]&nbsp;selectedPaths,
+                         java.lang.String&nbsp;chosenBackupFileName)</code>
+<div class="block">Take the full path to the backup file and remove the file name portion.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><span class="typeNameLabel">CcddFileIOHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddFileIOHandler.html#storeScriptInDatabase-CCDD.CcddClassesComponent.FileEnvVar-">storeScriptInDatabase</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;file)</code>
 <div class="block">Store the contents of the specified script file into the database</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected void</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddJSONHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddJSONHandler.html#verifyJSONObjectType-CCDD.CcddClassesComponent.FileEnvVar-">verifyJSONObjectType</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile)</code>
+<div class="block">Verify that the input file will be of a JSONObject type</div>
+</td>
+</tr>
+</tbody>
+</table>
+<table class="useSummary" border="0" cellpadding="3" cellspacing="0" summary="Use table, listing methods, and an explanation">
+<caption><span>Method parameters in <a href="../../CCDD/package-summary.html">CCDD</a> with type arguments of type <a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><code>protected boolean</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddFileIOHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddFileIOHandler.html#importFiles-java.util.List-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddConstants.ManagerDialogType-java.awt.Component-">importFiles</a></span>(java.util.List&lt;<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&gt;&nbsp;dataFiles,
+           boolean&nbsp;backupFirst,
+           boolean&nbsp;importingEntireDatabase,
+           boolean&nbsp;replaceExistingTables,
+           boolean&nbsp;appendExistingFields,
+           boolean&nbsp;useExistingFields,
+           boolean&nbsp;openEditor,
+           boolean&nbsp;ignoreErrors,
+           boolean&nbsp;replaceExistingMacros,
+           boolean&nbsp;replaceExistingAssociations,
+           boolean&nbsp;replaceExistingGroups,
+           boolean&nbsp;replaceExistingDataTypes,
+           <a href="../../CCDD/CcddConstants.ManagerDialogType.html" title="enum in CCDD">CcddConstants.ManagerDialogType</a>&nbsp;fileType,
+           java.awt.Component&nbsp;parent)</code>
+<div class="block">Import one or more files, creating new tables and optionally replacing existing ones.</div>
 </td>
 </tr>
 </tbody>

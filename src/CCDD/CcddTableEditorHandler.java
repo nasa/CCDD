@@ -48,6 +48,8 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -61,9 +63,12 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
+import javax.swing.JViewport;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
@@ -126,6 +131,12 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     // editor belongs if the dialog is open
     private final Component parent;
 
+    // Table scroll pane
+    private JScrollPane scrollPane;
+
+    // Handler for the selected non-movable (fixed) data table column
+    private FixedColumnHandler fixedColumnHndlr;
+
     // Cell editor for data type cell in a row that has an enumeration
     private DefaultCellEditor enumDataTypeCellEditor;
 
@@ -170,6 +181,10 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
 
     // Flag indicating if array members are to be displayed in the table
     private boolean isShowArrayMembers;
+
+    // Flag indicating if the first column is 'frozen' (duplicated and remains showing when the
+    // table is scrolled horizontally
+    private boolean showFixedColumn;
 
     // Flag indicating a rate value changed while checking packed bit-wise variables
     private boolean isRateChange;
@@ -229,7 +244,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
      *
      * @param parent             GUI component over which to center any error dialog
      *********************************************************************************************/
-    CcddTableEditorHandler(CcddMain ccddMain, TableInfo tableInfo,
+    CcddTableEditorHandler(CcddMain ccddMain,
+                           TableInfo tableInfo,
                            CcddTableTypeHandler tableTypeHandler,
                            CcddInputTypeHandler inputTypeHandler,
                            CcddDataTypeHandler newDataTypeHandler,
@@ -269,11 +285,15 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         // Set the flag to indicate that editing of the table is allowed
         isEditEnabled = true;
 
-        // Init variable to false
+        // Initialize the import row error flag
         errorWithRow = false;
 
         // Create the replace match pattern
         replacePattern = Pattern.compile("^" + Pattern.quote(REPLACE_INDICATOR));
+
+        // Set the flag to indicate that the fixed column is initially not shown
+        showFixedColumn = false;
+        fixedColumnHndlr = null;
 
         // Create the table editor
         initialize();
@@ -356,7 +376,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                      CcddInputTypeHandler inputTypeHandler,
                                      Component parent)
     {
-        this(ccddMain, tableInfo,
+        this(ccddMain,
+             tableInfo,
              tableTypeHandler,
              inputTypeHandler,
              ccddMain.getDataTypeHandler(),
@@ -387,7 +408,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                      CcddMacroHandler newMacroHandler,
                                      Component parent)
     {
-        this(ccddMain, tableInfo,
+        this(ccddMain,
+             tableInfo,
              ccddMain.getTableTypeHandler(),
              ccddMain.getInputTypeHandler(),
              newDataTypeHandler,
@@ -719,7 +741,10 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         // Check if the variable path, variable name, and data type columns are present, the table
         // represents a structure, the table has been created, and the table is open in a table
         // editor (versus open for a macro or data type change, for example)
-        if (variablePathIndex != -1 && variableNameIndex != -1 && dataTypeIndex != -1 && typeDefn.isStructure()
+        if (variablePathIndex != -1
+            && variableNameIndex != -1
+            && dataTypeIndex != -1
+            && typeDefn.isStructure()
             && table != null && editorDialog != null)
         {
             // Step through each row of the data
@@ -809,6 +834,16 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     protected List<TableModification> getDeletions()
     {
         return deletions;
+    }
+
+    /**********************************************************************************************
+     * Get the table's fixed column showing flag state
+     *
+     * @return Table's fixed column showing flag state
+     *********************************************************************************************/
+    protected boolean isFixedColumnShowing()
+    {
+        return showFixedColumn;
     }
 
     /**********************************************************************************************
@@ -1100,8 +1135,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         // Check if the table contains any committed data
         if (committedTableInfo.getData().size() != 0)
         {
-            originalCommData = new Object[committedTableInfo.getData()
-                    .size()][committedTableInfo.getData().get(0).length];
+            originalCommData = new Object[committedTableInfo.getData().size()][committedTableInfo.getData().get(0).length];
 
             // Step through the currently committed data rows
             for (int row = 0; row < committedTableInfo.getData().size(); row++)
@@ -1487,7 +1521,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 // the cell editor) or that the table isn't open in an editor (as when a macro
                 // change is processed), if the table model exists, and if the table has at least
                 // one row
-                if (isEditable && (isDisplayable() || editorDialog == null) && tableModel != null
+                if (isEditable
+                    && (isDisplayable() || editorDialog == null)
+                    && tableModel != null
                     && tableModel.getRowCount() != 0)
                 {
                     // Convert the view row and column indices to model coordinates
@@ -1563,15 +1599,15 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                             && ArrayVariable.isArrayMember(rowCopy[variableNameIndex]))
 
                         // This data type is a pointer and the column isn't valid for pointers
-                        || (dataTypeIndex != -1 && dataTypeHandler.isPointer(rowCopy[dataTypeIndex].toString())
+                        || (dataTypeIndex != -1
+                            && dataTypeHandler.isPointer(rowCopy[dataTypeIndex].toString())
                             && !typeDefn.isPointerAllowed()[column])
 
                         // This is an array definition, and the input type is for the message name & ID
                         // or is the variable path - the members of an array can have a message name &
                         // ID or variable path, but not the array's definition
                         || ((isArrayDefinition
-                             && (typeDefn.getInputTypes()[column].equals(inputTypeHandler
-                                     .getInputTypeByDefaultType(DefaultInputType.MESSAGE_NAME_AND_ID))
+                             && (typeDefn.getInputTypes()[column].equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.MESSAGE_NAME_AND_ID))
                                  || column == variablePathIndex)))
 
                         // This is the bit length cell and either the array size is present or the data
@@ -1588,13 +1624,15 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                 || (bitLengthIndex != -1 && !rowCopy[bitLengthIndex].toString().isEmpty())))
 
                         // This is a rate cell, and a data type exists that is not a primitive
-                        || (rateIndex.contains(column) && dataTypeIndex != -1
+                        || (rateIndex.contains(column)
+                            && dataTypeIndex != -1
                             && !rowCopy[dataTypeIndex].toString().isEmpty()
                             && !dataTypeHandler.isPrimitive(rowCopy[dataTypeIndex].toString()))
 
                         // This is any column in an array variable of type 'string' other than the
                         // first array member
-                        || (variableNameIndex != -1 && dataTypeIndex != -1
+                        || (variableNameIndex != -1
+                            && dataTypeIndex != -1
                             && dataTypeHandler.isString(rowCopy[dataTypeIndex].toString())
                             && ArrayVariable.isArrayMember(rowCopy[variableNameIndex])
                             && !rowCopy[variableNameIndex].toString().endsWith("[0]"))
@@ -1930,7 +1968,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                             {
                                 // Check if this is the data type column, a bit length is present,
                                 // and the bit length exceeds the size of the data type in bits
-                                if (column == dataTypeIndex && !newValueS.isEmpty() && bitLength != null
+                                if (column == dataTypeIndex
+                                    && !newValueS.isEmpty()
+                                    && bitLength != null
                                     && !bitLength.isEmpty()
                                     && Integer.valueOf(bitLength) > newDataTypeHandler.getSizeInBits(dataType))
                                 {
@@ -1996,8 +2036,11 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                             }
                         }
                         // Check if this is the rate column and the row is an array definition
-                        else if (rateIndex.contains(column) && arraySize != null && variableName != null
-                                 && !arraySize.isEmpty() && !ArrayVariable.isArrayMember(variableName))
+                        else if (rateIndex.contains(column)
+                                 && arraySize != null
+                                 && variableName != null
+                                 && !arraySize.isEmpty()
+                                 && !ArrayVariable.isArrayMember(variableName))
                         {
                             // Get the array index value(s)
                             int[] arrayDims = ArrayVariable.getArrayIndexFromSize(arraySize);
@@ -2019,7 +2062,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                         {
                             // Check if a bit length is present and it exceeds the bit size of the
                             // data type
-                            if (bitLength != null && !bitLength.isEmpty() && dataType != null
+                            if (bitLength != null
+                                && !bitLength.isEmpty()
+                                && dataType != null
                                 && Integer.valueOf(bitLength) > newDataTypeHandler.getSizeInBits(dataType))
                             {
                                 throw new CCDDException("Invalid bit length in table '</b>"
@@ -2032,7 +2077,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                             startRow = row;
                         }
                         // Check if this is the variable path column
-                        else if (column == variablePathIndex && variableName != null && !variableName.isEmpty()
+                        else if (column == variablePathIndex
+                                 && variableName != null
+                                 && !variableName.isEmpty()
                                  && dataType != null && !dataType.isEmpty())
                         {
                             // Check if the variable path isn't empty; i.e. a name is manually
@@ -2137,15 +2184,14 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                         {
                             // Inform the user that the input value is invalid
                             CcddDialogHandler validityDlg = new CcddDialogHandler();
-                            int buttonSelected = validityDlg
-                                    .showIgnoreCancelDialog(parent,
-                                                            "<html><b>"
-                                                            + ce.getMessage(),
-                                                            "Invalid Input",
-                                                            "Ignore this invalid input",
-                                                            "Ignore this and any remaining invalid inputs for this table",
-                                                            "Cease inputting values",
-                                                            false);
+                            int buttonSelected = validityDlg.showIgnoreCancelDialog(parent,
+                                                                                    "<html><b>"
+                                                                                    + ce.getMessage(),
+                                                                                    "Invalid Input",
+                                                                                    "Ignore this invalid input",
+                                                                                    "Ignore this and any remaining invalid inputs for this table",
+                                                                                    "Cease inputting values",
+                                                                                    false);
 
                             // Check if the Ignore All button was pressed
                             if (buttonSelected == IGNORE_BUTTON)
@@ -2237,8 +2283,11 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 {
                     // Get the minimum width needed to display all columns, but no wider than the
                     // display
-                    int width = Math.min(totalWidth + LAF_SCROLL_BAR_WIDTH, GraphicsEnvironment
-                            .getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode().getWidth());
+                    int width = Math.min(totalWidth + LAF_SCROLL_BAR_WIDTH,
+                                         GraphicsEnvironment.getLocalGraphicsEnvironment()
+                                                            .getDefaultScreenDevice()
+                                                            .getDisplayMode()
+                                                            .getWidth());
 
                     // Check if the editor's width is less than the minimum
                     if (editorDialog.getTableWidth() < width)
@@ -2275,6 +2324,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             public Component prepareRenderer(TableCellRenderer renderer, int row, int column)
             {
                 JComponent comp = null;
+
                 try
                 {
                     comp = (JComponent) super.prepareRenderer(renderer, row, column);
@@ -2312,7 +2362,6 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 }
                 catch (Exception e)
                 {
-
                 }
 
                 return comp;
@@ -2914,6 +2963,35 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 setAllPackedVariableRates(tableData, convertRowIndexToView(modelRow), false);
 
                 return modelRow - 1;
+            }
+
+            /**************************************************************************************
+             * Move the selected column(s) left one column
+             *************************************************************************************/
+            protected void moveColumnLeft()
+            {
+                super.moveColumnLeft();
+
+                // Update the fixed table column if a new column is dragged to the first position
+                if (showFixedColumn)
+                {
+                    fixedColumnHndlr.setFixedColumn(true);
+                }
+            }
+
+            /**************************************************************************************
+             * Move the selected column(s) right one column
+             *************************************************************************************/
+            protected void moveColumnRight()
+            {
+                super.moveColumnRight();
+
+                // Update the fixed table column if a new column is dragged to the first
+                // position
+                if (showFixedColumn)
+                {
+                    fixedColumnHndlr.setFixedColumn(true);
+                }
             }
 
             /**************************************************************************************
@@ -3787,6 +3865,49 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 if (editorDialog != null)
                 {
                     super.tableChanged(tme);
+
+                    // Update the fixed table column if a new column is dragged to the first
+                    // position
+                    if (showFixedColumn)
+                    {
+                        fixedColumnHndlr.setFixedColumn(false);
+                    }
+                }
+            }
+
+            /**************************************************************************************
+             * Handle a column resize event
+             *************************************************************************************/
+            @Override
+            public void columnMarginChanged(ChangeEvent ce)
+            {
+                super.columnMarginChanged(ce);
+
+                // Update the fixed column's width to match the main table
+                if (showFixedColumn)
+                {
+                    fixedColumnHndlr.resizeColumnWidths();
+                }
+            }
+
+            /**************************************************************************************
+             * Update the table's row heights. Each row's height is based on the contents of the
+             * cells in that row; the cell with the greatest height determines the height for the
+             * entire row
+             *
+             * @param first Row with which to begin height check
+             *
+             * @param last  Row with which to end height check
+             *************************************************************************************/
+            @Override
+            public void updateRowHeights(int first, int last)
+            {
+                super.updateRowHeights(first, last);
+
+                // Update the fixed column's row heights to match the main table
+                if (showFixedColumn)
+                {
+                    fixedColumnHndlr.resizeRowHeights(first, last);
                 }
             }
 
@@ -3807,7 +3928,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         };
 
         // Place the table into a scroll pane
-        JScrollPane scrollPane = new JScrollPane(table);
+        scrollPane = new JScrollPane(table);
 
         // Set common table parameters and characteristics
         table.setFixedCharacteristics(scrollPane,
@@ -4078,8 +4199,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                  && (!value.isEmpty() || typeDefn.isRequired()[modelColumn]))
         {
             // Get a reference to the cell's combo box
-            JComboBox<?> comboBox = (JComboBox<?>) ((DefaultCellEditor) table.getCellEditor(row, column))
-                    .getComponent();
+            JComboBox<?> comboBox = (JComboBox<?>) ((DefaultCellEditor) table.getCellEditor(row, column)).getComponent();
             found = false;
 
             // Step through each combo box item
@@ -4215,8 +4335,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     // Check that the variable path isn't blank and the parent data type is a
                     // structure, and the paths match for these rows
                     if (!commandArg.isEmpty()
-                        && commandArg.equals(newMacroHandler
-                                .getMacroExpansion(committedTableInfo.getData().get(comRow)[column].toString()))
+                        && commandArg.equals(newMacroHandler.getMacroExpansion(committedTableInfo.getData().get(comRow)[column].toString()))
                         && !dataTypeHandler.isPrimitive(TableInfo.getParentTable(commandArg)))
                     {
                         // Load the selected child table's data into a table editor
@@ -4415,8 +4534,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             comboBox.enableItemMatching(table);
 
             // Get the column reference for this command argument column
-            TableColumn dataTypeColumn = table.getColumnModel()
-                    .getColumn(table.convertColumnIndexToView(cmdArgumentIndex));
+            TableColumn dataTypeColumn = table.getColumnModel().getColumn(table.convertColumnIndexToView(cmdArgumentIndex));
 
             // Set the column table editor to the combo box
             dataTypeColumn.setCellEditor(new ComboBoxCellEditor(comboBox));
@@ -5138,8 +5256,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             rateColumn.setCellEditor(new ComboBoxCellEditor(comboBox));
 
             // Get the rate information for this rate column
-            RateInformation rateInfo = rateHandler
-                    .getRateInformationByRateName(typeDefn.getColumnNamesUser()[rateIndex.get(index)]);
+            RateInformation rateInfo = rateHandler.getRateInformationByRateName(typeDefn.getColumnNamesUser()[rateIndex.get(index)]);
 
             // Check if the rate information exists for this column
             if (rateInfo != null)
@@ -5524,8 +5641,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                             {
                                 // Set the flag to indicate if the variable path is automatically
                                 // set
-                                boolean isVarPathAuto = committedTableInfo.getData().get(commRow)[variablePathIndex]
-                                        .toString().isEmpty();
+                                boolean isVarPathAuto = committedTableInfo.getData().get(commRow)[variablePathIndex].toString().isEmpty();
 
                                 // Check if the variable path was manually set and has been changed
                                 // (either to a new name or allowed to be automatically), or the
@@ -5767,11 +5883,238 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     }
 
     /**********************************************************************************************
+     * Toggle fixing/unfixing the first displayed column
+     *
+     * @param show true to display the fixed column, false to hide it
+     *********************************************************************************************/
+    protected void fixFirstColumn(boolean show)
+    {
+        showFixedColumn = show;
+
+        // Create the handler for the fixed column if it doesn't exist
+        if (fixedColumnHndlr == null)
+        {
+            fixedColumnHndlr = new FixedColumnHandler();
+        }
+
+        // Show/hide the fixed column
+        fixedColumnHndlr.showHideFixedColumn(show);
+    }
+
+    /**********************************************************************************************
      * Update the tab for this table in the table editor dialog change indicator
      *********************************************************************************************/
     @Override
     protected void updateOwnerChangeIndicator()
     {
         editorDialog.updateChangeIndicator(this);
+    }
+
+    /**********************************************************************************************
+     * Create a fixed column handler. When enabled, the leftmost column in the table if duplicated
+     * and the duplicate is displayed at the left side of the table. When the table is scrolled
+     * horizontally the fixed column remains in place. The fixed column cannot be edited directly;
+     * however, changes to the original column contents are reflected in the duplicate. Also,
+     * changes in the original (duplicate) column's width are made to the duplicate (original)
+     * column
+     *********************************************************************************************/
+    private class FixedColumnHandler implements ChangeListener, PropertyChangeListener
+    {
+        private CcddJTableHandler fixed;
+
+        /******************************************************************************************
+         * Fixed column handler constructor
+         *****************************************************************************************/
+        FixedColumnHandler()
+        {
+            table.addPropertyChangeListener(this);
+
+            //  Create a new table that shares the main table's model
+            fixed = new CcddJTableHandler(ModifiableSizeInfo.INIT_VIEWABLE_DATA_TABLE_ROWS.getSize())
+            {
+                /**********************************************************************************
+                 * Load the database values into the table and format the table cells
+                 *********************************************************************************/
+                @Override
+                protected void loadAndFormatData()
+                {
+                    // Required to be overridden
+                }
+
+                /**********************************************************************************
+                 * Override prepareRenderer to allow adjusting the background colors of table cells
+                 *********************************************************************************/
+                @Override
+                public Component prepareRenderer(TableCellRenderer renderer, int row, int column)
+                {
+                    Component comp = table.prepareRenderer(renderer, row, column);
+
+                    // Set the fore- and background colors. Alternate the row background colors
+                    // every other row
+                    comp.setForeground(ModifiableColorInfo.FIXED_COLUMN_TEXT.getColor());
+                    comp.setBackground(row % 2 == 0 ? ModifiableColorInfo.FIXED_COLUMN_BACK.getColor()
+                                                    : ModifiableColorInfo.FIXED_COLUMN_ALTERNATE_BACK.getColor());
+
+                    return comp;
+                }
+            };
+
+            fixed.setAutoCreateColumnsFromModel(false);
+            fixed.setModel(table.getModel());
+            fixed.setSelectionModel(table.getSelectionModel());
+            fixed.setFocusable(false);
+
+            // Set the row sorter so that array member rows can be hidden
+            fixed.setRowSorter(table.getRowSorter());
+
+            // Set the fixed column's header font and color
+            fixed.getTableHeader().setFont(ModifiableFontInfo.TABLE_HEADER.getFont());
+            fixed.getTableHeader().setBackground(ModifiableColorInfo.FIXED_HEADER_BACK.getColor());
+
+            // Set the grid to match the main table
+            fixed.setTableGrid();
+
+            //  Add the first column from the main table to the fixed table
+            fixed.getColumnModel().addColumn(table.getColumnModel().getColumn(0));
+
+            //  Add the fixed table to the scroll pane
+            fixed.setPreferredScrollableViewportSize(fixed.getPreferredSize());
+            scrollPane.setRowHeaderView(fixed);
+            scrollPane.setCorner(JScrollPane.UPPER_LEFT_CORNER, fixed.getTableHeader());
+
+            // Synchronize scrolling of the row header with the main table
+            scrollPane.getRowHeader().addChangeListener(this);
+        }
+
+        /******************************************************************************************
+         * Set the fixed column to the leftmost column in the main table
+         *
+         * @param force true to force setting the fixed column
+         *****************************************************************************************/
+        protected void setFixedColumn(boolean force)
+        {
+            TableColumn column = table.getColumnModel().getColumn(table.convertColumnIndexToView(table.convertColumnIndexToModel(0)));
+
+            // Check if column dragging has ceased and a new column has become the
+            // first column
+            if (table.getTableHeader().getDraggedColumn() == null
+                && (force || !fixed.getColumnModel().getColumn(0).equals(column)))
+            {
+                // Remove the current fixed column from the fixed table and replace it with the
+                // current leftmost column from the main table
+                fixed.getColumnModel().removeColumn(fixed.getColumnModel().getColumn(0));
+                fixed.getColumnModel().addColumn(column);
+            }
+        }
+
+        /******************************************************************************************
+         * Show or hide the fixed column
+         *
+         * @param show true to display the fixed column, false to hide it
+         *****************************************************************************************/
+        protected void showHideFixedColumn(boolean show)
+        {
+            // Show the frozen table column in the scroll pane
+            if (show)
+            {
+                fixed.setPreferredScrollableViewportSize(fixed.getPreferredSize());
+            }
+            // Hide the frozen table column
+            else
+            {
+                fixed.setPreferredScrollableViewportSize(new Dimension(0, 0));
+            }
+
+            // Reset the fixed column. This is needed for the column to appear/hide correctly
+            setFixedColumn(true);
+
+            // Create a runnable object to be executed
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                /**********************************************************************************
+                 * Execute after all pending Swing events are finished
+                 *********************************************************************************/
+                @Override
+                public void run()
+                {
+                    // Force the table to redraw
+                    tableModel.fireTableDataChanged();
+                    tableModel.fireTableStructureChanged();
+                }
+            });
+        }
+
+        /******************************************************************************************
+         * Set the fixed column's row heights using the row heights from the main table
+         *
+         * @param first First row index to update
+         *
+         * @param last  Last row index to update
+         *****************************************************************************************/
+        protected void resizeRowHeights(int first, int last)
+        {
+            for (int row = first; row < last; row++)
+            {
+                // Check if the row height changed
+                if (fixed.getRowHeight(row) != table.getRowHeight(row))
+                {
+                    fixed.setRowHeight(row, table.getRowHeight(row));
+                }
+            }
+        }
+
+        /******************************************************************************************
+         * Set the fixed column column width
+         *****************************************************************************************/
+        protected void resizeColumnWidths()
+        {
+            // Check if the fixed column's width is being changed by dragging via the mouse
+            if (fixed.getTableHeader().getResizingColumn() != null)
+            {
+                // Set the width the of fixed column viewport to match the fixed column
+                fixed.setPreferredScrollableViewportSize(fixed.getPreferredSize());
+            }
+            else
+            {
+                // Get the column being resized
+                TableColumn resizingColumn = table.getTableHeader().getResizingColumn();
+
+                // Check if the original column's width is being changed by dragging via the mouse
+                if (resizingColumn != null
+                    && resizingColumn == table.getColumnModel().getColumn(table.convertColumnIndexToView(table.convertColumnIndexToModel(0))))
+                {
+                    // Set the width the of fixed column viewport to match the fixed column. The
+                    // width must be decreased or else the original column's width can't be reduced
+                    fixed.setPreferredScrollableViewportSize(new Dimension(resizingColumn.getWidth() - 1,
+                                                                           fixed.getPreferredSize().height));
+                }
+            }
+        }
+
+        /******************************************************************************************
+         * State change listener. Synchronize the fixed column to the main table's vertical scroll
+         * position
+         *****************************************************************************************/
+        public void stateChanged(ChangeEvent ce)
+        {
+            JViewport viewport = (JViewport) ce.getSource();
+            scrollPane.getVerticalScrollBar().setValue(viewport.getViewPosition().y);
+        }
+
+        /******************************************************************************************
+         * Property change listener. Keep the main and fixed tables' content synchronized
+         *****************************************************************************************/
+        public void propertyChange(PropertyChangeEvent pce)
+        {
+            if ("selectionModel".equals(pce.getPropertyName()))
+            {
+                fixed.setSelectionModel(table.getSelectionModel());
+            }
+
+            if ("model".equals(pce.getPropertyName()))
+            {
+                fixed.setModel(table.getModel());
+            }
+        }
     }
 }

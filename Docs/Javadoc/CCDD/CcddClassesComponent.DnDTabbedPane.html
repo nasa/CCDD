@@ -607,12 +607,15 @@ extends javax.swing.JTabbedPane</pre>
  parent container is allowable</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>tabPlacement</code> - determines the location of the tabs on the tabbed pane: JTabbedPane.TOP,
-            JTabbedPane.BOTTOM, JTabbedPane.LEFT, or JTabbedPane.RIGHT</dd>
-<dd><code>compatibleTarget</code> - reference to the type of class that tabs from this class can be dropped onto;
-            null if dropping outside the original container isn't allowed</dd>
-<dd><code>isSpawnAllowed</code> - true if a new container is created when the tab is dropped outside of a
-            compatible target; false to ignore drops outside compatible containers</dd>
+<dd><code>tabPlacement</code> - Determines the location of the tabs on the tabbed pane:
+                         JTabbedPane.TOP, JTabbedPane.BOTTOM, JTabbedPane.LEFT, or
+                         JTabbedPane.RIGHT</dd>
+<dd><code>compatibleTarget</code> - Reference to the type of class that tabs from this class can be
+                         dropped onto; null if dropping outside the original container
+                         isn't allowed</dd>
+<dd><code>isSpawnAllowed</code> - True if a new container is created when the tab is dropped
+                         outside of a compatible target; false to ignore drops outside
+                         compatible containers</dd>
 </dl>
 </li>
 </ul>
@@ -640,8 +643,9 @@ extends javax.swing.JTabbedPane</pre>
  container</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>tabPlacement</code> - determines the location of the tabs on the tabbed pane: JTabbedPane.TOP,
-            JTabbedPane.BOTTOM, JTabbedPane.LEFT, or JTabbedPane.RIGHT</dd>
+<dd><code>tabPlacement</code> - Determines the location of the tabs on the tabbed pane:
+                     JTabbedPane.TOP, JTabbedPane.BOTTOM, JTabbedPane.LEFT, or
+                     JTabbedPane.RIGHT</dd>
 </dl>
 </li>
 </ul>
@@ -694,9 +698,10 @@ extends javax.swing.JTabbedPane</pre>
 <div class="block">Placeholder for method to do any other operations related to moving the tab</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>oldTabIndex</code> - original tab index; -1 if the tab didn't originate in this tabbed pane</dd>
-<dd><code>newTabIndex</code> - new tab index; -1 if the tab is being moved to another tabbed pane</dd>
-<dd><code>tabContents</code> - reference to the components in the tab being moved</dd>
+<dd><code>oldTabIndex</code> - Original tab index; -1 if the tab didn't originate in this tabbed
+                    pane</dd>
+<dd><code>newTabIndex</code> - New tab index; -1 if the tab is being moved to another tabbed pane</dd>
+<dd><code>tabContents</code> - Reference to the components in the tab being moved</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Reference to the container receiving the tab</dd>
 </dl>
@@ -713,8 +718,8 @@ extends javax.swing.JTabbedPane</pre>
 <div class="block">Placeholder for method to spawn a new container for a moved tab</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>sourceTabIndex</code> - index of the tab in its original pane</dd>
-<dd><code>tabContents</code> - reference to the components in the tab being moved</dd>
+<dd><code>sourceTabIndex</code> - Index of the tab in its original pane</dd>
+<dd><code>tabContents</code> - Reference to the components in the tab being moved</dd>
 </dl>
 </li>
 </ul>
@@ -728,7 +733,7 @@ extends javax.swing.JTabbedPane</pre>
 <div class="block">Get the tab transfer data from the supplied drop target drop event</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>dtde</code> - drop target drop event</dd>
+<dd><code>dtde</code> - Drop target drop event</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Tab transfer data from the supplied drop target drop event</dd>
 </dl>
@@ -744,7 +749,7 @@ extends javax.swing.JTabbedPane</pre>
 <div class="block">Get the tab transfer data from the supplied drop target drag event</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>dtde</code> - drop target drop event</dd>
+<dd><code>dtde</code> - Drop target drop event</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Tab transfer data from the supplied drop target drag event</dd>
 </dl>
@@ -760,7 +765,7 @@ extends javax.swing.JTabbedPane</pre>
 <div class="block">Get the tab transfer data from the supplied drag source drag event</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>dsde</code> - drop source drop event</dd>
+<dd><code>dsde</code> - Drop source drop event</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Tab transfer data from the supplied drag source drag event</dd>
 </dl>
@@ -776,7 +781,7 @@ extends javax.swing.JTabbedPane</pre>
 <div class="block">Get the tab transfer data from the supplied drag source drop event</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>dsde</code> - drop source drop event</dd>
+<dd><code>dsde</code> - Drop source drop event</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Tab transfer data from the supplied drag source drop event</dd>
 </dl>
@@ -792,7 +797,7 @@ extends javax.swing.JTabbedPane</pre>
 <div class="block">Get the tab index if the tab is dropped at the current location</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>dropPoint</code> - location of the tab in the drop component's coordinates</dd>
+<dd><code>dropPoint</code> - Location of the tab in the drop component's coordinates</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Tab index if the tab is dropped at the current location; after the last tab in
          the pane if the drop point isn't within a tab's boundaries</dd>
@@ -810,8 +815,8 @@ extends javax.swing.JTabbedPane</pre>
 <div class="block">Move the tab from its original location to the new one</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>sourceData</code> - tab transfer data for the repositioned tab</dd>
-<dd><code>targetIndex</code> - index in the target container's tabbed pane at which to place the tab</dd>
+<dd><code>sourceData</code> - Tab transfer data for the repositioned tab</dd>
+<dd><code>targetIndex</code> - Index in the target container's tabbed pane at which to place the tab</dd>
 </dl>
 </li>
 </ul>
@@ -827,8 +832,8 @@ extends javax.swing.JTabbedPane</pre>
  or bottom of the pane</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>targetIndex</code> - index of the tab if dropped at the current location</dd>
-<dd><code>data</code> - reference to the tab transfer data</dd>
+<dd><code>targetIndex</code> - Index of the tab if dropped at the current location</dd>
+<dd><code>data</code> - Reference to the tab transfer data</dd>
 </dl>
 </li>
 </ul>
@@ -844,8 +849,8 @@ extends javax.swing.JTabbedPane</pre>
  left or right of the pane</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>targetIndex</code> - index of the tab if dropped at the current location</dd>
-<dd><code>data</code> - reference to the tab transfer data</dd>
+<dd><code>targetIndex</code> - Index of the tab if dropped at the current location</dd>
+<dd><code>data</code> - Reference to the tab transfer data</dd>
 </dl>
 </li>
 </ul>
@@ -861,8 +866,8 @@ extends javax.swing.JTabbedPane</pre>
  tabbed pane</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>location</code> - current position of the dragged glass pane</dd>
-<dd><code>pane</code> - tabbed pane in which the glass pane is displayed</dd>
+<dd><code>location</code> - Current position of the dragged glass pane</dd>
+<dd><code>pane</code> - Tabbed pane in which the glass pane is displayed</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The glass pane location, adjusted to stay within the bounds set by the tabs</dd>
 </dl>
@@ -880,9 +885,9 @@ extends javax.swing.JTabbedPane</pre>
 <div class="block">Initialize the tabbed pane's glass pane to display an image of the tab being dragged</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>comp</code> - reference to the tab to be dragged</dd>
-<dd><code>tabPt</code> - coordinates of the point in the tab being dragged</dd>
-<dd><code>tabIndex</code> - index of the tab to be dragged</dd>
+<dd><code>comp</code> - Reference to the tab to be dragged</dd>
+<dd><code>tabPt</code> - Coordinates of the point in the tab being dragged</dd>
+<dd><code>tabIndex</code> - Index of the tab to be dragged</dd>
 </dl>
 </li>
 </ul>

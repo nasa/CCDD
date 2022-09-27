@@ -238,8 +238,9 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddInputFieldPanelHandler.html#createDataFieldPanel-boolean-java.util.List-">createDataFieldPanel</a></span>(boolean&nbsp;undoable,
-                    java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;&nbsp;ownerFieldInfo)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddInputFieldPanelHandler.html#createDataFieldPanel-boolean-java.util.List-boolean-">createDataFieldPanel</a></span>(boolean&nbsp;undoable,
+                    java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;&nbsp;ownerFieldInfo,
+                    boolean&nbsp;ignoreApplicability)</code>
 <div class="block">Create the data fields for display in the description and data field panel</div>
 </td>
 </tr>
@@ -637,8 +638,8 @@ extends java.lang.Object</pre>
 <div class="block">Set the references to the description and data field undo/redo manager and handler</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>undoManager</code> - undo/redo manager</dd>
-<dd><code>undoHandler</code> - undoable component handler</dd>
+<dd><code>undoManager</code> - Undo/redo manager</dd>
+<dd><code>undoHandler</code> - Undoable component handler</dd>
 </dl>
 </li>
 </ul>
@@ -680,7 +681,7 @@ extends java.lang.Object</pre>
 <div class="block">Set the name of the owner of this description and data field panel handler</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>ownerName</code> - name of the owner of this description and data field panel handler</dd>
+<dd><code>ownerName</code> - Name of the owner of this description and data field panel handler</dd>
 </dl>
 </li>
 </ul>
@@ -718,7 +719,7 @@ extends java.lang.Object</pre>
 <div class="block">Set the description field text</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>description</code> - description field text</dd>
+<dd><code>description</code> - Description field text</dd>
 </dl>
 </li>
 </ul>
@@ -749,8 +750,8 @@ extends java.lang.Object</pre>
  and set the description text</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>enable</code> - true to enable editing the description, false to disable</dd>
-<dd><code>description</code> - text to place in the description field</dd>
+<dd><code>enable</code> - True to enable editing the description, false to disable</dd>
+<dd><code>description</code> - Text to place in the description field</dd>
 </dl>
 </li>
 </ul>
@@ -765,7 +766,7 @@ extends java.lang.Object</pre>
  flag</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>undoable</code> - true to enable putting the edit on the undo/redo stack</dd>
+<dd><code>undoable</code> - True to enable putting the edit on the undo/redo stack</dd>
 </dl>
 </li>
 </ul>
@@ -807,7 +808,7 @@ extends java.lang.Object</pre>
 <div class="block">Update the field information values to match the data field component values</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>fieldInformation</code> - data field information list</dd>
+<dd><code>fieldInformation</code> - Data field information list</dd>
 </dl>
 </li>
 </ul>
@@ -821,7 +822,7 @@ extends java.lang.Object</pre>
 <div class="block">Update the data field component values to match the field information values</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>fieldInformation</code> - data field information list</dd>
+<dd><code>fieldInformation</code> - Data field information list</dd>
 </dl>
 </li>
 </ul>
@@ -840,33 +841,36 @@ extends java.lang.Object</pre>
 <div class="block">Create the table input field panel</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>ccddMain</code> - main class reference</dd>
-<dd><code>fieldPnlHndlrOwner</code> - reference to the owner of this description and data field handler</dd>
-<dd><code>upperPane</code> - component to display above the description and data fields scroll pane; null if
-            this field panel handler does not contain a table</dd>
-<dd><code>ownerName</code> - name of the owner of this field panel handler; null if no owner name is
-            associated with it</dd>
-<dd><code>description</code> - description field text; null if the description is initially blank and disabled</dd>
-<dd><code>ownerFieldInfo</code> - list of field information to use to build the data fields; null if no data field
-            is associated with owner</dd>
+<dd><code>ccddMain</code> - Main class reference</dd>
+<dd><code>fieldPnlHndlrOwner</code> - Reference to the owner of this description and data field handler</dd>
+<dd><code>upperPane</code> - Component to display above the description and data fields scroll
+                           pane; null if this field panel handler does not contain a table</dd>
+<dd><code>ownerName</code> - Name of the owner of this field panel handler; null if no owner
+                           name is associated with it</dd>
+<dd><code>description</code> - Description field text; null if the description is initially blank
+                           and disabled</dd>
+<dd><code>ownerFieldInfo</code> - List of field information to use to build the data fields; null if
+                           no data field is associated with owner</dd>
 </dl>
 </li>
 </ul>
-<a name="createDataFieldPanel-boolean-java.util.List-">
+<a name="createDataFieldPanel-boolean-java.util.List-boolean-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>createDataFieldPanel</h4>
 <pre>protected&nbsp;void&nbsp;createDataFieldPanel(boolean&nbsp;undoable,
-                                    java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;&nbsp;ownerFieldInfo)</pre>
+                                    java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;&nbsp;ownerFieldInfo,
+                                    boolean&nbsp;ignoreApplicability)</pre>
 <div class="block">Create the data fields for display in the description and data field panel</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>undoable</code> - true if the change(s) to the data fields should be stored for possible undo/redo
-            operations; false to not store the changes</dd>
-<dd><code>ownerFieldInfo</code> - list of field information to use to build the data fields null if no data field
-            is associated with the owner</dd>
+<dd><code>undoable</code> - True if the change(s) to the data fields should be stored for
+                            possible undo/redo operations; false to not store the changes</dd>
+<dd><code>ownerFieldInfo</code> - List of field information to use to build the data fields null if
+                            no data field is associated with the owner</dd>
+<dd><code>ignoreApplicability</code> - Should the applicability of the fields be ignored?</dd>
 </dl>
 </li>
 </ul>
@@ -901,7 +905,7 @@ extends java.lang.Object</pre>
 <div class="block">Set the specified data field's background color based the field's value and required flag</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>fieldInfo</code> - reference to the data field's information</dd>
+<dd><code>fieldInfo</code> - Reference to the data field's information</dd>
 </dl>
 </li>
 </ul>

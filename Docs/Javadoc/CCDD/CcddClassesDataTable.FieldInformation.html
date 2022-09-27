@@ -17,7 +17,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -354,6 +354,12 @@ extends java.lang.Object</pre>
 <div class="block">Set the field value</div>
 </td>
 </tr>
+<tr id="i22" class="altColor">
+<td class="colFirst"><code>protected java.lang.String[]</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddClassesDataTable.FieldInformation.html#toStringArray--">toStringArray</a></span>()</code>
+<div class="block">Store the field information in an array of strings</div>
+</td>
+</tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
@@ -503,20 +509,20 @@ extends java.lang.Object</pre>
 <div class="block">Data field information class constructor</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>ownerName</code> - name of the table, including the path if this table represents a structure,
-            or group for which the field is a member</dd>
-<dd><code>fieldName</code> - field name</dd>
-<dd><code>description</code> - data field description; used as the tool tip for this field</dd>
-<dd><code>charSize</code> - field display size in characters</dd>
-<dd><code>inputType</code> - field input type (InputType)</dd>
-<dd><code>isRequired</code> - true if a value is required for this field</dd>
-<dd><code>applicability</code> - field applicability type; all tables, parent tables only, or child tables
-            only</dd>
-<dd><code>value</code> - field value</dd>
-<dd><code>isInherited</code> - true if the field is inherited from its owner table's type definition
-            (ignored if the field does not belong to a table)</dd>
-<dd><code>inputFld</code> - reference to the field's UndoableTextField or UndoableCheckBox; null if
-            creating the data field without specifying the input field</dd>
+<dd><code>ownerName</code> - Name of the table, including the path if this table represents a
+                      structure, or group for which the field is a member</dd>
+<dd><code>fieldName</code> - Field name</dd>
+<dd><code>description</code> - Data field description; used as the tool tip for this field</dd>
+<dd><code>charSize</code> - Field display size in characters</dd>
+<dd><code>inputType</code> - Field input type (InputType)</dd>
+<dd><code>isRequired</code> - True if a value is required for this field</dd>
+<dd><code>applicability</code> - Field applicability type; all tables, parent tables only, or child
+                      tables only</dd>
+<dd><code>value</code> - Field value</dd>
+<dd><code>isInherited</code> - True if the field is inherited from its owner table's type
+                      definition (ignored if the field does not belong to a table)</dd>
+<dd><code>inputFld</code> - Reference to the field's UndoableTextField or UndoableCheckBox;
+                      null if creating the data field without specifying the input field</dd>
 <dd><code>id</code> - ID for the row defining the field; -1 for a new field</dd>
 </dl>
 </li>
@@ -553,7 +559,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the name of the field's owner (table or group name)</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>ownerName</code> - name of the table/group to which the field belongs</dd>
+<dd><code>ownerName</code> - Name of the table/group to which the field belongs</dd>
 </dl>
 </li>
 </ul>
@@ -581,7 +587,7 @@ extends java.lang.Object</pre>
 <div class="block">Set the field name</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>fieldName</code> - field name</dd>
+<dd><code>fieldName</code> - Field name</dd>
 </dl>
 </li>
 </ul>
@@ -609,7 +615,7 @@ extends java.lang.Object</pre>
 <div class="block">Set the field comment</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>description</code> - field comment</dd>
+<dd><code>description</code> - Field comment</dd>
 </dl>
 </li>
 </ul>
@@ -637,7 +643,7 @@ extends java.lang.Object</pre>
 <div class="block">set the field display size in characters</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>charSize</code> - field display size in characters</dd>
+<dd><code>charSize</code> - Field display size in characters</dd>
 </dl>
 </li>
 </ul>
@@ -665,7 +671,7 @@ extends java.lang.Object</pre>
 <div class="block">Set the flag that indicates if the field value is required</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>isRequired</code> - true if a value is required for this field</dd>
+<dd><code>isRequired</code> - True if a value is required for this field</dd>
 </dl>
 </li>
 </ul>
@@ -693,7 +699,7 @@ extends java.lang.Object</pre>
 <div class="block">Set the field applicability type</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>applicability</code> - field applicability type</dd>
+<dd><code>applicability</code> - Field applicability type</dd>
 </dl>
 </li>
 </ul>
@@ -721,7 +727,7 @@ extends java.lang.Object</pre>
 <div class="block">Set the field value</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>value</code> - field value</dd>
+<dd><code>value</code> - Field value</dd>
 </dl>
 </li>
 </ul>
@@ -751,8 +757,8 @@ extends java.lang.Object</pre>
  definition</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>isInherited</code> - true if the field is inherited from the owner table's type definition
-            (ignored if the field does not belong to a table)</dd>
+<dd><code>isInherited</code> - True if the field is inherited from the owner table's type definition
+                    (ignored if the field does not belong to a table)</dd>
 </dl>
 </li>
 </ul>
@@ -780,7 +786,7 @@ extends java.lang.Object</pre>
 <div class="block">Set the field's UndoableTextField, UndoableComboBox, or UndoableCheckBox</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>inputFld</code> - field's UndoableTextField, UndoableComboBox, or UndoableCheckBox</dd>
+<dd><code>inputFld</code> - Field's UndoableTextField, UndoableComboBox, or UndoableCheckBox</dd>
 </dl>
 </li>
 </ul>
@@ -808,7 +814,7 @@ extends java.lang.Object</pre>
 <div class="block">Set the field input type</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>inputType</code> - field input type (InputType)</dd>
+<dd><code>inputType</code> - Field input type (InputType)</dd>
 </dl>
 </li>
 </ul>
@@ -829,14 +835,28 @@ extends java.lang.Object</pre>
 <a name="setID-int-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>setID</h4>
 <pre>protected&nbsp;void&nbsp;setID(int&nbsp;id)</pre>
 <div class="block">Set the field ID</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>id</code> - field ID</dd>
+<dd><code>id</code> - Field ID</dd>
+</dl>
+</li>
+</ul>
+<a name="toStringArray--">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>toStringArray</h4>
+<pre>protected&nbsp;java.lang.String[]&nbsp;toStringArray()</pre>
+<div class="block">Store the field information in an array of strings</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>an array of Strings representing the field information</dd>
 </dl>
 </li>
 </ul>

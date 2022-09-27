@@ -33,6 +33,7 @@ import static CCDD.CcddConstants.DEFAULT_DATABASE;
 import static CCDD.CcddConstants.DEFAULT_POSTGRESQL_HOST;
 import static CCDD.CcddConstants.DEFAULT_POSTGRESQL_PORT;
 import static CCDD.CcddConstants.DEFAULT_SERVER;
+import static CCDD.CcddConstants.FONT_SCALE;
 import static CCDD.CcddConstants.INIT_WINDOW_HEIGHT;
 import static CCDD.CcddConstants.INIT_WINDOW_WIDTH;
 import static CCDD.CcddConstants.LOOK_AND_FEEL;
@@ -96,7 +97,6 @@ import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.WindowConstants;
-
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import CCDD.CcddClassesDataTable.TableInfo;
 import CCDD.CcddConstants.CommandLinePriority;
@@ -213,6 +213,7 @@ public class CcddMain
     private JMenuItem mntmDuplicateMsgID;
     private JMenuItem mntmManageProjectFields;
     private JMenuItem mntmEditDataField;
+    private JMenuItem mntmShowVariables;
     private JMenuItem mntmShowCommands;
     private JMenuItem mntmSearchTable;
     private JMenuItem mntmSearchVariables;
@@ -1205,6 +1206,7 @@ public class CcddMain
         mntmDuplicateMsgID.setEnabled(activateIfDatabase);
         mntmManageProjectFields.setEnabled(activateIfDatabase);
         mntmEditDataField.setEnabled(activateIfDatabase);
+        mntmShowVariables.setEnabled(activateIfDatabase);
         mntmShowCommands.setEnabled(activateIfDatabase);
         mntmSearchTable.setEnabled(activateIfDatabase);
         mntmSearchVariables.setEnabled(activateIfDatabase);
@@ -1971,6 +1973,8 @@ public class CcddMain
                                            "Open the data field table editor");
         mnData.addSeparator();
         mntmPadding = createMenuItem(mnData, "Padding", KeyEvent.VK_P, 1, "Add, update, or remove padding variables");
+        mntmShowVariables = createMenuItem(mnData, "Show variables", KeyEvent.VK_V, 1,
+                                          "Display information for all of the variables");
         mntmShowCommands = createMenuItem(mnData, "Show commands", KeyEvent.VK_O, 1,
                                           "Display information for all of the commands");
         mnData.addSeparator();
@@ -2809,6 +2813,19 @@ public class CcddMain
             }
         });
 
+        // Add a listener for the Show Variables command
+        mntmShowVariables.addActionListener(new ActionListener()
+        {
+            /**************************************************************************************
+             * Display a dialog showing information for all of the variable
+             *************************************************************************************/
+            @Override
+            public void actionPerformed(ActionEvent ae)
+            {
+                new CcddVariableDialog(CcddMain.this);
+            }
+        });
+
         // Add a listener for the Show Commands command
         mntmShowCommands.addActionListener(new ActionListener()
         {
@@ -2920,9 +2937,7 @@ public class CcddMain
                 if (isOkayToOpen)
                 {
                     // Get the list of script association definitions stored in the database
-                    String[][] associations = dbTable
-                            .retrieveInformationTable(InternalTable.ASSOCIATIONS, false, frameCCDD)
-                            .toArray(new String[0][0]);
+                    String[][] associations = dbTable.retrieveInformationTable(InternalTable.ASSOCIATIONS, false, frameCCDD).toArray(new String[0][0]);
 
                     // Check that at least one script association definition exists
                     if (associations.length != 0)
@@ -2946,12 +2961,11 @@ public class CcddMain
                     else
                     {
                         // Inform the user that no scripts exist
-                        new CcddDialogHandler()
-                                .showMessageDialog(frameCCDD,
-                                                   "<html><b>No script association exists in the database",
-                                                   "File Generation",
-                                                   JOptionPane.INFORMATION_MESSAGE,
-                                                   DialogOption.OK_OPTION);
+                        new CcddDialogHandler().showMessageDialog(frameCCDD,
+                                                                  "<html><b>No script association exists in the database",
+                                                                  "File Generation",
+                                                                  JOptionPane.INFORMATION_MESSAGE,
+                                                                  DialogOption.OK_OPTION);
                     }
                 }
             }
@@ -3066,43 +3080,42 @@ public class CcddMain
                 icon = new ImageIcon(image);
 
                 // Display the application name, author, and version
-                new CcddDialogHandler()
-                        .showMessageDialog(frameCCDD,
-                                           "<html><b>Core Flight System<br>Command and Data Dictionary</b><br>Author: "
-                                           + CCDD_AUTHOR + "<br>Contributors: " + CCDD_CONTRIBUTORS + "<br>"
-                                           + CcddUtilities.colorHTMLText("Version: ",
-                                                                         ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor())
-                                           + ccddVersion
-                                           + "&#160;&#160;&#160;"
-                                           + buildDate
-                                           + "<br><br><b>Supporting software versions:</b><br>&#160;&#160;&#160;"
-                                           + CcddUtilities.colorHTMLText("Java: ",
-                                                                         ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor())
-                                           + System.getProperty("java.version")
-                                           + " ("
-                                           + System.getProperty("sun.arch.data.model")
-                                           + "-bit)<br>&#160;&#160;&#160;"
-                                           + CcddUtilities.colorHTMLText(DEFAULT_SERVER + ": ",
-                                                                         ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor())
-                                           + dbControl.getDatabaseVersion()
-                                           + "<br>&#160;&#160;&#160;"
-                                           + CcddUtilities.colorHTMLText("JDBC: ",
-                                                                         ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor())
-                                           + dbControl.getJDBCVersion()
-                                           + "<br>&#160;&#160;&#160;"
-                                           + CcddUtilities.colorHTMLText("Jetty: ",
-                                                                         ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor())
-                                           + org.eclipse.jetty.util.Jetty.VERSION
-                                           + "<br><br><b>Scripting language versions:</b>"
-                                           + scriptHandler.getEngineInformation()
-                                           + "<br><br>Copyright 2017 United States Government "
-                                           + "as represented by the<br>Administrator of the "
-                                           + "National Aeronautics and Space Administration.<br>"
-                                           + "No copyright is claimed in the United States "
-                                           + "under Title 17, U.S. Code.<br>All Other Rights Reserved.",
-                                           "About CCDD",
-                                           DialogOption.OK_OPTION,
-                                           icon);
+                new CcddDialogHandler().showMessageDialog(frameCCDD,
+                                                          "<html><b>Core Flight System<br>Command and Data Dictionary</b><br>Author: "
+                                                          + CCDD_AUTHOR + "<br>Contributors: " + CCDD_CONTRIBUTORS + "<br>"
+                                                          + CcddUtilities.colorHTMLText("Version: ",
+                                                                                        ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor())
+                                                          + ccddVersion
+                                                          + "&#160;&#160;&#160;"
+                                                          + buildDate
+                                                          + "<br><br><b>Supporting software versions:</b><br>&#160;&#160;&#160;"
+                                                          + CcddUtilities.colorHTMLText("Java: ",
+                                                                                        ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor())
+                                                          + System.getProperty("java.version")
+                                                          + " ("
+                                                          + System.getProperty("sun.arch.data.model")
+                                                          + "-bit)<br>&#160;&#160;&#160;"
+                                                          + CcddUtilities.colorHTMLText(DEFAULT_SERVER + ": ",
+                                                                                        ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor())
+                                                          + dbControl.getDatabaseVersion()
+                                                          + "<br>&#160;&#160;&#160;"
+                                                          + CcddUtilities.colorHTMLText("JDBC: ",
+                                                                                        ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor())
+                                                          + dbControl.getJDBCVersion()
+                                                          + "<br>&#160;&#160;&#160;"
+                                                          + CcddUtilities.colorHTMLText("Jetty: ",
+                                                                                        ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor())
+                                                          + org.eclipse.jetty.util.Jetty.VERSION
+                                                          + "<br><br><b>Scripting language versions:</b>"
+                                                          + scriptHandler.getEngineInformation()
+                                                          + "<br><br>Copyright 2017 United States Government "
+                                                          + "as represented by the<br>Administrator of the "
+                                                          + "National Aeronautics and Space Administration.<br>"
+                                                          + "No copyright is claimed in the United States "
+                                                          + "under Title 17, U.S. Code.<br>All Other Rights Reserved.",
+                                                          "About CCDD",
+                                                          DialogOption.OK_OPTION,
+                                                          icon);
             }
         });
     }
@@ -3269,6 +3282,69 @@ public class CcddMain
         }
 
         return isLaFError;
+    }
+
+    /**********************************************************************************************
+     * Set the application's font scaling factor
+     *
+     * @param scaleFactor Scale factor. Must be 0.1 &le; scale &le; 25
+     *
+     * @param dialog      Dialog to update and on which to center warning/error dialogs
+     *********************************************************************************************/
+    void setFontScaleFactor(String scaleFactor, CcddDialogHandler dialog)
+    {
+        // Check if the scale factor changed
+        if (!scaleFactor.equals(getProgPrefs().get(FONT_SCALE, "1")))
+        {
+            // Convert the scale factor to a floating point
+            float scale = Float.valueOf(scaleFactor);
+
+            // Check if the scale factor is within an acceptable range
+            if (scale >= 0.1 && scale <= 25.0)
+            {
+                // Store the scale factor in the program preferences
+                getProgPrefs().put(FONT_SCALE, scaleFactor);
+
+                // Step through each modifiable font
+                for (ModifiableFontInfo modFont : ModifiableFontInfo.values())
+                {
+                    // Scale the font based on the scale factor
+                    modFont.scaleFont(scale);
+
+                    // Check if the font change comes from the Preferences dialog and not the
+                    // command line option
+                    if (dialog != null)
+                    {
+                        // Check if this is a change to the tool tip font
+                        if (modFont == ModifiableFontInfo.TOOL_TIP)
+                        {
+                            // Update the tool tip text font. This is ignored by some look & feels
+                            // (e.g. Nimbus and GTK+)
+                            UIManager.getDefaults().put("ToolTip.font",
+                                                        ModifiableFontInfo.TOOL_TIP.getFont());
+                        }
+                        // Not a change to the tool tip font
+                        else
+                        {
+                            // Update the visible GUI components to the new font
+                            updateGUI(GUIUpdateType.FONT,
+                                      dialog == null ? null : new CcddDialogHandler[] {dialog});
+                        }
+                    }
+                }
+            }
+            // The scale factor is out of range
+            else
+            {
+                // Inform the user that the input value is invalid
+                new CcddDialogHandler().showMessageDialog(dialog,
+                                                          "<html><b>The scale factor value for "
+                                                          + "must be between 0.1 and 25 (inclusive)",
+                                                          "Invalid Input",
+                                                          JOptionPane.WARNING_MESSAGE,
+                                                          DialogOption.OK_OPTION);
+            }
+        }
     }
 
     /**********************************************************************************************

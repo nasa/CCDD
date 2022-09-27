@@ -115,7 +115,7 @@
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>private java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;</code></td>
-<td class="colLast"><span class="typeNameLabel">CcddClassesDataTable.TableInformation.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddClassesDataTable.TableInformation.html#fieldInformation">fieldInformation</a></span></code>&nbsp;</td>
+<td class="colLast"><span class="typeNameLabel">CcddClassesDataTable.TableInfo.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddClassesDataTable.TableInfo.html#fieldInformation">fieldInformation</a></span></code>&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>private java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;</code></td>
@@ -196,7 +196,7 @@
 <tbody>
 <tr class="altColor">
 <td class="colFirst"><code>protected java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;</code></td>
-<td class="colLast"><span class="typeNameLabel">CcddClassesDataTable.TableInformation.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddClassesDataTable.TableInformation.html#getFieldInformation--">getFieldInformation</a></span>()</code>
+<td class="colLast"><span class="typeNameLabel">CcddClassesDataTable.TableInfo.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddClassesDataTable.TableInfo.html#getFieldInformation--">getFieldInformation</a></span>()</code>
 <div class="block">Get the table data field information</div>
 </td>
 </tr>
@@ -226,17 +226,23 @@
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>protected java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddFieldHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddFieldHandler.html#getFieldInformationByTableType-java.lang.String-">getFieldInformationByTableType</a></span>(java.lang.String&nbsp;tableType)</code>
+<div class="block">Get the list of field information for the specified table type</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;</code></td>
 <td class="colLast"><span class="typeNameLabel">CcddFieldHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddFieldHandler.html#getFieldInformationCopy--">getFieldInformationCopy</a></span>()</code>
 <div class="block">Create a copy of the data field information</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>protected static java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;</code></td>
 <td class="colLast"><span class="typeNameLabel">CcddFieldHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddFieldHandler.html#getFieldInformationCopy-java.util.List-">getFieldInformationCopy</a></span>(java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;&nbsp;fieldInfo)</code>
 <div class="block">Static method to create a copy of the supplied data field information</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>protected java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;</code></td>
 <td class="colLast"><span class="typeNameLabel">CcddFieldHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddFieldHandler.html#getFieldInformationFromData-java.lang.Object:A:A-java.lang.String-">getFieldInformationFromData</a></span>(java.lang.Object[][]&nbsp;fieldData,
                            java.lang.String&nbsp;ownerName)</code>
@@ -244,13 +250,25 @@
  editor data.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>protected java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;</code></td>
 <td class="colLast"><span class="typeNameLabel">CcddFieldHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddFieldHandler.html#getFieldInformationFromDefinitions-java.util.List-">getFieldInformationFromDefinitions</a></span>(java.util.List&lt;java.lang.String[]&gt;&nbsp;fieldDefinitions)</code>
 <div class="block">Get the data field information built from the supplied field definitions</div>
 </td>
 </tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddFieldHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddFieldHandler.html#getGroupFieldInformation--">getGroupFieldInformation</a></span>()</code>
+<div class="block">Get the list of field information for all groups</div>
+</td>
+</tr>
 <tr class="rowColor">
+<td class="colFirst"><code>protected java.util.List&lt;java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;&gt;</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddFieldHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddFieldHandler.html#getGroupFieldInformationAsListOfArrays--">getGroupFieldInformationAsListOfArrays</a></span>()</code>
+<div class="block">Get the list of field information for all groups as a list of lists</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>protected java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;</code></td>
 <td class="colLast"><span class="typeNameLabel">CcddInputFieldPanelHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddInputFieldPanelHandler.html#getPanelFieldInformation--">getPanelFieldInformation</a></span>()</code>
 <div class="block">Get the data field information used when creating the data field panel</div>
@@ -267,11 +285,24 @@
 <tbody>
 <tr class="altColor">
 <td class="colFirst"><code>protected void</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddClassesDataTable.TableDefinition.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddClassesDataTable.TableDefinition.html#addDataField-CCDD.CcddClassesDataTable.FieldInformation-">addDataField</a></span>(<a href="../../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&nbsp;fieldDefn)</code>
+<div class="block">Add a data field definition to the list of table data fields</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><span class="typeNameLabel">CcddFieldHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddFieldHandler.html#addUpdateInheritedField-java.util.List-java.lang.String-CCDD.CcddClassesDataTable.FieldInformation-">addUpdateInheritedField</a></span>(java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;&nbsp;fieldInformationList,
                        java.lang.String&nbsp;tablePath,
                        <a href="../../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&nbsp;typeFldInfo)</code>
 <div class="block">Check the supplied field information list for the specified inheritable (table type) data
  field belonging to the specified table.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected void</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddClassesDataTable.TableDefinition.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddClassesDataTable.TableDefinition.html#replaceDataFieldByIndex-CCDD.CcddClassesDataTable.FieldInformation-int-">replaceDataFieldByIndex</a></span>(<a href="../../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&nbsp;fieldDefn,
+                       int&nbsp;index)</code>
+<div class="block">Replace a data field definition located at the given index</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -344,8 +375,9 @@
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>protected void</code></td>
-<td class="colLast"><span class="typeNameLabel">CcddInputFieldPanelHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddInputFieldPanelHandler.html#createDataFieldPanel-boolean-java.util.List-">createDataFieldPanel</a></span>(boolean&nbsp;undoable,
-                    java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;&nbsp;ownerFieldInfo)</code>
+<td class="colLast"><span class="typeNameLabel">CcddInputFieldPanelHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddInputFieldPanelHandler.html#createDataFieldPanel-boolean-java.util.List-boolean-">createDataFieldPanel</a></span>(boolean&nbsp;undoable,
+                    java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;&nbsp;ownerFieldInfo,
+                    boolean&nbsp;ignoreApplicability)</code>
 <div class="block">Create the data fields for display in the description and data field panel</div>
 </td>
 </tr>
@@ -361,13 +393,19 @@
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>protected static java.util.List&lt;java.lang.String[]&gt;</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddFieldHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddFieldHandler.html#getFieldDefnsAsListOfStrings-java.util.List-">getFieldDefnsAsListOfStrings</a></span>(java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;&nbsp;fieldInformation)</code>
+<div class="block">Take a list of FieldInformation objects and convert it to a list of strings</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>protected static java.lang.Object[][]</code></td>
 <td class="colLast"><span class="typeNameLabel">CcddFieldHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddFieldHandler.html#getFieldEditorDefinition-java.util.List-">getFieldEditorDefinition</a></span>(java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;&nbsp;fieldInfo)</code>
 <div class="block">Get the array of data field definitions from the supplied field information list for use in
  the data field editor</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>protected static <a href="../../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a></code></td>
 <td class="colLast"><span class="typeNameLabel">CcddFieldHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddFieldHandler.html#getFieldInformationByName-java.util.List-java.lang.String-java.lang.String-">getFieldInformationByName</a></span>(java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;&nbsp;fieldInformationList,
                          java.lang.String&nbsp;ownerName,
@@ -376,21 +414,12 @@
  information list</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>protected static java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;</code></td>
 <td class="colLast"><span class="typeNameLabel">CcddFieldHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddFieldHandler.html#getFieldInformationCopy-java.util.List-">getFieldInformationCopy</a></span>(java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;&nbsp;fieldInfo)</code>
 <div class="block">Static method to create a copy of the supplied data field information</div>
 </td>
 </tr>
-<tr class="rowColor">
-<td class="colFirst"><code>protected boolean</code></td>
-<td class="colLast"><span class="typeNameLabel">CcddFieldHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddFieldHandler.html#isFieldChanged-java.util.List-java.util.List-boolean-">isFieldChanged</a></span>(java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;&nbsp;compFieldInfoA,
-              java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;&nbsp;compFieldInfoB,
-              boolean&nbsp;isIgnoreOwnerName)</code>
-<div class="block">Determine if the number of data fields, field attributes, or field contents differ between
- two sets of data field information</div>
-</td>
-</tr>
 <tr class="altColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><span class="typeNameLabel">CcddFieldHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddFieldHandler.html#isFieldChanged-java.util.List-java.util.List-boolean-">isFieldChanged</a></span>(java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;&nbsp;compFieldInfoA,
@@ -401,6 +430,15 @@
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>protected boolean</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddFieldHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddFieldHandler.html#isFieldChanged-java.util.List-java.util.List-boolean-">isFieldChanged</a></span>(java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;&nbsp;compFieldInfoA,
+              java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;&nbsp;compFieldInfoB,
+              boolean&nbsp;isIgnoreOwnerName)</code>
+<div class="block">Determine if the number of data fields, field attributes, or field contents differ between
+ two sets of data field information</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>private java.lang.String</code></td>
 <td class="colLast"><span class="typeNameLabel">CcddDbTableCommandHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddDbTableCommandHandler.html#modifyFieldsCommand-java.lang.String-java.util.List-">modifyFieldsCommand</a></span>(java.lang.String&nbsp;ownerName,
                    java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;&nbsp;fieldInformation)</code>
@@ -408,17 +446,17 @@
  table, table type, group, or project</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
-<td class="colLast"><span class="typeNameLabel">CcddDbTableCommandHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddDbTableCommandHandler.html#modifyProjectFields-java.lang.String-java.util.List-CCDD.CcddProjectFieldDialog-">modifyProjectFields</a></span>(java.lang.String&nbsp;description,
+<td class="colLast"><span class="typeNameLabel">CcddDbTableCommandHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddDbTableCommandHandler.html#modifyProjectFields-java.lang.String-java.util.List-java.awt.Component-">modifyProjectFields</a></span>(java.lang.String&nbsp;description,
                    java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;&nbsp;fieldInformation,
-                   <a href="../../CCDD/CcddProjectFieldDialog.html" title="class in CCDD">CcddProjectFieldDialog</a>&nbsp;editorDialog)</code>
+                   java.awt.Component&nbsp;parent)</code>
 <div class="block">Update the project description and data fields in the database</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>protected void</code></td>
-<td class="colLast"><span class="typeNameLabel">CcddDbTableCommandHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddDbTableCommandHandler.html#modifyTableType-java.lang.String-java.util.List-CCDD.CcddConstants.OverwriteFieldValueType-java.util.List-java.util.List-java.util.List-boolean-CCDD.CcddTableTypeHandler.TypeDefinition-java.util.List-java.util.List-java.util.List-CCDD.CcddTableTypeEditorDialog-CCDD.CcddTableTypeEditorHandler-">modifyTableType</a></span>(java.lang.String&nbsp;typeName,
+<td class="colLast"><span class="typeNameLabel">CcddDbTableCommandHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddDbTableCommandHandler.html#modifyTableType-java.lang.String-java.util.List-CCDD.CcddConstants.OverwriteFieldValueType-java.util.List-java.util.List-java.util.List-boolean-CCDD.CcddTableTypeHandler.TypeDefinition-java.util.List-CCDD.CcddTableTypeEditorDialog-CCDD.CcddTableTypeEditorHandler-">modifyTableType</a></span>(java.lang.String&nbsp;typeName,
                java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;&nbsp;fieldInformation,
                <a href="../../CCDD/CcddConstants.OverwriteFieldValueType.html" title="enum in CCDD">CcddConstants.OverwriteFieldValueType</a>&nbsp;overwriteFields,
                java.util.List&lt;java.lang.String[]&gt;&nbsp;typeAdditions,
@@ -426,16 +464,14 @@
                java.util.List&lt;java.lang.String[]&gt;&nbsp;typeDeletions,
                boolean&nbsp;columnOrderChange,
                <a href="../../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&nbsp;originalDefn,
-               java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.TableModification.html" title="class in CCDD">CcddClassesDataTable.TableModification</a>&gt;&nbsp;fieldAdditions,
-               java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.TableModification.html" title="class in CCDD">CcddClassesDataTable.TableModification</a>&gt;&nbsp;fieldModifications,
-               java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.TableModification.html" title="class in CCDD">CcddClassesDataTable.TableModification</a>&gt;&nbsp;fieldDeletions,
+               java.util.List&lt;java.lang.String[]&gt;&nbsp;newDataFields,
                <a href="../../CCDD/CcddTableTypeEditorDialog.html" title="class in CCDD">CcddTableTypeEditorDialog</a>&nbsp;editorDialog,
                <a href="../../CCDD/CcddTableTypeEditorHandler.html" title="class in CCDD">CcddTableTypeEditorHandler</a>&nbsp;editor)</code>
 <div class="block">Add, rename, or delete table type column names in the table definitions table and update the
  existing tables of the specified type</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><span class="typeNameLabel">CcddDbTableCommandHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddDbTableCommandHandler.html#modifyTableTypeInBackground-java.lang.String-java.util.List-CCDD.CcddConstants.OverwriteFieldValueType-java.util.List-java.util.List-java.util.List-boolean-CCDD.CcddTableTypeHandler.TypeDefinition-java.util.List-java.util.List-java.util.List-CCDD.CcddTableTypeEditorDialog-CCDD.CcddTableTypeEditorHandler-">modifyTableTypeInBackground</a></span>(java.lang.String&nbsp;tableType,
                            java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;&nbsp;fieldInformation,
@@ -454,7 +490,7 @@
  existing tables of the specified type.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><span class="typeNameLabel">CcddJTableHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddJTableHandler.html#printTable-java.lang.String-java.util.List-java.awt.Component-int-">printTable</a></span>(java.lang.String&nbsp;tableName,
           java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;&nbsp;fieldInformation,
@@ -463,38 +499,38 @@
 <div class="block">Output the table to the user-selected printer (or file)</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><span class="typeNameLabel">CcddFieldHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddFieldHandler.html#replaceFieldInformationByOwner-java.lang.String-java.util.List-">replaceFieldInformationByOwner</a></span>(java.lang.String&nbsp;ownerName,
                               java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;&nbsp;newOwnerFldInfo)</code>
 <div class="block">Replace the specified owner's current data fields with those in the supplied list</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>protected void</code></td>
-<td class="colLast"><span class="typeNameLabel">CcddClassesDataTable.TableInformation.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddClassesDataTable.TableInformation.html#setFieldInformation-java.util.List-">setFieldInformation</a></span>(java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;&nbsp;fieldInformation)</code>
+<td class="colLast"><span class="typeNameLabel">CcddClassesDataTable.TableInfo.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddClassesDataTable.TableInfo.html#setFieldInformation-java.util.List-">setFieldInformation</a></span>(java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;&nbsp;fieldInformation)</code>
 <div class="block">Set the table data field information</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><span class="typeNameLabel">CcddClassesDataTable.GroupInformation.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddClassesDataTable.GroupInformation.html#setFieldInformation-java.util.List-">setFieldInformation</a></span>(java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;&nbsp;fieldInformation)</code>
 <div class="block">Set the group data field information</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><span class="typeNameLabel">CcddFieldHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddFieldHandler.html#setFieldInformation-java.util.List-">setFieldInformation</a></span>(java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;&nbsp;fieldInfo)</code>
 <div class="block">Set the data field information</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><span class="typeNameLabel">CcddUndoHandler.UndoableDataFieldPanel.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddUndoHandler.UndoableDataFieldPanel.html#setUndoFieldInformation-java.util.List-">setUndoFieldInformation</a></span>(java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;&nbsp;oldFieldInfo)</code>
 <div class="block">Set the current state of the data field information.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><span class="typeNameLabel">CcddDbTableCommandHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddDbTableCommandHandler.html#storeInformationTable-CCDD.CcddConstants.InternalTable-java.util.List-java.util.List-java.util.List-java.util.List-java.lang.String-java.awt.Component-">storeInformationTable</a></span>(<a href="../../CCDD/CcddConstants.InternalTable.html" title="enum in CCDD">CcddConstants.InternalTable</a>&nbsp;intTable,
                      java.util.List&lt;java.lang.String[]&gt;&nbsp;tableData,
@@ -506,7 +542,7 @@
 <div class="block">Store the internal table into the database</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><span class="typeNameLabel">CcddDbTableCommandHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddDbTableCommandHandler.html#storeInformationTableInBackground-CCDD.CcddConstants.InternalTable-java.util.List-java.util.List-java.util.List-java.util.List-java.lang.String-java.awt.Component-">storeInformationTableInBackground</a></span>(<a href="../../CCDD/CcddConstants.InternalTable.html" title="enum in CCDD">CcddConstants.InternalTable</a>&nbsp;intTable,
                                  java.util.List&lt;java.lang.String[]&gt;&nbsp;tableData,
@@ -518,13 +554,13 @@
 <div class="block">Store the internal table into the database.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><span class="typeNameLabel">CcddInputFieldPanelHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddInputFieldPanelHandler.html#updateFieldComponentFromValue-java.util.List-">updateFieldComponentFromValue</a></span>(java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;&nbsp;fieldInformation)</code>
 <div class="block">Update the data field component values to match the field information values</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><span class="typeNameLabel">CcddFieldHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddFieldHandler.html#updateFieldInputTypes-java.util.List-java.util.List-">updateFieldInputTypes</a></span>(java.util.List&lt;java.lang.String[]&gt;&nbsp;inputTypeNames,
                      java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;&nbsp;fieldInfo)</code>
@@ -532,10 +568,18 @@
  definitions</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><span class="typeNameLabel">CcddInputFieldPanelHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddInputFieldPanelHandler.html#updateFieldValueFromComponent-java.util.List-">updateFieldValueFromComponent</a></span>(java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;&nbsp;fieldInformation)</code>
 <div class="block">Update the field information values to match the data field component values</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected void</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddDbTableCommandHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddDbTableCommandHandler.html#updateGroupsTable-java.util.List-java.util.List-java.awt.Component-">updateGroupsTable</a></span>(java.util.List&lt;java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;&gt;&nbsp;fieldInformationList,
+                 java.util.List&lt;java.lang.String&gt;&nbsp;deletedGroups,
+                 java.awt.Component&nbsp;parent)</code>
+<div class="block">Store the internal groups table into the database</div>
 </td>
 </tr>
 </tbody>
@@ -588,12 +632,22 @@
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colLast"><code><span class="memberNameLink"><a href="../../CCDD/CcddClassesDataTable.TableInformation.html#TableInformation-java.lang.String-java.lang.String-java.lang.Object:A:A-java.lang.String-java.lang.String-java.util.List-">TableInformation</a></span>(java.lang.String&nbsp;tableType,
-                java.lang.String&nbsp;tablePath,
-                java.lang.Object[][]&nbsp;tableData,
-                java.lang.String&nbsp;columnOrder,
-                java.lang.String&nbsp;description,
-                java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;&nbsp;fieldInformation)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../CCDD/CcddClassesDataTable.TableInfo.html#TableInfo-java.lang.String-java.lang.String-java.util.List-java.lang.String-java.lang.String-java.util.List-">TableInfo</a></span>(java.lang.String&nbsp;tableType,
+         java.lang.String&nbsp;tablePath,
+         java.util.List&lt;java.lang.Object[]&gt;&nbsp;tableData,
+         java.lang.String&nbsp;columnOrder,
+         java.lang.String&nbsp;description,
+         java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;&nbsp;fieldInformation)</code>
+<div class="block">Table information class constructor.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colLast"><code><span class="memberNameLink"><a href="../../CCDD/CcddClassesDataTable.TableInfo.html#TableInfo-java.lang.String-java.lang.String-java.lang.Object:A:A-java.lang.String-java.lang.String-java.util.List-">TableInfo</a></span>(java.lang.String&nbsp;tableType,
+         java.lang.String&nbsp;tablePath,
+         java.lang.Object[][]&nbsp;tableData,
+         java.lang.String&nbsp;columnOrder,
+         java.lang.String&nbsp;description,
+         java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;&nbsp;fieldInformation)</code>
 <div class="block">Table information class constructor.</div>
 </td>
 </tr>

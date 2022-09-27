@@ -649,7 +649,7 @@ extends org.eclipse.jetty.server.handler.AbstractHandler</pre>
 <div class="block">Web data access handler class constructor</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>ccddMain</code> - main class</dd>
+<dd><code>ccddMain</code> - Main class</dd>
 </dl>
 </li>
 </ul>
@@ -704,12 +704,12 @@ extends org.eclipse.jetty.server.handler.AbstractHandler</pre>
  each part</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>text</code> - text string to separate</dd>
-<dd><code>separator</code> - separation character(s). This is padded with a check for white space characters
-            in order to remove them</dd>
-<dd><code>limit</code> - maximum number of parts to separate the text into. This is the number of parts
-            returned, with any missing parts returned as blanks</dd>
-<dd><code>removeQuotes</code> - true to remove excess double quotes from the individual array members</dd>
+<dd><code>text</code> - Text string to separate</dd>
+<dd><code>separator</code> - Separation character(s). This is padded with a check for white space
+                     characters in order to remove them</dd>
+<dd><code>limit</code> - Maximum number of parts to separate the text into. This is the number of
+                     parts returned, with any missing parts returned as blanks</dd>
+<dd><code>removeQuotes</code> - True to remove excess double quotes from the individual array members</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Array containing the specified number of parts of the text string. A part is
          returned as blank if the supplied text does not contain the number of parts
@@ -729,9 +729,9 @@ extends org.eclipse.jetty.server.handler.AbstractHandler</pre>
  variable path</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>parameters</code> - comma-separated string containing the variable path separator character(s),
-            show/hide data types flag ('true' or 'false'), and data type/variable name
-            separator character(s)</dd>
+<dd><code>parameters</code> - Comma-separated string containing the variable path separator
+                   character(s), show/hide data types flag ('true' or 'false'), and data
+                   type/variable name separator character(s)</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>String array containing the variable path separator character(s), show/hide data
          types flag ('true' or 'false'), and data type/variable name separator character(s);
@@ -754,8 +754,8 @@ extends org.eclipse.jetty.server.handler.AbstractHandler</pre>
  form [server]:[port]/[component]?[attribute][=name]</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>component</code> - component for which to request data</dd>
-<dd><code>item</code> - item in the component</dd>
+<dd><code>component</code> - Component for which to request data</dd>
+<dd><code>item</code> - Item in the component</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Query results encoded as a JSON string</dd>
 </dl>
@@ -772,8 +772,8 @@ extends org.eclipse.jetty.server.handler.AbstractHandler</pre>
 <div class="block">Authenticate the specified user credentials</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>userName</code> - user name</dd>
-<dd><code>password</code> - user password</dd>
+<dd><code>userName</code> - User name</dd>
+<dd><code>password</code> - User password</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The string "true" if the user name and password are valid for the currently open
          database; otherwise returns "false"</dd>
@@ -790,13 +790,14 @@ extends org.eclipse.jetty.server.handler.AbstractHandler</pre>
 <div class="block">Perform a search for the specified text in the data and internal tables</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>searchCriteria</code> - attribute containing the search constraints in the format &lt;search
-            text&gt;,&lt;ignore case (true or false)&gt;,&lt;allow regular expression (true
-            or false)&gt;,&lt;data table cells only (true or false)&gt;&lt;,search table
-            column names&gt;. The 'ignore case' and 'data table cells only' flags default to
-            false if not provided. The last criterion is optional and allows the search to be
-            constrained to specific columns in the data tables. The column names must be
-            comma-separated (if more than one) and are case sensitive</dd>
+<dd><code>searchCriteria</code> - Attribute containing the search constraints in the format &lt;search
+                       text&gt;,&lt;ignore case (true or false)&gt;,&lt;allow regular
+                       expression (true or false)&gt;,&lt;data table cells only (true or
+                       false)&gt;&lt;,search table column names&gt;. The 'ignore case' and
+                       'data table cells only' flags default to false if not provided. The
+                       last criterion is optional and allows the search to be constrained to
+                       specific columns in the data tables. The column names must be
+                       comma-separated (if more than one) and are case sensitive</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>JSON encoded string containing the search results. An empty string if no matches are
          found, and null if the search parameters are missing or invalid</dd>
@@ -846,12 +847,13 @@ extends org.eclipse.jetty.server.handler.AbstractHandler</pre>
  provided</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>tableName</code> - table name and path in the format rootTable[,dataType1.variable1[,...]]. Blank to
-            return the data for all tables</dd>
-<dd><code>getDescription</code> - true to get the table description when loading the table data</dd>
-<dd><code>separators</code> - string array containing the variable path separator character(s), show/hide data
-            types flag ('true' or 'false'), and data type/variable name separator
-            character(s)</dd>
+<dd><code>tableName</code> - Table name and path in the format
+                       rootTable[,dataType1.variable1[,...]]. Blank to return the data for
+                       all tables</dd>
+<dd><code>getDescription</code> - True to get the table description when loading the table data</dd>
+<dd><code>separators</code> - String array containing the variable path separator character(s),
+                       show/hide data types flag ('true' or 'false'), and data type/variable
+                       name separator character(s)</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>JSON encoded string containing the specified table cell data; null if a table name
          is specified and the table doesn't exist or if no data tables exist in the project
@@ -873,8 +875,9 @@ extends org.eclipse.jetty.server.handler.AbstractHandler</pre>
  name is provided</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>tableName</code> - table name and path in the format rootTable[,dataType1.variable1[,...]]. If blank
-            then the description for every data table with a description is returned</dd>
+<dd><code>tableName</code> - Table name and path in the format rootTable[,dataType1.variable1[,...]]. If
+                  blank then the description for every data table with a description is
+                  returned</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>JSON encoded string containing the specified table's description; null if the
          specified table doesn't exist or the project has no data tables</dd>
@@ -894,9 +897,9 @@ extends org.eclipse.jetty.server.handler.AbstractHandler</pre>
  is provided</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>tableName</code> - table name and path in the format rootTable[,dataType1.variable1[,...]]. If blank
-            then every data table's data fields are returned</dd>
-<dd><code>checkExists</code> - true to check if the specified table exists in the project database</dd>
+<dd><code>tableName</code> - Table name and path in the format rootTable[,dataType1.variable1[,...]].
+                    If blank then every data table's data fields are returned</dd>
+<dd><code>checkExists</code> - True to check if the specified table exists in the project database</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>JSON encoded string containing the specified table's data fields; null if the table
          doesn't exist or if the project database contains no data tables</dd>
@@ -916,8 +919,8 @@ extends org.eclipse.jetty.server.handler.AbstractHandler</pre>
  if no table type is provided</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>tableType</code> - table type. The type is case insensitive. If blank then every data table and its
-            type is returned</dd>
+<dd><code>tableType</code> - Table type. The type is case insensitive. If blank then every data table
+                  and its type is returned</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>JSON encoded string containing all table names of the specified table type; blank if
          the type is valid but no tables of the type exist, and null if the specified table
@@ -936,7 +939,7 @@ extends org.eclipse.jetty.server.handler.AbstractHandler</pre>
  prototype structure tables if no table is specified</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>tableName</code> - structure table name or path</dd>
+<dd><code>tableName</code> - Structure table name or path</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>JSON encoded string containing the structure table name(s) and corresponding size(s)
          in bytes; null if a table name is specified and the table doesn't exist or isn't a
@@ -956,11 +959,11 @@ extends org.eclipse.jetty.server.handler.AbstractHandler</pre>
 <div class="block">Get the type, description, size, data, and data fields for the specified data table</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>tableName</code> - table name and path in the format rootTable[,dataType1.variable1[,...]]. Blank to
-            return the data for all tables</dd>
-<dd><code>separators</code> - string array containing the variable path separator character(s), show/hide data
-            types flag ('true' or 'false'), and data type/variable name separator
-            character(s)</dd>
+<dd><code>tableName</code> - Table name and path in the format rootTable[,dataType1.variable1[,...]].
+                   Blank to return the data for all tables</dd>
+<dd><code>separators</code> - String array containing the variable path separator character(s),
+                   show/hide data types flag ('true' or 'false'), and data type/variable name
+                   separator character(s)</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>JSON encoded string containing the specified table information; null if a table name
          is specified and the table doesn't exist or if no data tables exist in the project
@@ -980,7 +983,7 @@ extends org.eclipse.jetty.server.handler.AbstractHandler</pre>
 <div class="block">Get the names of all groups or applications</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>applicationOnly</code> - true if only groups that represent applications should be processed</dd>
+<dd><code>applicationOnly</code> - True if only groups that represent applications should be processed</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>JSON encoded string containing the all group/application names; null if no
          groups/applications exist in the project database</dd>
@@ -998,8 +1001,9 @@ extends org.eclipse.jetty.server.handler.AbstractHandler</pre>
 <div class="block">Get the telemetry scheduler's copy table entries</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>parameters</code> - comma-separated string containing the data stream name, header size (in bytes),
-            message ID name data field name, and the optimize result flag ('true' or 'false')</dd>
+<dd><code>parameters</code> - Comma-separated string containing the data stream name, header size (in
+                   bytes), message ID name data field name, and the optimize result flag
+                   ('true' or 'false')</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>JSON encoded string containing the specified copy table entries; null if the number
          of parameters or their formats are incorrect</dd>
@@ -1021,7 +1025,7 @@ extends org.eclipse.jetty.server.handler.AbstractHandler</pre>
  Get the application scheduler's schedule or message definition table entries</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>appTableType</code> - application scheduler table entry type: schedule or message</dd>
+<dd><code>appTableType</code> - Application scheduler table entry type: schedule or message</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>JSON encoded string containing the schedule or message definition table entries;
          null if the table type is unrecognized</dd>
@@ -1043,17 +1047,18 @@ extends org.eclipse.jetty.server.handler.AbstractHandler</pre>
  parameters</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>variablePath</code> - variable path + name for which to return the converted path; blank to provide the
-            paths for all variables</dd>
-<dd><code>parameters</code> - comma-separated string containing the variable path separator character(s),
-            show/hide data types flag ('true' or 'false'), and data type/variable name
-            separator character(s); blank to use the default separators</dd>
+<dd><code>variablePath</code> - Variable path + name for which to return the converted path; blank to
+                     provide the paths for all variables</dd>
+<dd><code>parameters</code> - Comma-separated string containing the variable path separator
+                     character(s), show/hide data types flag ('true' or 'false'), and data
+                     type/variable name separator character(s); blank to use the default
+                     separators</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>JSON encoded string containing the variable names; blank if the project doesn't
          contain any variables and null if any input parameter is invalid</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If an illegal separator character(s) or invalid show/hide data type flag value
-             is detected</dd>
+<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If an illegal separator character(s) or invalid show/hide data type
+                       flag value is detected</dd>
 </dl>
 </li>
 </ul>
@@ -1069,19 +1074,21 @@ extends org.eclipse.jetty.server.handler.AbstractHandler</pre>
  enumeration information for each telemetered variable matching the specified filters</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>telemetryFilter</code> - group (or application) name, data stream name, and/or rate value filter(s). A
-            table must belong to the specified group in order for its telemetered variables
-            to be returned; blank to get all telemetered variables (regardless of group). A
-            variable must have a rate assigned for the specified data stream in order to be
-            included; blank to include all data streams. A variable's rate must match the
-            specified rate in order to be included; blank to include the variable regardless
-            of the rate value</dd>
+<dd><code>telemetryFilter</code> - Group (or application) name, data stream name, and/or rate value
+                        filter(s). A table must belong to the specified group in order for
+                        its telemetered variables to be returned; blank to get all
+                        telemetered variables (regardless of group). A variable must have a
+                        rate assigned for the specified data stream in order to be included;
+                        blank to include all data streams. A variable's rate must match the
+                        specified rate in order to be included; blank to include the variable
+                        regardless of the rate value</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>JSON encoded string containing the path, data type, bit length, description, units,
          data stream name(s), and enumeration(s) for each telemetered variable matching the
          specified filters; empty array if no variables are telemetered</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If an invalid group name, data stream name, or rate value format is detected</dd>
+<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If an invalid group name, data stream name, or rate value format is
+                       detected</dd>
 </dl>
 </li>
 </ul>
@@ -1096,9 +1103,9 @@ extends org.eclipse.jetty.server.handler.AbstractHandler</pre>
 <div class="block">Get the information for each command matching the specified filters</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>groupFilter</code> - group (or application) name. A table must belong to the specified group in order
-            for its telemetered variables to be returned; blank to get all telemetered
-            variables (regardless of group)</dd>
+<dd><code>groupFilter</code> - Group (or application) name. A table must belong to the specified group
+                    in order for its telemetered variables to be returned; blank to get all
+                    telemetered variables (regardless of group)</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>JSON encoded string containing information for each command matching the specified
          filters</dd>

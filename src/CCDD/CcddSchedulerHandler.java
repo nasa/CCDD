@@ -493,8 +493,7 @@ public class CcddSchedulerHandler
                     {
                         // Get the reference to the variable tree in order to shorten the
                         // subsequent call
-                        CcddTableTreeHandler variableTree = ((CcddTelemetrySchedulerInput) schedulerInput)
-                                .getVariableTree();
+                        CcddTableTreeHandler variableTree = ((CcddTelemetrySchedulerInput) schedulerInput).getVariableTree();
 
                         // Add the number of unassigned variables at the given rate.
                         // getVariablesAtRate() could be used, but it performs other operations

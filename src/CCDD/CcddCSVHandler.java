@@ -42,13 +42,13 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import javax.swing.JOptionPane;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.tuple.Pair;
-
 import CCDD.CcddClassesComponent.FileEnvVar;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.FieldInformation;
@@ -134,7 +134,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
         TELEM_SCHEDULER_COMMENTS("_telem_sched_comments_", null),
         TELEM_SCHEDULER_DATA("_telem_sched_data_", null),
         RATE_INFO("_rate_info_", null),
-        FILE_DESCRIPTION("File Description", "");
+        FILE_DESCRIPTION("_file_dDescription", null);
 
         private final String tag;
         private final String alternateTag;
@@ -551,8 +551,8 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
             {
                 // Divide the data into each individual table type definition, which may or may not
                 // have table type data fields included
-                String[] TableTypeDefns = incomingData.toString()
-                        .split(CSVTags.TABLE_TYPE.getTag() + Chars.NEW_LINE.getValue());
+                String[] TableTypeDefns = incomingData.toString().split(CSVTags.TABLE_TYPE.getTag()
+                                                                        + Chars.NEW_LINE.getValue());
 
                 // Step through each definition
                 for (int i = 1; i < TableTypeDefns.length; i++)
@@ -1677,6 +1677,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                             rowData[columnIndex[rowIndex]] = columnValues[rowIndex];
                                         }
                                     }
+
                                     // Add the row of data read in from the file to the cell data
                                     // list
                                     tableDefn.addData(rowData);
@@ -1692,9 +1693,8 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                         {
                             // Append empty columns as needed to fill out the expected number of
                             // inputs
-                            columnValues = CcddUtilities
-                                    .appendArrayColumns(columnValues,
-                                                        FieldsColumn.values().length - 1 - columnValues.length);
+                            columnValues = CcddUtilities.appendArrayColumns(columnValues,
+                                                                            FieldsColumn.values().length - 1 - columnValues.length);
 
                             // Add the data field definition, checking for (and if possible,
                             // correcting) errors
@@ -1929,9 +1929,35 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                 // outputData represents the data that will be written to the file
                 StringBuilder outputData = new StringBuilder();
 
-                if (tableDefs.get(counter).getTablePath()
-                        .compareToIgnoreCase(tableDefs.get(counter).getTablePath()) == 0)
+                if (tableDefs.get(counter)
+                             .getTablePath()
+                             .compareToIgnoreCase(tableDefs.get(counter).getTablePath()) == 0)
                 {
+                    // Check if the build information is to be output
+                    if (includeBuildInformation)
+                    {
+                        // Output the build information
+                        outputData.append(CSVTags.FILE_DESCRIPTION.getTag())
+                                  .append(Chars.NEW_LINE.getValue())
+                                  .append("Created ")
+                                  .append(new Date().toString())
+                                  .append(" : CCDD Version = ")
+                                  .append(ccddMain.getCCDDVersionInformation())
+                                  .append(" : project = " + dbControl.getProjectName())
+                                  .append(" : host = ")
+                                  .append(dbControl.getServer())
+                                  .append(" : user = ")
+                                  .append(dbControl.getUser())
+                                  .append(Chars.NEW_LINE.getValue());
+
+                        // If outputType equals SINGLE_FILE than set includeBuildInformation to
+                        // false so that it is not added multiple times
+                        if (outputType.contentEquals(EXPORT_SINGLE_FILE))
+                        {
+                            includeBuildInformation = false;
+                        }
+                    }
+
                     // Store the table's name, type, description, data, and data fields
                     outputData.append(Chars.NEW_LINE.getValue())
                               .append(CSVTags.NAME_TYPE.getTag())
@@ -1952,8 +1978,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                     }
 
                     // Get the column names for this table's type definition
-                    TypeDefinition typeDefn = ccddMain.getTableTypeHandler()
-                            .getTypeDefinition(tableDefs.get(counter).getType());
+                    TypeDefinition typeDefn = ccddMain.getTableTypeHandler().getTypeDefinition(tableDefs.get(counter).getType());
                     String[] columnNames = Arrays.copyOfRange(typeDefn.getColumnNamesUser(), 2,
                                                               typeDefn.getColumnNamesUser().length);
                     List<Integer> booleanColumns = typeDefn.getColumnIndicesByInputType(DefaultInputType.BOOLEAN);
@@ -1971,8 +1996,11 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                         // to be added
                         for (int index = 0; index < booleanColumns.size(); index++)
                         {
-                            if (tableDefs.get(counter).getData().get(row)[booleanColumns.get(index)].toString()
-                                    .contentEquals(""))
+                            if (tableDefs.get(counter)
+                                         .getData()
+                                         .get(row)[booleanColumns.get(index)]
+                                         .toString()
+                                         .contentEquals(""))
                             {
                                 tableDefs.get(counter).getData().get(row)[booleanColumns.get(index)] = "false";
                             }
@@ -2050,13 +2078,6 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                                                                        fieldInfo.getApplicabilityType().getApplicabilityName(),
                                                                                        fieldInfo.getValue()));
                         }
-                    }
-
-                    // If outputType equals SINGLE_FILE than set includeBuildInformation to false
-                    // so that it is not added multiple times
-                    if (outputType.contentEquals(EXPORT_SINGLE_FILE))
-                    {
-                        includeBuildInformation = false;
                     }
                 }
 

@@ -788,8 +788,9 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                 for (GroupInformation groupInfo : groupHandler.getGroupInformation())
                 {
                     // Create a node for the group and add it to the tree's root node
-                    ToolTipTreeNode groupNode = new ToolTipTreeNode(groupInfo
-                            .getName(), getDescriptions ? groupInfo.getDescription() : null);
+                    ToolTipTreeNode groupNode = new ToolTipTreeNode(groupInfo.getName(),
+                                                                    getDescriptions ? groupInfo.getDescription()
+                                                                                    : null);
                     root.add(groupNode);
 
                     // Add the group member tables to the group node by table type
@@ -809,8 +810,9 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                     ToolTipTreeNode instance = null;
 
                     // Create a node for the group and add it to the tree's root node
-                    ToolTipTreeNode groupNode = new ToolTipTreeNode(groupInfo
-                            .getName(), getDescriptions ? groupInfo.getDescription() : null);
+                    ToolTipTreeNode groupNode = new ToolTipTreeNode(groupInfo.getName(),
+                                                                    getDescriptions ? groupInfo.getDescription()
+                                                                                    : null);
                     root.add(groupNode);
 
                     // Check if the prototype node should be displayed
@@ -1126,8 +1128,10 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             }
 
             // Create the table type node
-            ToolTipTreeNode typeNode = new ToolTipTreeNode(type, getDescriptions ? tableTypeHandler
-                    .getTypeDefinition(type).getDescription() : null);
+            ToolTipTreeNode typeNode = new ToolTipTreeNode(type,
+                                                           getDescriptions ? tableTypeHandler.getTypeDefinition(type)
+                                                                                             .getDescription()
+                                                                           : null);
 
             ToolTipTreeNode prototype = null;
             ToolTipTreeNode instance = null;
@@ -2563,8 +2567,10 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                         || treeType == INSTANCE_STRUCTURES_WITH_PRIMITIVES_AND_RATES))
                 {
                     // Set the icon for the variable node
-                    setVariableNodeIcon(this, (ToolTipTreeNode) value, row, linkedVariables
-                            .contains(removeExtraText(getFullVariablePath(((ToolTipTreeNode) value).getPath()))));
+                    setVariableNodeIcon(this,
+                                        (ToolTipTreeNode) value,
+                                        row,
+                                        linkedVariables.contains(removeExtraText(getFullVariablePath(((ToolTipTreeNode) value).getPath()))));
                 }
 
                 // Get the component to display

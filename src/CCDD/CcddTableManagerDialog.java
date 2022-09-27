@@ -682,7 +682,9 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                         case EXPORT_XTCE:
                         case EXPORT_EDS:
                         case EXPORT_JSON:
-                            // Check if the export panel exists; if so display the dialog
+                            // Check if the export panel exists; if so display the dialog. The
+                            // export dialog called from a table editor is fixed in size due to
+                            // initial size sizing issues
                             if (showOptionsDialog(caller,
                                                   dialogPnl,
                                                   "Export Data in "
@@ -864,7 +866,9 @@ public class CcddTableManagerDialog extends CcddDialogHandler
      *
      * @return JPanel containing the selection panel
      *********************************************************************************************/
-    private JPanel createSelectionPanel(String labelText, GridBagConstraints gbc, int tableSelect,
+    private JPanel createSelectionPanel(String labelText,
+                                        GridBagConstraints gbc,
+                                        int tableSelect,
                                         TableTreeType treeType)
     {
         // Create a panel to hold the components of the dialog
@@ -1493,6 +1497,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         {
             // Create an empty panel for the dialog components
             dialogPnl = new JPanel(new GridBagLayout());
+
             gbc.insets.bottom = 0;
             gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
             gbc.insets.right = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
@@ -1536,7 +1541,6 @@ public class CcddTableManagerDialog extends CcddDialogHandler
             // Check if exporting in CSV or JSON format
             if (dialogType == ManagerDialogType.EXPORT_CSV || dialogType == ManagerDialogType.EXPORT_JSON)
             {
-
                 // Add a separator
                 JSeparator lowerSep = new JSeparator();
                 lowerSep.setForeground(dialogPnl.getBackground().darker());
@@ -1553,11 +1557,12 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 separatorPnl.setBorder(emptyBorder);
                 gbc.weightx = 0.0;
                 gbc.insets.top = 0;
-                gbc.insets.left = 0;
                 gbc.gridy++;
                 dialogPnl.add(lowerPnl, gbc);
+                gbc.insets.left = 0;
                 gbc.gridy = 0;
                 lowerPnl.add(includePnl, gbc);
+                gbc.gridx = 0;
                 gbc.gridy++;
                 lowerPnl.add(separatorPnl, gbc);
 
@@ -1632,7 +1637,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 includePnl.add(includeAllTableTypesCb, gbc);
 
                 // Create the delete target directory contents check box
-                deleteTargetDirectoryCb = new JCheckBox("Clean target directory.");
+                deleteTargetDirectoryCb = new JCheckBox("Clean target directory");
                 deleteTargetDirectoryCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 deleteTargetDirectoryCb.setBorder(emptyBorder);
                 deleteTargetDirectoryCb.setToolTipText(CcddUtilities.wrapText("If checked, all target directory "
@@ -1755,6 +1760,30 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 gbc.gridx++;
                 includePnl.add(includeAppSchedCB, gbc);
 
+                // Create the include build information check box
+                includeBuildInfoCb = new JCheckBox("Build information");
+                includeBuildInfoCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+                includeBuildInfoCb.setBorder(emptyBorder);
+                includeBuildInfoCb.setToolTipText(CcddUtilities.wrapText("If checked, the build information will be "
+                                                                         + "added to each file",
+                                                                         ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+                gbc.gridx = 0;
+                gbc.gridy++;
+                includePnl.add(includeBuildInfoCb, gbc);
+
+                // Create the macro replacement check box
+                replaceMacrosCb = new JCheckBox("Substitute macros");
+                replaceMacrosCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+                replaceMacrosCb.setBorder(emptyBorder);
+                replaceMacrosCb.setToolTipText(CcddUtilities.wrapText("If checked, the macros are replaced with their "
+                                                                      + "corresponding values prior to exporting the "
+                                                                      + "table(s).  If not checked, the macro names are "
+                                                                      + "retained and the macro information is stored "
+                                                                      + "with the exported table(s)",
+                                                                      ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+                gbc.gridx++;
+                includePnl.add(replaceMacrosCb, gbc);
+
                 // Create the check box for inclusion of variable paths
                 includeVariablePaths = new JCheckBox("Variable paths");
                 includeVariablePaths.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
@@ -1767,30 +1796,6 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 gbc.gridy++;
                 includePnl.add(includeVariablePaths, gbc);
 
-                // Create the macro replacement check box
-                replaceMacrosCb = new JCheckBox("Substitute macro values for macro names");
-                replaceMacrosCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
-                replaceMacrosCb.setBorder(emptyBorder);
-                replaceMacrosCb.setToolTipText(CcddUtilities.wrapText("If checked, the macros are replaced with their "
-                                                                      + "corresponding values prior to exporting the "
-                                                                      + "table(s).  If not checked, the macro names are "
-                                                                      + "retained and the macro information is stored "
-                                                                      + "with the exported table(s)",
-                                                                      ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
-                gbc.gridx++;
-                includePnl.add(replaceMacrosCb, gbc);
-
-                // Create the include build information check box
-                includeBuildInfoCb = new JCheckBox("Include build information");
-                includeBuildInfoCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
-                includeBuildInfoCb.setBorder(emptyBorder);
-                includeBuildInfoCb.setToolTipText(CcddUtilities.wrapText("If checked, the build information will be "
-                                                                         + "added to each file.",
-                                                                         ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
-                gbc.gridx = 0;
-                gbc.gridy++;
-                includePnl.add(includeBuildInfoCb, gbc);
-
                 // Create the variable path separator label and input field, and add them to the
                 // dialog panel
                 final JLabel varPathSepLbl = new JLabel("Enter variable path separator character(s)");
@@ -1798,7 +1803,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 varPathSepLbl.setEnabled(false);
                 gbc.insets.left += ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2;
                 gbc.gridx = 0;
-                gbc.gridy++;
+                gbc.gridy = 0;
                 separatorPnl.add(varPathSepLbl, gbc);
                 varPathSepFld = new JTextField("_", 5);
                 varPathSepFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
@@ -1816,7 +1821,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 typeNameSepLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 typeNameSepLbl.setEnabled(false);
                 gbc.gridx = 0;
-                gbc.gridy = 0;
+                gbc.gridy++;
                 separatorPnl.add(typeNameSepLbl, gbc);
                 typeNameSepFld = new JTextField("_", 5);
                 typeNameSepFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
@@ -1825,7 +1830,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 typeNameSepFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
                 typeNameSepFld.setBorder(border);
                 typeNameSepFld.setEnabled(false);
-                gbc.gridy++;
+                gbc.gridx++;
                 separatorPnl.add(typeNameSepFld, gbc);
 
                 // Create a check box for hiding data types
@@ -1833,7 +1838,8 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 hideDataTypeCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 hideDataTypeCb.setBorder(BorderFactory.createEmptyBorder());
                 hideDataTypeCb.setEnabled(false);
-                gbc.gridx++;
+                gbc.gridx = 0;
+                gbc.gridy++;
                 separatorPnl.add(hideDataTypeCb, gbc);
 
                 // Add a listener for the hide data type check box

@@ -617,10 +617,11 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                         boolean isStructure = typeDefinition.isStructure();
 
                         // Get the database form of the column name
-                        String dbName = tableTypeHandler.convertVisibleToDatabase(newValueS, tableData
-                                .get(row)[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].toString(), isStructure);
+                        String dbName = tableTypeHandler.convertVisibleToDatabase(newValueS,
+                                                                                  tableData.get(row)[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].toString(),
+                                                                                  isStructure);
 
-                        // Compare this column name to the others in the table in order to avoid
+                       // Compare this column name to the others in the table in order to avoid
                         // creating a duplicate
                         for (int otherRow = 0; otherRow < getRowCount(); otherRow++)
                         {
@@ -848,8 +849,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                         UndoableTableModel tableModel = (UndoableTableModel) table.getModel();
 
                         // Get the column definition's input type
-                        InputType inputType = inputTypeHandler.getInputTypeByName(tableModel
-                                .getValueAt(row, TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()).toString());
+                        InputType inputType = inputTypeHandler.getInputTypeByName(tableModel.getValueAt(row, TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()).toString());
 
                         // Check if this column represents the variable name, data type, array
                         // size, bit length, enumeration, or variable path

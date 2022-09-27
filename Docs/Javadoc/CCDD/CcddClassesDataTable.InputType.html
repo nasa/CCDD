@@ -368,15 +368,16 @@ extends java.lang.Object</pre>
 <div class="block">Input type class constructor</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>inputName</code> - input type name</dd>
-<dd><code>inputDescription</code> - input type description</dd>
-<dd><code>inputMatch</code> - regular expression match for the input type</dd>
-<dd><code>inputItems</code> - string containing the acceptable values for this input type, separated by the
-            selection item list separator; null or blank if the input type doesn't
-            constrain the inputs to items from a list. The list is used to create the
-            contents of the combo box in the table column with this input type</dd>
-<dd><code>inputFormat</code> - input type format</dd>
-<dd><code>isInputCustom</code> - true if the input type is user-defined</dd>
+<dd><code>inputName</code> - Input type name</dd>
+<dd><code>inputDescription</code> - Input type description</dd>
+<dd><code>inputMatch</code> - Regular expression match for the input type</dd>
+<dd><code>inputItems</code> - String containing the acceptable values for this input type,
+                         separated by the selection item list separator; null or blank if
+                         the input type doesn't constrain the inputs to items from a
+                         list. The list is used to create the contents of the combo box
+                         in the table column with this input type</dd>
+<dd><code>inputFormat</code> - Input type format</dd>
+<dd><code>isInputCustom</code> - True if the input type is user-defined</dd>
 </dl>
 </li>
 </ul>
@@ -455,9 +456,9 @@ extends java.lang.Object</pre>
 <div class="block">Set the input type selection items</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>inputItems</code> - list of input type selection items (an empty item is automatically prepended
-            to the list to allow blanking the selection); null if the input type has no
-            selection items</dd>
+<dd><code>inputItems</code> - List of input type selection items (an empty item is automatically
+                   prepended to the list to allow blanking the selection); null if the
+                   input type has no selection items</dd>
 </dl>
 </li>
 </ul>
@@ -499,7 +500,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the input type format associated with the supplied input format name</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>formatName</code> - input format name</dd>
+<dd><code>formatName</code> - Input format name</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Input type format associated with the supplied input format name; 'Text' format
          if the name supplied is invalid</dd>
@@ -519,7 +520,7 @@ extends java.lang.Object</pre>
  hexadecimal values</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>valueS</code> - value, represented as a string, to reformat</dd>
+<dd><code>valueS</code> - Value, represented as a string, to reformat</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Input value reformatted based on its input type</dd>
 </dl>
@@ -538,10 +539,10 @@ extends java.lang.Object</pre>
  zeroes from integer and floating point values</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>valueS</code> - value, represented as a string, to reformat</dd>
-<dd><code>preserveZeroes</code> - true to preserve leading zeroes in hexadecimal values; false to eliminate the
-            extra zeroes (this is useful when comparing the text representation of two
-            hexadecimal values)</dd>
+<dd><code>valueS</code> - Value, represented as a string, to reformat</dd>
+<dd><code>preserveZeroes</code> - True to preserve leading zeroes in hexadecimal values; false to
+                       eliminate the extra zeroes (this is useful when comparing the text
+                       representation of two hexadecimal values)</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Input value reformatted based on its input type</dd>
 </dl>
@@ -557,10 +558,10 @@ extends java.lang.Object</pre>
 <div class="block">Convert the input selection items from a single string to a list</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>inputItemsString</code> - string containing the acceptable values for this input type, separated by the
-            selection item list separator (a blank item is automatically prepended to the
-            list); null or blank if the input type doesn't constrain the inputs to items
-            from a list</dd>
+<dd><code>inputItemsString</code> - String containing the acceptable values for this input type,
+                         separated by the selection item list separator (a blank item is
+                         automatically prepended to the list); null or blank if the input
+                         type doesn't constrain the inputs to items from a list</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Input items, converted to a list; null if the input type has no items</dd>
 </dl>
@@ -576,8 +577,9 @@ extends java.lang.Object</pre>
 <div class="block">Convert the input selection items from a list to a single string</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>inputItemsList</code> - list containing the acceptable values for this input type; null or blank if
-            the input type doesn't constrain the inputs to items from a list</dd>
+<dd><code>inputItemsList</code> - List containing the acceptable values for this input type; null or
+                       blank if the input type doesn't constrain the inputs to items from
+                       a list</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Input items, converted to a string, separated by the selection item list
          separator; blank if the input type has no items</dd>

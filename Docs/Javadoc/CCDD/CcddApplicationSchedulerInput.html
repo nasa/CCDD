@@ -403,8 +403,8 @@ implements <a href="../CCDD/CcddSchedulerInputInterface.html" title="interface i
 <div class="block">Application scheduler input class constructor</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>ccddMain</code> - main class</dd>
-<dd><code>schedulerDlg</code> - reference to the application scheduler dialog</dd>
+<dd><code>ccddMain</code> - Main class</dd>
+<dd><code>schedulerDlg</code> - Reference to the application scheduler dialog</dd>
 </dl>
 </li>
 </ul>
@@ -441,8 +441,8 @@ implements <a href="../CCDD/CcddSchedulerInputInterface.html" title="interface i
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../CCDD/CcddSchedulerInputInterface.html#getVariableRelativeIndex-CCDD.CcddClassesDataTable.Variable-java.util.List-">getVariableRelativeIndex</a></code>&nbsp;in interface&nbsp;<code><a href="../CCDD/CcddSchedulerInputInterface.html" title="interface in CCDD">CcddSchedulerInputInterface</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>application</code> - application for which to determine the insertion index</dd>
-<dd><code>applications</code> - list of applications into which the application is to be inserted</dd>
+<dd><code>application</code> - Application for which to determine the insertion index</dd>
+<dd><code>applications</code> - List of applications into which the application is to be inserted</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Index at which to insert the target application</dd>
 </dl>
@@ -460,7 +460,7 @@ implements <a href="../CCDD/CcddSchedulerInputInterface.html" title="interface i
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../CCDD/CcddSchedulerInputInterface.html#getSelectedVariableSize-java.util.List-">getSelectedVariableSize</a></code>&nbsp;in interface&nbsp;<code><a href="../CCDD/CcddSchedulerInputInterface.html" title="interface in CCDD">CcddSchedulerInputInterface</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>applications</code> - list of applications; null to use the currently selected application(s)</dd>
+<dd><code>applications</code> - List of applications; null to use the currently selected application(s)</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Total amount of time for the specified application(s)</dd>
 </dl>
@@ -478,7 +478,7 @@ implements <a href="../CCDD/CcddSchedulerInputInterface.html" title="interface i
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../CCDD/CcddSchedulerInputInterface.html#getVariablesAtRate-java.lang.String-">getVariablesAtRate</a></code>&nbsp;in interface&nbsp;<code><a href="../CCDD/CcddSchedulerInputInterface.html" title="interface in CCDD">CcddSchedulerInputInterface</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>rate</code> - currently selected rate</dd>
+<dd><code>rate</code> - Currently selected rate</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>List of variable object(s) representing the application(s) at the specified rate</dd>
 </dl>
@@ -511,8 +511,8 @@ implements <a href="../CCDD/CcddSchedulerInputInterface.html" title="interface i
 <div class="block">Get the selected node in the application tree</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>applications</code> - array of application names</dd>
-<dd><code>rate</code> - currently selected rate</dd>
+<dd><code>applications</code> - Array of application names</dd>
+<dd><code>rate</code> - Currently selected rate</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>List of variable object(s) representing the specified application(s)</dd>
 </dl>
@@ -562,7 +562,7 @@ implements <a href="../CCDD/CcddSchedulerInputInterface.html" title="interface i
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../CCDD/CcddSchedulerInputInterface.html#excludeVariable-java.util.List-">excludeVariable</a></code>&nbsp;in interface&nbsp;<code><a href="../CCDD/CcddSchedulerInputInterface.html" title="interface in CCDD">CcddSchedulerInputInterface</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>applications</code> - list containing the application(s) to be excluded</dd>
+<dd><code>applications</code> - List containing the application(s) to be excluded</dd>
 </dl>
 </li>
 </ul>
@@ -578,7 +578,7 @@ implements <a href="../CCDD/CcddSchedulerInputInterface.html" title="interface i
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../CCDD/CcddSchedulerInputInterface.html#includeVariable-java.util.List-">includeVariable</a></code>&nbsp;in interface&nbsp;<code><a href="../CCDD/CcddSchedulerInputInterface.html" title="interface in CCDD">CcddSchedulerInputInterface</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>applications</code> - list of applications to be removed from the excluded application list</dd>
+<dd><code>applications</code> - List of applications to be removed from the excluded application list</dd>
 </dl>
 </li>
 </ul>
@@ -594,7 +594,7 @@ implements <a href="../CCDD/CcddSchedulerInputInterface.html" title="interface i
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../CCDD/CcddSchedulerInputInterface.html#updateVariableTree-java.lang.String-">updateVariableTree</a></code>&nbsp;in interface&nbsp;<code><a href="../CCDD/CcddSchedulerInputInterface.html" title="interface in CCDD">CcddSchedulerInputInterface</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>rate</code> - rate for filtering the applications</dd>
+<dd><code>rate</code> - Rate for filtering the applications</dd>
 </dl>
 </li>
 </ul>
@@ -625,8 +625,8 @@ implements <a href="../CCDD/CcddSchedulerInputInterface.html" title="interface i
 <div class="block">Get the data field value for the specified application and field name</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>applicationName</code> - application name</dd>
-<dd><code>appField</code> - application data field</dd>
+<dd><code>applicationName</code> - Application name</dd>
+<dd><code>appField</code> - Application data field</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Application data field value for the specified application</dd>
 </dl>

@@ -147,6 +147,18 @@ extends java.lang.Enum&lt;<a href="../CCDD/CcddConstants.ModifiableColorInfo.htm
 <td class="colOne"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.ModifiableColorInfo.html#DATA_TYPE">DATA_TYPE</a></span></code>&nbsp;</td>
 </tr>
 <tr class="altColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.ModifiableColorInfo.html#FIXED_COLUMN_ALTERNATE_BACK">FIXED_COLUMN_ALTERNATE_BACK</a></span></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.ModifiableColorInfo.html#FIXED_COLUMN_BACK">FIXED_COLUMN_BACK</a></span></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.ModifiableColorInfo.html#FIXED_COLUMN_TEXT">FIXED_COLUMN_TEXT</a></span></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.ModifiableColorInfo.html#FIXED_HEADER_BACK">FIXED_HEADER_BACK</a></span></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.ModifiableColorInfo.html#FOCUS_BACK">FOCUS_BACK</a></span></code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
@@ -612,10 +624,46 @@ the order they are declared.</div>
 <a name="TAB_MOVE_LOCATION_INDICATOR">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>TAB_MOVE_LOCATION_INDICATOR</h4>
 <pre>public static final&nbsp;<a href="../CCDD/CcddConstants.ModifiableColorInfo.html" title="enum in CCDD">CcddConstants.ModifiableColorInfo</a> TAB_MOVE_LOCATION_INDICATOR</pre>
+</li>
+</ul>
+<a name="FIXED_COLUMN_TEXT">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>FIXED_COLUMN_TEXT</h4>
+<pre>public static final&nbsp;<a href="../CCDD/CcddConstants.ModifiableColorInfo.html" title="enum in CCDD">CcddConstants.ModifiableColorInfo</a> FIXED_COLUMN_TEXT</pre>
+</li>
+</ul>
+<a name="FIXED_HEADER_BACK">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>FIXED_HEADER_BACK</h4>
+<pre>public static final&nbsp;<a href="../CCDD/CcddConstants.ModifiableColorInfo.html" title="enum in CCDD">CcddConstants.ModifiableColorInfo</a> FIXED_HEADER_BACK</pre>
+</li>
+</ul>
+<a name="FIXED_COLUMN_BACK">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>FIXED_COLUMN_BACK</h4>
+<pre>public static final&nbsp;<a href="../CCDD/CcddConstants.ModifiableColorInfo.html" title="enum in CCDD">CcddConstants.ModifiableColorInfo</a> FIXED_COLUMN_BACK</pre>
+</li>
+</ul>
+<a name="FIXED_COLUMN_ALTERNATE_BACK">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>FIXED_COLUMN_ALTERNATE_BACK</h4>
+<pre>public static final&nbsp;<a href="../CCDD/CcddConstants.ModifiableColorInfo.html" title="enum in CCDD">CcddConstants.ModifiableColorInfo</a> FIXED_COLUMN_ALTERNATE_BACK</pre>
 </li>
 </ul>
 </li>
@@ -848,7 +896,7 @@ not permitted.)</div>
  key</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>prefKey</code> - modifiable color program preferences key</dd>
+<dd><code>prefKey</code> - Modifiable color program preferences key</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Modifiable color information reference that has a program preferences key
          matching the one specified; null if no modifiable color's key matches</dd>
@@ -869,10 +917,10 @@ not permitted.)</div>
  preferences</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>red</code> - red color component</dd>
-<dd><code>green</code> - green color component</dd>
-<dd><code>blue</code> - blue color component</dd>
-<dd><code>progPrefs</code> - reference to the program preferences</dd>
+<dd><code>red</code> - Red color component</dd>
+<dd><code>green</code> - Green color component</dd>
+<dd><code>blue</code> - Blue color component</dd>
+<dd><code>progPrefs</code> - Reference to the program preferences</dd>
 </dl>
 </li>
 </ul>
@@ -886,7 +934,7 @@ not permitted.)</div>
 <div class="block">Set the modifiable colors to the values stored in the program preferences</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>progPrefs</code> - reference to the program preferences</dd>
+<dd><code>progPrefs</code> - Reference to the program preferences</dd>
 </dl>
 </li>
 </ul>
@@ -901,7 +949,7 @@ not permitted.)</div>
  updated color</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>container</code> - container in which to check the colors of the components</dd>
+<dd><code>container</code> - Container in which to check the colors of the components</dd>
 </dl>
 </li>
 </ul>
@@ -916,7 +964,7 @@ not permitted.)</div>
  the component's color to the current preferred color setting</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>comp</code> - component for which to check the color</dd>
+<dd><code>comp</code> - Component for which to check the color</dd>
 </dl>
 </li>
 </ul>

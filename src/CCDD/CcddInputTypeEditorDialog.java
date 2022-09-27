@@ -390,15 +390,14 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                                 inputTypeTable.removeRowSelectionInterval(row, row);
 
                                 // Inform the user that the input type can't be deleted
-                                new CcddDialogHandler()
-                                        .showMessageDialog(CcddInputTypeEditorDialog.this,
-                                                           "<html><b>Cannot delete input type '</b>"
-                                                           + inputTypeName
-                                                           + "<b>'; input type is referenced by "
-                                                           + inputTypeUsers,
-                                                           "Delete Input Type",
-                                                           JOptionPane.ERROR_MESSAGE,
-                                                           DialogOption.OK_OPTION);
+                                new CcddDialogHandler().showMessageDialog(CcddInputTypeEditorDialog.this,
+                                                                          "<html><b>Cannot delete input type '</b>"
+                                                                          + inputTypeName
+                                                                          + "<b>'; input type is referenced by "
+                                                                          + inputTypeUsers,
+                                                                          "Delete Input Type",
+                                                                          JOptionPane.ERROR_MESSAGE,
+                                                                          DialogOption.OK_OPTION);
                             }
                         }
 

@@ -131,12 +131,12 @@ the order they are declared.</div>
 <tbody>
 <tr class="altColor">
 <td class="colFirst"><code>private void</code></td>
-<td class="colLast"><span class="typeNameLabel">CcddEventLogDialog.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddEventLogDialog.html#addMessageToLog-java.lang.String-java.lang.String-java.lang.String-CCDD.CcddConstants.EventLogMessageType-java.lang.String-java.lang.String-">addMessageToLog</a></span>(java.lang.String&nbsp;server,
+<td class="colLast"><span class="typeNameLabel">CcddEventLogDialog.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddEventLogDialog.html#addMessageToLog-java.lang.String-java.lang.String-java.lang.String-CCDD.CcddConstants.EventLogMessageType-java.lang.String-java.lang.StringBuilder-">addMessageToLog</a></span>(java.lang.String&nbsp;server,
                java.lang.String&nbsp;database,
                java.lang.String&nbsp;user,
                <a href="../../CCDD/CcddConstants.EventLogMessageType.html" title="enum in CCDD">CcddConstants.EventLogMessageType</a>&nbsp;type,
                java.lang.String&nbsp;timestamp,
-               java.lang.String&nbsp;logMessage)</code>
+               java.lang.StringBuilder&nbsp;logMessage)</code>
 <div class="block">Add a new log entry to the event log table</div>
 </td>
 </tr>
@@ -144,7 +144,7 @@ the order they are declared.</div>
 <td class="colFirst"><code>private javax.swing.JCheckBox</code></td>
 <td class="colLast"><span class="typeNameLabel">CcddEventLogDialog.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddEventLogDialog.html#createCheckBox-CCDD.CcddConstants.EventLogMessageType-java.awt.event.ActionListener-">createCheckBox</a></span>(<a href="../../CCDD/CcddConstants.EventLogMessageType.html" title="enum in CCDD">CcddConstants.EventLogMessageType</a>&nbsp;eventType,
               java.awt.event.ActionListener&nbsp;filterListener)</code>
-<div class="block">Create a check box with label</div>
+<div class="block">Create a check box with label.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -156,8 +156,8 @@ the order they are declared.</div>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
-<td class="colLast"><span class="typeNameLabel">CcddEventLogDialog.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddEventLogDialog.html#logEvent-CCDD.CcddConstants.EventLogMessageType-java.lang.String-">logEvent</a></span>(<a href="../../CCDD/CcddConstants.EventLogMessageType.html" title="enum in CCDD">CcddConstants.EventLogMessageType</a>&nbsp;type,
-        java.lang.String&nbsp;logMessage)</code>
+<td class="colLast"><span class="typeNameLabel">CcddEventLogDialog.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddEventLogDialog.html#logEvent-CCDD.CcddConstants.EventLogMessageType-java.lang.StringBuilder-">logEvent</a></span>(<a href="../../CCDD/CcddConstants.EventLogMessageType.html" title="enum in CCDD">CcddConstants.EventLogMessageType</a>&nbsp;type,
+        java.lang.StringBuilder&nbsp;logMessage)</code>
 <div class="block">Append an event message to the current session's event log window and file</div>
 </td>
 </tr>

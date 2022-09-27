@@ -27,7 +27,6 @@ package CCDD;
 
 import static CCDD.CcddConstants.LAF_CHECK_BOX_HEIGHT;
 import static CCDD.CcddConstants.LAF_SCROLL_BAR_WIDTH;
-
 import java.awt.AlphaComposite;
 import java.awt.BorderLayout;
 import java.awt.Color;

@@ -161,6 +161,23 @@
 <tbody>
 <tr class="altColor">
 <td class="colFirst"><code>protected <a href="../../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a></code></td>
+<td class="colLast"><span class="typeNameLabel">CcddTableTypeHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddTableTypeHandler.html#addRemoveTypeDefinition-java.lang.String-java.lang.String-java.lang.String-java.lang.Object:A:A-">addRemoveTypeDefinition</a></span>(java.lang.String&nbsp;eTypeName,
+                       java.lang.String&nbsp;nTypeName,
+                       java.lang.String&nbsp;description,
+                       java.lang.Object[][]&nbsp;typeData)</code>
+<div class="block">Remove an existing table type (if it is found) Add a new table type</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected <a href="../../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a></code></td>
+<td class="colLast"><span class="typeNameLabel">CcddTableTypeHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddTableTypeHandler.html#addTypeDefinition-java.lang.String-java.lang.String-java.lang.Object:A:A-">addTypeDefinition</a></span>(java.lang.String&nbsp;nTypeName,
+                 java.lang.String&nbsp;description,
+                 java.lang.Object[][]&nbsp;typeData)</code>
+<div class="block">Add a new table type</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="../../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a></code></td>
 <td class="colLast"><span class="typeNameLabel">CcddTableTypeHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddTableTypeHandler.html#createReplaceTypeDefinition-java.lang.String-java.lang.String-java.lang.Object:A:A-">createReplaceTypeDefinition</a></span>(java.lang.String&nbsp;typeName,
                            java.lang.String&nbsp;description,
                            java.lang.Object[][]&nbsp;typeData)</code>
@@ -224,38 +241,42 @@
 </tr>
 <tbody>
 <tr class="altColor">
-<td class="colFirst"><code>private java.lang.String</code></td>
-<td class="colLast"><span class="typeNameLabel">CcddDbTableCommandHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddDbTableCommandHandler.html#buildAdditionCommand-CCDD.CcddClassesDataTable.TableInformation-java.util.List-java.lang.String-CCDD.CcddTableTypeHandler.TypeDefinition-boolean-">buildAdditionCommand</a></span>(<a href="../../CCDD/CcddClassesDataTable.TableInformation.html" title="class in CCDD">CcddClassesDataTable.TableInformation</a>&nbsp;tableInfo,
-                    java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.TableModification.html" title="class in CCDD">CcddClassesDataTable.TableModification</a>&gt;&nbsp;additions,
-                    java.lang.String&nbsp;dbTableName,
-                    <a href="../../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&nbsp;typeDefn,
-                    boolean&nbsp;skipInternalTables)</code>
+<td class="colFirst"><code>private boolean</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddDbTableCommandHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddDbTableCommandHandler.html#buildAndExecuteAdditionCommand-CCDD.CcddClassesDataTable.TableInfo-java.util.List-java.lang.String-CCDD.CcddTableTypeHandler.TypeDefinition-boolean-boolean-java.awt.Component-">buildAndExecuteAdditionCommand</a></span>(<a href="../../CCDD/CcddClassesDataTable.TableInfo.html" title="class in CCDD">CcddClassesDataTable.TableInfo</a>&nbsp;tableInfo,
+                              java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.TableModification.html" title="class in CCDD">CcddClassesDataTable.TableModification</a>&gt;&nbsp;additions,
+                              java.lang.String&nbsp;dbTableName,
+                              <a href="../../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&nbsp;typeDefn,
+                              boolean&nbsp;skipInternalTables,
+                              boolean&nbsp;ignoreErrors,
+                              java.awt.Component&nbsp;parent)</code>
 <div class="block">Build the command to add table rows.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>private java.lang.String</code></td>
-<td class="colLast"><span class="typeNameLabel">CcddDbTableCommandHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddDbTableCommandHandler.html#buildDeletionCommand-CCDD.CcddClassesDataTable.TableInformation-java.util.List-java.lang.String-CCDD.CcddTableTypeHandler.TypeDefinition-boolean-CCDD.CcddInputTypeHandler.ReferenceCheckResults-CCDD.CcddInputTypeHandler.ReferenceCheckResults-">buildDeletionCommand</a></span>(<a href="../../CCDD/CcddClassesDataTable.TableInformation.html" title="class in CCDD">CcddClassesDataTable.TableInformation</a>&nbsp;tableInfo,
-                    java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.TableModification.html" title="class in CCDD">CcddClassesDataTable.TableModification</a>&gt;&nbsp;deletions,
-                    java.lang.String&nbsp;dbTableName,
-                    <a href="../../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&nbsp;typeDefn,
-                    boolean&nbsp;skipInternalTables,
-                    <a href="../../CCDD/CcddInputTypeHandler.ReferenceCheckResults.html" title="class in CCDD">CcddInputTypeHandler.ReferenceCheckResults</a>&nbsp;varRefChkResults,
-                    <a href="../../CCDD/CcddInputTypeHandler.ReferenceCheckResults.html" title="class in CCDD">CcddInputTypeHandler.ReferenceCheckResults</a>&nbsp;cmdRefChkResults)</code>
+<td class="colFirst"><code>private boolean</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddDbTableCommandHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddDbTableCommandHandler.html#buildAndExecuteDeletionCommand-CCDD.CcddClassesDataTable.TableInfo-java.util.List-java.lang.String-CCDD.CcddTableTypeHandler.TypeDefinition-boolean-CCDD.CcddInputTypeHandler.ReferenceCheckResults-CCDD.CcddInputTypeHandler.ReferenceCheckResults-java.awt.Component-">buildAndExecuteDeletionCommand</a></span>(<a href="../../CCDD/CcddClassesDataTable.TableInfo.html" title="class in CCDD">CcddClassesDataTable.TableInfo</a>&nbsp;tableInfo,
+                              java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.TableModification.html" title="class in CCDD">CcddClassesDataTable.TableModification</a>&gt;&nbsp;deletions,
+                              java.lang.String&nbsp;dbTableName,
+                              <a href="../../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&nbsp;typeDefn,
+                              boolean&nbsp;skipInternalTables,
+                              <a href="../../CCDD/CcddInputTypeHandler.ReferenceCheckResults.html" title="class in CCDD">CcddInputTypeHandler.ReferenceCheckResults</a>&nbsp;varRefChkResults,
+                              <a href="../../CCDD/CcddInputTypeHandler.ReferenceCheckResults.html" title="class in CCDD">CcddInputTypeHandler.ReferenceCheckResults</a>&nbsp;cmdRefChkResults,
+                              java.awt.Component&nbsp;parent)</code>
 <div class="block">Build the command to delete a table row.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>private java.lang.String</code></td>
-<td class="colLast"><span class="typeNameLabel">CcddDbTableCommandHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddDbTableCommandHandler.html#buildModificationCommand-CCDD.CcddClassesDataTable.TableInformation-java.util.List-java.lang.String-CCDD.CcddTableTypeHandler.TypeDefinition-CCDD.CcddDataTypeHandler-CCDD.CcddTableTreeHandler-boolean-CCDD.CcddInputTypeHandler.ReferenceCheckResults-CCDD.CcddInputTypeHandler.ReferenceCheckResults-">buildModificationCommand</a></span>(<a href="../../CCDD/CcddClassesDataTable.TableInformation.html" title="class in CCDD">CcddClassesDataTable.TableInformation</a>&nbsp;tableInfo,
-                        java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.TableModification.html" title="class in CCDD">CcddClassesDataTable.TableModification</a>&gt;&nbsp;modifications,
-                        java.lang.String&nbsp;dbTableName,
-                        <a href="../../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&nbsp;typeDefn,
-                        <a href="../../CCDD/CcddDataTypeHandler.html" title="class in CCDD">CcddDataTypeHandler</a>&nbsp;newDataTypeHandler,
-                        <a href="../../CCDD/CcddTableTreeHandler.html" title="class in CCDD">CcddTableTreeHandler</a>&nbsp;tableTree,
-                        boolean&nbsp;skipInternalTables,
-                        <a href="../../CCDD/CcddInputTypeHandler.ReferenceCheckResults.html" title="class in CCDD">CcddInputTypeHandler.ReferenceCheckResults</a>&nbsp;varRefChkResults,
-                        <a href="../../CCDD/CcddInputTypeHandler.ReferenceCheckResults.html" title="class in CCDD">CcddInputTypeHandler.ReferenceCheckResults</a>&nbsp;cmdRefChkResults)</code>
+<td class="colFirst"><code>private boolean</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddDbTableCommandHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddDbTableCommandHandler.html#buildAndExecuteModificationCommand-CCDD.CcddClassesDataTable.TableInfo-java.util.List-java.lang.String-CCDD.CcddTableTypeHandler.TypeDefinition-CCDD.CcddDataTypeHandler-CCDD.CcddTableTreeHandler-boolean-CCDD.CcddInputTypeHandler.ReferenceCheckResults-CCDD.CcddInputTypeHandler.ReferenceCheckResults-java.awt.Component-">buildAndExecuteModificationCommand</a></span>(<a href="../../CCDD/CcddClassesDataTable.TableInfo.html" title="class in CCDD">CcddClassesDataTable.TableInfo</a>&nbsp;tableInfo,
+                                  java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.TableModification.html" title="class in CCDD">CcddClassesDataTable.TableModification</a>&gt;&nbsp;modifications,
+                                  java.lang.String&nbsp;dbTableName,
+                                  <a href="../../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&nbsp;typeDefn,
+                                  <a href="../../CCDD/CcddDataTypeHandler.html" title="class in CCDD">CcddDataTypeHandler</a>&nbsp;newDataTypeHandler,
+                                  <a href="../../CCDD/CcddTableTreeHandler.html" title="class in CCDD">CcddTableTreeHandler</a>&nbsp;tableTree,
+                                  boolean&nbsp;skipInternalTables,
+                                  <a href="../../CCDD/CcddInputTypeHandler.ReferenceCheckResults.html" title="class in CCDD">CcddInputTypeHandler.ReferenceCheckResults</a>&nbsp;varRefChkResults,
+                                  <a href="../../CCDD/CcddInputTypeHandler.ReferenceCheckResults.html" title="class in CCDD">CcddInputTypeHandler.ReferenceCheckResults</a>&nbsp;cmdRefChkResults,
+                                  java.awt.Component&nbsp;parent)</code>
 <div class="block">Build the commands to modify the table</div>
 </td>
 </tr>
@@ -268,15 +289,6 @@
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>private void</code></td>
-<td class="colLast"><span class="typeNameLabel">CcddXTCEHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddXTCEHandler.html#createTableTypeDefinitions-org.omg.space.xtce.SpaceSystemType-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-CCDD.CcddTableTypeHandler.TypeDefinition-">createTableTypeDefinitions</a></span>(org.omg.space.xtce.SpaceSystemType&nbsp;rootSystem,
-                          <a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
-                          <a href="../../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
-                          <a href="../../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&nbsp;targetTypeDefn)</code>
-<div class="block">Scan the import file in order to determine if any structure or command tables exist.</div>
-</td>
-</tr>
-<tr class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><span class="typeNameLabel">CcddDbTableCommandHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddDbTableCommandHandler.html#deleteTableType-CCDD.CcddTableTypeHandler.TypeDefinition-CCDD.CcddTableTypeManagerDialog-java.awt.Component-">deleteTableType</a></span>(<a href="../../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&nbsp;typeDefn,
                <a href="../../CCDD/CcddTableTypeManagerDialog.html" title="class in CCDD">CcddTableTypeManagerDialog</a>&nbsp;typeDialog,
@@ -284,64 +296,80 @@
 <div class="block">Delete a table type and all tables of the deleted type.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><span class="typeNameLabel">CcddCSVHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddCSVHandler.html#importFromFile-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-CCDD.CcddTableTypeHandler.TypeDefinition-boolean-boolean-boolean-">importFromFile</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
+<td class="colLast"><span class="typeNameLabel">CcddCSVHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddCSVHandler.html#importFromFile-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-CCDD.CcddTableTypeHandler.TypeDefinition-boolean-boolean-boolean-boolean-">importFromFile</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
               <a href="../../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
               <a href="../../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&nbsp;targetTypeDefn,
               boolean&nbsp;ignoreErrors,
               boolean&nbsp;replaceExistingMacros,
-              boolean&nbsp;replaceExistingGroups)</code>
+              boolean&nbsp;replaceExistingGroups,
+              boolean&nbsp;replaceExistingTables)</code>
+<div class="block">Build the information from the table definition(s) in the current file</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddJSONHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddJSONHandler.html#importFromFile-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-CCDD.CcddTableTypeHandler.TypeDefinition-boolean-boolean-boolean-boolean-">importFromFile</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
+              <a href="../../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
+              <a href="../../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&nbsp;targetTypeDefn,
+              boolean&nbsp;ignoreErrors,
+              boolean&nbsp;replaceExistingMacros,
+              boolean&nbsp;replaceExistingGroups,
+              boolean&nbsp;replaceExistingTables)</code>
 <div class="block">Build the information from the table definition(s) in the current file</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><span class="typeNameLabel">CcddJSONHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddJSONHandler.html#importFromFile-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-CCDD.CcddTableTypeHandler.TypeDefinition-boolean-boolean-boolean-">importFromFile</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
+<td class="colLast"><span class="typeNameLabel">CcddXTCEHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddXTCEHandler.html#importFromFile-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-CCDD.CcddTableTypeHandler.TypeDefinition-boolean-boolean-boolean-boolean-">importFromFile</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
               <a href="../../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
               <a href="../../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&nbsp;targetTypeDefn,
               boolean&nbsp;ignoreErrors,
               boolean&nbsp;replaceExistingMacros,
-              boolean&nbsp;replaceExistingGroups)</code>
+              boolean&nbsp;replaceExistingGroups,
+              boolean&nbsp;replaceExistingTables)</code>
 <div class="block">Build the information from the table definition(s) in the current file</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><span class="typeNameLabel">CcddXTCEHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddXTCEHandler.html#importFromFile-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-CCDD.CcddTableTypeHandler.TypeDefinition-boolean-boolean-boolean-">importFromFile</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
+<td class="colLast"><span class="typeNameLabel">CcddEDSHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddEDSHandler.html#importFromFile-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-CCDD.CcddTableTypeHandler.TypeDefinition-boolean-boolean-boolean-boolean-">importFromFile</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
               <a href="../../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
               <a href="../../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&nbsp;targetTypeDefn,
               boolean&nbsp;ignoreErrors,
               boolean&nbsp;replaceExistingMacros,
-              boolean&nbsp;replaceExistingGroups)</code>
-<div class="block">Import the the table definitions from an XTCE XML formatted file</div>
+              boolean&nbsp;replaceExistingGroups,
+              boolean&nbsp;replaceExistingTables)</code>
+<div class="block">Build the information from the table definition(s) in the current file</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><span class="typeNameLabel">CcddEDSHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddEDSHandler.html#importFromFile-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-CCDD.CcddTableTypeHandler.TypeDefinition-boolean-boolean-boolean-">importFromFile</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
+<td class="colLast"><span class="typeNameLabel">CcddImportExportInterface.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddImportExportInterface.html#importFromFile-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-CCDD.CcddTableTypeHandler.TypeDefinition-boolean-boolean-boolean-boolean-">importFromFile</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
               <a href="../../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
               <a href="../../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&nbsp;targetTypeDefn,
               boolean&nbsp;ignoreErrors,
               boolean&nbsp;replaceExistingMacros,
-              boolean&nbsp;replaceExistingGroups)</code>
-<div class="block">Import the the table definitions from an EDS XML formatted file</div>
+              boolean&nbsp;replaceExistingGroups,
+              boolean&nbsp;replaceExistingTables)</code>
+<div class="block">Build the information from the table definition(s) in the current file</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><span class="typeNameLabel">CcddImportExportInterface.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddImportExportInterface.html#importFromFile-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddImportExportInterface.ImportType-CCDD.CcddTableTypeHandler.TypeDefinition-boolean-boolean-boolean-">importFromFile</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
-              <a href="../../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
-              <a href="../../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&nbsp;targetTypeDefn,
-              boolean&nbsp;ignoreErrors,
-              boolean&nbsp;replaceExistingMacros,
-              boolean&nbsp;replaceExistingGroups)</code>
-<div class="block">Build the information from the table definition(s) in the current file</div>
+<td class="colLast"><span class="typeNameLabel">CcddCSVHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddCSVHandler.html#importTableDefinitions-java.io.BufferedReader-CCDD.CcddClassesComponent.FileEnvVar-boolean-boolean-CCDD.CcddImportExportInterface.ImportType-CCDD.CcddTableTypeHandler.TypeDefinition-">importTableDefinitions</a></span>(java.io.BufferedReader&nbsp;br,
+                      <a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;importFile,
+                      boolean&nbsp;ignoreErrors,
+                      boolean&nbsp;replaceExistingTables,
+                      <a href="../../CCDD/CcddImportExportInterface.ImportType.html" title="enum in CCDD">CcddImportExportInterface.ImportType</a>&nbsp;importType,
+                      <a href="../../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&nbsp;targetTypeDefn)</code>
+<div class="block">Import table definitions from a provided csv file</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
-<td class="colLast"><span class="typeNameLabel">CcddDbTableCommandHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddDbTableCommandHandler.html#modifyTableType-java.lang.String-java.util.List-CCDD.CcddConstants.OverwriteFieldValueType-java.util.List-java.util.List-java.util.List-boolean-CCDD.CcddTableTypeHandler.TypeDefinition-java.util.List-java.util.List-java.util.List-CCDD.CcddTableTypeEditorDialog-CCDD.CcddTableTypeEditorHandler-">modifyTableType</a></span>(java.lang.String&nbsp;typeName,
+<td class="colLast"><span class="typeNameLabel">CcddDbTableCommandHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddDbTableCommandHandler.html#modifyTableType-java.lang.String-java.util.List-CCDD.CcddConstants.OverwriteFieldValueType-java.util.List-java.util.List-java.util.List-boolean-CCDD.CcddTableTypeHandler.TypeDefinition-java.util.List-CCDD.CcddTableTypeEditorDialog-CCDD.CcddTableTypeEditorHandler-">modifyTableType</a></span>(java.lang.String&nbsp;typeName,
                java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;&nbsp;fieldInformation,
                <a href="../../CCDD/CcddConstants.OverwriteFieldValueType.html" title="enum in CCDD">CcddConstants.OverwriteFieldValueType</a>&nbsp;overwriteFields,
                java.util.List&lt;java.lang.String[]&gt;&nbsp;typeAdditions,
@@ -349,9 +377,7 @@
                java.util.List&lt;java.lang.String[]&gt;&nbsp;typeDeletions,
                boolean&nbsp;columnOrderChange,
                <a href="../../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&nbsp;originalDefn,
-               java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.TableModification.html" title="class in CCDD">CcddClassesDataTable.TableModification</a>&gt;&nbsp;fieldAdditions,
-               java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.TableModification.html" title="class in CCDD">CcddClassesDataTable.TableModification</a>&gt;&nbsp;fieldModifications,
-               java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.TableModification.html" title="class in CCDD">CcddClassesDataTable.TableModification</a>&gt;&nbsp;fieldDeletions,
+               java.util.List&lt;java.lang.String[]&gt;&nbsp;newDataFields,
                <a href="../../CCDD/CcddTableTypeEditorDialog.html" title="class in CCDD">CcddTableTypeEditorDialog</a>&nbsp;editorDialog,
                <a href="../../CCDD/CcddTableTypeEditorHandler.html" title="class in CCDD">CcddTableTypeEditorHandler</a>&nbsp;editor)</code>
 <div class="block">Add, rename, or delete table type column names in the table definitions table and update the
@@ -378,12 +404,13 @@
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>private java.lang.String</code></td>
-<td class="colLast"><span class="typeNameLabel">CcddDbTableCommandHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddDbTableCommandHandler.html#updateMessageNameAndIDReference-CCDD.CcddClassesDataTable.TableInformation-CCDD.CcddTableTypeHandler.TypeDefinition-java.util.List-java.util.List-CCDD.CcddInputTypeHandler.ReferenceCheckResults-">updateMessageNameAndIDReference</a></span>(<a href="../../CCDD/CcddClassesDataTable.TableInformation.html" title="class in CCDD">CcddClassesDataTable.TableInformation</a>&nbsp;tableInfo,
+<td class="colFirst"><code>private boolean</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddDbTableCommandHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddDbTableCommandHandler.html#updateMessageNameAndIDReference-CCDD.CcddClassesDataTable.TableInfo-CCDD.CcddTableTypeHandler.TypeDefinition-java.util.List-java.util.List-CCDD.CcddInputTypeHandler.ReferenceCheckResults-java.awt.Component-">updateMessageNameAndIDReference</a></span>(<a href="../../CCDD/CcddClassesDataTable.TableInfo.html" title="class in CCDD">CcddClassesDataTable.TableInfo</a>&nbsp;tableInfo,
                                <a href="../../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&nbsp;typeDefn,
                                java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.TableModification.html" title="class in CCDD">CcddClassesDataTable.TableModification</a>&gt;&nbsp;modifications,
                                java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.TableModification.html" title="class in CCDD">CcddClassesDataTable.TableModification</a>&gt;&nbsp;deletions,
-                               <a href="../../CCDD/CcddInputTypeHandler.ReferenceCheckResults.html" title="class in CCDD">CcddInputTypeHandler.ReferenceCheckResults</a>&nbsp;msgIDRefChkResults)</code>
+                               <a href="../../CCDD/CcddInputTypeHandler.ReferenceCheckResults.html" title="class in CCDD">CcddInputTypeHandler.ReferenceCheckResults</a>&nbsp;msgIDRefChkResults,
+                               java.awt.Component&nbsp;parent)</code>
 <div class="block">Build the commands to update any references to a message name or ID that has been modified
  or deleted in every table cell and data field with a message name and ID reference input
  type</div>

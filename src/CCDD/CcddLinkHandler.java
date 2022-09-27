@@ -197,8 +197,7 @@ public class CcddLinkHandler
                 if (useDataStream)
                 {
                     // Get the rate information based on the rate column name
-                    RateInformation rateInfo = ccddMain.getRateParameterHandler()
-                            .getRateInformationByRateName(rateName);
+                    RateInformation rateInfo = ccddMain.getRateParameterHandler().getRateInformationByRateName(rateName);
 
                     // Check if the rate information exists for this rate column
                     if (rateInfo != null)
@@ -284,7 +283,8 @@ public class CcddLinkHandler
                 // Get the offset of this variable relative to its root structure. A variable's bit
                 // length is ignored if provided
                 int index = variableHandler.getStructureAndVariablePaths()
-                        .indexOf(macroHandler.getMacroExpansion(linkMember).replaceFirst(":.+$", ""));
+                                           .indexOf(macroHandler.getMacroExpansion(linkMember)
+                                                                .replaceFirst(":.+$", ""));
                 int offset = variableHandler.getStructureAndVariableOffsets().get(index);
 
                 // Check if this variable is not bit-packed with the previous one. The variables

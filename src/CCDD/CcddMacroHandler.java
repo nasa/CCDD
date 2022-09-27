@@ -970,8 +970,7 @@ public class CcddMacroHandler
                 if (macroName.equalsIgnoreCase(macroDefn[MacrosColumn.MACRO_NAME.ordinal()]))
                 {
                     // Parse each data type referenced in a sizeof() call in the macro
-                    for (String dataType : macroDefn[MacrosColumn.VALUE.ordinal()]
-                            .replaceAll(".*?" + SIZEOF_DATATYPE + ".*?", "$1 ").split(" "))
+                    for (String dataType : macroDefn[MacrosColumn.VALUE.ordinal()].replaceAll(".*?" + SIZEOF_DATATYPE + ".*?", "$1 ").split(" "))
                     {
                         // Check if the data type is a structure and the structure name isn't
                         // already in the list
@@ -1344,8 +1343,7 @@ public class CcddMacroHandler
                 if (!tableNames.contains(refNameAndType[0]))
                 {
                     String refColumn = tblColDescAndCntxt[SearchResultsQueryColumn.COLUMN.ordinal()];
-                    String[] refContext = CcddUtilities
-                            .splitAndRemoveQuotes(tblColDescAndCntxt[SearchResultsQueryColumn.CONTEXT.ordinal()]);
+                    String[] refContext = CcddUtilities.splitAndRemoveQuotes(tblColDescAndCntxt[SearchResultsQueryColumn.CONTEXT.ordinal()]);
 
                     // Use the type and column to get the column's input type
                     TypeDefinition typeDefn = ccddMain.getTableTypeHandler().getTypeDefinition(refNameAndType[1]);

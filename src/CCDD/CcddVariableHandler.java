@@ -539,7 +539,8 @@ public class CcddVariableHandler
                         offset += lastByteSize;
                         // Then add the size of the enum table to the offset total
                         FieldInformation sizeField = ccddMain.getFieldHandler()
-                                .getFieldInformationByName(varPath, "Size (Bytes):");
+                                                             .getFieldInformationByName(varPath,
+                                                                                        "Size (Bytes):");
 
                         // If the value of the field is blank then set it to 0
                         if (sizeField != null)
@@ -620,7 +621,8 @@ public class CcddVariableHandler
 
                         // add the size of the enum table to the offset total
                         FieldInformation sizeField = ccddMain.getFieldHandler()
-                                .getFieldInformationByName(varPath, "Size (Bytes):");
+                                                             .getFieldInformationByName(varPath,
+                                                                                        "Size (Bytes):");
 
                         // If the value of the field is blank then set it to 0
                         if (sizeField != null)
@@ -1073,12 +1075,10 @@ public class CcddVariableHandler
 
                     // Create a reference to the search result's database table name and row data
                     // to shorten comparisons below
-                    String[] rowData = CcddUtilities
-                            .splitAndRemoveQuotes(tblColDescAndCntxt[SearchResultsQueryColumn.CONTEXT.ordinal()]);
+                    String[] rowData = CcddUtilities.splitAndRemoveQuotes(tblColDescAndCntxt[SearchResultsQueryColumn.CONTEXT.ordinal()]);
 
                     // Set the viewable table name (with capitalization intact)
-                    String[] tableNameAndType = tblColDescAndCntxt[SearchResultsQueryColumn.COMMENT.ordinal()]
-                            .split(",", 2);
+                    String[] tableNameAndType = tblColDescAndCntxt[SearchResultsQueryColumn.COMMENT.ordinal()].split(",", 2);
 
                     // Get the table's type definition and from that the variable name, data type,
                     // and variable path column indices

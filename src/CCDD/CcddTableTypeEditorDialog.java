@@ -327,8 +327,8 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                             {
                                 // Get the tab index using the table name with the change indicator
                                 // attached
-                                tabIndex = editorDialog.getTabbedPane()
-                                        .indexOfTab(editor.getOwnerName() + CHANGE_INDICATOR);
+                                tabIndex = editorDialog.getTabbedPane().indexOfTab(editor.getOwnerName()
+                                                                                   + CHANGE_INDICATOR);
                             }
 
                             // Update the editor tab's tool tip text in case the type name changed

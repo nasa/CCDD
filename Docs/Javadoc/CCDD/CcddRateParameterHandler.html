@@ -448,7 +448,7 @@ extends java.lang.Object</pre>
 <div class="block">Rate parameter handler class constructor</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>ccddMain</code> - main class</dd>
+<dd><code>ccddMain</code> - Main class</dd>
 </dl>
 </li>
 </ul>
@@ -528,7 +528,7 @@ extends java.lang.Object</pre>
 <div class="block">Set the list of rate information</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>rateInformation</code> - list of rate information</dd>
+<dd><code>rateInformation</code> - List of rate information</dd>
 </dl>
 </li>
 </ul>
@@ -542,7 +542,7 @@ extends java.lang.Object</pre>
 <div class="block">Add rate information to the list for the specified rate column name</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>rateName</code> - new rate's column name</dd>
+<dd><code>rateName</code> - New rate's column name</dd>
 </dl>
 </li>
 </ul>
@@ -560,8 +560,8 @@ extends java.lang.Object</pre>
  with the existing one and delete the original</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>oldRateName</code> - current rate column name</dd>
-<dd><code>newRateName</code> - new rate column name</dd>
+<dd><code>oldRateName</code> - Current rate column name</dd>
+<dd><code>newRateName</code> - New rate column name</dd>
 </dl>
 </li>
 </ul>
@@ -575,7 +575,7 @@ extends java.lang.Object</pre>
 <div class="block">Remove the specified rate's information from the list</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>rateName</code> - rate name for the rate information object to remove</dd>
+<dd><code>rateName</code> - Rate name for the rate information object to remove</dd>
 </dl>
 </li>
 </ul>
@@ -589,7 +589,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the rate information with the specified rate column</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>rateColumnName</code> - rate column name</dd>
+<dd><code>rateColumnName</code> - Rate column name</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Rate information with the specified rate column; null if the rate column doesn't
          exist</dd>
@@ -606,7 +606,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the rate information with the specified data stream name</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>streamName</code> - name of stream</dd>
+<dd><code>streamName</code> - Name of stream</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Rate information with the data stream name; null if the data stream doesn't exist</dd>
 </dl>
@@ -622,7 +622,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the index of the rate information with the specified rate column name</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>rateColumnName</code> - rate column name</dd>
+<dd><code>rateColumnName</code> - Rate column name</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Index of the rate information with the specified rate column name; -1 if no rate
          information has this rate column name</dd>
@@ -639,7 +639,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the index of the rate information with the specified stream name</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>streamName</code> - stream name</dd>
+<dd><code>streamName</code> - Stream name</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Index of the rate information with the specified stream name; -1 if no rate
          information has this stream name</dd>
@@ -700,16 +700,17 @@ extends java.lang.Object</pre>
 <div class="block">Set the rate parameters, store them in the project database, and calculate the sample rates</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>maxSecPerMsg</code> - maximum number of seconds allowed between downlinking two of the same message</dd>
-<dd><code>maxMsgsPerSec</code> - maximum number of messages that can be downlinked in one second</dd>
-<dd><code>streamName</code> - array containing the stream name per stream</dd>
-<dd><code>maxMsgsPerCycle</code> - array containing the maximum number of messages that can be downlinked before
-            repeating the message list per stream</dd>
-<dd><code>maxBytesPerSec</code> - array containing the maximum number of bytes that can be downlinked in one second
-            per stream</dd>
-<dd><code>includeUneven</code> - true to include unevenly time-spaced sample rate values; false to only include
-            sample rates that are evenly time-spaced</dd>
-<dd><code>parent</code> - component calling this method, used for positioning any error dialogs</dd>
+<dd><code>maxSecPerMsg</code> - Maximum number of seconds allowed between downlinking two of the same
+                        message</dd>
+<dd><code>maxMsgsPerSec</code> - Maximum number of messages that can be downlinked in one second</dd>
+<dd><code>streamName</code> - Array containing the stream name per stream</dd>
+<dd><code>maxMsgsPerCycle</code> - Array containing the maximum number of messages that can be
+                        downlinked before repeating the message list per stream</dd>
+<dd><code>maxBytesPerSec</code> - Array containing the maximum number of bytes that can be downlinked
+                        in one second per stream</dd>
+<dd><code>includeUneven</code> - True to include unevenly time-spaced sample rate values; false to
+                        only include sample rates that are evenly time-spaced</dd>
+<dd><code>parent</code> - Component calling this method, used for positioning any error dialogs</dd>
 </dl>
 </li>
 </ul>
@@ -737,12 +738,13 @@ extends java.lang.Object</pre>
 <div class="block">Build the array of valid sample rates based on the specified rate parameters</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>maxSecPerMsg</code> - maximum number of seconds allowed between downlinking two of the same message</dd>
-<dd><code>maxMsgsPerSec</code> - maximum number of messages that can be downlinked in one second</dd>
-<dd><code>maxMsgsPerCycle</code> - maximum number of messages that can be downlinked before repeating the message
-            list per stream</dd>
-<dd><code>includeUneven</code> - true to include unevenly time-spaced sample rate values; false to only include
-            sample rates that are evenly time-spaced</dd>
+<dd><code>maxSecPerMsg</code> - Maximum number of seconds allowed between downlinking two of the same
+                        message</dd>
+<dd><code>maxMsgsPerSec</code> - Maximum number of messages that can be downlinked in one second</dd>
+<dd><code>maxMsgsPerCycle</code> - Maximum number of messages that can be downlinked before repeating
+                        the message list per stream</dd>
+<dd><code>includeUneven</code> - True to include unevenly time-spaced sample rate values; false to
+                        only include sample rates that are evenly time-spaced</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Array containing the valid sample rates</dd>
 </dl>
@@ -762,8 +764,8 @@ extends java.lang.Object</pre>
  the decimal if no zeroes remain for both the numerator and denominator</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>samples</code> - number of samples</dd>
-<dd><code>seconds</code> - number of seconds</dd>
+<dd><code>samples</code> - Number of samples</dd>
+<dd><code>seconds</code> - Number of seconds</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Rate, in samples per second, displaying a maximum of 5 decimal places)</dd>
 </dl>
@@ -795,7 +797,7 @@ extends java.lang.Object</pre>
  not assigned to any telemetry parameter in the structure tables grayed out</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>rateName</code> - rate column name</dd>
+<dd><code>rateName</code> - Rate column name</dd>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Array of the sample rate values for the specified rate column name with those rates

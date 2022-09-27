@@ -17,7 +17,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":9,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":10,"i35":10,"i36":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":9,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":10,"i35":10,"i36":10,"i37":10,"i38":10,"i39":10,"i40":10,"i41":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -221,6 +221,14 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#addHiddenCheckBox">addHiddenCheckBox</a></span></code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>private int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#allTablesNodeIndex">allTablesNodeIndex</a></span></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#buildGroupTree">buildGroupTree</a></span></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>private <a href="../CCDD/CcddMain.html" title="class in CCDD">CcddMain</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#ccddMain">ccddMain</a></span></code>&nbsp;</td>
 </tr>
@@ -237,52 +245,60 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#dbTable">dbTable</a></span></code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>private <a href="../CCDD/CcddConstants.TableTreeType.html" title="enum in CCDD">CcddConstants.TableTreeType</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#defaultTreeType">defaultTreeType</a></span></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>private java.util.List&lt;java.lang.String&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#excludedVariables">excludedVariables</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>private javax.swing.JCheckBox</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#expandChkBx">expandChkBx</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>private boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#getDescriptions">getDescriptions</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>private int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#GROUP_HEADER_LEVEL">GROUP_HEADER_LEVEL</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>private <a href="../CCDD/CcddGroupHandler.html" title="class in CCDD">CcddGroupHandler</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#groupHandler">groupHandler</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>private java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#instanceNodeName">instanceNodeName</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>private boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#isBuilding">isBuilding</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>private boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#isByGroup">isByGroup</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>private boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#isByType">isByType</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>private boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#isSilent">isSilent</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>private java.util.List&lt;java.lang.String&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#linkedVariables">linkedVariables</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>private <a href="../CCDD/CcddTableTreeHandler.TableTreeNodeFilter.html" title="enum in CCDD">CcddTableTreeHandler.TableTreeNodeFilter</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#nodeFilter">nodeFilter</a></span></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private <a href="../CCDD/CcddClassesComponent.ToolTipTreeNode.html" title="class in CCDD">CcddClassesComponent.ToolTipTreeNode</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#preLoadedGroupRoot">preLoadedGroupRoot</a></span></code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>private java.lang.String</code></td>
@@ -303,6 +319,14 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
 <tr class="rowColor">
 <td class="colFirst"><code>private <a href="../CCDD/CcddClassesComponent.ArrayListMultiple.html" title="class in CCDD">CcddClassesComponent.ArrayListMultiple</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#rateValues">rateValues</a></span></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>(package private) long</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#recursionAccumulator">recursionAccumulator</a></span></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>(package private) long</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#recursionCounter">recursionCounter</a></span></code>&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>private java.lang.String</code></td>
@@ -330,25 +354,29 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>private boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#sortByName">sortByName</a></span></code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#skipMemberTables">skipMemberTables</a></span></code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>private boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#sortByName">sortByName</a></span></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>private java.lang.String[][]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#tableDescriptions">tableDescriptions</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
-<td class="colFirst"><code>private java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.TableMembers.html" title="class in CCDD">CcddClassesDataTable.TableMembers</a>&gt;</code></td>
+<tr class="rowColor">
+<td class="colFirst"><code>protected java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.TableMembers.html" title="class in CCDD">CcddClassesDataTable.TableMembers</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#tableMembers">tableMembers</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>private java.util.List&lt;java.lang.Object[]&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#tablePathList">tablePathList</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>private <a href="../CCDD/CcddTableTypeHandler.html" title="class in CCDD">CcddTableTypeHandler</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#tableTypeHandler">tableTypeHandler</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>private <a href="../CCDD/CcddConstants.TableTreeType.html" title="enum in CCDD">CcddConstants.TableTreeType</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#treeType">treeType</a></span></code>&nbsp;</td>
 </tr>
@@ -410,7 +438,7 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
 </td>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#CcddTableTreeHandler-CCDD.CcddMain-CCDD.CcddGroupHandler-CCDD.CcddConstants.TableTreeType-boolean-boolean-boolean-boolean-boolean-java.lang.String-java.lang.String-java.util.List-boolean-java.lang.String-java.lang.String-java.awt.Component-">CcddTableTreeHandler</a></span>(<a href="../CCDD/CcddMain.html" title="class in CCDD">CcddMain</a>&nbsp;ccddMain,
+<td class="colOne"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#CcddTableTreeHandler-CCDD.CcddMain-CCDD.CcddGroupHandler-CCDD.CcddConstants.TableTreeType-boolean-boolean-boolean-boolean-boolean-java.lang.String-java.lang.String-java.util.List-boolean-java.lang.String-java.lang.String-boolean-java.awt.Component-">CcddTableTreeHandler</a></span>(<a href="../CCDD/CcddMain.html" title="class in CCDD">CcddMain</a>&nbsp;ccddMain,
                     <a href="../CCDD/CcddGroupHandler.html" title="class in CCDD">CcddGroupHandler</a>&nbsp;groupHandler,
                     <a href="../CCDD/CcddConstants.TableTreeType.html" title="enum in CCDD">CcddConstants.TableTreeType</a>&nbsp;treeType,
                     boolean&nbsp;getDescriptions,
@@ -424,16 +452,18 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
                     boolean&nbsp;isSilent,
                     java.lang.String&nbsp;prototypeNodeName,
                     java.lang.String&nbsp;instanceNodeName,
+                    boolean&nbsp;skipMemberTables,
                     java.awt.Component&nbsp;parent)</code>
 <div class="block">Table tree handler class constructor</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#CcddTableTreeHandler-CCDD.CcddMain-CCDD.CcddGroupHandler-CCDD.CcddConstants.TableTreeType-boolean-boolean-java.awt.Component-">CcddTableTreeHandler</a></span>(<a href="../CCDD/CcddMain.html" title="class in CCDD">CcddMain</a>&nbsp;ccddMain,
+<td class="colOne"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#CcddTableTreeHandler-CCDD.CcddMain-CCDD.CcddGroupHandler-CCDD.CcddConstants.TableTreeType-boolean-boolean-boolean-java.awt.Component-">CcddTableTreeHandler</a></span>(<a href="../CCDD/CcddMain.html" title="class in CCDD">CcddMain</a>&nbsp;ccddMain,
                     <a href="../CCDD/CcddGroupHandler.html" title="class in CCDD">CcddGroupHandler</a>&nbsp;groupHandler,
                     <a href="../CCDD/CcddConstants.TableTreeType.html" title="enum in CCDD">CcddConstants.TableTreeType</a>&nbsp;treeType,
                     boolean&nbsp;showGroupFilter,
                     boolean&nbsp;addHiddenCheckbox,
+                    boolean&nbsp;skipMemberTables,
                     java.awt.Component&nbsp;parent)</code>
 <div class="block">Table tree handler class constructor</div>
 </td>
@@ -507,9 +537,10 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#buildTableTree-java.lang.Boolean-java.lang.String-java.lang.String-java.awt.Component-">buildTableTree</a></span>(java.lang.Boolean&nbsp;isExpanded,
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#buildTableTree-java.lang.Boolean-java.lang.String-java.lang.String-boolean-java.awt.Component-">buildTableTree</a></span>(java.lang.Boolean&nbsp;isExpanded,
               java.lang.String&nbsp;rateName,
               java.lang.String&nbsp;rateFilter,
+              boolean&nbsp;isByGroupChanged,
               java.awt.Component&nbsp;parent)</code>
 <div class="block">(Re)build the table tree from the currently table information</div>
 </td>
@@ -566,6 +597,12 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
 </td>
 </tr>
 <tr id="i12" class="altColor">
+<td class="colFirst"><code><a href="../CCDD/CcddClassesComponent.ToolTipTreeNode.html" title="class in CCDD">CcddClassesComponent.ToolTipTreeNode</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#getPreLoadedGroupRoot--">getPreLoadedGroupRoot</a></span>()</code>
+<div class="block">Returns preLoadedGroupRoot.</div>
+</td>
+</tr>
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>protected java.util.List&lt;java.lang.String&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#getPrimitiveVariablePaths-javax.swing.tree.DefaultMutableTreeNode-boolean-">getPrimitiveVariablePaths</a></span>(javax.swing.tree.DefaultMutableTreeNode&nbsp;startNode,
                          boolean&nbsp;ignoreDisabled)</code>
@@ -573,64 +610,76 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
  the specified node.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>protected <a href="../CCDD/CcddClassesComponent.ToolTipTreeNode.html" title="class in CCDD">CcddClassesComponent.ToolTipTreeNode</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#getRootNode--">getRootNode</a></span>()</code>
 <div class="block">Get the table tree root node</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>protected java.util.List&lt;java.lang.String&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#getSelectedGroups--">getSelectedGroups</a></span>()</code>
 <div class="block">Get a list of the group nodes that are selected.</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>protected java.util.List&lt;java.lang.String&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#getSelectedTablesWithChildren--">getSelectedTablesWithChildren</a></span>()</code>
 <div class="block">Get a list of the tables (with their paths) represented by the selected nodes.</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>protected java.util.List&lt;java.lang.String&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#getSelectedTablesWithoutChildren--">getSelectedTablesWithoutChildren</a></span>()</code>
 <div class="block">Get a list of the tables (with their paths) represented by the selected nodes.</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>protected java.util.List&lt;java.lang.Object[]&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#getSelectedVariables-boolean-">getSelectedVariables</a></span>(boolean&nbsp;isVariable)</code>
 <div class="block">Get the root structure and variable path for the selected node(s)</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>protected java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#getTableDescription-java.lang.String-java.lang.String-">getTableDescription</a></span>(java.lang.String&nbsp;tablePath,
                    java.lang.String&nbsp;dataType)</code>
 <div class="block">Get the description for the specified table</div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>private static java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#getTableFromNodeName-java.lang.String-">getTableFromNodeName</a></span>(java.lang.String&nbsp;nodeName)</code>
 <div class="block">Get the table name from the node name, removing the variable name if present</div>
 </td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i21" class="rowColor">
+<td class="colFirst"><code>protected <a href="../CCDD/CcddClassesDataTable.TableMembers.html" title="class in CCDD">CcddClassesDataTable.TableMembers</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#getTableMemberByName-java.lang.String-">getTableMemberByName</a></span>(java.lang.String&nbsp;tableName)</code>
+<div class="block">Get the table member by name</div>
+</td>
+</tr>
+<tr id="i22" class="altColor">
+<td class="colFirst"><code>protected java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.TableMembers.html" title="class in CCDD">CcddClassesDataTable.TableMembers</a>&gt;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#getTableMembers--">getTableMembers</a></span>()</code>
+<div class="block">Get the table members</div>
+</td>
+</tr>
+<tr id="i23" class="rowColor">
 <td class="colFirst"><code>protected java.util.List&lt;java.lang.String&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#getTablesWithChildren-java.util.List-">getTablesWithChildren</a></span>(java.util.List&lt;java.lang.String&gt;&nbsp;tables)</code>
 <div class="block">Get a list of the specified table name(s), and include all descendant tables for those
  tables that are root structures.</div>
 </td>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i24" class="altColor">
 <td class="colFirst"><code>protected java.util.List&lt;java.lang.String&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#getTablesWithoutChildren-CCDD.CcddClassesComponent.ToolTipTreeNode-">getTablesWithoutChildren</a></span>(<a href="../CCDD/CcddClassesComponent.ToolTipTreeNode.html" title="class in CCDD">CcddClassesComponent.ToolTipTreeNode</a>&nbsp;node)</code>
 <div class="block">Get a list of the table names that are the descendants of the specified node (do not include
  any duplicates or children of these descendants, if any).</div>
 </td>
 </tr>
-<tr id="i22" class="altColor">
+<tr id="i25" class="rowColor">
 <td class="colFirst"><code>protected java.util.List&lt;java.lang.Object[]&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#getTableTreePathArray-java.lang.String-CCDD.CcddClassesComponent.ToolTipTreeNode-int-">getTableTreePathArray</a></span>(java.lang.String&nbsp;searchName,
                      <a href="../CCDD/CcddClassesComponent.ToolTipTreeNode.html" title="class in CCDD">CcddClassesComponent.ToolTipTreeNode</a>&nbsp;startNode,
@@ -639,14 +688,14 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
  the node contains the search table's name.</div>
 </td>
 </tr>
-<tr id="i23" class="rowColor">
+<tr id="i26" class="altColor">
 <td class="colFirst"><code>protected java.util.List&lt;java.lang.String&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#getTableTreePathList-java.lang.String-">getTableTreePathList</a></span>(java.lang.String&nbsp;searchName)</code>
 <div class="block">Search the entire table tree and get the list of paths where the node contains the search
  table's name.</div>
 </td>
 </tr>
-<tr id="i24" class="altColor">
+<tr id="i27" class="rowColor">
 <td class="colFirst"><code>protected java.util.List&lt;java.lang.String&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#getTableTreePathList-java.lang.String-CCDD.CcddClassesComponent.ToolTipTreeNode-int-">getTableTreePathList</a></span>(java.lang.String&nbsp;searchName,
                     <a href="../CCDD/CcddClassesComponent.ToolTipTreeNode.html" title="class in CCDD">CcddClassesComponent.ToolTipTreeNode</a>&nbsp;startNode,
@@ -655,50 +704,56 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
  node contains the search table's name.</div>
 </td>
 </tr>
-<tr id="i25" class="rowColor">
+<tr id="i28" class="altColor">
 <td class="colFirst"><code>java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#getToolTipText-java.awt.event.MouseEvent-">getToolTipText</a></span>(java.awt.event.MouseEvent&nbsp;me)</code>
 <div class="block">Override the table tree's tool tip text handler to provide the descriptions of the nodes</div>
 </td>
 </tr>
-<tr id="i26" class="altColor">
+<tr id="i29" class="rowColor">
 <td class="colFirst"><code>protected java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#getVariableRootFromNodePath-java.lang.Object:A-">getVariableRootFromNodePath</a></span>(java.lang.Object[]&nbsp;nodePath)</code>
 <div class="block">Get the variable's root table from the specified node path</div>
 </td>
 </tr>
-<tr id="i27" class="rowColor">
+<tr id="i30" class="altColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#isFilteredByGroup--">isFilteredByGroup</a></span>()</code>
 <div class="block">Get the status of the group filter</div>
 </td>
 </tr>
-<tr id="i28" class="altColor">
+<tr id="i31" class="rowColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#isNodeInTree-java.lang.String-">isNodeInTree</a></span>(java.lang.String&nbsp;targetPath)</code>
 <div class="block">Determine if the specified path exists in the table tree</div>
 </td>
 </tr>
-<tr id="i29" class="rowColor">
+<tr id="i32" class="altColor">
 <td class="colFirst"><code>protected java.util.List&lt;java.lang.String&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#pruneTreeToSearchCriteria-java.lang.String-">pruneTreeToSearchCriteria</a></span>(java.lang.String&nbsp;searchText)</code>
 <div class="block">Beginning with the root node, remove tree nodes that do not match the specified search text
  and are not an ancestor of a node that does contain a match.</div>
 </td>
 </tr>
-<tr id="i30" class="altColor">
+<tr id="i33" class="rowColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#removeAllTablesGroup-java.awt.Component-">removeAllTablesGroup</a></span>(java.awt.Component&nbsp;parent)</code>
+<div class="block">If the AllTablesNode exists then delete it</div>
+</td>
+</tr>
+<tr id="i34" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#setExcludedVariables-java.util.List-">setExcludedVariables</a></span>(java.util.List&lt;java.lang.String&gt;&nbsp;excludedVariables)</code>
 <div class="block">Set the list of excluded variables and update the node enable states</div>
 </td>
 </tr>
-<tr id="i31" class="rowColor">
+<tr id="i35" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#setGroupHandler-CCDD.CcddGroupHandler-">setGroupHandler</a></span>(<a href="../CCDD/CcddGroupHandler.html" title="class in CCDD">CcddGroupHandler</a>&nbsp;groupHandler)</code>
 <div class="block">Set the group handler reference</div>
 </td>
 </tr>
-<tr id="i32" class="altColor">
+<tr id="i36" class="altColor">
 <td class="colFirst"><code>private boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#setInvalidNodesAndTrim-java.util.List-CCDD.CcddClassesComponent.ToolTipTreeNode-">setInvalidNodesAndTrim</a></span>(java.util.List&lt;java.lang.String&gt;&nbsp;validTables,
                       <a href="../CCDD/CcddClassesComponent.ToolTipTreeNode.html" title="class in CCDD">CcddClassesComponent.ToolTipTreeNode</a>&nbsp;node)</code>
@@ -706,29 +761,35 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
  where the name doesn't match one in the supplied list of tables.</div>
 </td>
 </tr>
-<tr id="i33" class="rowColor">
+<tr id="i37" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#setLinkedVariables-java.util.List-">setLinkedVariables</a></span>(java.util.List&lt;java.lang.String&gt;&nbsp;linkedVars)</code>
 <div class="block">Replace the list of linked variables with the list provided</div>
 </td>
 </tr>
-<tr id="i34" class="altColor">
+<tr id="i38" class="altColor">
 <td class="colFirst"><code>private boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#setNodeEnableByChildState-CCDD.CcddClassesComponent.ToolTipTreeNode-">setNodeEnableByChildState</a></span>(<a href="../CCDD/CcddClassesComponent.ToolTipTreeNode.html" title="class in CCDD">CcddClassesComponent.ToolTipTreeNode</a>&nbsp;node)</code>
 <div class="block">Set the node text color based on the enable state of its child nodes.</div>
 </td>
 </tr>
-<tr id="i35" class="rowColor">
+<tr id="i39" class="rowColor">
 <td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#setNodeEnableByExcludeList--">setNodeEnableByExcludeList</a></span>()</code>
 <div class="block">Update the text color for the nodes that represent a primitive variable based on the
  variable exclusion list</div>
 </td>
 </tr>
-<tr id="i36" class="altColor">
+<tr id="i40" class="altColor">
 <td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#updateGroupSelection--">updateGroupSelection</a></span>()</code>
 <div class="block">Placeholder for method to respond to changes in selection of a group in the group list</div>
+</td>
+</tr>
+<tr id="i41" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#updatePreLoadedGroupRoot--">updatePreLoadedGroupRoot</a></span>()</code>
+<div class="block">Updates preLoadedGroupRoot.</div>
 </td>
 </tr>
 </table>
@@ -737,7 +798,7 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;CCDD.<a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddCommonTreeHandler</a></h3>
-<code><a href="../CCDD/CcddCommonTreeHandler.html#addChildNodes-CCDD.CcddClassesComponent.ToolTipTreeNode-java.util.List-java.util.List-boolean-">addChildNodes</a>, <a href="../CCDD/CcddCommonTreeHandler.html#adjustExpansionState-java.lang.String-boolean-boolean-boolean-boolean-boolean-java.util.List-CCDD.CcddGroupHandler-CCDD.CcddTableTypeHandler-">adjustExpansionState</a>, <a href="../CCDD/CcddCommonTreeHandler.html#clearDisabledNodes--">clearDisabledNodes</a>, <a href="../CCDD/CcddCommonTreeHandler.html#createNameFromPath-java.lang.Object:A-int-">createNameFromPath</a>, <a href="../CCDD/CcddCommonTreeHandler.html#expandCollapseSelectedNodes--">expandCollapseSelectedNodes</a>, <a href="../CCDD/CcddCommonTreeHandler.html#getBitPackedVariables-CCDD.CcddClassesComponent.ToolTipTreeNode-">getBitPackedVariables</a>, <a href="../CCDD/CcddCommonTreeHandler.html#getExpansionState--">getExpansionState</a>, <a href="../CCDD/CcddCommonTreeHandler.html#getFullVariablePath-java.lang.Object:A-">getFullVariablePath</a>, <a href="../CCDD/CcddCommonTreeHandler.html#getFullVariablePath-java.lang.Object:A-int-">getFullVariablePath</a>, <a href="../CCDD/CcddCommonTreeHandler.html#getNodeCount-javax.swing.tree.DefaultMutableTreeNode-">getNodeCount</a>, <a href="../CCDD/CcddCommonTreeHandler.html#getPathFromNode-javax.swing.tree.TreeNode-">getPathFromNode</a>, <a href="../CCDD/CcddCommonTreeHandler.html#getStringVariableMembers-CCDD.CcddClassesComponent.ToolTipTreeNode-">getStringVariableMembers</a>, <a href="../CCDD/CcddCommonTreeHandler.html#refreshTree--">refreshTree</a>, <a href="../CCDD/CcddCommonTreeHandler.html#removeAllNodes--">removeAllNodes</a>, <a href="../CCDD/CcddCommonTreeHandler.html#removeExtraText-java.lang.String-">removeExtraText</a>, <a href="../CCDD/CcddCommonTreeHandler.html#setEnableDataType-boolean-">setEnableDataType</a>, <a href="../CCDD/CcddCommonTreeHandler.html#setExpansionState-java.lang.String-">setExpansionState</a>, <a href="../CCDD/CcddCommonTreeHandler.html#setHighlightPattern-java.util.regex.Pattern-">setHighlightPattern</a>, <a href="../CCDD/CcddCommonTreeHandler.html#setTreeExpansion-boolean-">setTreeExpansion</a>, <a href="../CCDD/CcddCommonTreeHandler.html#setVariableNodeIcon-javax.swing.tree.DefaultTreeCellRenderer-CCDD.CcddClassesComponent.ToolTipTreeNode-int-boolean-">setVariableNodeIcon</a>, <a href="../CCDD/CcddCommonTreeHandler.html#updateTableSelection--">updateTableSelection</a></code></li>
+<code><a href="../CCDD/CcddCommonTreeHandler.html#addChildNodes-CCDD.CcddClassesComponent.ToolTipTreeNode-java.util.List-java.util.List-boolean-">addChildNodes</a>, <a href="../CCDD/CcddCommonTreeHandler.html#adjustExpansionState-java.lang.String-boolean-boolean-boolean-boolean-boolean-java.util.List-CCDD.CcddGroupHandler-CCDD.CcddTableTypeHandler-">adjustExpansionState</a>, <a href="../CCDD/CcddCommonTreeHandler.html#clearDisabledNodes--">clearDisabledNodes</a>, <a href="../CCDD/CcddCommonTreeHandler.html#createNameFromPath-java.lang.Object:A-int-">createNameFromPath</a>, <a href="../CCDD/CcddCommonTreeHandler.html#expandCollapseSelectedNodes--">expandCollapseSelectedNodes</a>, <a href="../CCDD/CcddCommonTreeHandler.html#getBitPackedVariables-CCDD.CcddClassesComponent.ToolTipTreeNode-">getBitPackedVariables</a>, <a href="../CCDD/CcddCommonTreeHandler.html#getExpansionState--">getExpansionState</a>, <a href="../CCDD/CcddCommonTreeHandler.html#getFullVariablePath-java.lang.Object:A-">getFullVariablePath</a>, <a href="../CCDD/CcddCommonTreeHandler.html#getFullVariablePath-java.lang.Object:A-int-">getFullVariablePath</a>, <a href="../CCDD/CcddCommonTreeHandler.html#getNodeCount-javax.swing.tree.DefaultMutableTreeNode-">getNodeCount</a>, <a href="../CCDD/CcddCommonTreeHandler.html#getPathFromNode-javax.swing.tree.TreeNode-">getPathFromNode</a>, <a href="../CCDD/CcddCommonTreeHandler.html#getStringVariableMembers-CCDD.CcddClassesComponent.ToolTipTreeNode-">getStringVariableMembers</a>, <a href="../CCDD/CcddCommonTreeHandler.html#isLeaf-javax.swing.tree.TreeNode-">isLeaf</a>, <a href="../CCDD/CcddCommonTreeHandler.html#refreshTree--">refreshTree</a>, <a href="../CCDD/CcddCommonTreeHandler.html#removeAllNodes--">removeAllNodes</a>, <a href="../CCDD/CcddCommonTreeHandler.html#removeExtraText-java.lang.String-">removeExtraText</a>, <a href="../CCDD/CcddCommonTreeHandler.html#setEnableDataType-boolean-">setEnableDataType</a>, <a href="../CCDD/CcddCommonTreeHandler.html#setExpansionState-java.lang.String-">setExpansionState</a>, <a href="../CCDD/CcddCommonTreeHandler.html#setHighlightPattern-java.util.regex.Pattern-">setHighlightPattern</a>, <a href="../CCDD/CcddCommonTreeHandler.html#setTreeExpansion-boolean-">setTreeExpansion</a>, <a href="../CCDD/CcddCommonTreeHandler.html#setVariableNodeIcon-javax.swing.tree.DefaultTreeCellRenderer-CCDD.CcddClassesComponent.ToolTipTreeNode-int-boolean-">setVariableNodeIcon</a>, <a href="../CCDD/CcddCommonTreeHandler.html#updateTableSelection--">updateTableSelection</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.javax.swing.JTree">
@@ -848,7 +909,7 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
 <ul class="blockList">
 <li class="blockList">
 <h4>tableMembers</h4>
-<pre>private&nbsp;java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.TableMembers.html" title="class in CCDD">CcddClassesDataTable.TableMembers</a>&gt; tableMembers</pre>
+<pre>protected&nbsp;java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.TableMembers.html" title="class in CCDD">CcddClassesDataTable.TableMembers</a>&gt; tableMembers</pre>
 </li>
 </ul>
 <a name="tablePathList">
@@ -869,6 +930,15 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
 <pre>private&nbsp;<a href="../CCDD/CcddClassesComponent.ToolTipTreeNode.html" title="class in CCDD">CcddClassesComponent.ToolTipTreeNode</a> root</pre>
 </li>
 </ul>
+<a name="preLoadedGroupRoot">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>preLoadedGroupRoot</h4>
+<pre>private&nbsp;<a href="../CCDD/CcddClassesComponent.ToolTipTreeNode.html" title="class in CCDD">CcddClassesComponent.ToolTipTreeNode</a> preLoadedGroupRoot</pre>
+</li>
+</ul>
 <a name="treeType">
 <!--   -->
 </a>
@@ -878,6 +948,15 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
 <pre>private final&nbsp;<a href="../CCDD/CcddConstants.TableTreeType.html" title="enum in CCDD">CcddConstants.TableTreeType</a> treeType</pre>
 </li>
 </ul>
+<a name="defaultTreeType">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>defaultTreeType</h4>
+<pre>private&nbsp;<a href="../CCDD/CcddConstants.TableTreeType.html" title="enum in CCDD">CcddConstants.TableTreeType</a> defaultTreeType</pre>
+</li>
+</ul>
 <a name="expandChkBx">
 <!--   -->
 </a>
@@ -885,6 +964,15 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
 <li class="blockList">
 <h4>expandChkBx</h4>
 <pre>private&nbsp;javax.swing.JCheckBox expandChkBx</pre>
+</li>
+</ul>
+<a name="skipMemberTables">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>skipMemberTables</h4>
+<pre>private&nbsp;boolean skipMemberTables</pre>
 </li>
 </ul>
 <a name="sortByName">
@@ -1085,10 +1173,28 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
 <pre>private&nbsp;<a href="../CCDD/CcddTableTreeHandler.TableTreeNodeFilter.html" title="enum in CCDD">CcddTableTreeHandler.TableTreeNodeFilter</a> nodeFilter</pre>
 </li>
 </ul>
+<a name="recursionCounter">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>recursionCounter</h4>
+<pre>long recursionCounter</pre>
+</li>
+</ul>
+<a name="recursionAccumulator">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>recursionAccumulator</h4>
+<pre>long recursionAccumulator</pre>
+</li>
+</ul>
 <a name="GROUP_HEADER_LEVEL">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>GROUP_HEADER_LEVEL</h4>
 <pre>private final&nbsp;int GROUP_HEADER_LEVEL</pre>
@@ -1096,6 +1202,24 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../constant-values.html#CCDD.CcddTableTreeHandler.GROUP_HEADER_LEVEL">Constant Field Values</a></dd>
 </dl>
+</li>
+</ul>
+<a name="buildGroupTree">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>buildGroupTree</h4>
+<pre>private&nbsp;boolean buildGroupTree</pre>
+</li>
+</ul>
+<a name="allTablesNodeIndex">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>allTablesNodeIndex</h4>
+<pre>private&nbsp;int allTablesNodeIndex</pre>
 </li>
 </ul>
 </li>
@@ -1106,7 +1230,7 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="CcddTableTreeHandler-CCDD.CcddMain-CCDD.CcddGroupHandler-CCDD.CcddConstants.TableTreeType-boolean-boolean-boolean-boolean-boolean-java.lang.String-java.lang.String-java.util.List-boolean-java.lang.String-java.lang.String-java.awt.Component-">
+<a name="CcddTableTreeHandler-CCDD.CcddMain-CCDD.CcddGroupHandler-CCDD.CcddConstants.TableTreeType-boolean-boolean-boolean-boolean-boolean-java.lang.String-java.lang.String-java.util.List-boolean-java.lang.String-java.lang.String-boolean-java.awt.Component-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1126,36 +1250,38 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
                      boolean&nbsp;isSilent,
                      java.lang.String&nbsp;prototypeNodeName,
                      java.lang.String&nbsp;instanceNodeName,
+                     boolean&nbsp;skipMemberTables,
                      java.awt.Component&nbsp;parent)</pre>
 <div class="block">Table tree handler class constructor</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>ccddMain</code> - main class</dd>
-<dd><code>groupHandler</code> - group handler</dd>
-<dd><code>treeType</code> - table tree type (TableTreeType)</dd>
-<dd><code>getDescriptions</code> - true if the node descriptions are to be added as tool tips</dd>
-<dd><code>sortByName</code> - true to sort the child structures by variable name; false to show in the order
-            defined in the structure</dd>
-<dd><code>showGroupFilter</code> - true to display the group filter check box</dd>
-<dd><code>showTypeFilter</code> - true to display the type filter check box</dd>
-<dd><code>addHiddenCheckbox</code> - true to add a hidden check box under the filter check boxes for alignment
-            purposes</dd>
-<dd><code>rateName</code> - data stream rate column name used to filter the table tree for variables with
-            rates</dd>
-<dd><code>rateFilter</code> - data rate used to filter the table tree for variables with rates</dd>
-<dd><code>excludedVariables</code> - list of node paths to be excluded from the table; null or empty list if no
-            exclusions</dd>
-<dd><code>isSilent</code> - true if any errors when building the tree are not annunciated via a warning
-            dialog</dd>
-<dd><code>prototypeNodeName</code> - name of the prototype node; null to set the node to which the prototype node
-            would normally belong as the prototype node</dd>
-<dd><code>instanceNodeName</code> - name of the instance node; null to set node to which the instance node would
-            normally belong as the instance node</dd>
+<dd><code>ccddMain</code> - Main class</dd>
+<dd><code>groupHandler</code> - Group handler</dd>
+<dd><code>treeType</code> - Table tree type (TableTreeType)</dd>
+<dd><code>getDescriptions</code> - True if the node descriptions are to be added as tool tips</dd>
+<dd><code>sortByName</code> - True to sort the child structures by variable name; false to show
+                          in the order defined in the structure</dd>
+<dd><code>showGroupFilter</code> - True to display the group filter check box</dd>
+<dd><code>showTypeFilter</code> - True to display the type filter check box</dd>
+<dd><code>addHiddenCheckbox</code> - True to add a hidden check box under the filter check boxes for
+                          alignment purposes</dd>
+<dd><code>rateName</code> - Data stream rate column name used to filter the table tree for
+                          variables with rates</dd>
+<dd><code>rateFilter</code> - Data rate used to filter the table tree for variables with rates</dd>
+<dd><code>excludedVariables</code> - List of node paths to be excluded from the table; null or empty
+                          list if no exclusions</dd>
+<dd><code>isSilent</code> - True if any errors when building the tree are not annunciated via a
+                          warning dialog</dd>
+<dd><code>prototypeNodeName</code> - Name of the prototype node; null to set the node to which the
+                          prototype node would normally belong as the prototype node</dd>
+<dd><code>instanceNodeName</code> - Name of the instance node; null to set node to which the instance
+                          node would normally belong as the instance node</dd>
+<dd><code>skipMemberTables</code> - Do not include the members of any root tables</dd>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 </dl>
 </li>
 </ul>
-<a name="CcddTableTreeHandler-CCDD.CcddMain-CCDD.CcddGroupHandler-CCDD.CcddConstants.TableTreeType-boolean-boolean-java.awt.Component-">
+<a name="CcddTableTreeHandler-CCDD.CcddMain-CCDD.CcddGroupHandler-CCDD.CcddConstants.TableTreeType-boolean-boolean-boolean-java.awt.Component-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1166,16 +1292,18 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
                      <a href="../CCDD/CcddConstants.TableTreeType.html" title="enum in CCDD">CcddConstants.TableTreeType</a>&nbsp;treeType,
                      boolean&nbsp;showGroupFilter,
                      boolean&nbsp;addHiddenCheckbox,
+                     boolean&nbsp;skipMemberTables,
                      java.awt.Component&nbsp;parent)</pre>
 <div class="block">Table tree handler class constructor</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>ccddMain</code> - main class</dd>
-<dd><code>groupHandler</code> - group handler</dd>
-<dd><code>treeType</code> - table tree type (TableTreeType)</dd>
-<dd><code>showGroupFilter</code> - true to display the group filter check box</dd>
-<dd><code>addHiddenCheckbox</code> - true to add a hidden check box under the filter check boxes for alignment
-            purposes</dd>
+<dd><code>ccddMain</code> - Main class</dd>
+<dd><code>groupHandler</code> - Group handler</dd>
+<dd><code>treeType</code> - Table tree type (TableTreeType)</dd>
+<dd><code>showGroupFilter</code> - True to display the group filter check box</dd>
+<dd><code>addHiddenCheckbox</code> - True to add a hidden check box under the filter check boxes for
+                          alignment purposes</dd>
+<dd><code>skipMemberTables</code> - True to skip member tables</dd>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 </dl>
 </li>
@@ -1198,17 +1326,18 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
 <div class="block">Table tree handler class constructor. Get just the tree information of the specified type</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>ccddMain</code> - main class</dd>
-<dd><code>groupHandler</code> - group handler</dd>
-<dd><code>treeType</code> - table tree type (TableTreeType)</dd>
-<dd><code>rateName</code> - rate column name used to filter the table tree for variables with rates</dd>
-<dd><code>rateFilter</code> - data rate used to filter the table tree for variables with rates</dd>
-<dd><code>excludedVariables</code> - list of node paths to be excluded from the table; null or empty list if no
-            exclusions</dd>
-<dd><code>prototypeNodeName</code> - name of the prototype node; null to set the node to which the prototype node
-            would normally belong as the prototype node</dd>
-<dd><code>instanceNodeName</code> - name of the instance node; null to set node to which the instance node would
-            normally belong as the instance node</dd>
+<dd><code>ccddMain</code> - Main class</dd>
+<dd><code>groupHandler</code> - Group handler</dd>
+<dd><code>treeType</code> - Table tree type (TableTreeType)</dd>
+<dd><code>rateName</code> - Rate column name used to filter the table tree for variables with
+                          rates</dd>
+<dd><code>rateFilter</code> - Data rate used to filter the table tree for variables with rates</dd>
+<dd><code>excludedVariables</code> - List of node paths to be excluded from the table; null or empty
+                          list if no exclusions</dd>
+<dd><code>prototypeNodeName</code> - Name of the prototype node; null to set the node to which the
+                          prototype node would normally belong as the prototype node</dd>
+<dd><code>instanceNodeName</code> - Name of the instance node; null to set node to which the instance
+                          node would normally belong as the instance node</dd>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 </dl>
 </li>
@@ -1228,13 +1357,13 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
 <div class="block">Table tree handler class constructor</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>ccddMain</code> - main class</dd>
-<dd><code>groupHandler</code> - group handler</dd>
-<dd><code>treeType</code> - table tree type (TableTreeType)</dd>
-<dd><code>prototypeNodeName</code> - name of the prototype node; null to set the node to which the prototype node
-            would normally belong as the prototype node</dd>
-<dd><code>instanceNodeName</code> - name of the instance node; null to set node to which the instance node would
-            normally belong as the instance node</dd>
+<dd><code>ccddMain</code> - Main class</dd>
+<dd><code>groupHandler</code> - Group handler</dd>
+<dd><code>treeType</code> - Table tree type (TableTreeType)</dd>
+<dd><code>prototypeNodeName</code> - Name of the prototype node; null to set the node to which the
+                          prototype node would normally belong as the prototype node</dd>
+<dd><code>instanceNodeName</code> - Name of the instance node; null to set node to which the instance
+                          node would normally belong as the instance node</dd>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 </dl>
 </li>
@@ -1254,10 +1383,10 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
  definition</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>ccddMain</code> - main class</dd>
-<dd><code>treeType</code> - table tree type (TableTreeType)</dd>
-<dd><code>isSilent</code> - true if any errors when building the tree are not annunciated via a warning
-            dialog</dd>
+<dd><code>ccddMain</code> - Main class</dd>
+<dd><code>treeType</code> - Table tree type (TableTreeType)</dd>
+<dd><code>isSilent</code> - True if any errors when building the tree are not annunciated via a warning
+                 dialog</dd>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 </dl>
 </li>
@@ -1276,8 +1405,8 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
  definition</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>ccddMain</code> - main class</dd>
-<dd><code>treeType</code> - table tree type (TableTreeType)</dd>
+<dd><code>ccddMain</code> - Main class</dd>
+<dd><code>treeType</code> - Table tree type (TableTreeType)</dd>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 </dl>
 </li>
@@ -1290,6 +1419,36 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a name="getTableMembers--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getTableMembers</h4>
+<pre>protected&nbsp;java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.TableMembers.html" title="class in CCDD">CcddClassesDataTable.TableMembers</a>&gt;&nbsp;getTableMembers()</pre>
+<div class="block">Get the table members</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Table members</dd>
+</dl>
+</li>
+</ul>
+<a name="getTableMemberByName-java.lang.String-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getTableMemberByName</h4>
+<pre>protected&nbsp;<a href="../CCDD/CcddClassesDataTable.TableMembers.html" title="class in CCDD">CcddClassesDataTable.TableMembers</a>&nbsp;getTableMemberByName(java.lang.String&nbsp;tableName)</pre>
+<div class="block">Get the table member by name</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>tableName</code> - Table name</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Table member by name</dd>
+</dl>
+</li>
+</ul>
 <a name="getRootNode--">
 <!--   -->
 </a>
@@ -1345,7 +1504,7 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
 <div class="block">Replace the list of linked variables with the list provided</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>linkedVars</code> - list of linked variables</dd>
+<dd><code>linkedVars</code> - List of linked variables</dd>
 </dl>
 </li>
 </ul>
@@ -1359,7 +1518,7 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
 <div class="block">Set the list of excluded variables and update the node enable states</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>excludedVariables</code> - list of variables to be excluded from the tree</dd>
+<dd><code>excludedVariables</code> - List of variables to be excluded from the tree</dd>
 </dl>
 </li>
 </ul>
@@ -1387,7 +1546,7 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
 <div class="block">Set the group handler reference</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>groupHandler</code> - reference to the group handler</dd>
+<dd><code>groupHandler</code> - Reference to the group handler</dd>
 </dl>
 </li>
 </ul>
@@ -1401,11 +1560,11 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
 <div class="block">Load the table information from the database and (re)build the table tree</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>parent</code> - component building this table tree</dd>
+<dd><code>parent</code> - Component building this table tree</dd>
 </dl>
 </li>
 </ul>
-<a name="buildTableTree-java.lang.Boolean-java.lang.String-java.lang.String-java.awt.Component-">
+<a name="buildTableTree-java.lang.Boolean-java.lang.String-java.lang.String-boolean-java.awt.Component-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1414,18 +1573,34 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
 <pre>protected&nbsp;void&nbsp;buildTableTree(java.lang.Boolean&nbsp;isExpanded,
                               java.lang.String&nbsp;rateName,
                               java.lang.String&nbsp;rateFilter,
+                              boolean&nbsp;isByGroupChanged,
                               java.awt.Component&nbsp;parent)</pre>
 <div class="block">(Re)build the table tree from the currently table information</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>isExpanded</code> - true if all tree nodes should be expanded, false to collapse all nodes, and null
-            to use the current status of the expansion check box (if present; if not present
-            then use false)</dd>
-<dd><code>rateName</code> - rate column name used to filter the table tree for variables with rates; null if
-            the tree is not filtered by data rate</dd>
-<dd><code>rateFilter</code> - data rate used to filter the table tree for variables with rates; null if the
-            tree is not filtered by data rate</dd>
-<dd><code>parent</code> - component building this table tree</dd>
+<dd><code>isExpanded</code> - True if all tree nodes should be expanded, false to collapse all
+                         nodes, and null to use the current status of the expansion check box
+                         (if present; if not present then use false)</dd>
+<dd><code>rateName</code> - Rate column name used to filter the table tree for variables with
+                         rates; null if the tree is not filtered by data rate</dd>
+<dd><code>rateFilter</code> - Data rate used to filter the table tree for variables with rates;
+                         null if the tree is not filtered by data rate</dd>
+<dd><code>isByGroupChanged</code> - true if isByGroup changed</dd>
+<dd><code>parent</code> - Component building this table tree</dd>
+</dl>
+</li>
+</ul>
+<a name="removeAllTablesGroup-java.awt.Component-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>removeAllTablesGroup</h4>
+<pre>private&nbsp;void&nbsp;removeAllTablesGroup(java.awt.Component&nbsp;parent)</pre>
+<div class="block">If the AllTablesNode exists then delete it</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 </dl>
 </li>
 </ul>
@@ -1455,9 +1630,9 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
 <div class="block">Add tables to the specified prototype and instance nodes based on table type</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>groupNode</code> - group node if filtering by group; null if not filtering by group</dd>
-<dd><code>groupInfo</code> - reference to the group information is filtering also by group; null if not
-            filtering by group</dd>
+<dd><code>groupNode</code> - Group node if filtering by group; null if not filtering by group</dd>
+<dd><code>groupInfo</code> - Reference to the group information is filtering also by group; null if not
+                  filtering by group</dd>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 </dl>
 </li>
@@ -1476,8 +1651,9 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
  created, based on the match criteria and the filter(s). This is a recursive method</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>validTables</code> - list of table names belonging to the filtered selection; null if no filtering</dd>
-<dd><code>node</code> - node to test for validity</dd>
+<dd><code>validTables</code> - List of table names belonging to the filtered selection; null if no
+                    filtering</dd>
+<dd><code>node</code> - Node to test for validity</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>true if the supplied node has a descendant that's in the valid tables list</dd>
 </dl>
@@ -1498,9 +1674,10 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
  filters (if these are enabled)</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>validTables</code> - list of table names belonging to the filtered selection; null if no filtering</dd>
-<dd><code>instNode</code> - parent node for the top-level nodes</dd>
-<dd><code>protoNode</code> - parent node for the prototype nodes</dd>
+<dd><code>validTables</code> - List of table names belonging to the filtered selection; null if no
+                    filtering</dd>
+<dd><code>instNode</code> - Parent node for the top-level nodes</dd>
+<dd><code>protoNode</code> - Parent node for the prototype nodes</dd>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 </dl>
 </li>
@@ -1520,8 +1697,8 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>thisMember</code> - TableMember class</dd>
-<dd><code>parentNode</code> - current working node for the table tree</dd>
-<dd><code>childNode</code> - new child node to add to the working node</dd>
+<dd><code>parentNode</code> - Current working node for the table tree</dd>
+<dd><code>childNode</code> - New child node to add to the working node</dd>
 </dl>
 </li>
 </ul>
@@ -1536,8 +1713,8 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
 <div class="block">Get the description for the specified table</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>tablePath</code> - root table and variable path for the table</dd>
-<dd><code>dataType</code> - table data type</dd>
+<dd><code>tablePath</code> - Root table and variable path for the table</dd>
+<dd><code>dataType</code> - Table data type</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The description for this table. If this is an instance of a table and no specific
          description exists for it then use the prototype table's description. If the
@@ -1557,8 +1734,8 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
  are in the form of comma-separated node names, with any HTML tags removed</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>searchName</code> - name of table to search for in the node names; null to get all paths for the
-            parent node</dd>
+<dd><code>searchName</code> - Name of table to search for in the node names; null to get all paths for
+                   the parent node</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>List of paths to the nodes matching the search table's name, or all nodes if the
          search name is null</dd>
@@ -1580,11 +1757,11 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
  tags removed</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>searchName</code> - name of table to search for in the node names; null to get all paths for the
-            parent node</dd>
-<dd><code>startNode</code> - starting node</dd>
-<dd><code>maxLevel</code> - only paths that are at a level less than or equal to this value can be added to
-            the list; -1 to to ignore the path level</dd>
+<dd><code>searchName</code> - Name of table to search for in the node names; null to get all paths for
+                   the parent node</dd>
+<dd><code>startNode</code> - Starting node</dd>
+<dd><code>maxLevel</code> - Only paths that are at a level less than or equal to this value can be
+                   added to the list; -1 to to ignore the path level</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>List of paths to the nodes matching the search table's name, or all nodes if the
          search name is null</dd>
@@ -1605,11 +1782,11 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
  nodes is returned. The paths are in the form of arrays, with any HTML tags preserved</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>searchName</code> - name of table to search for in the node names; null to get all paths for the
-            parent node</dd>
-<dd><code>startNode</code> - starting node</dd>
-<dd><code>maxLevel</code> - only paths that are at a level less than or equal to this value can be added to
-            the list; -1 to to ignore the path level</dd>
+<dd><code>searchName</code> - Name of table to search for in the node names; null to get all paths for
+                   the parent node</dd>
+<dd><code>startNode</code> - Starting node</dd>
+<dd><code>maxLevel</code> - Only paths that are at a level less than or equal to this value can be
+                   added to the list; -1 to to ignore the path level</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>List of paths to the nodes matching the search table's name, or all nodes if the
          search name is null</dd>
@@ -1627,7 +1804,7 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
  and are not an ancestor of a node that does contain a match.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>searchText</code> - text for which to search (regular expression is allowed)</dd>
+<dd><code>searchText</code> - Text for which to search (regular expression is allowed)</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>List of paths for the nodes matching the search text; an empty list if there are no
          matches</dd>
@@ -1644,8 +1821,8 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
 <div class="block">Determine if the specified path exists in the table tree</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>targetPath</code> - name of the node to search for, in the form
-            rootTable[,dataType1.variable1[,dataType2.variable2[,...]]]</dd>
+<dd><code>targetPath</code> - Name of the node to search for, in the form
+                   rootTable[,dataType1.variable1[,dataType2.variable2[,...]]]</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>true if the target path exists in in the tree</dd>
 </dl>
@@ -1661,7 +1838,7 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
 <div class="block">Get the TreeNode for the node matching the specified node name (table name + variable name)</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>nodeName</code> - name of the node to search for, in the form tableName.variableName</dd>
+<dd><code>nodeName</code> - Name of the node to search for, in the form tableName.variableName</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>TreeNode for the specified node name; null if the node name doesn't exist in the
          tree</dd>
@@ -1679,8 +1856,8 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
  variable name), starting at the tree root node</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>nodePath</code> - path of the node to search for, in the form
-            rootTable,tableName.variableName(,...)</dd>
+<dd><code>nodePath</code> - Path of the node to search for, in the form
+                 rootTable,tableName.variableName(,...)</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>TreeNode for the specified node path; null if the node path doesn't exist in the
          tree</dd>
@@ -1699,9 +1876,9 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
  variable name), starting at the specified node</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>nodePath</code> - path of the node to search for, in the form
-            rootTable,tableName.variableName(,...)</dd>
-<dd><code>startNode</code> - node from which to begin</dd>
+<dd><code>nodePath</code> - Path of the node to search for, in the form
+                  rootTable,tableName.variableName(,...)</dd>
+<dd><code>startNode</code> - Node from which to begin</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>TreeNode for the specified node path; null if the node path doesn't exist in the
          tree</dd>
@@ -1718,7 +1895,7 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
 <div class="block">Get the table name from the node name, removing the variable name if present</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>nodeName</code> - tree node name</dd>
+<dd><code>nodeName</code> - Tree node name</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Table name portion of the node name</dd>
 </dl>
@@ -1734,7 +1911,7 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
 <div class="block">Get the variable's root table from the specified node path</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>nodePath</code> - node path from which to obtain the variable's root table</dd>
+<dd><code>nodePath</code> - Node path from which to obtain the variable's root table</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The variable's root table for the specified node path</dd>
 </dl>
@@ -1753,8 +1930,8 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
  duplicate table references are included in the list</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>tablePaths</code> - list containing the table paths in which to search</dd>
-<dd><code>includeAncestorPrototype</code> - true to also include the prototype for all instance tables</dd>
+<dd><code>tablePaths</code> - List containing the table paths in which to search</dd>
+<dd><code>includeAncestorPrototype</code> - True to also include the prototype for all instance tables</dd>
 </dl>
 </li>
 </ul>
@@ -1787,7 +1964,7 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
  search for root table descendants. HTML tags are removed from the returned table path+names</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>tables</code> - list of tables for which the descendants are required</dd>
+<dd><code>tables</code> - List of tables for which the descendants are required</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>List containing the table path+names of the specified table(s) with the descendants
          of these tables (if applicable and any exist) and with any HTML tags removed</dd>
@@ -1826,7 +2003,7 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
  returned table path+names. This is a recursive method</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>node</code> - tree node for which to get the table names</dd>
+<dd><code>node</code> - Tree node for which to get the table names</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>List containing the table path+names of the specified node, excluding any duplicates
          and children of these descendant tables, with any HTML tags removed</dd>
@@ -1858,7 +2035,7 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
 <div class="block">Get the root structure and variable path for the selected node(s)</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>isVariable</code> - true if the tree contains variables</dd>
+<dd><code>isVariable</code> - True if the tree contains variables</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>List containing the path array(s) for the selected variable(s)</dd>
 </dl>
@@ -1876,8 +2053,8 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
  the specified node. Disabled nodes may be ignored if desired</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>startNode</code> - starting node from which to build the variable list</dd>
-<dd><code>ignoreDisabled</code> - true to ignore nodes that are flagged as disabled (via HTML color tag)</dd>
+<dd><code>startNode</code> - Starting node from which to build the variable list</dd>
+<dd><code>ignoreDisabled</code> - True to ignore nodes that are flagged as disabled (via HTML color tag)</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>List containing the full node paths for all nodes that represent a primitive
          variable, starting with the specified node</dd>
@@ -1906,7 +2083,7 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
  disabled then disable the parent, otherwise enable the parent. This is a recursive method</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>node</code> - node for which to adjust the text and color</dd>
+<dd><code>node</code> - Node for which to adjust the text and color</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>true if the node is enabled; false if disabled</dd>
 </dl>
@@ -1926,13 +2103,39 @@ extends <a href="../CCDD/CcddCommonTreeHandler.html" title="class in CCDD">CcddC
  that allows tree expansion/collapse</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>label</code> - table tree title; null to not display a title</dd>
-<dd><code>selectionMode</code> - tree item selection mode (single versus multiple)</dd>
-<dd><code>isAllowHighlight</code> - true to allow highlighting of text in the node names</dd>
+<dd><code>label</code> - Table tree title; null to not display a title</dd>
+<dd><code>selectionMode</code> - Tree item selection mode (single versus multiple)</dd>
+<dd><code>isAllowHighlight</code> - True to allow highlighting of text in the node names</dd>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>JPanel containing the table tree components</dd>
 </dl>
+</li>
+</ul>
+<a name="getPreLoadedGroupRoot--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getPreLoadedGroupRoot</h4>
+<pre>public&nbsp;<a href="../CCDD/CcddClassesComponent.ToolTipTreeNode.html" title="class in CCDD">CcddClassesComponent.ToolTipTreeNode</a>&nbsp;getPreLoadedGroupRoot()</pre>
+<div class="block">Returns preLoadedGroupRoot. THIS FUNCTION SHOULD ONLY BE CALLED BY THE CcddTableTreeHandler
+ INSTANTIATED IN ccddMain.java</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>reference to preLoadedGroupRoot</dd>
+</dl>
+</li>
+</ul>
+<a name="updatePreLoadedGroupRoot--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>updatePreLoadedGroupRoot</h4>
+<pre>public&nbsp;void&nbsp;updatePreLoadedGroupRoot()</pre>
+<div class="block">Updates preLoadedGroupRoot. THIS FUNCTION SHOULD ONLY BE CALLED BY THE CcddTableTreeHandler
+ INSTANTIATED IN ccddMain.java</div>
 </li>
 </ul>
 <a name="updateGroupSelection--">

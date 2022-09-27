@@ -128,6 +128,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     private JMenuItem mntmMoveLeft;
     private JMenuItem mntmMoveRight;
     private JMenuItem mntmResetOrder;
+    private JCheckBoxMenuItem mntmFixedColumn;
     private JMenuItem mntmManageFields;
     private JMenuItem mntmClearValues;
     private JButton btnInsertRow;
@@ -325,6 +326,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
         mntmMoveLeft.setEnabled(enable);
         mntmMoveRight.setEnabled(enable);
         mntmResetOrder.setEnabled(enable);
+        mntmFixedColumn.setEnabled(enable);
         mntmWithBlanks.setEnabled(enableIfNotMacro);
         mntmWithPrototype.setEnabled(enableIfChild);
         mntmManageFields.setEnabled(enableIfNotMacro);
@@ -744,12 +746,11 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                                                               KeyEvent.VK_A, 1,
                                                               "Copy array definition value change to all members",
                                                               true);
-        mntmOverwriteEmpty = ccddMain
-                .createRadioButtonMenuItem(mnOverwrite,
-                                           "Overwrite empty",
-                                           KeyEvent.VK_E, 3,
-                                           "Copy array definition value change only to empty members",
-                                           false);
+        mntmOverwriteEmpty = ccddMain.createRadioButtonMenuItem(mnOverwrite,
+                                                                "Overwrite empty",
+                                                                KeyEvent.VK_E, 3,
+                                                                "Copy array definition value change only to empty members",
+                                                                false);
         mntmOverwriteNone = ccddMain.createRadioButtonMenuItem(mnOverwrite,
                                                                "Overwrite none",
                                                                KeyEvent.VK_N, 1,
@@ -774,6 +775,11 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                                                  "Reset order",
                                                  KeyEvent.VK_O, 1,
                                                  "Reset the column order to the default");
+        mntmFixedColumn = ccddMain.createCheckBoxMenuItem(mnColumn,
+                                                          "Fix column",
+                                                          KeyEvent.VK_F, 1,
+                                                          "Display a duplicate of the first column to the left of the table",
+                                                          false);
 
         // Create the Field menu and menu items
         JMenu mnField = ccddMain.createMenu(menuBar, "Field", KeyEvent.VK_L, 1, null);
@@ -1340,6 +1346,28 @@ public class CcddTableEditorDialog extends CcddFrameHandler
             }
         });
 
+        // Add a listener for the Fixed Column command
+        mntmFixedColumn.addActionListener(new ValidateCellActionListener()
+        {
+            /**************************************************************************************
+             * Keep the first column visible
+             *************************************************************************************/
+            @Override
+            protected void performAction(ActionEvent ae)
+            {
+                activeEditor.fixFirstColumn(mntmFixedColumn.isSelected());
+            }
+
+            /**************************************************************************************
+             * Get the reference to the currently displayed table
+             *************************************************************************************/
+            @Override
+            protected CcddJTableHandler getTable()
+            {
+                return activeEditor.getTable();
+            }
+        });
+
         // Add a listener for the Manage Fields command
         mntmManageFields.addActionListener(new ValidateCellActionListener()
         {
@@ -1352,7 +1380,8 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                 // Set the field information so that the field information reference in the table
                 // information is the same as the panel's field information
                 activeEditor.getTableInformation()
-                        .setFieldInformation(activeEditor.getInputFieldPanelHandler().getPanelFieldInformation());
+                            .setFieldInformation(activeEditor.getInputFieldPanelHandler()
+                                                             .getPanelFieldInformation());
 
                 // Create the field editor dialog showing the fields for this table
                 new CcddFieldEditorDialog(ccddMain,
@@ -1933,6 +1962,9 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                     // Update the expand/collapse arrays check box
                     updateExpandArrayCheckBox();
 
+                    // Update the show fixed column check box
+                    updateFixedColumnCheckBox();
+
                     // Update the editor controls state
                     setControlsEnabled(mnFile.isEnabled());
                 }
@@ -1964,6 +1996,14 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     protected void updateExpandArrayCheckBox()
     {
         mntmExpColArray.setSelected(activeEditor.isExpanded());
+    }
+
+    /**********************************************************************************************
+     * Update the show fixed column check box to reflect the current state of the active editor
+     *********************************************************************************************/
+    protected void updateFixedColumnCheckBox()
+    {
+        mntmFixedColumn.setSelected(activeEditor.isFixedColumnShowing());
     }
 
     /**********************************************************************************************

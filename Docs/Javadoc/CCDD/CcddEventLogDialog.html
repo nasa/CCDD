@@ -346,12 +346,12 @@ extends <a href="../CCDD/CcddFrameHandler.html" title="class in CCDD">CcddFrameH
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>private void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddEventLogDialog.html#addMessageToLog-java.lang.String-java.lang.String-java.lang.String-CCDD.CcddConstants.EventLogMessageType-java.lang.String-java.lang.String-">addMessageToLog</a></span>(java.lang.String&nbsp;server,
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddEventLogDialog.html#addMessageToLog-java.lang.String-java.lang.String-java.lang.String-CCDD.CcddConstants.EventLogMessageType-java.lang.String-java.lang.StringBuilder-">addMessageToLog</a></span>(java.lang.String&nbsp;server,
                java.lang.String&nbsp;database,
                java.lang.String&nbsp;user,
                <a href="../CCDD/CcddConstants.EventLogMessageType.html" title="enum in CCDD">CcddConstants.EventLogMessageType</a>&nbsp;type,
                java.lang.String&nbsp;timestamp,
-               java.lang.String&nbsp;logMessage)</code>
+               java.lang.StringBuilder&nbsp;logMessage)</code>
 <div class="block">Add a new log entry to the event log table</div>
 </td>
 </tr>
@@ -365,7 +365,7 @@ extends <a href="../CCDD/CcddFrameHandler.html" title="class in CCDD">CcddFrameH
 <td class="colFirst"><code>private javax.swing.JCheckBox</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddEventLogDialog.html#createCheckBox-CCDD.CcddConstants.EventLogMessageType-java.awt.event.ActionListener-">createCheckBox</a></span>(<a href="../CCDD/CcddConstants.EventLogMessageType.html" title="enum in CCDD">CcddConstants.EventLogMessageType</a>&nbsp;eventType,
               java.awt.event.ActionListener&nbsp;filterListener)</code>
-<div class="block">Create a check box with label</div>
+<div class="block">Create a check box with label.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
@@ -432,8 +432,8 @@ extends <a href="../CCDD/CcddFrameHandler.html" title="class in CCDD">CcddFrameH
 </tr>
 <tr id="i13" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddEventLogDialog.html#logEvent-CCDD.CcddConstants.EventLogMessageType-java.lang.String-">logEvent</a></span>(<a href="../CCDD/CcddConstants.EventLogMessageType.html" title="enum in CCDD">CcddConstants.EventLogMessageType</a>&nbsp;type,
-        java.lang.String&nbsp;logMessage)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddEventLogDialog.html#logEvent-CCDD.CcddConstants.EventLogMessageType-java.lang.StringBuilder-">logEvent</a></span>(<a href="../CCDD/CcddConstants.EventLogMessageType.html" title="enum in CCDD">CcddConstants.EventLogMessageType</a>&nbsp;type,
+        java.lang.StringBuilder&nbsp;logMessage)</code>
 <div class="block">Append an event message to the current session's event log window and file</div>
 </td>
 </tr>
@@ -730,13 +730,13 @@ extends <a href="../CCDD/CcddFrameHandler.html" title="class in CCDD">CcddFrameH
 <div class="block">Event log class constructor</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>ccddMain</code> - main class</dd>
-<dd><code>logFile</code> - event log file; null if creating the session log or if opening a user-selected
-            log file</dd>
-<dd><code>targetRow</code> - row index a specific log entry in an existing log to display in a stand-alone
-            table without message length constraints; null if not displaying a single log
-            entry</dd>
-<dd><code>isSessionLog</code> - true if this is the event log for the current session</dd>
+<dd><code>ccddMain</code> - Main class</dd>
+<dd><code>logFile</code> - Event log file; null if creating the session log or if opening a
+                     user-selected log file</dd>
+<dd><code>targetRow</code> - Row index a specific log entry in an existing log to display in a
+                     stand-alone table without message length constraints; null if not
+                     displaying a single log entry</dd>
+<dd><code>isSessionLog</code> - True if this is the event log for the current session</dd>
 </dl>
 </li>
 </ul>
@@ -751,8 +751,8 @@ extends <a href="../CCDD/CcddFrameHandler.html" title="class in CCDD">CcddFrameH
 <div class="block">Event log class constructor</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>ccddMain</code> - main class</dd>
-<dd><code>isSessionLog</code> - true if this is the event log for the current session</dd>
+<dd><code>ccddMain</code> - Main class</dd>
+<dd><code>isSessionLog</code> - True if this is the event log for the current session</dd>
 </dl>
 </li>
 </ul>
@@ -803,11 +803,11 @@ extends <a href="../CCDD/CcddFrameHandler.html" title="class in CCDD">CcddFrameH
 <div class="block">Create the event log</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>targetLogFile</code> - event log file; null if creating the session log or if opening a user-selected
-            log file</dd>
-<dd><code>targetRow</code> - row index a specific log entry in an existing log to display in a stand-alone
-            table without message length constraints; null if not displaying a single log
-            entry</dd>
+<dd><code>targetLogFile</code> - Event log file; null if creating the session log or if opening a
+                      user-selected log file</dd>
+<dd><code>targetRow</code> - Row index a specific log entry in an existing log to display in a
+                      stand-alone table without message length constraints; null if not
+                      displaying a single log entry</dd>
 </dl>
 </li>
 </ul>
@@ -849,7 +849,7 @@ extends <a href="../CCDD/CcddFrameHandler.html" title="class in CCDD">CcddFrameH
 <div class="block">Create the event log window</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>showFilters</code> - true to display the log message display filters</dd>
+<dd><code>showFilters</code> - True to display the log message display filters</dd>
 </dl>
 </li>
 </ul>
@@ -864,7 +864,7 @@ extends <a href="../CCDD/CcddFrameHandler.html" title="class in CCDD">CcddFrameH
  when the web server exists (even if the server is subsequently disabled)</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>show</code> - true to show the check box; false to hide it</dd>
+<dd><code>show</code> - True to show the check box; false to hide it</dd>
 </dl>
 </li>
 </ul>
@@ -876,7 +876,7 @@ extends <a href="../CCDD/CcddFrameHandler.html" title="class in CCDD">CcddFrameH
 <h4>createCheckBox</h4>
 <pre>private&nbsp;javax.swing.JCheckBox&nbsp;createCheckBox(<a href="../CCDD/CcddConstants.EventLogMessageType.html" title="enum in CCDD">CcddConstants.EventLogMessageType</a>&nbsp;eventType,
                                              java.awt.event.ActionListener&nbsp;filterListener)</pre>
-<div class="block">Create a check box with label</div>
+<div class="block">Create a check box with label. The check box is initially selected</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>eventType</code> - EventLogmessageType event type</dd>
@@ -898,8 +898,8 @@ extends <a href="../CCDD/CcddFrameHandler.html" title="class in CCDD">CcddFrameH
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>type</code> - Event log message type (e.g., COMMAND_MSG)</dd>
-<dd><code>isFiltered</code> - true to set enable display of the specified message type; false to hide messages
-            of the specified type</dd>
+<dd><code>isFiltered</code> - True to set enable display of the specified message type; false to hide
+                   messages of the specified type</dd>
 </dl>
 </li>
 </ul>
@@ -959,9 +959,9 @@ extends <a href="../CCDD/CcddFrameHandler.html" title="class in CCDD">CcddFrameH
 <div class="block">Read an existing event log file</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>targetRow</code> - row index a specific log entry in an existing log to display in a stand-alone
-            table without message length constraints; null if not displaying a single log
-            entry</dd>
+<dd><code>targetRow</code> - Row index a specific log entry in an existing log to display in a
+                  stand-alone table without message length constraints; null if not
+                  displaying a single log entry</dd>
 </dl>
 </li>
 </ul>
@@ -985,25 +985,25 @@ extends <a href="../CCDD/CcddFrameHandler.html" title="class in CCDD">CcddFrameH
 <div class="block">Determine an event log message type by the type name</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>typeName</code> - event log message type name (e.g., "Success")</dd>
+<dd><code>typeName</code> - Event log message type name (e.g., "Success")</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>type Event log message type (e.g., COMMAND_MSG)</dd>
 </dl>
 </li>
 </ul>
-<a name="logEvent-CCDD.CcddConstants.EventLogMessageType-java.lang.String-">
+<a name="logEvent-CCDD.CcddConstants.EventLogMessageType-java.lang.StringBuilder-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>logEvent</h4>
 <pre>protected&nbsp;void&nbsp;logEvent(<a href="../CCDD/CcddConstants.EventLogMessageType.html" title="enum in CCDD">CcddConstants.EventLogMessageType</a>&nbsp;type,
-                        java.lang.String&nbsp;logMessage)</pre>
+                        java.lang.StringBuilder&nbsp;logMessage)</pre>
 <div class="block">Append an event message to the current session's event log window and file</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>type</code> - message type (e.g., COMMAND_MSG)</dd>
-<dd><code>logMessage</code> - new event's log message</dd>
+<dd><code>type</code> - Message type (e.g., COMMAND_MSG)</dd>
+<dd><code>logMessage</code> - New event's log message</dd>
 </dl>
 </li>
 </ul>
@@ -1020,9 +1020,9 @@ extends <a href="../CCDD/CcddFrameHandler.html" title="class in CCDD">CcddFrameH
  corresponding error dialog</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>parent</code> - window to center the dialog over; null if no dialog should be displayed</dd>
-<dd><code>logMessage</code> - new event's log message</dd>
-<dd><code>dialogMessage</code> - error dialog message</dd>
+<dd><code>parent</code> - Window to center the dialog over; null if no dialog should be displayed</dd>
+<dd><code>logMessage</code> - New event's log message</dd>
+<dd><code>dialogMessage</code> - Error dialog message</dd>
 </dl>
 </li>
 </ul>
@@ -1040,14 +1040,14 @@ extends <a href="../CCDD/CcddFrameHandler.html" title="class in CCDD">CcddFrameH
  dialog</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>parent</code> - window to center the dialog over; null if no dialog should be displayed</dd>
-<dd><code>dialogTitle</code> - error dialog title</dd>
-<dd><code>logMessage</code> - new event's log message</dd>
-<dd><code>dialogMessage</code> - error dialog message</dd>
+<dd><code>parent</code> - Window to center the dialog over; null if no dialog should be displayed</dd>
+<dd><code>dialogTitle</code> - Error dialog title</dd>
+<dd><code>logMessage</code> - New event's log message</dd>
+<dd><code>dialogMessage</code> - Error dialog message</dd>
 </dl>
 </li>
 </ul>
-<a name="addMessageToLog-java.lang.String-java.lang.String-java.lang.String-CCDD.CcddConstants.EventLogMessageType-java.lang.String-java.lang.String-">
+<a name="addMessageToLog-java.lang.String-java.lang.String-java.lang.String-CCDD.CcddConstants.EventLogMessageType-java.lang.String-java.lang.StringBuilder-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -1058,16 +1058,16 @@ extends <a href="../CCDD/CcddFrameHandler.html" title="class in CCDD">CcddFrameH
                              java.lang.String&nbsp;user,
                              <a href="../CCDD/CcddConstants.EventLogMessageType.html" title="enum in CCDD">CcddConstants.EventLogMessageType</a>&nbsp;type,
                              java.lang.String&nbsp;timestamp,
-                             java.lang.String&nbsp;logMessage)</pre>
+                             java.lang.StringBuilder&nbsp;logMessage)</pre>
 <div class="block">Add a new log entry to the event log table</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>server</code> - server host and port</dd>
-<dd><code>database</code> - database connection</dd>
-<dd><code>user</code> - user name</dd>
-<dd><code>type</code> - message type (e.g., COMMAND_MSG)</dd>
-<dd><code>timestamp</code> - date and time when event occurred</dd>
-<dd><code>logMessage</code> - new event's log message</dd>
+<dd><code>server</code> - Server host and port</dd>
+<dd><code>database</code> - Database connection</dd>
+<dd><code>user</code> - User name</dd>
+<dd><code>type</code> - Message type (e.g., COMMAND_MSG)</dd>
+<dd><code>timestamp</code> - Date and time when event occurred</dd>
+<dd><code>logMessage</code> - New event's log message</dd>
 </dl>
 </li>
 </ul>
@@ -1081,7 +1081,7 @@ extends <a href="../CCDD/CcddFrameHandler.html" title="class in CCDD">CcddFrameH
 <div class="block">Get the current system date and time stamp</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>format</code> - date and time stamp format</dd>
+<dd><code>format</code> - Date and time stamp format</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Date and time string in the format specified</dd>
 </dl>
@@ -1097,7 +1097,8 @@ extends <a href="../CCDD/CcddFrameHandler.html" title="class in CCDD">CcddFrameH
 <div class="block">Format the date and time string provided for display in the event log table</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>timestamp</code> - date and time string in the format [month/day/year][ ] [hours/minutes/seconds]</dd>
+<dd><code>timestamp</code> - Date and time string in the format [month/day/year][ ]
+                  [hours/minutes/seconds]</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The date and time string formatted for HTML, centered, and with the month/day/year
          and hours/minutes/seconds on separate lines</dd>
@@ -1114,7 +1115,7 @@ extends <a href="../CCDD/CcddFrameHandler.html" title="class in CCDD">CcddFrameH
 <div class="block">Format the server string provided for display in the event log table</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>server</code> - server string in the format [server name][:][port number]</dd>
+<dd><code>server</code> - Server string in the format [server name][:][port number]</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The server string formatted for HTML, centered, and with the server name and port
          number on separate lines</dd>
@@ -1152,7 +1153,7 @@ extends <a href="../CCDD/CcddFrameHandler.html" title="class in CCDD">CcddFrameH
 <div class="block">Truncate the log message if its length exceeds the maximum allowed</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>logMessage</code> - log message</dd>
+<dd><code>logMessage</code> - Log message</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Log message, truncated to the maximum length, and with an ellipsis and number of
          truncated characters appended, if its length exceeds the maximum allowed</dd>

@@ -236,16 +236,24 @@ extends <a href="../CCDD/CcddDialogHandler.html" title="class in CCDD">CcddDialo
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddAssignMessageIDDialog.html#dbTable">dbTable</a></span></code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>private javax.swing.JPanel</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddAssignMessageIDDialog.html#dialogPnl">dialogPnl</a></span></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>private javax.swing.border.Border</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddAssignMessageIDDialog.html#etchBorder">etchBorder</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>private <a href="../CCDD/CcddEventLogDialog.html" title="class in CCDD">CcddEventLogDialog</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddAssignMessageIDDialog.html#eventLog">eventLog</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>private <a href="../CCDD/CcddFieldHandler.html" title="class in CCDD">CcddFieldHandler</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddAssignMessageIDDialog.html#fieldHandler">fieldHandler</a></span></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private <a href="../CCDD/CcddGroupHandler.html" title="class in CCDD">CcddGroupHandler</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddAssignMessageIDDialog.html#groupHandler">groupHandler</a></span></code>&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>private <a href="../CCDD/CcddHaltDialog.html" title="class in CCDD">CcddHaltDialog</a></code></td>
@@ -284,8 +292,8 @@ extends <a href="../CCDD/CcddDialogHandler.html" title="class in CCDD">CcddDialo
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddAssignMessageIDDialog.html#tabbedPane">tabbedPane</a></span></code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>private <a href="../CCDD/CcddTableTypeHandler.html" title="class in CCDD">CcddTableTypeHandler</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddAssignMessageIDDialog.html#tableTypeHandler">tableTypeHandler</a></span></code>&nbsp;</td>
+<td class="colFirst"><code>private <a href="../CCDD/CcddTableTreeHandler.html" title="class in CCDD">CcddTableTreeHandler</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddAssignMessageIDDialog.html#tableTree">tableTree</a></span></code>&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -469,7 +477,7 @@ extends <a href="../CCDD/CcddDialogHandler.html" title="class in CCDD">CcddDialo
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;CCDD.<a href="../CCDD/CcddDialogHandler.html" title="class in CCDD">CcddDialogHandler</a></h3>
-<code><a href="../CCDD/CcddDialogHandler.html#addCheckBoxes-java.lang.String-java.lang.String:A:A-java.util.List-java.lang.String-boolean-javax.swing.JPanel-">addCheckBoxes</a>, <a href="../CCDD/CcddDialogHandler.html#addRadioButtons-java.lang.String-boolean-java.lang.String:A:A-java.util.List-java.lang.String-boolean-javax.swing.JPanel-java.awt.GridBagConstraints-">addRadioButtons</a>, <a href="../CCDD/CcddDialogHandler.html#adjustDialogLocationForScreen-java.awt.Rectangle-">adjustDialogLocationForScreen</a>, <a href="../CCDD/CcddDialogHandler.html#choosePathFile-CCDD.CcddMain-java.awt.Component-java.lang.String-java.lang.String-CCDD.CcddConstants.DialogOption-">choosePathFile</a>, <a href="../CCDD/CcddDialogHandler.html#choosePathFile-CCDD.CcddMain-java.awt.Component-java.lang.String-java.lang.String-javax.swing.filechooser.FileNameExtensionFilter:A-boolean-boolean-java.lang.String-java.lang.String-CCDD.CcddConstants.DialogOption-javax.swing.JPanel-">choosePathFile</a>, <a href="../CCDD/CcddDialogHandler.html#choosePathFile-CCDD.CcddMain-java.awt.Component-java.lang.String-java.lang.String-javax.swing.filechooser.FileNameExtensionFilter:A-boolean-java.lang.String-java.lang.String-CCDD.CcddConstants.DialogOption-">choosePathFile</a>, <a href="../CCDD/CcddDialogHandler.html#closeDialog--">closeDialog</a>, <a href="../CCDD/CcddDialogHandler.html#closeDialog-int-">closeDialog</a>, <a href="../CCDD/CcddDialogHandler.html#createDialog-java.awt.Component-java.lang.Object-javax.swing.JPanel-javax.swing.JButton-java.lang.String-CCDD.CcddConstants.DialogOption-javax.swing.Icon-boolean-boolean-">createDialog</a>, <a href="../CCDD/CcddDialogHandler.html#getCheckBoxes--">getCheckBoxes</a>, <a href="../CCDD/CcddDialogHandler.html#getCheckBoxSelected--">getCheckBoxSelected</a>, <a href="../CCDD/CcddDialogHandler.html#getColorChoicePanel-javax.swing.JColorChooser-java.awt.Color-">getColorChoicePanel</a>, <a href="../CCDD/CcddDialogHandler.html#getFileNameField--">getFileNameField</a>, <a href="../CCDD/CcddDialogHandler.html#getMinimumWidth--">getMinimumWidth</a>, <a href="../CCDD/CcddDialogHandler.html#getRadioButtonSelected--">getRadioButtonSelected</a>, <a href="../CCDD/CcddDialogHandler.html#getRadioButtonSelected-int-">getRadioButtonSelected</a>, <a href="../CCDD/CcddDialogHandler.html#setButtonRows-int-">setButtonRows</a>, <a href="../CCDD/CcddDialogHandler.html#setButtonWidth--">setButtonWidth</a>, <a href="../CCDD/CcddDialogHandler.html#setControlsEnabled-boolean-">setControlsEnabled</a>, <a href="../CCDD/CcddDialogHandler.html#setInitialFocusComponent-java.awt.Component-">setInitialFocusComponent</a>, <a href="../CCDD/CcddDialogHandler.html#setLocationRelativeTo-java.awt.Component-">setLocationRelativeTo</a>, <a href="../CCDD/CcddDialogHandler.html#showIgnoreCancelDialog-java.awt.Component-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-boolean-">showIgnoreCancelDialog</a>, <a href="../CCDD/CcddDialogHandler.html#showMessageDialog-java.awt.Component-java.lang.String-javax.swing.JPanel-javax.swing.JButton-java.lang.String-int-">showMessageDialog</a>, <a href="../CCDD/CcddDialogHandler.html#showMessageDialog-java.awt.Component-java.lang.String-java.lang.String-CCDD.CcddConstants.DialogOption-javax.swing.Icon-">showMessageDialog</a>, <a href="../CCDD/CcddDialogHandler.html#showMessageDialog-java.awt.Component-java.lang.String-java.lang.String-int-CCDD.CcddConstants.DialogOption-">showMessageDialog</a>, <a href="../CCDD/CcddDialogHandler.html#showMessageDialog-java.awt.Component-java.lang.String-java.lang.String-int-CCDD.CcddConstants.DialogOption-boolean-">showMessageDialog</a>, <a href="../CCDD/CcddDialogHandler.html#showOptionsDialog-java.awt.Component-java.awt.Component-java.lang.String-CCDD.CcddConstants.DialogOption-">showOptionsDialog</a>, <a href="../CCDD/CcddDialogHandler.html#showOptionsDialog-java.awt.Component-java.awt.Component-java.lang.String-CCDD.CcddConstants.DialogOption-boolean-">showOptionsDialog</a>, <a href="../CCDD/CcddDialogHandler.html#showOptionsDialog-java.awt.Component-java.awt.Component-java.lang.String-CCDD.CcddConstants.DialogOption-boolean-boolean-">showOptionsDialog</a>, <a href="../CCDD/CcddDialogHandler.html#showOptionsDialog-java.awt.Component-java.lang.Object-javax.swing.JPanel-javax.swing.JButton-java.lang.String-boolean-">showOptionsDialog</a>, <a href="../CCDD/CcddDialogHandler.html#verifySelection--">verifySelection</a>, <a href="../CCDD/CcddDialogHandler.html#windowCloseButtonAction--">windowCloseButtonAction</a>, <a href="../CCDD/CcddDialogHandler.html#windowClosedAction--">windowClosedAction</a></code></li>
+<code><a href="../CCDD/CcddDialogHandler.html#addCheckBoxes-java.lang.String-java.lang.String:A:A-java.util.List-java.lang.String-boolean-javax.swing.JPanel-">addCheckBoxes</a>, <a href="../CCDD/CcddDialogHandler.html#addRadioButtons-java.lang.String-boolean-java.lang.String:A:A-java.util.List-java.lang.String-boolean-javax.swing.JPanel-java.awt.GridBagConstraints-">addRadioButtons</a>, <a href="../CCDD/CcddDialogHandler.html#adjustDialogLocationForScreen-java.awt.Rectangle-">adjustDialogLocationForScreen</a>, <a href="../CCDD/CcddDialogHandler.html#choosePathFile-CCDD.CcddMain-java.awt.Component-java.lang.String-java.lang.String-CCDD.CcddConstants.DialogOption-">choosePathFile</a>, <a href="../CCDD/CcddDialogHandler.html#choosePathFile-CCDD.CcddMain-java.awt.Component-java.lang.String-java.lang.String-javax.swing.filechooser.FileNameExtensionFilter:A-boolean-boolean-java.lang.String-java.lang.String-CCDD.CcddConstants.DialogOption-javax.swing.JPanel-">choosePathFile</a>, <a href="../CCDD/CcddDialogHandler.html#choosePathFile-CCDD.CcddMain-java.awt.Component-java.lang.String-java.lang.String-javax.swing.filechooser.FileNameExtensionFilter:A-boolean-java.lang.String-java.lang.String-CCDD.CcddConstants.DialogOption-">choosePathFile</a>, <a href="../CCDD/CcddDialogHandler.html#closeDialog--">closeDialog</a>, <a href="../CCDD/CcddDialogHandler.html#closeDialog-int-">closeDialog</a>, <a href="../CCDD/CcddDialogHandler.html#createDialog-java.awt.Component-java.lang.Object-javax.swing.JPanel-javax.swing.JButton-java.lang.String-CCDD.CcddConstants.DialogOption-javax.swing.Icon-boolean-boolean-">createDialog</a>, <a href="../CCDD/CcddDialogHandler.html#getAllFilesContaining-java.lang.String-java.lang.String-">getAllFilesContaining</a>, <a href="../CCDD/CcddDialogHandler.html#getCheckBoxes--">getCheckBoxes</a>, <a href="../CCDD/CcddDialogHandler.html#getCheckBoxSelected--">getCheckBoxSelected</a>, <a href="../CCDD/CcddDialogHandler.html#getColorChoicePanel-javax.swing.JColorChooser-java.awt.Color-">getColorChoicePanel</a>, <a href="../CCDD/CcddDialogHandler.html#getFileNameField--">getFileNameField</a>, <a href="../CCDD/CcddDialogHandler.html#getMinimumWidth--">getMinimumWidth</a>, <a href="../CCDD/CcddDialogHandler.html#getRadioButtonSelected--">getRadioButtonSelected</a>, <a href="../CCDD/CcddDialogHandler.html#getRadioButtonSelected-int-">getRadioButtonSelected</a>, <a href="../CCDD/CcddDialogHandler.html#searchForWildCard-java.util.Map-javax.swing.JFileChooser-java.lang.String:A-java.lang.String-">searchForWildCard</a>, <a href="../CCDD/CcddDialogHandler.html#setButtonRows-int-">setButtonRows</a>, <a href="../CCDD/CcddDialogHandler.html#setButtonWidth--">setButtonWidth</a>, <a href="../CCDD/CcddDialogHandler.html#setControlsEnabled-boolean-">setControlsEnabled</a>, <a href="../CCDD/CcddDialogHandler.html#setInitialFocusComponent-java.awt.Component-">setInitialFocusComponent</a>, <a href="../CCDD/CcddDialogHandler.html#setLocationRelativeTo-java.awt.Component-">setLocationRelativeTo</a>, <a href="../CCDD/CcddDialogHandler.html#showIgnoreCancelDialog-java.awt.Component-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-boolean-">showIgnoreCancelDialog</a>, <a href="../CCDD/CcddDialogHandler.html#showMessageDialog-java.awt.Component-java.lang.String-javax.swing.JPanel-javax.swing.JButton-java.lang.String-int-">showMessageDialog</a>, <a href="../CCDD/CcddDialogHandler.html#showMessageDialog-java.awt.Component-java.lang.String-java.lang.String-CCDD.CcddConstants.DialogOption-javax.swing.Icon-">showMessageDialog</a>, <a href="../CCDD/CcddDialogHandler.html#showMessageDialog-java.awt.Component-java.lang.String-java.lang.String-int-CCDD.CcddConstants.DialogOption-">showMessageDialog</a>, <a href="../CCDD/CcddDialogHandler.html#showMessageDialog-java.awt.Component-java.lang.String-java.lang.String-int-CCDD.CcddConstants.DialogOption-boolean-">showMessageDialog</a>, <a href="../CCDD/CcddDialogHandler.html#showOptionsDialog-java.awt.Component-java.awt.Component-java.lang.String-CCDD.CcddConstants.DialogOption-">showOptionsDialog</a>, <a href="../CCDD/CcddDialogHandler.html#showOptionsDialog-java.awt.Component-java.awt.Component-java.lang.String-CCDD.CcddConstants.DialogOption-boolean-">showOptionsDialog</a>, <a href="../CCDD/CcddDialogHandler.html#showOptionsDialog-java.awt.Component-java.awt.Component-java.lang.String-CCDD.CcddConstants.DialogOption-boolean-boolean-">showOptionsDialog</a>, <a href="../CCDD/CcddDialogHandler.html#showOptionsDialog-java.awt.Component-java.lang.Object-javax.swing.JPanel-javax.swing.JButton-java.lang.String-boolean-">showOptionsDialog</a>, <a href="../CCDD/CcddDialogHandler.html#verifySelection--">verifySelection</a>, <a href="../CCDD/CcddDialogHandler.html#windowCloseButtonAction--">windowCloseButtonAction</a>, <a href="../CCDD/CcddDialogHandler.html#windowClosedAction--">windowClosedAction</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.javax.swing.JDialog">
@@ -554,15 +562,6 @@ extends <a href="../CCDD/CcddDialogHandler.html" title="class in CCDD">CcddDialo
 <pre>private final&nbsp;<a href="../CCDD/CcddTelemetrySchedulerDialog.html" title="class in CCDD">CcddTelemetrySchedulerDialog</a> schedulerDlg</pre>
 </li>
 </ul>
-<a name="tableTypeHandler">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>tableTypeHandler</h4>
-<pre>private&nbsp;<a href="../CCDD/CcddTableTypeHandler.html" title="class in CCDD">CcddTableTypeHandler</a> tableTypeHandler</pre>
-</li>
-</ul>
 <a name="inputTypeHandler">
 <!--   -->
 </a>
@@ -608,6 +607,24 @@ extends <a href="../CCDD/CcddDialogHandler.html" title="class in CCDD">CcddDialo
 <pre>private&nbsp;<a href="../CCDD/CcddHaltDialog.html" title="class in CCDD">CcddHaltDialog</a> haltDlg</pre>
 </li>
 </ul>
+<a name="tableTree">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>tableTree</h4>
+<pre>private&nbsp;<a href="../CCDD/CcddTableTreeHandler.html" title="class in CCDD">CcddTableTreeHandler</a> tableTree</pre>
+</li>
+</ul>
+<a name="groupHandler">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>groupHandler</h4>
+<pre>private&nbsp;<a href="../CCDD/CcddGroupHandler.html" title="class in CCDD">CcddGroupHandler</a> groupHandler</pre>
+</li>
+</ul>
 <a name="border">
 <!--   -->
 </a>
@@ -633,6 +650,15 @@ extends <a href="../CCDD/CcddDialogHandler.html" title="class in CCDD">CcddDialo
 <li class="blockList">
 <h4>tabbedPane</h4>
 <pre>private&nbsp;javax.swing.JTabbedPane tabbedPane</pre>
+</li>
+</ul>
+<a name="dialogPnl">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>dialogPnl</h4>
+<pre>private&nbsp;javax.swing.JPanel dialogPnl</pre>
 </li>
 </ul>
 <a name="idsInUse">
@@ -692,12 +718,12 @@ extends <a href="../CCDD/CcddDialogHandler.html" title="class in CCDD">CcddDialo
 <div class="block">Message name and ID assignment dialog class constructor</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>ccddMain</code> - main class</dd>
-<dd><code>msgIDDialogType</code> - message ID dialog type: TABLE_DATA_FIELD for structure and command messages,
-            TELEMETRY for telemetry messages (MessageIDType)</dd>
-<dd><code>messages</code> - list of telemetry messages (only used for telemetry messages dialog)</dd>
-<dd><code>schedulerDlg</code> - component over which to center the dialog (only used for telemetry messages
-            dialog)</dd>
+<dd><code>ccddMain</code> - Main class</dd>
+<dd><code>msgIDDialogType</code> - Message ID dialog type: TABLE_DATA_FIELD for structure and command
+                        messages, TELEMETRY for telemetry messages (MessageIDType)</dd>
+<dd><code>messages</code> - List of telemetry messages (only used for telemetry messages dialog)</dd>
+<dd><code>schedulerDlg</code> - Component over which to center the dialog (only used for telemetry
+                        messages dialog)</dd>
 </dl>
 </li>
 </ul>
@@ -711,7 +737,7 @@ extends <a href="../CCDD/CcddDialogHandler.html" title="class in CCDD">CcddDialo
 <div class="block">Message ID assignment dialog class constructor for structure and command messages</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>ccddMain</code> - main class</dd>
+<dd><code>ccddMain</code> - Main class</dd>
 </dl>
 </li>
 </ul>
@@ -727,9 +753,9 @@ extends <a href="../CCDD/CcddDialogHandler.html" title="class in CCDD">CcddDialo
 <div class="block">Message name and ID assignment dialog class constructor for telemetry messages</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>ccddMain</code> - main class</dd>
-<dd><code>messages</code> - list of telemetry messages</dd>
-<dd><code>schedulerDlg</code> - component over which to center the dialog</dd>
+<dd><code>ccddMain</code> - Main class</dd>
+<dd><code>messages</code> - List of telemetry messages</dd>
+<dd><code>schedulerDlg</code> - Component over which to center the dialog</dd>
 </dl>
 </li>
 </ul>
@@ -762,8 +788,8 @@ extends <a href="../CCDD/CcddDialogHandler.html" title="class in CCDD">CcddDialo
 <div class="block">Add a tab for the specified table type or the telemetry message name/ID</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>tabInfo</code> - message name/ID tab information reference</dd>
-<dd><code>isTlmName</code> - true if this is the tab for the telemetry message name assignment</dd>
+<dd><code>tabInfo</code> - Message name/ID tab information reference</dd>
+<dd><code>isTlmName</code> - True if this is the tab for the telemetry message name assignment</dd>
 </dl>
 </li>
 </ul>
@@ -779,8 +805,9 @@ extends <a href="../CCDD/CcddDialogHandler.html" title="class in CCDD">CcddDialo
  and check box</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>tabInfo</code> - message name/ID tab information reference</dd>
-<dd><code>enable</code> - true to enable the message name/ID input fields and check box; false to disable</dd>
+<dd><code>tabInfo</code> - Message name/ID tab information reference</dd>
+<dd><code>enable</code> - True to enable the message name/ID input fields and check box; false to
+                disable</dd>
 </dl>
 </li>
 </ul>
@@ -831,9 +858,9 @@ extends <a href="../CCDD/CcddDialogHandler.html" title="class in CCDD">CcddDialo
  and data fields</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>tabInfo</code> - message ID tab information reference</dd>
-<dd><code>tables</code> - list of structure, command, or other tables, with paths</dd>
-<dd><code>fieldInformation</code> - list of data field information</dd>
+<dd><code>tabInfo</code> - Message ID tab information reference</dd>
+<dd><code>tables</code> - List of structure, command, or other tables, with paths</dd>
+<dd><code>fieldInformation</code> - List of data field information</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>true if a message ID value changed</dd>
 </dl>
@@ -850,8 +877,8 @@ extends <a href="../CCDD/CcddDialogHandler.html" title="class in CCDD">CcddDialo
 <div class="block">Assign message ID values to the group data fields</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>tabInfo</code> - message ID tab information reference</dd>
-<dd><code>fieldInformation</code> - list of data field information</dd>
+<dd><code>tabInfo</code> - Message ID tab information reference</dd>
+<dd><code>fieldInformation</code> - List of data field information</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>true if a message ID value changed</dd>
 </dl>
@@ -867,7 +894,7 @@ extends <a href="../CCDD/CcddDialogHandler.html" title="class in CCDD">CcddDialo
 <div class="block">Assign the telemetry message names</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>tlmName</code> - telemetry message name tab information reference</dd>
+<dd><code>tlmName</code> - Telemetry message name tab information reference</dd>
 </dl>
 </li>
 </ul>
@@ -881,7 +908,7 @@ extends <a href="../CCDD/CcddDialogHandler.html" title="class in CCDD">CcddDialo
 <div class="block">Assign the telemetry message IDs</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>tlmID</code> - telemetry message ID tab information reference</dd>
+<dd><code>tlmID</code> - Telemetry message ID tab information reference</dd>
 </dl>
 </li>
 </ul>
@@ -900,11 +927,12 @@ extends <a href="../CCDD/CcddDialogHandler.html" title="class in CCDD">CcddDialo
  box is selected</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>tlmID</code> - telemetry message ID tab information reference</dd>
-<dd><code>message</code> - reference to the (sub-)message for which to set the ID</dd>
+<dd><code>tlmID</code> - Telemetry message ID tab information reference</dd>
+<dd><code>message</code> - Reference to the (sub-)message for which to set the ID</dd>
 <dd><code>idValue</code> - ID value</dd>
-<dd><code>interval</code> - difference between two contiguous message ID values</dd>
-<dd><code>formatLength</code> - length of the formatted message ID; used to preserve the number of leading zeroes</dd>
+<dd><code>interval</code> - Difference between two contiguous message ID values</dd>
+<dd><code>formatLength</code> - Length of the formatted message ID; used to preserve the number of
+                     leading zeroes</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Next ID value in the sequence</dd>
 </dl>
@@ -922,7 +950,7 @@ extends <a href="../CCDD/CcddDialogHandler.html" title="class in CCDD">CcddDialo
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>idValue</code> - ID value from which to start checking</dd>
-<dd><code>interval</code> - difference between two contiguous message ID values</dd>
+<dd><code>interval</code> - Difference between two contiguous message ID values</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Next unused ID value</dd>
 </dl>
@@ -941,8 +969,9 @@ extends <a href="../CCDD/CcddDialogHandler.html" title="class in CCDD">CcddDialo
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>idValue</code> - ID value</dd>
-<dd><code>nameID</code> - message name and ID</dd>
-<dd><code>formatLength</code> - length of the formatted message ID; used to preserve the number of leading zeroes</dd>
+<dd><code>nameID</code> - Message name and ID</dd>
+<dd><code>formatLength</code> - Length of the formatted message ID; used to preserve the number of
+                     leading zeroes</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Formatted message name and ID, using the new ID value</dd>
 </dl>

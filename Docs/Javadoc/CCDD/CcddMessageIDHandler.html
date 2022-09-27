@@ -427,7 +427,7 @@ extends java.lang.Object</pre>
 <div class="block">Message ID handler class constructor</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>ccddMain</code> - main class</dd>
+<dd><code>ccddMain</code> - Main class</dd>
 </dl>
 </li>
 </ul>
@@ -505,9 +505,9 @@ extends java.lang.Object</pre>
 <div class="block">Separate the message name and ID in the supplied string</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>nameID</code> - message name and ID in the format &lt;name&gt;
-            &lt;ID&gt;. A null, blank input, or an input containing only the
-            name or ID is accepted</dd>
+<dd><code>nameID</code> - Message name and ID in the format &lt;name&gt;
+               &lt;ID&gt;. A null, blank input, or an input containing only
+               the name or ID is accepted</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Array containing the message name and ID. The name, ID,or both the name and ID can
          be blank</dd>
@@ -524,9 +524,9 @@ extends java.lang.Object</pre>
 <div class="block">Get the message name from the message name and ID in the supplied string</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>nameID</code> - message name and ID in the format &lt;name&gt;
-            &lt;ID&gt;. A blank input, or an input containing only the ID is
-            accepted</dd>
+<dd><code>nameID</code> - Message name and ID in the format &lt;name&gt;
+               &lt;ID&gt;. A blank input, or an input containing only the ID
+               is accepted</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Message name from the supplied message name and ID (may be blank)</dd>
 </dl>
@@ -542,9 +542,9 @@ extends java.lang.Object</pre>
 <div class="block">Get the message ID from the message name and ID in the supplied string</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>nameID</code> - message name and ID in the format &lt;name&gt;
-            &lt;ID&gt;. A blank input, or an input containing only the ID is
-            accepted</dd>
+<dd><code>nameID</code> - Message name and ID in the format &lt;name&gt;
+               &lt;ID&gt;. A blank input, or an input containing only the ID
+               is accepted</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Message ID from the supplied message name and ID (may be blank)</dd>
 </dl>
@@ -568,21 +568,26 @@ extends java.lang.Object</pre>
 <div class="block">Create the list of message IDs that are reserved or are already in use</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>includeStructures</code> - true to include message IDs assigned to tables that represent structures</dd>
-<dd><code>includeCommands</code> - true to include message IDs assigned to tables that represent commands</dd>
-<dd><code>includeOthers</code> - true to include message IDs assigned to tables that do not represent structures
-            or commands</dd>
-<dd><code>includeGroups</code> - true to include message IDs assigned to groups</dd>
-<dd><code>useTlmMsgIDsFromDb</code> - true to include message IDs assigned to telemetry messages stored in the project
-            database; false to use the IDs from the currently open telemetry scheduler</dd>
-<dd><code>isOverwriteTlmMsgIDs</code> - true to allow overwriting the telemetry message IDs for the currently selected
-            data stream in the open telemetry scheduler; false to not allow overwriting. This
-            value is only used if useTlmMsgIDsFromDb is false</dd>
-<dd><code>tlmSchedulerDlg</code> - Reference to the currently open telemetry scheduler. This value is only used if
-            useTlmMsgIDsFromDb is false, in which case it can be set to null</dd>
-<dd><code>isGetDuplicates</code> - true to create a list of duplicate IDs. The flags for including tables and for
-            using the telemetry message IDs from the database should be set to true when
-            getting the list of duplicates</dd>
+<dd><code>includeStructures</code> - True to include message IDs assigned to tables that represent
+                             structures</dd>
+<dd><code>includeCommands</code> - True to include message IDs assigned to tables that represent
+                             commands</dd>
+<dd><code>includeOthers</code> - True to include message IDs assigned to tables that do not
+                             represent structures or commands</dd>
+<dd><code>includeGroups</code> - True to include message IDs assigned to groups</dd>
+<dd><code>useTlmMsgIDsFromDb</code> - True to include message IDs assigned to telemetry messages
+                             stored in the project database; false to use the IDs from the
+                             currently open telemetry scheduler</dd>
+<dd><code>isOverwriteTlmMsgIDs</code> - True to allow overwriting the telemetry message IDs for the
+                             currently selected data stream in the open telemetry scheduler;
+                             false to not allow overwriting. This value is only used if
+                             useTlmMsgIDsFromDb is false</dd>
+<dd><code>tlmSchedulerDlg</code> - Reference to the currently open telemetry scheduler. This value
+                             is only used if useTlmMsgIDsFromDb is false, in which case it
+                             can be set to null</dd>
+<dd><code>isGetDuplicates</code> - True to create a list of duplicate IDs. The flags for including
+                             tables and for using the telemetry message IDs from the database
+                             should be set to true when getting the list of duplicates</dd>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>List of message IDs that are reserved or are already in use</dd>
@@ -600,7 +605,7 @@ extends java.lang.Object</pre>
  message ID</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>msgID</code> - message ID</dd>
+<dd><code>msgID</code> - Message ID</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Message ID, minus the auto-assign protection flag (if present)</dd>
 </dl>
@@ -620,10 +625,11 @@ extends java.lang.Object</pre>
  type assigned to the table column or data field</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>sortOrder</code> - order in which to sort the message ID list: BY_OWNER or BY_NAME
-            (MessageIDSortOrder)</dd>
-<dd><code>hideProtectionFlag</code> - true to not display the flag character that protects a message ID from being
-            changed by the auto-update methods; false to allow the flag to remain</dd>
+<dd><code>sortOrder</code> - Order in which to sort the message ID list: BY_OWNER or BY_NAME
+                           (MessageIDSortOrder)</dd>
+<dd><code>hideProtectionFlag</code> - True to not display the flag character that protects a message ID
+                           from being changed by the auto-update methods; false to allow the
+                           flag to remain</dd>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>List containing every message name and its corresponding message ID, and the owning
@@ -644,10 +650,10 @@ extends java.lang.Object</pre>
  list</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>ownerType</code> - message ID owner type (Table or Message)</dd>
-<dd><code>ownerAndID</code> - array where the first member is the owner (table name or telemetry message name)
-            and the second element is the message ID</dd>
-<dd><code>isGetDuplicates</code> - true to create a list of duplicate IDs</dd>
+<dd><code>ownerType</code> - Message ID owner type (Table or Message)</dd>
+<dd><code>ownerAndID</code> - Array where the first member is the owner (table name or telemetry
+                        message name) and the second element is the message ID</dd>
+<dd><code>isGetDuplicates</code> - True to create a list of duplicate IDs</dd>
 </dl>
 </li>
 </ul>

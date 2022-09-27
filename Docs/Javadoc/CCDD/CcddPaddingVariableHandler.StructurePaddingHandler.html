@@ -174,7 +174,7 @@ extends java.lang.Object</pre>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddPaddingVariableHandler.StructurePaddingHandler.html#tableEditor">tableEditor</a></span></code>&nbsp;</td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>private <a href="../CCDD/CcddClassesDataTable.TableInformation.html" title="class in CCDD">CcddClassesDataTable.TableInformation</a></code></td>
+<td class="colFirst"><code>private <a href="../CCDD/CcddClassesDataTable.TableInfo.html" title="class in CCDD">CcddClassesDataTable.TableInfo</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddPaddingVariableHandler.StructurePaddingHandler.html#tableInfo">tableInfo</a></span></code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
@@ -318,7 +318,7 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>tableInfo</h4>
-<pre>private final&nbsp;<a href="../CCDD/CcddClassesDataTable.TableInformation.html" title="class in CCDD">CcddClassesDataTable.TableInformation</a> tableInfo</pre>
+<pre>private final&nbsp;<a href="../CCDD/CcddClassesDataTable.TableInfo.html" title="class in CCDD">CcddClassesDataTable.TableInfo</a> tableInfo</pre>
 </li>
 </ul>
 <a name="tableEditor">
@@ -447,7 +447,7 @@ extends java.lang.Object</pre>
 <div class="block">Structure padding handler class constructor</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>structureName</code> - prototype structure table name</dd>
+<dd><code>structureName</code> - Prototype structure table name</dd>
 </dl>
 </li>
 </ul>
@@ -483,7 +483,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the variable name for the specified structure table row</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>row</code> - structure table row index</dd>
+<dd><code>row</code> - Structure table row index</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Variable name for the specified structure table row</dd>
 </dl>
@@ -499,7 +499,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the data type for the specified structure table row</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>row</code> - structure table row index</dd>
+<dd><code>row</code> - Structure table row index</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Data type for the specified structure table row</dd>
 </dl>
@@ -515,7 +515,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the array size for the specified structure table row</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>row</code> - structure table row index</dd>
+<dd><code>row</code> - Structure table row index</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Array size for the specified structure table row</dd>
 </dl>
@@ -531,7 +531,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the bit length for the specified structure table row</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>row</code> - structure table row index</dd>
+<dd><code>row</code> - Structure table row index</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Bit length for the specified structure table row</dd>
 </dl>
@@ -548,8 +548,8 @@ extends java.lang.Object</pre>
 <div class="block">Get the rate for the specified structure table row and rate column</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>row</code> - structure table row index</dd>
-<dd><code>column</code> - structure table rate column index</dd>
+<dd><code>row</code> - Structure table row index</dd>
+<dd><code>column</code> - Structure table rate column index</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Rate for the specified structure table row and rate column</dd>
 </dl>
@@ -567,9 +567,9 @@ extends java.lang.Object</pre>
 <div class="block">Set the rate for the specified structure table row and rate column</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>rate</code> - rate for the specified structure table row and rate column</dd>
-<dd><code>row</code> - structure table row index</dd>
-<dd><code>column</code> - structure table rate column index</dd>
+<dd><code>rate</code> - Rate for the specified structure table row and rate column</dd>
+<dd><code>row</code> - Structure table row index</dd>
+<dd><code>column</code> - Structure table rate column index</dd>
 </dl>
 </li>
 </ul>
@@ -605,11 +605,11 @@ extends java.lang.Object</pre>
 <div class="block">Add a padding variable at the specified row index</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>row</code> - structure table row index at which to insert the padding variable(s)</dd>
-<dd><code>padSize</code> - number of padding variables to insert</dd>
-<dd><code>numPadBits</code> - number of bits to assign to the padding variable to fill in a sequence of
-            bit-packed variables. 0 if the padding variable isn't associated with
-            bit-packed variables</dd>
+<dd><code>row</code> - Structure table row index at which to insert the padding variable(s)</dd>
+<dd><code>padSize</code> - Number of padding variables to insert</dd>
+<dd><code>numPadBits</code> - Number of bits to assign to the padding variable to fill in a sequence
+                   of bit-packed variables. 0 if the padding variable isn't associated
+                   with bit-packed variables</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Row index below the added padding variable(s)</dd>
 </dl>

@@ -17,7 +17,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":9,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":9,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10};
+var methods = {"i0":9,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":9,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -167,50 +167,54 @@ extends java.lang.Object</pre>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#excludeDataTypes">excludeDataTypes</a></span></code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>private javax.swing.JCheckBox</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#executeInBackground">executeInBackground</a></span></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>private static <a href="../CCDD/CcddHaltDialog.html" title="class in CCDD">CcddHaltDialog</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#haltDlg">haltDlg</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>private javax.swing.JCheckBox</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#hideScriptFilePath">hideScriptFilePath</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>private javax.swing.JCheckBox</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#hideUnavailableAssns">hideUnavailableAssns</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>private boolean[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#isBad">isBad</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>private java.util.List&lt;java.lang.String&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#loadedTablePaths">loadedTablePaths</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>private javax.swing.RowFilter&lt;javax.swing.table.TableModel,java.lang.Object&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#rowFilter">rowFilter</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>private <a href="../CCDD/CcddFrameHandler.html" title="class in CCDD">CcddFrameHandler</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#scriptDialog">scriptDialog</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>private java.util.List&lt;javax.script.ScriptEngineFactory&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#scriptFactories">scriptFactories</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>private <a href="../CCDD/CcddTableTypeHandler.html" title="class in CCDD">CcddTableTypeHandler</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#tableTypeHandler">tableTypeHandler</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>private java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#typeNameSeparator">typeNameSeparator</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>private <a href="../CCDD/CcddVariableHandler.html" title="class in CCDD">CcddVariableHandler</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#variableHandler">variableHandler</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>private java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#varPathSeparator">varPathSeparator</a></span></code>&nbsp;</td>
 </tr>
@@ -258,8 +262,8 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>private void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#executeScript-java.lang.String-CCDD.CcddClassesDataTable.TableInformation:A-java.util.List-CCDD.CcddLinkHandler-CCDD.CcddGroupHandler-java.awt.Component-">executeScript</a></span>(java.lang.String&nbsp;scriptFileName,
-             <a href="../CCDD/CcddClassesDataTable.TableInformation.html" title="class in CCDD">CcddClassesDataTable.TableInformation</a>[]&nbsp;tableInformation,
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#executeScript-java.lang.String-CCDD.CcddClassesDataTable.TableInfo:A-java.util.List-CCDD.CcddLinkHandler-CCDD.CcddGroupHandler-java.awt.Component-">executeScript</a></span>(java.lang.String&nbsp;scriptFileName,
+             <a href="../CCDD/CcddClassesDataTable.TableInfo.html" title="class in CCDD">CcddClassesDataTable.TableInfo</a>[]&nbsp;tableInformation,
              java.util.List&lt;java.lang.String&gt;&nbsp;groupNames,
              <a href="../CCDD/CcddLinkHandler.html" title="class in CCDD">CcddLinkHandler</a>&nbsp;linkHandler,
              <a href="../CCDD/CcddGroupHandler.html" title="class in CCDD">CcddGroupHandler</a>&nbsp;groupHandler,
@@ -307,33 +311,24 @@ extends java.lang.Object</pre>
 </td>
 </tr>
 <tr id="i7" class="rowColor">
-<td class="colFirst"><code>protected void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#getDataAndExecuteScriptInBackground-CCDD.CcddTableTreeHandler-java.util.List-java.awt.Component-">getDataAndExecuteScriptInBackground</a></span>(<a href="../CCDD/CcddTableTreeHandler.html" title="class in CCDD">CcddTableTreeHandler</a>&nbsp;tree,
-                                   java.util.List&lt;java.lang.Object[]&gt;&nbsp;associations,
-                                   java.awt.Component&nbsp;dialog)</code>
-<div class="block">Get the table information array from the table data used by the script script
- association(s), then execute the script(s).</div>
-</td>
-</tr>
-<tr id="i8" class="altColor">
 <td class="colFirst"><code>protected java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#getEngineInformation--">getEngineInformation</a></span>()</code>
 <div class="block">Get the string containing the available script engines and version numbers</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>private boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#getEnvironmentVariableMap-java.awt.Component-">getEnvironmentVariableMap</a></span>(java.awt.Component&nbsp;parent)</code>
 <div class="block">Update the environment variable map with any variables specified by the user.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>protected javax.swing.filechooser.FileNameExtensionFilter[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#getExtensions--">getExtensions</a></span>()</code>
 <div class="block">Get an array of all script file extensions supported by the available script engines</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>protected static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#getMatchingAssociation-java.util.List-java.lang.String-java.lang.String:A-int-">getMatchingAssociation</a></span>(java.util.List&lt;java.lang.String[]&gt;&nbsp;associations,
                       java.lang.String&nbsp;scriptName,
@@ -343,30 +338,30 @@ extends java.lang.Object</pre>
  script file name and members</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>protected java.lang.String[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#getScriptAssociationByName-java.lang.String-java.awt.Component-">getScriptAssociationByName</a></span>(java.lang.String&nbsp;assnName,
                           java.awt.Component&nbsp;parent)</code>
 <div class="block">Get a script association based on the association name</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>protected java.util.List&lt;java.lang.String[]&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#getScriptAssociations-java.awt.Component-">getScriptAssociations</a></span>(java.awt.Component&nbsp;parent)</code>
 <div class="block">Retrieve the script associations stored in the database</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>private java.lang.Object[][]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#getScriptAssociationTableData-java.awt.Component-">getScriptAssociationTableData</a></span>(java.awt.Component&nbsp;parent)</code>
 <div class="block">Retrieve the script associations stored in the database and from these build the array for
  display and selection of the script associations</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>protected javax.script.ScriptEngine</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#getScriptEngine-java.lang.String-CCDD.CcddClassesDataTable.TableInformation:A-CCDD.CcddLinkHandler-CCDD.CcddGroupHandler-java.util.List-java.awt.Component-">getScriptEngine</a></span>(java.lang.String&nbsp;scriptFileName,
-               <a href="../CCDD/CcddClassesDataTable.TableInformation.html" title="class in CCDD">CcddClassesDataTable.TableInformation</a>[]&nbsp;tableInformation,
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#getScriptEngine-java.lang.String-CCDD.CcddClassesDataTable.TableInfo:A-CCDD.CcddLinkHandler-CCDD.CcddGroupHandler-java.util.List-java.awt.Component-">getScriptEngine</a></span>(java.lang.String&nbsp;scriptFileName,
+               <a href="../CCDD/CcddClassesDataTable.TableInfo.html" title="class in CCDD">CcddClassesDataTable.TableInfo</a>[]&nbsp;tableInformation,
                <a href="../CCDD/CcddLinkHandler.html" title="class in CCDD">CcddLinkHandler</a>&nbsp;linkHandler,
                <a href="../CCDD/CcddGroupHandler.html" title="class in CCDD">CcddGroupHandler</a>&nbsp;groupHandler,
                java.util.List&lt;java.lang.String&gt;&nbsp;groupNames,
@@ -374,20 +369,20 @@ extends java.lang.Object</pre>
 <div class="block">Create a script engine for the supplied script file name and table information.</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
-<td class="colFirst"><code>private boolean</code></td>
+<tr id="i15" class="rowColor">
+<td class="colFirst"><code>(package private) boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#isAssociationAvailable-int-">isAssociationAvailable</a></span>(int&nbsp;row)</code>
 <div class="block">Check if the script association on the specified row in the associations table is available.</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#logScriptCompletionStatus-java.util.List-boolean:A-">logScriptCompletionStatus</a></span>(java.util.List&lt;java.lang.Object[]&gt;&nbsp;associations,
                          boolean[]&nbsp;isBad)</code>
 <div class="block">Log the result of the script association execution(s)</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#logScriptError-java.lang.String-java.lang.String-java.lang.String-java.awt.Component-">logScriptError</a></span>(java.lang.String&nbsp;scriptFileName,
               java.lang.String&nbsp;members,
@@ -396,21 +391,37 @@ extends java.lang.Object</pre>
 <div class="block">Log a script execution error</div>
 </td>
 </tr>
+<tr id="i18" class="altColor">
+<td class="colFirst"><code>protected void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#performScriptExecution-CCDD.CcddTableTreeHandler-java.util.List-java.awt.Component-">performScriptExecution</a></span>(<a href="../CCDD/CcddTableTreeHandler.html" title="class in CCDD">CcddTableTreeHandler</a>&nbsp;tree,
+                      java.util.List&lt;java.lang.Object[]&gt;&nbsp;associations,
+                      java.awt.Component&nbsp;dialog)</code>
+<div class="block">Perform execution of the script(s)</div>
+</td>
+</tr>
 <tr id="i19" class="rowColor">
-<td class="colFirst"><code>private <a href="../CCDD/CcddClassesDataTable.TableInformation.html" title="class in CCDD">CcddClassesDataTable.TableInformation</a></code></td>
+<td class="colFirst"><code>protected void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#performScriptExecutionInBackground-CCDD.CcddTableTreeHandler-java.util.List-java.awt.Component-">performScriptExecutionInBackground</a></span>(<a href="../CCDD/CcddTableTreeHandler.html" title="class in CCDD">CcddTableTreeHandler</a>&nbsp;tree,
+                                  java.util.List&lt;java.lang.Object[]&gt;&nbsp;associations,
+                                  java.awt.Component&nbsp;dialog)</code>
+<div class="block">Perform execution of the script(s).</div>
+</td>
+</tr>
+<tr id="i20" class="altColor">
+<td class="colFirst"><code>private <a href="../CCDD/CcddClassesDataTable.TableInfo.html" title="class in CCDD">CcddClassesDataTable.TableInfo</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#readTable-java.lang.String-java.awt.Component-">readTable</a></span>(java.lang.String&nbsp;tablePath,
          java.awt.Component&nbsp;parent)</code>
 <div class="block">Recursive method to load a table, and all the tables referenced within it and its child
  tables.</div>
 </td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#setHandlers--">setHandlers</a></span>()</code>
 <div class="block">Set the references to the table type and data type handler classes</div>
 </td>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddScriptHandler.html#setScriptDialog-CCDD.CcddFrameHandler-">setScriptDialog</a></span>(<a href="../CCDD/CcddFrameHandler.html" title="class in CCDD">CcddFrameHandler</a>&nbsp;scriptDialog)</code>
 <div class="block">Set the reference to the active script manager or executive dialog.</div>
@@ -526,6 +537,15 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>hideUnavailableAssns</h4>
 <pre>private&nbsp;javax.swing.JCheckBox hideUnavailableAssns</pre>
+</li>
+</ul>
+<a name="executeInBackground">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>executeInBackground</h4>
+<pre>private&nbsp;javax.swing.JCheckBox executeInBackground</pre>
 </li>
 </ul>
 <a name="envVarOverrideFld">
@@ -645,7 +665,7 @@ extends java.lang.Object</pre>
 <div class="block">Script handler class constructor</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>ccddMain</code> - main class</dd>
+<dd><code>ccddMain</code> - Main class</dd>
 </dl>
 </li>
 </ul>
@@ -678,7 +698,7 @@ extends java.lang.Object</pre>
  the script manager or executive isn't open</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>scriptDialog</code> - reference to the active script manager or executive dialog</dd>
+<dd><code>scriptDialog</code> - Reference to the active script manager or executive dialog</dd>
 </dl>
 </li>
 </ul>
@@ -709,7 +729,7 @@ extends java.lang.Object</pre>
 <div class="block">Get a script association based on the association name</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>assnName</code> - script association name</dd>
+<dd><code>assnName</code> - Script association name</dd>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Array containing the script association having the same name; null if no association
@@ -760,12 +780,12 @@ extends java.lang.Object</pre>
 <div class="block">Create the panel containing the script associations table</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>title</code> - text to display above the script associations table; null or blank if no text is
-            to be displayed</dd>
-<dd><code>allowSelectDisabled</code> - true if disabled associations can be selected; false if not. In the script
-            manager disabled associations are selectable so that these can be deleted if
-            desired. Scripts that are selected and disabled are ignored when executing
-            scripts</dd>
+<dd><code>title</code> - Text to display above the script associations table; null or
+                            blank if no text is to be displayed</dd>
+<dd><code>allowSelectDisabled</code> - True if disabled associations can be selected; false if not. In
+                            the script manager disabled associations are selectable so that
+                            these can be deleted if desired. Scripts that are selected and
+                            disabled are ignored when executing scripts</dd>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Reference to the JPanel containing the script associations table</dd>
@@ -778,12 +798,12 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>isAssociationAvailable</h4>
-<pre>private&nbsp;boolean&nbsp;isAssociationAvailable(int&nbsp;row)</pre>
+<pre>boolean&nbsp;isAssociationAvailable(int&nbsp;row)</pre>
 <div class="block">Check if the script association on the specified row in the associations table is available.
  An association is unavailable if the script or tables is not present</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>row</code> - table row (model coordinates)</dd>
+<dd><code>row</code> - Table row (model coordinates)</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>true if the script association on the specified row is available</dd>
 </dl>
@@ -804,11 +824,12 @@ extends java.lang.Object</pre>
  exporting via the command line export command</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>associationMembers</code> - association members as a single string (as stored in the database)</dd>
-<dd><code>groupHandler</code> - group handler reference</dd>
-<dd><code>isForExport</code> - true when using this method to build the list of tables to export via the command
-            line export command. This flag should be set to false when using this method for
-            obtaining the tables for script associations</dd>
+<dd><code>associationMembers</code> - Association members as a single string (as stored in the database)</dd>
+<dd><code>groupHandler</code> - Group handler reference</dd>
+<dd><code>isForExport</code> - True when using this method to build the list of tables to export
+                           via the command line export command. This flag should be set to
+                           false when using this method for obtaining the tables for script
+                           associations</dd>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>List containing the tables (path+name) from the association member string</dd>
@@ -877,12 +898,12 @@ extends java.lang.Object</pre>
  script file name and members</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>associations</code> - list of script associations to which to compare</dd>
-<dd><code>scriptName</code> - script file path + name</dd>
-<dd><code>tables</code> - array of tables referenced by the script association</dd>
-<dd><code>ignoreRow</code> - row to ignore when checking for an identical, existing association (as is
-            possible when replacing an association, if no changes are made); -1 to prevent a
-            duplicate association (as when adding an association)</dd>
+<dd><code>associations</code> - List of script associations to which to compare</dd>
+<dd><code>scriptName</code> - Script file path + name</dd>
+<dd><code>tables</code> - Array of tables referenced by the script association</dd>
+<dd><code>ignoreRow</code> - Row to ignore when checking for an identical, existing association (as
+                     is possible when replacing an association, if no changes are made); -1
+                     to prevent a duplicate association (as when adding an association)</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The index number in the supplied list where the matching association occurs; -1 if
          no match is found</dd>
@@ -901,31 +922,52 @@ extends java.lang.Object</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>tableTree</code> - CcddTableTreeHandler reference describing the table tree</dd>
-<dd><code>dialog</code> - reference to the script dialog (manager or executive) calling this method</dd>
+<dd><code>dialog</code> - Reference to the script dialog (manager or executive) calling this method</dd>
 </dl>
 </li>
 </ul>
-<a name="getDataAndExecuteScriptInBackground-CCDD.CcddTableTreeHandler-java.util.List-java.awt.Component-">
+<a name="performScriptExecution-CCDD.CcddTableTreeHandler-java.util.List-java.awt.Component-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>getDataAndExecuteScriptInBackground</h4>
-<pre>protected&nbsp;void&nbsp;getDataAndExecuteScriptInBackground(<a href="../CCDD/CcddTableTreeHandler.html" title="class in CCDD">CcddTableTreeHandler</a>&nbsp;tree,
-                                                   java.util.List&lt;java.lang.Object[]&gt;&nbsp;associations,
-                                                   java.awt.Component&nbsp;dialog)</pre>
-<div class="block">Get the table information array from the table data used by the script script
- association(s), then execute the script(s). This command is executed in a separate thread
- since it can take a noticeable amount time to complete, and by using a separate thread the
- GUI is allowed to continue to update. The script execution command, however, is disabled
- until the this command completes execution</div>
+<h4>performScriptExecution</h4>
+<pre>protected&nbsp;void&nbsp;performScriptExecution(<a href="../CCDD/CcddTableTreeHandler.html" title="class in CCDD">CcddTableTreeHandler</a>&nbsp;tree,
+                                      java.util.List&lt;java.lang.Object[]&gt;&nbsp;associations,
+                                      java.awt.Component&nbsp;dialog)</pre>
+<div class="block">Perform execution of the script(s)</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>tree</code> - table tree of the table instances (parent tables with their child tables); null
-            if the tree should be loaded</dd>
+<dd><code>tree</code> - Table tree of the table instances (parent tables with their child
+                     tables); null if the tree should be loaded</dd>
+<dd><code>associations</code> - List of script association to execute</dd>
+<dd><code>dialog</code> - Reference to the entity calling this method: the script manager or
+                     executive dialog, or to the main window (if invoked from the command
+                     line)</dd>
+</dl>
+</li>
+</ul>
+<a name="performScriptExecutionInBackground-CCDD.CcddTableTreeHandler-java.util.List-java.awt.Component-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>performScriptExecutionInBackground</h4>
+<pre>protected&nbsp;void&nbsp;performScriptExecutionInBackground(<a href="../CCDD/CcddTableTreeHandler.html" title="class in CCDD">CcddTableTreeHandler</a>&nbsp;tree,
+                                                  java.util.List&lt;java.lang.Object[]&gt;&nbsp;associations,
+                                                  java.awt.Component&nbsp;dialog)</pre>
+<div class="block">Perform execution of the script(s). This command is executed in a separate thread since it
+ can take a noticeable amount time to complete, and by using a separate thread the GUI is
+ allowed to continue to update. The script execution command, however, is disabled until the
+ this command completes execution</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>tree</code> - table tree of the table instances (parent tables with their child
+                     tables); null if the tree should be loaded</dd>
 <dd><code>associations</code> - list of script association to execute</dd>
-<dd><code>dialog</code> - reference to the entity calling this method: the script manager or executive
-            dialog, or to the main window (if invoked from the command line)</dd>
+<dd><code>dialog</code> - reference to the entity calling this method: the script manager or
+                     executive dialog, or to the main window (if invoked from the command
+                     line)</dd>
 </dl>
 </li>
 </ul>
@@ -942,11 +984,11 @@ extends java.lang.Object</pre>
  association(s), then execute the script(s)</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>tree</code> - table tree of the table instances (parent tables with their child tables); null
-            if the tree should be loaded</dd>
-<dd><code>associations</code> - list of script associations to execute</dd>
-<dd><code>parent</code> - GUI component over which to center any error dialog; null if none (e.g., if
-            called via the command line)</dd>
+<dd><code>tree</code> - Table tree of the table instances (parent tables with their child
+                     tables); null if the tree should be loaded</dd>
+<dd><code>associations</code> - List of script associations to execute</dd>
+<dd><code>parent</code> - GUI component over which to center any error dialog; null if none (e.g.,
+                     if called via the command line)</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Array containing flags that indicate, for each association, if the association did
          not complete successfully</dd>
@@ -965,10 +1007,10 @@ extends java.lang.Object</pre>
  the viewable format, or vice versa, depending on the input flag</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>assnMembers</code> - tables and/or groups associated with the script, in either the internal or
-            viewable format</dd>
-<dd><code>toInternal</code> - true to convert the member string to the internal format; false to convert to the
-            viewable format</dd>
+<dd><code>assnMembers</code> - Tables and/or groups associated with the script, in either the internal
+                    or viewable format</dd>
+<dd><code>toInternal</code> - True to convert the member string to the internal format; false to
+                    convert to the viewable format</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Supplied string containing the association members converted from the internal table
          to the viewable format, or vice versa</dd>
@@ -986,9 +1028,9 @@ extends java.lang.Object</pre>
 <div class="block">Log the result of the script association execution(s)</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>associations</code> - list of script association executed</dd>
-<dd><code>isBad</code> - Array containing flags that indicate, for each association, if the association
-            did not complete successfully</dd>
+<dd><code>associations</code> - List of script association executed</dd>
+<dd><code>isBad</code> - Array containing flags that indicate, for each association, if the
+                     association did not complete successfully</dd>
 </dl>
 </li>
 </ul>
@@ -1005,21 +1047,22 @@ extends java.lang.Object</pre>
 <div class="block">Log a script execution error</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>scriptFileName</code> - script file name</dd>
-<dd><code>members</code> - tables and/or groups associated with the script, in the internal format</dd>
-<dd><code>cause</code> - cause of the execution error</dd>
+<dd><code>scriptFileName</code> - Script file name</dd>
+<dd><code>members</code> - Tables and/or groups associated with the script, in the internal
+                       format</dd>
+<dd><code>cause</code> - Cause of the execution error</dd>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 </dl>
 </li>
 </ul>
-<a name="getScriptEngine-java.lang.String-CCDD.CcddClassesDataTable.TableInformation:A-CCDD.CcddLinkHandler-CCDD.CcddGroupHandler-java.util.List-java.awt.Component-">
+<a name="getScriptEngine-java.lang.String-CCDD.CcddClassesDataTable.TableInfo:A-CCDD.CcddLinkHandler-CCDD.CcddGroupHandler-java.util.List-java.awt.Component-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getScriptEngine</h4>
 <pre>protected&nbsp;javax.script.ScriptEngine&nbsp;getScriptEngine(java.lang.String&nbsp;scriptFileName,
-                                                    <a href="../CCDD/CcddClassesDataTable.TableInformation.html" title="class in CCDD">CcddClassesDataTable.TableInformation</a>[]&nbsp;tableInformation,
+                                                    <a href="../CCDD/CcddClassesDataTable.TableInfo.html" title="class in CCDD">CcddClassesDataTable.TableInfo</a>[]&nbsp;tableInformation,
                                                     <a href="../CCDD/CcddLinkHandler.html" title="class in CCDD">CcddLinkHandler</a>&nbsp;linkHandler,
                                                     <a href="../CCDD/CcddGroupHandler.html" title="class in CCDD">CcddGroupHandler</a>&nbsp;groupHandler,
                                                     java.util.List&lt;java.lang.String&gt;&nbsp;groupNames,
@@ -1030,12 +1073,13 @@ extends java.lang.Object</pre>
  methods can be utilized</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>scriptFileName</code> - script file name. The file extension is used to determine the script engine and
-            therefore must conform to standard extension usage</dd>
-<dd><code>tableInformation</code> - array of table information</dd>
-<dd><code>groupNames</code> - list containing the names of any groups referenced in the script association</dd>
-<dd><code>linkHandler</code> - link handler reference</dd>
-<dd><code>groupHandler</code> - group handler reference</dd>
+<dd><code>scriptFileName</code> - Script file name. The file extension is used to determine the script
+                         engine and therefore must conform to standard extension usage</dd>
+<dd><code>tableInformation</code> - Array of table information</dd>
+<dd><code>groupNames</code> - List containing the names of any groups referenced in the script
+                         association</dd>
+<dd><code>linkHandler</code> - Link handler reference</dd>
+<dd><code>groupHandler</code> - Group handler reference</dd>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Reference to the script engine; null if an error occurs</dd>
@@ -1044,14 +1088,14 @@ extends java.lang.Object</pre>
 </dl>
 </li>
 </ul>
-<a name="executeScript-java.lang.String-CCDD.CcddClassesDataTable.TableInformation:A-java.util.List-CCDD.CcddLinkHandler-CCDD.CcddGroupHandler-java.awt.Component-">
+<a name="executeScript-java.lang.String-CCDD.CcddClassesDataTable.TableInfo:A-java.util.List-CCDD.CcddLinkHandler-CCDD.CcddGroupHandler-java.awt.Component-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>executeScript</h4>
 <pre>private&nbsp;void&nbsp;executeScript(java.lang.String&nbsp;scriptFileName,
-                           <a href="../CCDD/CcddClassesDataTable.TableInformation.html" title="class in CCDD">CcddClassesDataTable.TableInformation</a>[]&nbsp;tableInformation,
+                           <a href="../CCDD/CcddClassesDataTable.TableInfo.html" title="class in CCDD">CcddClassesDataTable.TableInfo</a>[]&nbsp;tableInformation,
                            java.util.List&lt;java.lang.String&gt;&nbsp;groupNames,
                            <a href="../CCDD/CcddLinkHandler.html" title="class in CCDD">CcddLinkHandler</a>&nbsp;linkHandler,
                            <a href="../CCDD/CcddGroupHandler.html" title="class in CCDD">CcddGroupHandler</a>&nbsp;groupHandler,
@@ -1060,12 +1104,13 @@ extends java.lang.Object</pre>
 <div class="block">Execute a script</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>scriptFileName</code> - script file name. The file extension is used to determine the script engine and
-            therefore must conform to standard extension usage</dd>
-<dd><code>tableInformation</code> - array of table information</dd>
-<dd><code>groupNames</code> - list containing the names of any groups referenced in the script association</dd>
-<dd><code>linkHandler</code> - link handler reference</dd>
-<dd><code>groupHandler</code> - group handler reference</dd>
+<dd><code>scriptFileName</code> - Script file name. The file extension is used to determine the script
+                         engine and therefore must conform to standard extension usage</dd>
+<dd><code>tableInformation</code> - Array of table information</dd>
+<dd><code>groupNames</code> - List containing the names of any groups referenced in the script
+                         association</dd>
+<dd><code>linkHandler</code> - Link handler reference</dd>
+<dd><code>groupHandler</code> - Group handler reference</dd>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If an error occurs while attempting to access the script file</dd>
@@ -1078,13 +1123,13 @@ extends java.lang.Object</pre>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>readTable</h4>
-<pre>private&nbsp;<a href="../CCDD/CcddClassesDataTable.TableInformation.html" title="class in CCDD">CcddClassesDataTable.TableInformation</a>&nbsp;readTable(java.lang.String&nbsp;tablePath,
-                                                        java.awt.Component&nbsp;parent)</pre>
+<pre>private&nbsp;<a href="../CCDD/CcddClassesDataTable.TableInfo.html" title="class in CCDD">CcddClassesDataTable.TableInfo</a>&nbsp;readTable(java.lang.String&nbsp;tablePath,
+                                                 java.awt.Component&nbsp;parent)</pre>
 <div class="block">Recursive method to load a table, and all the tables referenced within it and its child
  tables. The data is combined into a single array</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>tablePath</code> - table path</dd>
+<dd><code>tablePath</code> - Table path</dd>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>A reference to the TableInformation for the parent table; null if the table has

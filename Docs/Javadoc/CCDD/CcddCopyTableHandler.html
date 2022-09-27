@@ -325,7 +325,7 @@ extends java.lang.Object</pre>
 <div class="block">Housekeeping copy table handler class constructor</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>ccddMain</code> - main class</dd>
+<dd><code>ccddMain</code> - Main class</dd>
 </dl>
 </li>
 </ul>
@@ -353,15 +353,16 @@ extends java.lang.Object</pre>
 <div class="block">Create a copy table based on the message definitions</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>linkHandler</code> - link handler reference</dd>
-<dd><code>dataStreamName</code> - data stream name</dd>
-<dd><code>headerSize</code> - size of the packet header in bytes</dd>
-<dd><code>messageIDNameField</code> - name of the structure table data field containing the message ID name. If
-            provided this is used instead of the tlmMessageIDs list</dd>
-<dd><code>tlmMessageIDs</code> - list containing string array entries giving the structure table path+name and the
-            table's associated message ID name. Used if messageIDNameField is null</dd>
-<dd><code>optimize</code> - true to create copy table with memory copies optimized</dd>
-<dd><code>expandMacros</code> - true to expand any macro within the variable names</dd>
+<dd><code>linkHandler</code> - Link handler reference</dd>
+<dd><code>dataStreamName</code> - Data stream name</dd>
+<dd><code>headerSize</code> - Size of the packet header in bytes</dd>
+<dd><code>messageIDNameField</code> - Name of the structure table data field containing the message ID
+                           name. If provided this is used instead of the tlmMessageIDs list</dd>
+<dd><code>tlmMessageIDs</code> - List containing string array entries giving the structure table
+                           path+name and the table's associated message ID name. Used if
+                           messageIDNameField is null</dd>
+<dd><code>optimize</code> - True to create copy table with memory copies optimized</dd>
+<dd><code>expandMacros</code> - True to expand any macro within the variable names</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Array containing the copy table entries</dd>
 </dl>
@@ -377,7 +378,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the messages ID names and their corresponding ID values for the specified data stream</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>streamName</code> - data stream name</dd>
+<dd><code>streamName</code> - Data stream name</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>String array containing the message ID names and ID values; returns blank if there
          are no entries for the specified data stream or if data stream name is invalid</dd>
@@ -394,7 +395,7 @@ extends java.lang.Object</pre>
 <div class="block">Get messages for the specified rate from the project database</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>streamName</code> - data stream name</dd>
+<dd><code>streamName</code> - Data stream name</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>List of messages for the specified rate</dd>
 </dl>
@@ -411,7 +412,7 @@ extends java.lang.Object</pre>
  table entries</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>messageTable</code> - message copy table</dd>
+<dd><code>messageTable</code> - Message copy table</dd>
 </dl>
 </li>
 </ul>
@@ -425,7 +426,7 @@ extends java.lang.Object</pre>
 <div class="block">Optimize the copy table by combining consecutive memory copies</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>messageTable</code> - message copy table</dd>
+<dd><code>messageTable</code> - Message copy table</dd>
 </dl>
 </li>
 </ul>
@@ -440,8 +441,8 @@ extends java.lang.Object</pre>
 <div class="block">Add the input and output structure offsets to the specified message's copy table entries</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>headerSize</code> - message header size, bytes</dd>
-<dd><code>messageTable</code> - message copy table</dd>
+<dd><code>headerSize</code> - Message header size, bytes</dd>
+<dd><code>messageTable</code> - Message copy table</dd>
 </dl>
 </li>
 </ul>

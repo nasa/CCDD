@@ -119,28 +119,30 @@
 </tr>
 <tbody>
 <tr class="altColor">
-<td class="colFirst"><code>private java.lang.String</code></td>
-<td class="colLast"><span class="typeNameLabel">CcddDbTableCommandHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddDbTableCommandHandler.html#buildDeletionCommand-CCDD.CcddClassesDataTable.TableInformation-java.util.List-java.lang.String-CCDD.CcddTableTypeHandler.TypeDefinition-boolean-CCDD.CcddInputTypeHandler.ReferenceCheckResults-CCDD.CcddInputTypeHandler.ReferenceCheckResults-">buildDeletionCommand</a></span>(<a href="../../CCDD/CcddClassesDataTable.TableInformation.html" title="class in CCDD">CcddClassesDataTable.TableInformation</a>&nbsp;tableInfo,
-                    java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.TableModification.html" title="class in CCDD">CcddClassesDataTable.TableModification</a>&gt;&nbsp;deletions,
-                    java.lang.String&nbsp;dbTableName,
-                    <a href="../../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&nbsp;typeDefn,
-                    boolean&nbsp;skipInternalTables,
-                    <a href="../../CCDD/CcddInputTypeHandler.ReferenceCheckResults.html" title="class in CCDD">CcddInputTypeHandler.ReferenceCheckResults</a>&nbsp;varRefChkResults,
-                    <a href="../../CCDD/CcddInputTypeHandler.ReferenceCheckResults.html" title="class in CCDD">CcddInputTypeHandler.ReferenceCheckResults</a>&nbsp;cmdRefChkResults)</code>
+<td class="colFirst"><code>private boolean</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddDbTableCommandHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddDbTableCommandHandler.html#buildAndExecuteDeletionCommand-CCDD.CcddClassesDataTable.TableInfo-java.util.List-java.lang.String-CCDD.CcddTableTypeHandler.TypeDefinition-boolean-CCDD.CcddInputTypeHandler.ReferenceCheckResults-CCDD.CcddInputTypeHandler.ReferenceCheckResults-java.awt.Component-">buildAndExecuteDeletionCommand</a></span>(<a href="../../CCDD/CcddClassesDataTable.TableInfo.html" title="class in CCDD">CcddClassesDataTable.TableInfo</a>&nbsp;tableInfo,
+                              java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.TableModification.html" title="class in CCDD">CcddClassesDataTable.TableModification</a>&gt;&nbsp;deletions,
+                              java.lang.String&nbsp;dbTableName,
+                              <a href="../../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&nbsp;typeDefn,
+                              boolean&nbsp;skipInternalTables,
+                              <a href="../../CCDD/CcddInputTypeHandler.ReferenceCheckResults.html" title="class in CCDD">CcddInputTypeHandler.ReferenceCheckResults</a>&nbsp;varRefChkResults,
+                              <a href="../../CCDD/CcddInputTypeHandler.ReferenceCheckResults.html" title="class in CCDD">CcddInputTypeHandler.ReferenceCheckResults</a>&nbsp;cmdRefChkResults,
+                              java.awt.Component&nbsp;parent)</code>
 <div class="block">Build the command to delete a table row.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>private java.lang.String</code></td>
-<td class="colLast"><span class="typeNameLabel">CcddDbTableCommandHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddDbTableCommandHandler.html#buildModificationCommand-CCDD.CcddClassesDataTable.TableInformation-java.util.List-java.lang.String-CCDD.CcddTableTypeHandler.TypeDefinition-CCDD.CcddDataTypeHandler-CCDD.CcddTableTreeHandler-boolean-CCDD.CcddInputTypeHandler.ReferenceCheckResults-CCDD.CcddInputTypeHandler.ReferenceCheckResults-">buildModificationCommand</a></span>(<a href="../../CCDD/CcddClassesDataTable.TableInformation.html" title="class in CCDD">CcddClassesDataTable.TableInformation</a>&nbsp;tableInfo,
-                        java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.TableModification.html" title="class in CCDD">CcddClassesDataTable.TableModification</a>&gt;&nbsp;modifications,
-                        java.lang.String&nbsp;dbTableName,
-                        <a href="../../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&nbsp;typeDefn,
-                        <a href="../../CCDD/CcddDataTypeHandler.html" title="class in CCDD">CcddDataTypeHandler</a>&nbsp;newDataTypeHandler,
-                        <a href="../../CCDD/CcddTableTreeHandler.html" title="class in CCDD">CcddTableTreeHandler</a>&nbsp;tableTree,
-                        boolean&nbsp;skipInternalTables,
-                        <a href="../../CCDD/CcddInputTypeHandler.ReferenceCheckResults.html" title="class in CCDD">CcddInputTypeHandler.ReferenceCheckResults</a>&nbsp;varRefChkResults,
-                        <a href="../../CCDD/CcddInputTypeHandler.ReferenceCheckResults.html" title="class in CCDD">CcddInputTypeHandler.ReferenceCheckResults</a>&nbsp;cmdRefChkResults)</code>
+<td class="colFirst"><code>private boolean</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddDbTableCommandHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddDbTableCommandHandler.html#buildAndExecuteModificationCommand-CCDD.CcddClassesDataTable.TableInfo-java.util.List-java.lang.String-CCDD.CcddTableTypeHandler.TypeDefinition-CCDD.CcddDataTypeHandler-CCDD.CcddTableTreeHandler-boolean-CCDD.CcddInputTypeHandler.ReferenceCheckResults-CCDD.CcddInputTypeHandler.ReferenceCheckResults-java.awt.Component-">buildAndExecuteModificationCommand</a></span>(<a href="../../CCDD/CcddClassesDataTable.TableInfo.html" title="class in CCDD">CcddClassesDataTable.TableInfo</a>&nbsp;tableInfo,
+                                  java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.TableModification.html" title="class in CCDD">CcddClassesDataTable.TableModification</a>&gt;&nbsp;modifications,
+                                  java.lang.String&nbsp;dbTableName,
+                                  <a href="../../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&nbsp;typeDefn,
+                                  <a href="../../CCDD/CcddDataTypeHandler.html" title="class in CCDD">CcddDataTypeHandler</a>&nbsp;newDataTypeHandler,
+                                  <a href="../../CCDD/CcddTableTreeHandler.html" title="class in CCDD">CcddTableTreeHandler</a>&nbsp;tableTree,
+                                  boolean&nbsp;skipInternalTables,
+                                  <a href="../../CCDD/CcddInputTypeHandler.ReferenceCheckResults.html" title="class in CCDD">CcddInputTypeHandler.ReferenceCheckResults</a>&nbsp;varRefChkResults,
+                                  <a href="../../CCDD/CcddInputTypeHandler.ReferenceCheckResults.html" title="class in CCDD">CcddInputTypeHandler.ReferenceCheckResults</a>&nbsp;cmdRefChkResults,
+                                  java.awt.Component&nbsp;parent)</code>
 <div class="block">Build the commands to modify the table</div>
 </td>
 </tr>
@@ -183,7 +185,7 @@
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>private void</code></td>
-<td class="colLast"><span class="typeNameLabel">CcddDbTableCommandHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddDbTableCommandHandler.html#modifyVariableReference-CCDD.CcddClassesDataTable.TableInformation-java.lang.String-java.lang.String-java.lang.String-java.lang.String-CCDD.CcddInputTypeHandler.ReferenceCheckResults-java.lang.StringBuilder-java.lang.StringBuilder-">modifyVariableReference</a></span>(<a href="../../CCDD/CcddClassesDataTable.TableInformation.html" title="class in CCDD">CcddClassesDataTable.TableInformation</a>&nbsp;tableInfo,
+<td class="colLast"><span class="typeNameLabel">CcddDbTableCommandHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddDbTableCommandHandler.html#modifyVariableReference-CCDD.CcddClassesDataTable.TableInfo-java.lang.String-java.lang.String-java.lang.String-java.lang.String-CCDD.CcddInputTypeHandler.ReferenceCheckResults-java.lang.StringBuilder-java.lang.StringBuilder-">modifyVariableReference</a></span>(<a href="../../CCDD/CcddClassesDataTable.TableInfo.html" title="class in CCDD">CcddClassesDataTable.TableInfo</a>&nbsp;tableInfo,
                        java.lang.String&nbsp;oldVariableName,
                        java.lang.String&nbsp;newVariableName,
                        java.lang.String&nbsp;oldDataType,
@@ -196,12 +198,13 @@
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>private java.lang.String</code></td>
-<td class="colLast"><span class="typeNameLabel">CcddDbTableCommandHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddDbTableCommandHandler.html#updateMessageNameAndIDReference-CCDD.CcddClassesDataTable.TableInformation-CCDD.CcddTableTypeHandler.TypeDefinition-java.util.List-java.util.List-CCDD.CcddInputTypeHandler.ReferenceCheckResults-">updateMessageNameAndIDReference</a></span>(<a href="../../CCDD/CcddClassesDataTable.TableInformation.html" title="class in CCDD">CcddClassesDataTable.TableInformation</a>&nbsp;tableInfo,
+<td class="colFirst"><code>private boolean</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddDbTableCommandHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddDbTableCommandHandler.html#updateMessageNameAndIDReference-CCDD.CcddClassesDataTable.TableInfo-CCDD.CcddTableTypeHandler.TypeDefinition-java.util.List-java.util.List-CCDD.CcddInputTypeHandler.ReferenceCheckResults-java.awt.Component-">updateMessageNameAndIDReference</a></span>(<a href="../../CCDD/CcddClassesDataTable.TableInfo.html" title="class in CCDD">CcddClassesDataTable.TableInfo</a>&nbsp;tableInfo,
                                <a href="../../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&nbsp;typeDefn,
                                java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.TableModification.html" title="class in CCDD">CcddClassesDataTable.TableModification</a>&gt;&nbsp;modifications,
                                java.util.List&lt;<a href="../../CCDD/CcddClassesDataTable.TableModification.html" title="class in CCDD">CcddClassesDataTable.TableModification</a>&gt;&nbsp;deletions,
-                               <a href="../../CCDD/CcddInputTypeHandler.ReferenceCheckResults.html" title="class in CCDD">CcddInputTypeHandler.ReferenceCheckResults</a>&nbsp;msgIDRefChkResults)</code>
+                               <a href="../../CCDD/CcddInputTypeHandler.ReferenceCheckResults.html" title="class in CCDD">CcddInputTypeHandler.ReferenceCheckResults</a>&nbsp;msgIDRefChkResults,
+                               java.awt.Component&nbsp;parent)</code>
 <div class="block">Build the commands to update any references to a message name or ID that has been modified
  or deleted in every table cell and data field with a message name and ID reference input
  type</div>

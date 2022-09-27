@@ -314,7 +314,7 @@ public class ConvertCStructureToCSV
                                 // designators, and every multiple white space instance with a
                                 // space
                                 varDefnAndDesc[0] = varDefnAndDesc[0].replaceAll("\\s*(\\[|:)\\s*", "$1")
-                                        .replaceAll("\\s+", " ");
+                                                                     .replaceAll("\\s+", " ");
 
                                 // Set the flag to indicate if the variable on the next row uses
                                 // the data type from this row. This is determined by the presence
@@ -388,8 +388,7 @@ public class ConvertCStructureToCSV
                                 }
 
                                 // Step through each variable defined on this row
-                                for (String varName : varDefnAndDesc[0].substring(varNameStart + 1).trim()
-                                        .split("\\s*,\\s*"))
+                                for (String varName : varDefnAndDesc[0].substring(varNameStart + 1).trim().split("\\s*,\\s*"))
                                 {
                                     String ptr = "";
 
@@ -585,8 +584,7 @@ public class ConvertCStructureToCSV
             {
                 // Get the next row of text and remove any comment delimiters and doxygen tags
                 row++;
-                inputText = structDataIn.get(row).trim()
-                        .replaceAll("(?:/\\*\\*<\\s*|/\\\\*|\\\\[^\\s]+\\s*|\\s*\\*/$)", "").trim();
+                inputText = structDataIn.get(row).trim().replaceAll("(?:/\\*\\*<\\s*|/\\\\*|\\\\[^\\s]+\\s*|\\s*\\*/$)", "").trim();
 
                 // Check if the next row isn't empty
                 if (!inputText.isEmpty())

@@ -75,6 +75,16 @@
 <dl>
 <dt><span class="memberNameLink"><a href="../CCDD/CcddBackgroundCommand.BackgroundCommand.html#BackgroundCommand--">BackgroundCommand()</a></span> - Constructor for class CCDD.<a href="../CCDD/CcddBackgroundCommand.BackgroundCommand.html" title="class in CCDD">CcddBackgroundCommand.BackgroundCommand</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="../CCDD/CcddMain.html#BACKUP_KEY">BACKUP_KEY</a></span> - Static variable in class CCDD.<a href="../CCDD/CcddMain.html" title="class in CCDD">CcddMain</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#backupAndRenameDatabase-java.lang.String-java.lang.String-CCDD.CcddClassesComponent.FileEnvVar-">backupAndRenameDatabase(String, String, CcddClassesComponent.FileEnvVar)</a></span> - Method in class CCDD.<a href="../CCDD/CcddDbControlHandler.html" title="class in CCDD">CcddDbControlHandler</a></dt>
+<dd>
+<div class="block">Rename a project database, back it up and revert the rename.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#backupAndRenameDatabaseInBackground-java.lang.String-java.lang.String-CCDD.CcddClassesComponent.FileEnvVar-">backupAndRenameDatabaseInBackground(String, String, CcddClassesComponent.FileEnvVar)</a></span> - Method in class CCDD.<a href="../CCDD/CcddDbControlHandler.html" title="class in CCDD">CcddDbControlHandler</a></dt>
+<dd>
+<div class="block">Backup a project database.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#backupDatabase-java.lang.String-CCDD.CcddClassesComponent.FileEnvVar-">backupDatabase(String, CcddClassesComponent.FileEnvVar)</a></span> - Method in class CCDD.<a href="../CCDD/CcddDbControlHandler.html" title="class in CCDD">CcddDbControlHandler</a></dt>
 <dd>
 <div class="block">Backup a project database</div>
@@ -93,6 +103,8 @@
  utility.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#backupFileName">backupFileName</a></span> - Variable in class CCDD.<a href="../CCDD/CcddDbControlHandler.html" title="class in CCDD">CcddDbControlHandler</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="../CCDD/CcddCommandLineHandler.html#backupFirst">backupFirst</a></span> - Variable in class CCDD.<a href="../CCDD/CcddCommandLineHandler.html" title="class in CCDD">CcddCommandLineHandler</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="../CCDD/CcddTableManagerDialog.html#backupFirstCb">backupFirstCb</a></span> - Variable in class CCDD.<a href="../CCDD/CcddTableManagerDialog.html" title="class in CCDD">CcddTableManagerDialog</a></dt>
 <dd>&nbsp;</dd>
@@ -156,6 +168,8 @@
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="../CCDD/CcddScriptManagerDialog.html#border">border</a></span> - Variable in class CCDD.<a href="../CCDD/CcddScriptManagerDialog.html" title="class in CCDD">CcddScriptManagerDialog</a></dt>
 <dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="../CCDD/CcddSearchVariablesDialog.html#border">border</a></span> - Variable in class CCDD.<a href="../CCDD/CcddSearchVariablesDialog.html" title="class in CCDD">CcddSearchVariablesDialog</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="../CCDD/CcddTableManagerDialog.html#border">border</a></span> - Variable in class CCDD.<a href="../CCDD/CcddTableManagerDialog.html" title="class in CCDD">CcddTableManagerDialog</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="../CCDD/CcddClassesComponent.JFontChooser.html#borderFld">borderFld</a></span> - Variable in class CCDD.<a href="../CCDD/CcddClassesComponent.JFontChooser.html" title="class in CCDD">CcddClassesComponent.JFontChooser</a></dt>
@@ -165,6 +179,8 @@
 <dt><span class="memberNameLink"><a href="../CCDD/CcddClassesComponent.JFontChooser.html#borderPnl">borderPnl</a></span> - Variable in class CCDD.<a href="../CCDD/CcddClassesComponent.JFontChooser.html" title="class in CCDD">CcddClassesComponent.JFontChooser</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="../CCDD/CcddConstants.html#BREAK_ICON">BREAK_ICON</a></span> - Static variable in class CCDD.<a href="../CCDD/CcddConstants.html" title="class in CCDD">CcddConstants</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="../CCDD/CcddCSVHandlerTest.html#bruteDuplicateDetect-java.util.List-">bruteDuplicateDetect(List&lt;String[]&gt;)</a></span> - Method in class CCDD.<a href="../CCDD/CcddCSVHandlerTest.html" title="class in CCDD">CcddCSVHandlerTest</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="../CCDD/CcddTelemetrySchedulerDialog.html#btnAddSubMessage">btnAddSubMessage</a></span> - Variable in class CCDD.<a href="../CCDD/CcddTelemetrySchedulerDialog.html" title="class in CCDD">CcddTelemetrySchedulerDialog</a></dt>
 <dd>&nbsp;</dd>
@@ -268,9 +284,23 @@
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="../CCDD/CcddFieldEditorDialog.html#btnUpdate">btnUpdate</a></span> - Variable in class CCDD.<a href="../CCDD/CcddFieldEditorDialog.html" title="class in CCDD">CcddFieldEditorDialog</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#buildAdditionCommand-CCDD.CcddClassesDataTable.TableInformation-java.util.List-java.lang.String-CCDD.CcddTableTypeHandler.TypeDefinition-boolean-">buildAdditionCommand(CcddClassesDataTable.TableInformation, List&lt;CcddClassesDataTable.TableModification&gt;, String, CcddTableTypeHandler.TypeDefinition, boolean)</a></span> - Method in class CCDD.<a href="../CCDD/CcddDbTableCommandHandler.html" title="class in CCDD">CcddDbTableCommandHandler</a></dt>
+<dt><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#buildAndExecuteAdditionCommand-CCDD.CcddClassesDataTable.TableInfo-java.util.List-java.lang.String-CCDD.CcddTableTypeHandler.TypeDefinition-boolean-boolean-java.awt.Component-">buildAndExecuteAdditionCommand(CcddClassesDataTable.TableInfo, List&lt;CcddClassesDataTable.TableModification&gt;, String, CcddTableTypeHandler.TypeDefinition, boolean, boolean, Component)</a></span> - Method in class CCDD.<a href="../CCDD/CcddDbTableCommandHandler.html" title="class in CCDD">CcddDbTableCommandHandler</a></dt>
 <dd>
 <div class="block">Build the command to add table rows.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#buildAndExecuteDeletionCommand-CCDD.CcddClassesDataTable.TableInfo-java.util.List-java.lang.String-CCDD.CcddTableTypeHandler.TypeDefinition-boolean-CCDD.CcddInputTypeHandler.ReferenceCheckResults-CCDD.CcddInputTypeHandler.ReferenceCheckResults-java.awt.Component-">buildAndExecuteDeletionCommand(CcddClassesDataTable.TableInfo, List&lt;CcddClassesDataTable.TableModification&gt;, String, CcddTableTypeHandler.TypeDefinition, boolean, CcddInputTypeHandler.ReferenceCheckResults, CcddInputTypeHandler.ReferenceCheckResults, Component)</a></span> - Method in class CCDD.<a href="../CCDD/CcddDbTableCommandHandler.html" title="class in CCDD">CcddDbTableCommandHandler</a></dt>
+<dd>
+<div class="block">Build the command to delete a table row.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#buildAndExecuteModificationCommand-CCDD.CcddClassesDataTable.TableInfo-java.util.List-java.lang.String-CCDD.CcddTableTypeHandler.TypeDefinition-CCDD.CcddDataTypeHandler-CCDD.CcddTableTreeHandler-boolean-CCDD.CcddInputTypeHandler.ReferenceCheckResults-CCDD.CcddInputTypeHandler.ReferenceCheckResults-java.awt.Component-">buildAndExecuteModificationCommand(CcddClassesDataTable.TableInfo, List&lt;CcddClassesDataTable.TableModification&gt;, String, CcddTableTypeHandler.TypeDefinition, CcddDataTypeHandler, CcddTableTreeHandler, boolean, CcddInputTypeHandler.ReferenceCheckResults, CcddInputTypeHandler.ReferenceCheckResults, Component)</a></span> - Method in class CCDD.<a href="../CCDD/CcddDbTableCommandHandler.html" title="class in CCDD">CcddDbTableCommandHandler</a></dt>
+<dd>
+<div class="block">Build the commands to modify the table</div>
+</dd>
+<dt><span class="memberNameLink"><a href="../CCDD/CcddTableTypeHandler.html#buildAndExecuteUpdates-CCDD.CcddClassesDataTable.TableTypeDefinition-">buildAndExecuteUpdates(CcddClassesDataTable.TableTypeDefinition)</a></span> - Method in class CCDD.<a href="../CCDD/CcddTableTypeHandler.html" title="class in CCDD">CcddTableTypeHandler</a></dt>
+<dd>
+<div class="block">Compare the current table type data to the committed table type data and create lists of the
+ changed values necessary to update the table definitions table in the database to match the
+ current values</div>
 </dd>
 <dt><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#buildColumnOrder-java.lang.String-java.lang.String-">buildColumnOrder(String, String)</a></span> - Method in class CCDD.<a href="../CCDD/CcddDbTableCommandHandler.html" title="class in CCDD">CcddDbTableCommandHandler</a></dt>
 <dd>
@@ -288,13 +318,17 @@
 <dd>
 <div class="block">Build the comment by arranging the comment parameters in the correct order</div>
 </dd>
-<dt><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#buildDatabaseCommentCommand-java.lang.String-java.lang.String-boolean-java.lang.String-">buildDatabaseCommentCommand(String, String, boolean, String)</a></span> - Method in class CCDD.<a href="../CCDD/CcddDbControlHandler.html" title="class in CCDD">CcddDbControlHandler</a></dt>
+<dt><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#buildDatabaseCommentCommandAndUpdateInternalTable-java.lang.String-java.lang.String-boolean-java.lang.String-">buildDatabaseCommentCommandAndUpdateInternalTable(String, String, boolean, String)</a></span> - Method in class CCDD.<a href="../CCDD/CcddDbControlHandler.html" title="class in CCDD">CcddDbControlHandler</a></dt>
 <dd>
-<div class="block">Build the command to create the database comment.</div>
+<div class="block">Build the command to create the database comment and updated the internal table _dub_info.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#buildDataTableComment-java.lang.String-java.lang.String-">buildDataTableComment(String, String)</a></span> - Method in class CCDD.<a href="../CCDD/CcddDbTableCommandHandler.html" title="class in CCDD">CcddDbTableCommandHandler</a></dt>
 <dd>
 <div class="block">Build the specified data table's comment command.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="../CCDD/CcddDataTypeHandler.html#buildDataTypesMap--">buildDataTypesMap()</a></span> - Method in class CCDD.<a href="../CCDD/CcddDataTypeHandler.html" title="class in CCDD">CcddDataTypeHandler</a></dt>
+<dd>
+<div class="block">Generate the data types map from the variable "dataTypes" list</div>
 </dd>
 <dt><span class="memberNameLink"><a href="../CCDD/CcddMain.html#buildDate">buildDate</a></span> - Variable in class CCDD.<a href="../CCDD/CcddMain.html" title="class in CCDD">CcddMain</a></dt>
 <dd>&nbsp;</dd>
@@ -302,10 +336,6 @@
 <dd>
 <div class="block">Recursively step through the information tree and append the path to each leaf node to the
  definition list</div>
-</dd>
-<dt><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#buildDeletionCommand-CCDD.CcddClassesDataTable.TableInformation-java.util.List-java.lang.String-CCDD.CcddTableTypeHandler.TypeDefinition-boolean-CCDD.CcddInputTypeHandler.ReferenceCheckResults-CCDD.CcddInputTypeHandler.ReferenceCheckResults-">buildDeletionCommand(CcddClassesDataTable.TableInformation, List&lt;CcddClassesDataTable.TableModification&gt;, String, CcddTableTypeHandler.TypeDefinition, boolean, CcddInputTypeHandler.ReferenceCheckResults, CcddInputTypeHandler.ReferenceCheckResults)</a></span> - Method in class CCDD.<a href="../CCDD/CcddDbTableCommandHandler.html" title="class in CCDD">CcddDbTableCommandHandler</a></dt>
-<dd>
-<div class="block">Build the command to delete a table row.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="../CCDD/CcddFieldHandler.html#buildFieldInformation-java.awt.Component-">buildFieldInformation(Component)</a></span> - Method in class CCDD.<a href="../CCDD/CcddFieldHandler.html" title="class in CCDD">CcddFieldHandler</a></dt>
 <dd>
@@ -320,15 +350,13 @@
 <div class="block">Build the group information using the group definitions and the field information in the
  database</div>
 </dd>
+<dt><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#buildGroupTree">buildGroupTree</a></span> - Variable in class CCDD.<a href="../CCDD/CcddTableTreeHandler.html" title="class in CCDD">CcddTableTreeHandler</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="../CCDD/CcddDbControlHandler.html#buildInformationTableCommand-CCDD.CcddConstants.InternalTable-">buildInformationTableCommand(CcddConstants.InternalTable)</a></span> - Method in class CCDD.<a href="../CCDD/CcddDbControlHandler.html" title="class in CCDD">CcddDbControlHandler</a></dt>
 <dd>
 <div class="block">Build the command to create an internal table</div>
 </dd>
-<dt><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#buildModificationCommand-CCDD.CcddClassesDataTable.TableInformation-java.util.List-java.lang.String-CCDD.CcddTableTypeHandler.TypeDefinition-CCDD.CcddDataTypeHandler-CCDD.CcddTableTreeHandler-boolean-CCDD.CcddInputTypeHandler.ReferenceCheckResults-CCDD.CcddInputTypeHandler.ReferenceCheckResults-">buildModificationCommand(CcddClassesDataTable.TableInformation, List&lt;CcddClassesDataTable.TableModification&gt;, String, CcddTableTypeHandler.TypeDefinition, CcddDataTypeHandler, CcddTableTreeHandler, boolean, CcddInputTypeHandler.ReferenceCheckResults, CcddInputTypeHandler.ReferenceCheckResults)</a></span> - Method in class CCDD.<a href="../CCDD/CcddDbTableCommandHandler.html" title="class in CCDD">CcddDbTableCommandHandler</a></dt>
-<dd>
-<div class="block">Build the commands to modify the table</div>
-</dd>
-<dt><span class="memberNameLink"><a href="../CCDD/CcddEDSHandler.html#buildNamespaces-java.lang.String:A-">buildNamespaces(String[])</a></span> - Method in class CCDD.<a href="../CCDD/CcddEDSHandler.html" title="class in CCDD">CcddEDSHandler</a></dt>
+<dt><span class="memberNameLink"><a href="../CCDD/CcddEDSHandler.html#buildNamespaces-java.util.List-">buildNamespaces(List&lt;CcddClassesDataTable.TableInfo&gt;)</a></span> - Method in class CCDD.<a href="../CCDD/CcddEDSHandler.html" title="class in CCDD">CcddEDSHandler</a></dt>
 <dd>
 <div class="block">Build the name spaces for the list of tables specified</div>
 </dd>
@@ -362,7 +390,11 @@
 <dd>
 <div class="block">Build the project-level and group data fields</div>
 </dd>
-<dt><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#buildSpaceSystems-java.lang.String:A-">buildSpaceSystems(String[])</a></span> - Method in class CCDD.<a href="../CCDD/CcddXTCEHandler.html" title="class in CCDD">CcddXTCEHandler</a></dt>
+<dt><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#BuildReferencedVariablesDataFieldsCmd-CCDD.CcddClassesDataTable.TableInfo-CCDD.CcddClassesDataTable.TableModification-boolean-boolean-java.awt.Component-">BuildReferencedVariablesDataFieldsCmd(CcddClassesDataTable.TableInfo, CcddClassesDataTable.TableModification, boolean, boolean, Component)</a></span> - Method in class CCDD.<a href="../CCDD/CcddDbTableCommandHandler.html" title="class in CCDD">CcddDbTableCommandHandler</a></dt>
+<dd>
+<div class="block">Update the data fields of any sub-tables that were altered due to the modified tables</div>
+</dd>
+<dt><span class="memberNameLink"><a href="../CCDD/CcddXTCEHandler.html#buildSpaceSystems-java.util.List-">buildSpaceSystems(List&lt;CcddClassesDataTable.TableInfo&gt;)</a></span> - Method in class CCDD.<a href="../CCDD/CcddXTCEHandler.html" title="class in CCDD">CcddXTCEHandler</a></dt>
 <dd>
 <div class="block">Build the space systems</div>
 </dd>
@@ -374,13 +406,21 @@
 <dd>
 <div class="block">Build the specified table instance's description update command.</div>
 </dd>
-<dt><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#buildTableTree-java.lang.Boolean-java.lang.String-java.lang.String-java.awt.Component-">buildTableTree(Boolean, String, String, Component)</a></span> - Method in class CCDD.<a href="../CCDD/CcddTableTreeHandler.html" title="class in CCDD">CcddTableTreeHandler</a></dt>
+<dt><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#buildTableTree-java.lang.Boolean-java.lang.String-java.lang.String-boolean-java.awt.Component-">buildTableTree(Boolean, String, String, boolean, Component)</a></span> - Method in class CCDD.<a href="../CCDD/CcddTableTreeHandler.html" title="class in CCDD">CcddTableTreeHandler</a></dt>
 <dd>
 <div class="block">(Re)build the table tree from the currently table information</div>
 </dd>
+<dt><span class="memberNameLink"><a href="../CCDD/CcddSearchVariablesDialog.html#buildTableTreeForSearch-boolean-java.awt.GridBagConstraints-">buildTableTreeForSearch(boolean, GridBagConstraints)</a></span> - Method in class CCDD.<a href="../CCDD/CcddSearchVariablesDialog.html" title="class in CCDD">CcddSearchVariablesDialog</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="../CCDD/CcddSearchVariablesDialog.html#buildTableTreeForSelection--">buildTableTreeForSelection()</a></span> - Method in class CCDD.<a href="../CCDD/CcddSearchVariablesDialog.html" title="class in CCDD">CcddSearchVariablesDialog</a></dt>
+<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#buildTableTreeFromDatabase-java.awt.Component-">buildTableTreeFromDatabase(Component)</a></span> - Method in class CCDD.<a href="../CCDD/CcddTableTreeHandler.html" title="class in CCDD">CcddTableTreeHandler</a></dt>
 <dd>
 <div class="block">Load the table information from the database and (re)build the table tree</div>
+</dd>
+<dt><span class="memberNameLink"><a href="../CCDD/CcddMain.html#buildTableTreeHandler--">buildTableTreeHandler()</a></span> - Method in class CCDD.<a href="../CCDD/CcddMain.html" title="class in CCDD">CcddMain</a></dt>
+<dd>
+<div class="block">Build a table tree handler once a database has been opened successfully</div>
 </dd>
 <dt><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#buildTopLevelNodes-java.util.List-CCDD.CcddClassesComponent.ToolTipTreeNode-CCDD.CcddClassesComponent.ToolTipTreeNode-java.awt.Component-">buildTopLevelNodes(List&lt;String&gt;, CcddClassesComponent.ToolTipTreeNode, CcddClassesComponent.ToolTipTreeNode, Component)</a></span> - Method in class CCDD.<a href="../CCDD/CcddTableTreeHandler.html" title="class in CCDD">CcddTableTreeHandler</a></dt>
 <dd>
@@ -461,6 +501,8 @@
 <dt><span class="memberNameLink"><a href="../CCDD/CcddDialogHandler.html#buttonSelected">buttonSelected</a></span> - Variable in class CCDD.<a href="../CCDD/CcddDialogHandler.html" title="class in CCDD">CcddDialogHandler</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="../CCDD/CcddConstants.DialogOption.html#buttonText">buttonText</a></span> - Variable in enum CCDD.<a href="../CCDD/CcddConstants.DialogOption.html" title="enum in CCDD">CcddConstants.DialogOption</a></dt>
+<dd>&nbsp;</dd>
+<dt><span class="memberNameLink"><a href="../CCDD/CcddConstants.DialogOption.html#buttonType">buttonType</a></span> - Variable in enum CCDD.<a href="../CCDD/CcddConstants.DialogOption.html" title="enum in CCDD">CcddConstants.DialogOption</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="../CCDD/CcddPaddingVariableHandler.StructurePaddingHandler.html#byteCount">byteCount</a></span> - Variable in class CCDD.<a href="../CCDD/CcddPaddingVariableHandler.StructurePaddingHandler.html" title="class in CCDD">CcddPaddingVariableHandler.StructurePaddingHandler</a></dt>
 <dd>&nbsp;</dd>

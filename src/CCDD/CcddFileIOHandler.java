@@ -4058,15 +4058,10 @@ public class CcddFileIOHandler
                         if ((fileExtn == FileExtension.JSON) || (fileExtn == FileExtension.CSV))
                         {
                             // Export the formatted JSON or EDS table data to the specified file
-                            tableDefs = prepareJSONOrCSVExport(path,
-                                                               fileExtn,
-                                                               tablePaths,
-                                                               includeBuildInformation,
-                                                               replaceMacros,
+                            tableDefs = prepareJSONOrCSVExport(tablePaths,
                                                                includeVariablePaths,
                                                                variableHandler,
                                                                separators,
-                                                               addEOFMarker,
                                                                parent);
                         }
                         else
@@ -4118,15 +4113,10 @@ public class CcddFileIOHandler
                     if ((fileExtn == FileExtension.JSON) || (fileExtn == FileExtension.CSV))
                     {
                         // Export the formatted tables
-                        tableDefs = prepareJSONOrCSVExport(path,
-                                                           fileExtn,
-                                                           tablePaths,
-                                                           includeBuildInformation,
-                                                           replaceMacros,
+                        tableDefs = prepareJSONOrCSVExport(tablePaths,
                                                            includeVariablePaths,
                                                            variableHandler,
                                                            separators,
-                                                           addEOFMarker,
                                                            parent);
                     }
                     else
@@ -5630,17 +5620,7 @@ public class CcddFileIOHandler
     /**********************************************************************************************
      * Prepare the project for a JSON or CSV export
      *
-     * @param path                    File path
-     *
-     * @param fileExt                 File extension
-     *
      * @param tableNames              Array of table names to convert
-     *
-     * @param includeBuildInformation True to include the CCDD version, project, host, and user
-     *                                information
-     *
-     * @param replaceMacros           True to replace any embedded macros with their corresponding
-     *                                values
      *
      * @param includeVariablePaths    True to include the variable path for each variable in a
      *                                structure table, both in application format and using the
@@ -5654,8 +5634,6 @@ public class CcddFileIOHandler
      *                                and data type/variable name separator character(s); null if
      *                                includeVariablePaths is false
      *
-     * @param addEOFMarker            Is this the last data to be added to the file?
-     *
      * @param parent                  GUI component over which to center any error dialog
      *
      * @return List containing the definition(s) of the table(s) to export
@@ -5664,15 +5642,10 @@ public class CcddFileIOHandler
      *
      * @throws Exception     If an unanticipated error occurs
      *********************************************************************************************/
-    public List<TableInfo> prepareJSONOrCSVExport(String path,
-                                                  FileExtension fileExt,
-                                                  String[] tableNames,
-                                                  boolean includeBuildInformation,
-                                                  boolean replaceMacros,
+    public List<TableInfo> prepareJSONOrCSVExport(String[] tableNames,
                                                   boolean includeVariablePaths,
                                                   CcddVariableHandler variableHandler,
                                                   String[] separators,
-                                                  boolean addEOFMarker,
                                                   Component parent) throws CCDDException, Exception
     {
 

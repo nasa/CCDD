@@ -17,7 +17,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":9,"i6":10,"i7":10,"i8":10,"i9":9,"i10":9,"i11":9,"i12":9,"i13":9};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":9,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":9,"i12":9,"i13":9,"i14":9,"i15":9,"i16":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -216,6 +216,10 @@ extends java.lang.Enum&lt;<a href="../CCDD/CcddConstants.ModifiableFontInfo.html
 <td class="colFirst"><code>private java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.ModifiableFontInfo.html#preferenceKey">preferenceKey</a></span></code>&nbsp;</td>
 </tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.ModifiableFontInfo.html#unscaledSize">unscaledSize</a></span></code>&nbsp;</td>
+</tr>
 </table>
 </li>
 </ul>
@@ -280,6 +284,18 @@ extends java.lang.Enum&lt;<a href="../CCDD/CcddConstants.ModifiableFontInfo.html
 </td>
 </tr>
 <tr id="i8" class="altColor">
+<td class="colFirst"><code>protected int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.ModifiableFontInfo.html#getUnscaledSize--">getUnscaledSize</a></span>()</code>
+<div class="block">Get the modifiable font's actual size (without scaling)</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code>protected void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.ModifiableFontInfo.html#scaleFont-float-">scaleFont</a></span>(float&nbsp;scaleFactor)</code>
+<div class="block">Update the font size using the supplied font scaling factor</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.ModifiableFontInfo.html#setFont-java.lang.String-int-int-java.util.prefs.Preferences-">setFont</a></span>(java.lang.String&nbsp;family,
        int&nbsp;style,
@@ -289,32 +305,39 @@ extends java.lang.Enum&lt;<a href="../CCDD/CcddConstants.ModifiableFontInfo.html
  preferences</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>private static void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.ModifiableFontInfo.html#setModifiableFont-java.awt.Component-">setModifiableFont</a></span>(java.awt.Component&nbsp;comp)</code>
 <div class="block">Compare the font for the component to the modifiable fonts.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>protected static void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.ModifiableFontInfo.html#setModifiableFonts-java.util.prefs.Preferences-">setModifiableFonts</a></span>(java.util.prefs.Preferences&nbsp;progPrefs)</code>
 <div class="block">Set the modifiable fonts to the values stored in the program preferences</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>protected static void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.ModifiableFontInfo.html#updateFonts-java.awt.Container-">updateFonts</a></span>(java.awt.Container&nbsp;container)</code>
 <div class="block">Update the components of the specified container that use a modifiable font to the
  updated font</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i14" class="altColor">
+<td class="colFirst"><code>protected static void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.ModifiableFontInfo.html#updateMenuFonts-javax.swing.JMenu-">updateMenuFonts</a></span>(javax.swing.JMenu&nbsp;menu)</code>
+<div class="block">Update the components of the specified menu bar item that use a modifiable font to the
+ updated font</div>
+</td>
+</tr>
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>static <a href="../CCDD/CcddConstants.ModifiableFontInfo.html" title="enum in CCDD">CcddConstants.ModifiableFontInfo</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.ModifiableFontInfo.html#valueOf-java.lang.String-">valueOf</a></span>(java.lang.String&nbsp;name)</code>
 <div class="block">Returns the enum constant of this type with the specified name.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>static <a href="../CCDD/CcddConstants.ModifiableFontInfo.html" title="enum in CCDD">CcddConstants.ModifiableFontInfo</a>[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.ModifiableFontInfo.html#values--">values</a></span>()</code>
 <div class="block">Returns an array containing the constants of this enum type, in
@@ -514,10 +537,19 @@ the order they are declared.</div>
 <a name="font">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>font</h4>
 <pre>private&nbsp;<a href="../CCDD/CcddClassesComponent.ModifiableFont.html" title="class in CCDD">CcddClassesComponent.ModifiableFont</a> font</pre>
+</li>
+</ul>
+<a name="unscaledSize">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>unscaledSize</h4>
+<pre>private&nbsp;int unscaledSize</pre>
 </li>
 </ul>
 </li>
@@ -678,10 +710,24 @@ not permitted.)</div>
 <div class="block">Get the modifiable font information reference with the specified program preferences key</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>prefKey</code> - modifiable font program preferences key</dd>
+<dd><code>prefKey</code> - Modifiable font program preferences key</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Modifiable font information reference that has a program preferences key
          matching the one specified; null if no modifiable font's key matches</dd>
+</dl>
+</li>
+</ul>
+<a name="getUnscaledSize--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getUnscaledSize</h4>
+<pre>protected&nbsp;int&nbsp;getUnscaledSize()</pre>
+<div class="block">Get the modifiable font's actual size (without scaling)</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Actual font size, without scaling</dd>
 </dl>
 </li>
 </ul>
@@ -699,10 +745,10 @@ not permitted.)</div>
  preferences</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>family</code> - font family</dd>
-<dd><code>style</code> - font style</dd>
-<dd><code>size</code> - font size</dd>
-<dd><code>progPrefs</code> - reference to the program preferences</dd>
+<dd><code>family</code> - Font family</dd>
+<dd><code>style</code> - Font style</dd>
+<dd><code>size</code> - Font size</dd>
+<dd><code>progPrefs</code> - Reference to the program preferences</dd>
 </dl>
 </li>
 </ul>
@@ -716,7 +762,21 @@ not permitted.)</div>
 <div class="block">Set the modifiable fonts to the values stored in the program preferences</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>progPrefs</code> - reference to the program preferences</dd>
+<dd><code>progPrefs</code> - Reference to the program preferences</dd>
+</dl>
+</li>
+</ul>
+<a name="scaleFont-float-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>scaleFont</h4>
+<pre>protected&nbsp;void&nbsp;scaleFont(float&nbsp;scaleFactor)</pre>
+<div class="block">Update the font size using the supplied font scaling factor</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>scaleFactor</code> - Font scaling factor</dd>
 </dl>
 </li>
 </ul>
@@ -731,7 +791,22 @@ not permitted.)</div>
  updated font</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>container</code> - container in which to check the fonts of the components</dd>
+<dd><code>container</code> - Container in which to check the fonts of the components</dd>
+</dl>
+</li>
+</ul>
+<a name="updateMenuFonts-javax.swing.JMenu-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>updateMenuFonts</h4>
+<pre>protected static&nbsp;void&nbsp;updateMenuFonts(javax.swing.JMenu&nbsp;menu)</pre>
+<div class="block">Update the components of the specified menu bar item that use a modifiable font to the
+ updated font</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>menu</code> - Menu bar item in which to check the fonts of the menu items</dd>
 </dl>
 </li>
 </ul>
@@ -746,7 +821,7 @@ not permitted.)</div>
  component's font to the current preferred font setting</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>comp</code> - component for which to check the font</dd>
+<dd><code>comp</code> - Component for which to check the font</dd>
 </dl>
 </li>
 </ul>

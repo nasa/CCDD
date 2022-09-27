@@ -145,7 +145,7 @@ extends javax.swing.JComboBox&lt;java.lang.String&gt;</pre>
 <div class="block">Custom combo box with item matching, padding for the list items, and tool tip text. The
  combo box may have a list of selection items defined by an input type. One or more
  characters may be typed into the combo box's data table cell or data field; the combo box
- list is pruned so that only items that match the character(s) are displayed (wildcard
+ list is pruned so that only items that match the character(s) are displayed (wild card
  characters are allowed).</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -457,7 +457,7 @@ extends javax.swing.JComboBox&lt;java.lang.String&gt;</pre>
 <div class="block">Padded combo box constructor with an empty list</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>font</code> - combo box list item font</dd>
+<dd><code>font</code> - Combo box list item font</dd>
 </dl>
 </li>
 </ul>
@@ -472,8 +472,8 @@ extends javax.swing.JComboBox&lt;java.lang.String&gt;</pre>
 <div class="block">Padded combo box constructor with initial list items and no tool tip text</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>items</code> - combo box list items</dd>
-<dd><code>font</code> - combo box list item font</dd>
+<dd><code>items</code> - Combo box list items</dd>
+<dd><code>font</code> - Combo box list item font</dd>
 </dl>
 </li>
 </ul>
@@ -489,9 +489,9 @@ extends javax.swing.JComboBox&lt;java.lang.String&gt;</pre>
 <div class="block">Padded combo box constructor with initial list items and tool tip text</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>items</code> - combo box list items</dd>
-<dd><code>toolTips</code> - combo box list items</dd>
-<dd><code>font</code> - combo box list item font</dd>
+<dd><code>items</code> - Combo box list items</dd>
+<dd><code>toolTips</code> - Combo box list items</dd>
+<dd><code>font</code> - Combo box list item font</dd>
 </dl>
 </li>
 </ul>
@@ -575,8 +575,8 @@ extends javax.swing.JComboBox&lt;java.lang.String&gt;</pre>
 <div class="block">Set up list item characteristics</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>toolTips</code> - combo box list items</dd>
-<dd><code>font</code> - combo box list item font</dd>
+<dd><code>toolTips</code> - Combo box list items</dd>
+<dd><code>font</code> - Combo box list item font</dd>
 </dl>
 </li>
 </ul>
@@ -590,7 +590,7 @@ extends javax.swing.JComboBox&lt;java.lang.String&gt;</pre>
 <div class="block">Get the list index of the specified list item</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>itemName</code> - name of the list item for which to search</dd>
+<dd><code>itemName</code> - Name of the list item for which to search</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>the index of the specified item in the list; -1 if the item isn't in the list</dd>
 </dl>
@@ -605,14 +605,14 @@ extends javax.swing.JComboBox&lt;java.lang.String&gt;</pre>
 <pre>protected&nbsp;void&nbsp;enableItemMatching(<a href="../CCDD/CcddJTableHandler.html" title="class in CCDD">CcddJTableHandler</a>&nbsp;table)</pre>
 <div class="block">Enable text matching in the combo box. When enabled, iIn addition to selecting an item
  directly from the list, the user may type in one or more characters to constrain the
- list to those items that match the text entered. Wildcard characters are allowed: a '?'
+ list to those items that match the text entered. Wild card characters are allowed: a '?'
  matches a single character and a '*' matches one or more characters. Trailing characters
  are automatically assumed to be included (i.e., the result is the same as if an asterisk
  terminates the match text)</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>table</code> - reference to the table in which the combo box is a cell editor; null if the
-            combo box isn't in a table cell</dd>
+<dd><code>table</code> - Reference to the table in which the combo box is a cell editor; null if the
+              combo box isn't in a table cell</dd>
 </dl>
 </li>
 </ul>

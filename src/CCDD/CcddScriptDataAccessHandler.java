@@ -4508,8 +4508,7 @@ public class CcddScriptDataAccessHandler
         if (groupInfo != null)
         {
             // Step through each data field belonging to the group
-            for (FieldInformation fieldInfo : fieldHandler
-                    .getFieldInformationByOwner(CcddFieldHandler.getFieldGroupName(groupName)))
+            for (FieldInformation fieldInfo : fieldHandler.getFieldInformationByOwner(CcddFieldHandler.getFieldGroupName(groupName)))
             {
                 // Add the data field information to the list
                 groupFields.add(new String[] {fieldInfo.getFieldName(),

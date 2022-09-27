@@ -174,39 +174,42 @@ extends java.lang.Enum&lt;<a href="../CCDD/CcddConstants.ModifiableSizeInfo.html
 <td class="colOne"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.ModifiableSizeInfo.html#MAX_LOG_MESSAGE_LENGTH">MAX_LOG_MESSAGE_LENGTH</a></span></code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.ModifiableSizeInfo.html#MAX_SQL_COMMAND_LENGTH">MAX_SQL_COMMAND_LENGTH</a></span></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.ModifiableSizeInfo.html#MAX_STORED_CONVERSIONS">MAX_STORED_CONVERSIONS</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.ModifiableSizeInfo.html#MAX_TOOL_TIP_LENGTH">MAX_TOOL_TIP_LENGTH</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.ModifiableSizeInfo.html#MAX_VIEWABLE_LIST_ROWS">MAX_VIEWABLE_LIST_ROWS</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.ModifiableSizeInfo.html#MIN_DIALOG_WIDTH">MIN_DIALOG_WIDTH</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.ModifiableSizeInfo.html#MIN_WINDOW_HEIGHT">MIN_WINDOW_HEIGHT</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.ModifiableSizeInfo.html#MIN_WINDOW_WIDTH">MIN_WINDOW_WIDTH</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.ModifiableSizeInfo.html#NUM_REMEMBERED_PROJECTS">NUM_REMEMBERED_PROJECTS</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.ModifiableSizeInfo.html#NUM_REMEMBERED_SEARCHES">NUM_REMEMBERED_SEARCHES</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.ModifiableSizeInfo.html#NUM_REMEMBERED_SERVERS">NUM_REMEMBERED_SERVERS</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.ModifiableSizeInfo.html#NUM_REMEMBERED_TABLES">NUM_REMEMBERED_TABLES</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.ModifiableSizeInfo.html#POSTGRESQL_CONNECTION_TIMEOUT">POSTGRESQL_CONNECTION_TIMEOUT</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.ModifiableSizeInfo.html#TAB_MOVE_LOCATION_INDICATOR_WIDTH">TAB_MOVE_LOCATION_INDICATOR_WIDTH</a></span></code>&nbsp;</td>
 </tr>
 </table>
@@ -377,6 +380,15 @@ the order they are declared.</div>
 <li class="blockList">
 <h4>MAX_LOG_MESSAGE_LENGTH</h4>
 <pre>public static final&nbsp;<a href="../CCDD/CcddConstants.ModifiableSizeInfo.html" title="enum in CCDD">CcddConstants.ModifiableSizeInfo</a> MAX_LOG_MESSAGE_LENGTH</pre>
+</li>
+</ul>
+<a name="MAX_SQL_COMMAND_LENGTH">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>MAX_SQL_COMMAND_LENGTH</h4>
+<pre>public static final&nbsp;<a href="../CCDD/CcddConstants.ModifiableSizeInfo.html" title="enum in CCDD">CcddConstants.ModifiableSizeInfo</a> MAX_SQL_COMMAND_LENGTH</pre>
 </li>
 </ul>
 <a name="NUM_REMEMBERED_SEARCHES">
@@ -807,8 +819,8 @@ not permitted.)</div>
 <div class="block">Set the size value</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>size</code> - new size value</dd>
-<dd><code>progPrefs</code> - reference to the program preferences</dd>
+<dd><code>size</code> - New size value</dd>
+<dd><code>progPrefs</code> - Reference to the program preferences</dd>
 </dl>
 </li>
 </ul>
@@ -822,7 +834,7 @@ not permitted.)</div>
 <div class="block">Get the modifiable size information reference with the specified program preferences key</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>prefKey</code> - modifiable size program preferences key</dd>
+<dd><code>prefKey</code> - Modifiable size program preferences key</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Modifiable size information reference that has a program preferences key
          matching the one specified; null if no modifiable size's key matches</dd>
@@ -839,7 +851,7 @@ not permitted.)</div>
 <div class="block">Set the modifiable sizes to the values stored in the program preferences</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>progPrefs</code> - reference to the program preferences</dd>
+<dd><code>progPrefs</code> - Reference to the program preferences</dd>
 </dl>
 </li>
 </ul>

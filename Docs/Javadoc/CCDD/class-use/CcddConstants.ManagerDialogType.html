@@ -109,6 +109,10 @@
 <td class="colFirst"><code>private <a href="../../CCDD/CcddConstants.ManagerDialogType.html" title="enum in CCDD">CcddConstants.ManagerDialogType</a></code></td>
 <td class="colLast"><span class="typeNameLabel">CcddTableManagerDialog.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddTableManagerDialog.html#dialogType">dialogType</a></span></code>&nbsp;</td>
 </tr>
+<tr class="altColor">
+<td class="colFirst"><code>private <a href="../../CCDD/CcddConstants.ManagerDialogType.html" title="enum in CCDD">CcddConstants.ManagerDialogType</a></code></td>
+<td class="colLast"><span class="typeNameLabel">CcddCommandLineHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddCommandLineHandler.html#dialogType">dialogType</a></span></code>&nbsp;</td>
+</tr>
 </tbody>
 </table>
 <table class="useSummary" border="0" cellpadding="3" cellspacing="0" summary="Use table, listing methods, and an explanation">
@@ -129,6 +133,117 @@
 <td class="colLast"><span class="typeNameLabel">CcddConstants.ManagerDialogType.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddConstants.ManagerDialogType.html#values--">values</a></span>()</code>
 <div class="block">Returns an array containing the constants of this enum type, in
 the order they are declared.</div>
+</td>
+</tr>
+</tbody>
+</table>
+<table class="useSummary" border="0" cellpadding="3" cellspacing="0" summary="Use table, listing methods, and an explanation">
+<caption><span>Methods in <a href="../../CCDD/package-summary.html">CCDD</a> with parameters of type <a href="../../CCDD/CcddConstants.ManagerDialogType.html" title="enum in CCDD">CcddConstants.ManagerDialogType</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><code>private javax.swing.JPanel</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddTableManagerDialog.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddTableManagerDialog.html#createImportPanel-java.awt.GridBagConstraints-CCDD.CcddConstants.ManagerDialogType-">createImportPanel</a></span>(java.awt.GridBagConstraints&nbsp;gbc,
+                 <a href="../../CCDD/CcddConstants.ManagerDialogType.html" title="enum in CCDD">CcddConstants.ManagerDialogType</a>&nbsp;dialogType)</code>
+<div class="block">Create the import option dialog panel</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private javax.swing.JPanel</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddTableManagerDialog.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddTableManagerDialog.html#createTableEditorImportPanel-CCDD.CcddConstants.ManagerDialogType-">createTableEditorImportPanel</a></span>(<a href="../../CCDD/CcddConstants.ManagerDialogType.html" title="enum in CCDD">CcddConstants.ManagerDialogType</a>&nbsp;dialogType)</code>
+<div class="block">Create the import via table editor option dialog panel</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected boolean</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddFileIOHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddFileIOHandler.html#importFileInBackground-CCDD.CcddClassesComponent.FileEnvVar:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddConstants.FileExtension-CCDD.CcddConstants.ManagerDialogType-java.util.List-java.awt.Component-">importFileInBackground</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>[]&nbsp;dataFile,
+                      boolean&nbsp;importingEntireDatabase,
+                      boolean&nbsp;backupFirst,
+                      boolean&nbsp;replaceExisting,
+                      boolean&nbsp;appendExistingFields,
+                      boolean&nbsp;useExistingFields,
+                      boolean&nbsp;openEditor,
+                      boolean&nbsp;ignoreErrors,
+                      boolean&nbsp;replaceExistingMacros,
+                      boolean&nbsp;replaceExistingGroups,
+                      boolean&nbsp;replaceExistingAssociations,
+                      boolean&nbsp;deleteNonExistingFiles,
+                      boolean&nbsp;replaceExistingDataTypes,
+                      <a href="../../CCDD/CcddConstants.FileExtension.html" title="enum in CCDD">CcddConstants.FileExtension</a>&nbsp;importFileType,
+                      <a href="../../CCDD/CcddConstants.ManagerDialogType.html" title="enum in CCDD">CcddConstants.ManagerDialogType</a>&nbsp;dialogType,
+                      java.util.List&lt;java.lang.String[]&gt;&nbsp;usersAndAccessLevel,
+                      java.awt.Component&nbsp;parent)</code>
+<div class="block">Import one or more files, creating new tables and optionally replacing existing ones.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected boolean</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddFileIOHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddFileIOHandler.html#importFiles-java.util.List-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddConstants.ManagerDialogType-java.awt.Component-">importFiles</a></span>(java.util.List&lt;<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&gt;&nbsp;dataFiles,
+           boolean&nbsp;backupFirst,
+           boolean&nbsp;importingEntireDatabase,
+           boolean&nbsp;replaceExistingTables,
+           boolean&nbsp;appendExistingFields,
+           boolean&nbsp;useExistingFields,
+           boolean&nbsp;openEditor,
+           boolean&nbsp;ignoreErrors,
+           boolean&nbsp;replaceExistingMacros,
+           boolean&nbsp;replaceExistingAssociations,
+           boolean&nbsp;replaceExistingGroups,
+           boolean&nbsp;replaceExistingDataTypes,
+           <a href="../../CCDD/CcddConstants.ManagerDialogType.html" title="enum in CCDD">CcddConstants.ManagerDialogType</a>&nbsp;fileType,
+           java.awt.Component&nbsp;parent)</code>
+<div class="block">Import one or more files, creating new tables and optionally replacing existing ones.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected void</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddFileIOHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddFileIOHandler.html#importSelectedFileIntoTable-CCDD.CcddConstants.ManagerDialogType-javax.swing.JPanel-CCDD.CcddTableEditorHandler-">importSelectedFileIntoTable</a></span>(<a href="../../CCDD/CcddConstants.ManagerDialogType.html" title="enum in CCDD">CcddConstants.ManagerDialogType</a>&nbsp;dialogType,
+                           javax.swing.JPanel&nbsp;dialogPanel,
+                           <a href="../../CCDD/CcddTableEditorHandler.html" title="class in CCDD">CcddTableEditorHandler</a>&nbsp;tableHandler)</code>
+<div class="block">Import the contents of a file selected by the user into the specified existing table</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected boolean</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddFileIOHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddFileIOHandler.html#prepareJSONOrCSVImport-CCDD.CcddClassesComponent.FileEnvVar:A-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-boolean-CCDD.CcddConstants.FileExtension-CCDD.CcddConstants.ManagerDialogType-java.awt.Component-">prepareJSONOrCSVImport</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>[]&nbsp;dataFiles,
+                      boolean&nbsp;importingEntireDatabase,
+                      boolean&nbsp;backupFirst,
+                      boolean&nbsp;replaceExistingTables,
+                      boolean&nbsp;appendExistingFields,
+                      boolean&nbsp;useExistingFields,
+                      boolean&nbsp;openEditor,
+                      boolean&nbsp;ignoreErrors,
+                      boolean&nbsp;replaceExistingMacros,
+                      boolean&nbsp;replaceExistingAssociations,
+                      boolean&nbsp;replaceExistingGroups,
+                      boolean&nbsp;replaceExistingDataTypes,
+                      boolean&nbsp;deleteNonExistingFiles,
+                      <a href="../../CCDD/CcddConstants.FileExtension.html" title="enum in CCDD">CcddConstants.FileExtension</a>&nbsp;importFileType,
+                      <a href="../../CCDD/CcddConstants.ManagerDialogType.html" title="enum in CCDD">CcddConstants.ManagerDialogType</a>&nbsp;dialogType,
+                      java.awt.Component&nbsp;parent)</code>
+<div class="block">This function will accept a file or files with JSON/CSV format.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>[]</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddFileIOHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddFileIOHandler.html#processSingleJSONFileRepresentingDatabase-CCDD.CcddClassesComponent.FileEnvVar-CCDD.CcddConstants.ManagerDialogType-java.awt.Component-">processSingleJSONFileRepresentingDatabase</a></span>(<a href="../../CCDD/CcddClassesComponent.FileEnvVar.html" title="class in CCDD">CcddClassesComponent.FileEnvVar</a>&nbsp;dataFile,
+                                         <a href="../../CCDD/CcddConstants.ManagerDialogType.html" title="enum in CCDD">CcddConstants.ManagerDialogType</a>&nbsp;dialogType,
+                                         java.awt.Component&nbsp;parent)</code>
+<div class="block">Process the single file, which represents an entire database, that is being imported and
+ output the data to multiple files.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected void</code></td>
+<td class="colLast"><span class="typeNameLabel">CcddFileIOHandler.</span><code><span class="memberNameLink"><a href="../../CCDD/CcddFileIOHandler.html#restoreDatabaseFromJSONOrCSV-CCDD.CcddConstants.ManagerDialogType-java.lang.String-java.lang.String-java.lang.String-java.lang.String-">restoreDatabaseFromJSONOrCSV</a></span>(<a href="../../CCDD/CcddConstants.ManagerDialogType.html" title="enum in CCDD">CcddConstants.ManagerDialogType</a>&nbsp;restoreFileType,
+                            java.lang.String&nbsp;createName,
+                            java.lang.String&nbsp;createOwner,
+                            java.lang.String&nbsp;createDescription,
+                            java.lang.String&nbsp;createRestore)</code>
+<div class="block">Restore a project's database from a specified or user-selected JSON or CSV file(s)</div>
 </td>
 </tr>
 </tbody>

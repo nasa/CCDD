@@ -17,7 +17,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":9,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":9,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -423,49 +423,55 @@ extends javax.swing.JTree</pre>
 </td>
 </tr>
 <tr id="i15" class="rowColor">
+<td class="colFirst"><code>(package private) boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommonTreeHandler.html#isLeaf-javax.swing.tree.TreeNode-">isLeaf</a></span>(javax.swing.tree.TreeNode&nbsp;node)</code>
+<div class="block">Determine if the TreeNode is a leaf (has no children)</div>
+</td>
+</tr>
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommonTreeHandler.html#refreshTree--">refreshTree</a></span>()</code>
 <div class="block">Force the root node to redraw , preserving the tree expansion state</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommonTreeHandler.html#removeAllNodes--">removeAllNodes</a></span>()</code>
 <div class="block">Remove all nodes from the tree</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>protected java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommonTreeHandler.html#removeExtraText-java.lang.String-">removeExtraText</a></span>(java.lang.String&nbsp;text)</code>
 <div class="block">Remove HTML tag(s).</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommonTreeHandler.html#setEnableDataType-boolean-">setEnableDataType</a></span>(boolean&nbsp;enable)</code>
 <div class="block">Set the flag indicating if the data type portion of a node name (in the format
  dataType.variableName) should be hidden or displayed</div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommonTreeHandler.html#setExpansionState-java.lang.String-">setExpansionState</a></span>(java.lang.String&nbsp;expState)</code>
 <div class="block">Restore the tree expansion state</div>
 </td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommonTreeHandler.html#setHighlightPattern-java.util.regex.Pattern-">setHighlightPattern</a></span>(java.util.regex.Pattern&nbsp;searchPattern)</code>
 <div class="block">Set the pattern used for text matching in the node names</div>
 </td>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommonTreeHandler.html#setTreeExpansion-boolean-">setTreeExpansion</a></span>(boolean&nbsp;isExpanded)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommonTreeHandler.html#setTreeExpansion-boolean-">setTreeExpansion</a></span>(boolean&nbsp;expandTree)</code>
 <div class="block">Expand or collapse all of the nodes in the tree</div>
 </td>
 </tr>
-<tr id="i22" class="altColor">
+<tr id="i23" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommonTreeHandler.html#setVariableNodeIcon-javax.swing.tree.DefaultTreeCellRenderer-CCDD.CcddClassesComponent.ToolTipTreeNode-int-boolean-">setVariableNodeIcon</a></span>(javax.swing.tree.DefaultTreeCellRenderer&nbsp;renderer,
                    <a href="../CCDD/CcddClassesComponent.ToolTipTreeNode.html" title="class in CCDD">CcddClassesComponent.ToolTipTreeNode</a>&nbsp;node,
@@ -474,7 +480,7 @@ extends javax.swing.JTree</pre>
 <div class="block">Set the tree icon for nodes representing a variable.</div>
 </td>
 </tr>
-<tr id="i23" class="rowColor">
+<tr id="i24" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommonTreeHandler.html#updateTableSelection--">updateTableSelection</a></span>()</code>
 <div class="block">Placeholder for method to respond to changes in selection of a table in the table tree</div>
@@ -647,7 +653,7 @@ extends javax.swing.JTree</pre>
 <div class="block">Common tree handler class constructor</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>ccddMain</code> - main class reference</dd>
+<dd><code>ccddMain</code> - Main class reference</dd>
 </dl>
 </li>
 </ul>
@@ -679,7 +685,7 @@ extends javax.swing.JTree</pre>
 <div class="block">Set the pattern used for text matching in the node names</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>searchPattern</code> - search pattern; can be a regular expression (Pattern)</dd>
+<dd><code>searchPattern</code> - Search pattern; can be a regular expression (Pattern)</dd>
 </dl>
 </li>
 </ul>
@@ -693,7 +699,7 @@ extends javax.swing.JTree</pre>
 <div class="block">Get the total number of nodes that descend from the specified node</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>node</code> - target node</dd>
+<dd><code>node</code> - Target node</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Total number of nodes that descend from the specified node. The node itself is
          counted, so the minimum return value is 1</dd>
@@ -720,7 +726,7 @@ extends javax.swing.JTree</pre>
 <div class="block">Remove HTML tag(s). Override to remove other text</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>text</code> - string from which to remove the extra text</dd>
+<dd><code>text</code> - String from which to remove the extra text</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Input string minus any HTML tag(s)</dd>
 </dl>
@@ -737,7 +743,7 @@ extends javax.swing.JTree</pre>
  dataType.variableName) should be hidden or displayed</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>enable</code> - true to display the data type; false to hide it</dd>
+<dd><code>enable</code> - True to display the data type; false to hide it</dd>
 </dl>
 </li>
 </ul>
@@ -747,11 +753,11 @@ extends javax.swing.JTree</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setTreeExpansion</h4>
-<pre>protected&nbsp;void&nbsp;setTreeExpansion(boolean&nbsp;isExpanded)</pre>
+<pre>protected&nbsp;void&nbsp;setTreeExpansion(boolean&nbsp;expandTree)</pre>
 <div class="block">Expand or collapse all of the nodes in the tree</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>isExpanded</code> - true if all tree nodes should be expanded</dd>
+<dd><code>expandTree</code> - True if all tree nodes should be expanded</dd>
 </dl>
 </li>
 </ul>
@@ -765,7 +771,23 @@ extends javax.swing.JTree</pre>
 <div class="block">Expand the specified tree path and all of its child paths. This is a recursive method</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>path</code> - tree path to expand</dd>
+<dd><code>path</code> - Tree path to expand</dd>
+</dl>
+</li>
+</ul>
+<a name="isLeaf-javax.swing.tree.TreeNode-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isLeaf</h4>
+<pre>boolean&nbsp;isLeaf(javax.swing.tree.TreeNode&nbsp;node)</pre>
+<div class="block">Determine if the TreeNode is a leaf (has no children)</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>node</code> - The current tree node to check</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>true if it is a leaf, false if it is not a leaf</dd>
 </dl>
 </li>
 </ul>
@@ -779,7 +801,7 @@ extends javax.swing.JTree</pre>
 <div class="block">Collapse the specified tree path and all of its child paths. This is a recursive method</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>path</code> - tree path to collapse</dd>
+<dd><code>path</code> - Tree path to collapse</dd>
 </dl>
 </li>
 </ul>
@@ -793,7 +815,7 @@ extends javax.swing.JTree</pre>
 <div class="block">Get the tree path for the specified tree node</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>node</code> - tree node from which to create the tree path</dd>
+<dd><code>node</code> - Tree node from which to create the tree path</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Tree path corresponding to the specified tree node; null if the specified node is
          null</dd>
@@ -844,7 +866,7 @@ extends javax.swing.JTree</pre>
 <div class="block">Restore the tree expansion state</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>expState</code> - string representing the desired tree expansion state</dd>
+<dd><code>expState</code> - String representing the desired tree expansion state</dd>
 </dl>
 </li>
 </ul>
@@ -866,16 +888,17 @@ extends javax.swing.JTree</pre>
 <div class="block">Adjust the tree expansion state to account for the tree filter selection status</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>expState</code> - string representing the desired tree expansion state</dd>
-<dd><code>isByGroup</code> - true if the tree is filtered by group/application</dd>
-<dd><code>isByGroupChanged</code> - true if the group filter status changed</dd>
-<dd><code>isByType</code> - true if the tree is filtered by table type</dd>
-<dd><code>isByTypeChanged</code> - true if the table type filter status changed</dd>
-<dd><code>isApp</code> - true if the groups are to be treated as possible applications; false if the
-            application distinction doesn't apply</dd>
-<dd><code>topNodePrefixes</code> - initial portion of the node path that provide the overall division of the tree</dd>
-<dd><code>groupHandler</code> - reference to the group handler</dd>
-<dd><code>tableTypeHandler</code> - reference to the table type handler</dd>
+<dd><code>expState</code> - String representing the desired tree expansion state</dd>
+<dd><code>isByGroup</code> - True if the tree is filtered by group/application</dd>
+<dd><code>isByGroupChanged</code> - True if the group filter status changed</dd>
+<dd><code>isByType</code> - True if the tree is filtered by table type</dd>
+<dd><code>isByTypeChanged</code> - True if the table type filter status changed</dd>
+<dd><code>isApp</code> - True if the groups are to be treated as possible applications; false
+                         if the application distinction doesn't apply</dd>
+<dd><code>topNodePrefixes</code> - Initial portion of the node path that provide the overall division
+                         of the tree</dd>
+<dd><code>groupHandler</code> - Reference to the group handler</dd>
+<dd><code>tableTypeHandler</code> - Reference to the table type handler</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>String representing the tree expansion state with adjustments made to account for
          the change in filter selection status</dd>
@@ -893,8 +916,8 @@ extends javax.swing.JTree</pre>
 <div class="block">Convert the elements in tree path array to a single, comma-separated string</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>path</code> - tree path array</dd>
-<dd><code>startIndex</code> - index of the first array member to include in the output string</dd>
+<dd><code>path</code> - Tree path array</dd>
+<dd><code>startIndex</code> - Index of the first array member to include in the output string</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The tree path array as a single string with individual elements separated by commas</dd>
 </dl>
@@ -925,10 +948,10 @@ extends javax.swing.JTree</pre>
  members as well</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>node</code> - current child node to check</dd>
-<dd><code>selectedPaths</code> - list containing the selected paths</dd>
-<dd><code>excludedPaths</code> - list of paths to be excluded from the tree</dd>
-<dd><code>isVariable</code> - true if the tree contains variables</dd>
+<dd><code>node</code> - Current child node to check</dd>
+<dd><code>selectedPaths</code> - List containing the selected paths</dd>
+<dd><code>excludedPaths</code> - List of paths to be excluded from the tree</dd>
+<dd><code>isVariable</code> - True if the tree contains variables</dd>
 </dl>
 </li>
 </ul>
@@ -959,7 +982,7 @@ extends javax.swing.JTree</pre>
  prototype/instance, group (if filtered by group), and type (if filtered by type) nodes</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>path</code> - array describing the variable's tree path</dd>
+<dd><code>path</code> - Array describing the variable's tree path</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Root table name, followed by the variable names with the data types, separated by
          commas, from the specified tree path</dd>
@@ -979,8 +1002,8 @@ extends javax.swing.JTree</pre>
  prototype/instance, group (if filtered by group), and type (if filtered by type) nodes</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>path</code> - array describing the variable's tree path</dd>
-<dd><code>levelAdjust</code> - number of nodes (+/-) by which to adjust the starting the node level</dd>
+<dd><code>path</code> - Array describing the variable's tree path</dd>
+<dd><code>levelAdjust</code> - Number of nodes (+/-) by which to adjust the starting the node level</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Root table name, followed by the variable names with the data types, separated by
          commas, from the specified tree path</dd>
@@ -997,7 +1020,7 @@ extends javax.swing.JTree</pre>
 <div class="block">Determine the node indices in the table tree that encompass a group of bit-packed variables</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>node</code> - selected node for a (potentially) bit-packed variable</dd>
+<dd><code>node</code> - Selected node for a (potentially) bit-packed variable</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>NodeIndex object containing the node indices bounding the bit-packed variables</dd>
 </dl>
@@ -1014,7 +1037,7 @@ extends javax.swing.JTree</pre>
  the individual bytes of a string variable</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>node</code> - selected node for a (potentially) bit-packed variable</dd>
+<dd><code>node</code> - Selected node for a (potentially) bit-packed variable</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>NodeIndex object containing the node indices bounding the string variable</dd>
 </dl>
@@ -1034,10 +1057,10 @@ extends javax.swing.JTree</pre>
  or isn't bit-wise, is or isn't linked, and is or isn't bit-packed</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>renderer</code> - reference to the tree's cell renderer</dd>
-<dd><code>node</code> - node for which the icon is to be set</dd>
-<dd><code>currentRow</code> - row index of the node in the tree</dd>
-<dd><code>isLinked</code> - true if the variable is a member of a link</dd>
+<dd><code>renderer</code> - Reference to the tree's cell renderer</dd>
+<dd><code>node</code> - Node for which the icon is to be set</dd>
+<dd><code>currentRow</code> - Row index of the node in the tree</dd>
+<dd><code>isLinked</code> - True if the variable is a member of a link</dd>
 </dl>
 </li>
 </ul>

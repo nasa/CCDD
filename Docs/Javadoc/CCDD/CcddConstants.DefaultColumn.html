@@ -164,7 +164,13 @@ extends java.lang.Enum&lt;<a href="../CCDD/CcddConstants.DefaultColumn.html" tit
 <td class="colOne"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.DefaultColumn.html#DESCRIPTION_CMD">DESCRIPTION_CMD</a></span></code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.DefaultColumn.html#DESCRIPTION_ENUM">DESCRIPTION_ENUM</a></span></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.DefaultColumn.html#DESCRIPTION_STRUCT">DESCRIPTION_STRUCT</a></span></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.DefaultColumn.html#ENUM_NAME">ENUM_NAME</a></span></code>&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.DefaultColumn.html#ENUMERATION">ENUMERATION</a></span></code>&nbsp;</td>
@@ -188,6 +194,9 @@ extends java.lang.Enum&lt;<a href="../CCDD/CcddConstants.DefaultColumn.html" tit
 <td class="colOne"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.DefaultColumn.html#UNITS">UNITS</a></span></code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.DefaultColumn.html#VALUE_ENUM">VALUE_ENUM</a></span></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../CCDD/CcddConstants.DefaultColumn.html#VARIABLE_NAME">VARIABLE_NAME</a></span></code>&nbsp;</td>
 </tr>
 </table>
@@ -544,10 +553,37 @@ the order they are declared.</div>
 <a name="COMMAND_ARGUMENT">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>COMMAND_ARGUMENT</h4>
 <pre>public static final&nbsp;<a href="../CCDD/CcddConstants.DefaultColumn.html" title="enum in CCDD">CcddConstants.DefaultColumn</a> COMMAND_ARGUMENT</pre>
+</li>
+</ul>
+<a name="ENUM_NAME">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>ENUM_NAME</h4>
+<pre>public static final&nbsp;<a href="../CCDD/CcddConstants.DefaultColumn.html" title="enum in CCDD">CcddConstants.DefaultColumn</a> ENUM_NAME</pre>
+</li>
+</ul>
+<a name="DESCRIPTION_ENUM">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DESCRIPTION_ENUM</h4>
+<pre>public static final&nbsp;<a href="../CCDD/CcddConstants.DefaultColumn.html" title="enum in CCDD">CcddConstants.DefaultColumn</a> DESCRIPTION_ENUM</pre>
+</li>
+</ul>
+<a name="VALUE_ENUM">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>VALUE_ENUM</h4>
+<pre>public static final&nbsp;<a href="../CCDD/CcddConstants.DefaultColumn.html" title="enum in CCDD">CcddConstants.DefaultColumn</a> VALUE_ENUM</pre>
 </li>
 </ul>
 </li>
@@ -849,7 +885,7 @@ not permitted.)</div>
 <div class="block">Get the number of columns that are required to define the specified table type</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>type</code> - default table type</dd>
+<dd><code>type</code> - Default table type</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Number of the columns that are required to define the specified table type</dd>
 </dl>
@@ -868,9 +904,9 @@ not permitted.)</div>
  to define the specified type</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>compareTableType</code> - table type: TYPE_STRUCTURE, TYPE_COMMAND, or TYPE_OTHER</dd>
-<dd><code>inputTypeHandler</code> - input type handler reference</dd>
-<dd><code>compareInputType</code> - column input type (InputType)</dd>
+<dd><code>compareTableType</code> - Table type: TYPE_STRUCTURE, TYPE_COMMAND, or TYPE_OTHER</dd>
+<dd><code>inputTypeHandler</code> - Input type handler reference</dd>
+<dd><code>compareInputType</code> - Column input type (InputType)</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>true if the supplied table type and column input type match that for a column
          required to define the specified type</dd>
@@ -889,8 +925,8 @@ not permitted.)</div>
  input type pairs</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>compareTableType</code> - table type</dd>
-<dd><code>compareInputType</code> - input type name</dd>
+<dd><code>compareTableType</code> - Table type</dd>
+<dd><code>compareInputType</code> - Input type name</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>true if the supplied table type and input type match a protected table type and
          input type combination, and if this pair is flagged as protected</dd>
@@ -925,7 +961,8 @@ not permitted.)</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>type</code> - Default table type name</dd>
-<dd><code>includeRate</code> - true to include the Rate column (ignored if the type is not a structure)</dd>
+<dd><code>includeRate</code> - True to include the Rate column (ignored if the type is not a
+                    structure)</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Default column definitions array for the specified table type; and empty array
          if the type is not one of the default types</dd>
@@ -942,7 +979,7 @@ not permitted.)</div>
 <div class="block">Get the column database data type based on the column index</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>column</code> - column index</dd>
+<dd><code>column</code> - Column index</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Column database data type</dd>
 </dl>

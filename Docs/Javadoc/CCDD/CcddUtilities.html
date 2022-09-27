@@ -487,7 +487,7 @@ extends java.lang.Object</pre>
 <div class="block">Convert the specified string to a float</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>value</code> - string in the format # or #/#</dd>
+<dd><code>value</code> - String in the format # or #/#</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Floating point representation of the value</dd>
 </dl>
@@ -505,8 +505,8 @@ extends java.lang.Object</pre>
  effect on the match outcome</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>array1</code> - first array to compare</dd>
-<dd><code>array2</code> - second array to compare</dd>
+<dd><code>array1</code> - First array to compare</dd>
+<dd><code>array2</code> - Second array to compare</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>true if the two arrays contain the same items</dd>
 </dl>
@@ -522,7 +522,7 @@ extends java.lang.Object</pre>
 <div class="block">Repeat any embedded double quotes, then bound the supplied text with double quotes</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>text</code> - text string for which to add double quotes; a null string is replaced by a blank</dd>
+<dd><code>text</code> - Text string for which to add double quotes; a null string is replaced by a blank</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The supplied text string with any embedded double quotes repeated, and bounded with
          double quotes</dd>
@@ -540,7 +540,7 @@ extends java.lang.Object</pre>
  double quotes and separate each result with a comma</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>texts</code> - text string(s) for which to add double quotes and comma-separate</dd>
+<dd><code>texts</code> - Text string(s) for which to add double quotes and comma-separate</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Each of the supplied text strings with any embedded double quotes repeated, then
          bound with double quotes and separate each result with a comma</dd>
@@ -558,7 +558,7 @@ extends java.lang.Object</pre>
  quotes. Remove the excess double quotes from the array members</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>text</code> - text string to split</dd>
+<dd><code>text</code> - Text string to split</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Text string divided into separate components, split at commas (including any
          surrounding white space characters), accounting for commas within double quotes, and
@@ -581,12 +581,12 @@ extends java.lang.Object</pre>
  quotes from the array members</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>text</code> - text string to split</dd>
-<dd><code>separator</code> - character(s) at which to split the text</dd>
-<dd><code>limit</code> - maximum number of parts to separate the text into. This is the number of parts
-            returned, with any missing parts returned as blanks. Set to -1 to split the text
-            into as many parts as there are separators in the text</dd>
-<dd><code>removeQuotes</code> - true to remove excess double quotes from the individual array members</dd>
+<dd><code>text</code> - Text string to split</dd>
+<dd><code>separator</code> - Character(s) at which to split the text</dd>
+<dd><code>limit</code> - Maximum number of parts to separate the text into. This is the number of
+                     parts returned, with any missing parts returned as blanks. Set to -1 to
+                     split the text into as many parts as there are separators in the text</dd>
+<dd><code>removeQuotes</code> - True to remove excess double quotes from the individual array members</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Text string divided into separate components, split at commas, accounting for commas
          within double quotes, and with the excess double quotes removed</dd>
@@ -606,7 +606,7 @@ extends java.lang.Object</pre>
  other items are in the list</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>itemArray</code> - array of text items to combine</dd>
+<dd><code>itemArray</code> - Array of text items to combine</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The array of text items converted to a single, comma-separated string, and shortened
          if above a maximum length</dd>
@@ -624,7 +624,7 @@ extends java.lang.Object</pre>
  double) of arguments within the string</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>argString</code> - command line argument string</dd>
+<dd><code>argString</code> - Command line argument string</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Array containing the separate command line arguments with any quotes removed</dd>
 </dl>
@@ -658,7 +658,8 @@ extends java.lang.Object</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>enumeration</code> - enumeration in the format &lt;enum value&gt;&lt;enum value separator&gt;&lt;enum label&gt;[&lt;enum value separator&gt;...][&lt;enum pair separator&gt;...]</dd>
-<dd><code>enumValueSeparator</code> - character used to separate an enumeration value from its corresponding label</dd>
+<dd><code>enumValueSeparator</code> - Character used to separate an enumeration value from its
+                           corresponding label</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Character that separates the enumerated pairs</dd>
 </dl>
@@ -674,7 +675,7 @@ extends java.lang.Object</pre>
 <div class="block">Create a copy of an array of string arrays</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>array</code> - array of string arrays to copy</dd>
+<dd><code>array</code> - Array of string arrays to copy</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Array containing a copy of the string arrays from the input array</dd>
 </dl>
@@ -690,7 +691,7 @@ extends java.lang.Object</pre>
 <div class="block">Create a copy of a list of string arrays</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>list</code> - list of string arrays to copy</dd>
+<dd><code>list</code> - List of string arrays to copy</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>List containing a copy of the string arrays from the input list</dd>
 </dl>
@@ -708,8 +709,8 @@ extends java.lang.Object</pre>
  appended</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>array</code> - array to copy</dd>
-<dd><code>numColumns</code> - number of columns to append</dd>
+<dd><code>array</code> - Array to copy</dd>
+<dd><code>numColumns</code> - Number of columns to append</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Array containing the data from the input array plus the specified number of extra,
          empty columns appended</dd>
@@ -727,8 +728,8 @@ extends java.lang.Object</pre>
 <div class="block">Create a copy of a two-dimensional array with a specified number of extra columns appended</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>array</code> - array to copy</dd>
-<dd><code>numColumns</code> - number of columns to append</dd>
+<dd><code>array</code> - Array to copy</dd>
+<dd><code>numColumns</code> - Number of columns to append</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Array containing the data from the input array plus the specified number of extra,
          empty columns appended</dd>
@@ -746,8 +747,8 @@ extends java.lang.Object</pre>
 <div class="block">Create a copy of a list of string arrays with the specified column removed</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>list</code> - list from which to remove the column</dd>
-<dd><code>delColumn</code> - column to remove</dd>
+<dd><code>list</code> - List from which to remove the column</dd>
+<dd><code>delColumn</code> - Column to remove</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>List of string arrays containing the data from the input list minus the specified
          column</dd>
@@ -766,9 +767,9 @@ extends java.lang.Object</pre>
 <div class="block">Move the specified array member to the specified position in the array</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>array</code> - array</dd>
-<dd><code>indexToMove</code> - index of the array member to move</dd>
-<dd><code>targetIndex</code> - new index for the moved array member</dd>
+<dd><code>array</code> - Array</dd>
+<dd><code>indexToMove</code> - Index of the array member to move</dd>
+<dd><code>targetIndex</code> - New index for the moved array member</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Array with the specified member moved to the new position and the other members
          adjusted to accommodate the move</dd>
@@ -788,10 +789,10 @@ extends java.lang.Object</pre>
 <div class="block">Concatenate the contents of two one-dimensional arrays to produce a third array</div>
 <dl>
 <dt><span class="paramLabel">Type Parameters:</span></dt>
-<dd><code>T</code> - generic type parameter</dd>
+<dd><code>T</code> - Generic type parameter</dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>array1</code> - first array to combine (can be null)</dd>
-<dd><code>array2</code> - second array to combine</dd>
+<dd><code>array1</code> - First array to combine (can be null)</dd>
+<dd><code>array2</code> - Second array to combine</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>One-dimensional array with the contents of the second array appended to the first
          array</dd>
@@ -811,10 +812,10 @@ extends java.lang.Object</pre>
 <div class="block">Concatenate the contents of two two-dimensional arrays to produce a third array</div>
 <dl>
 <dt><span class="paramLabel">Type Parameters:</span></dt>
-<dd><code>T</code> - generic type parameter</dd>
+<dd><code>T</code> - Generic type parameter</dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>array1</code> - first array to combine (can be null)</dd>
-<dd><code>array2</code> - second array to combine</dd>
+<dd><code>array1</code> - First array to combine (can be null)</dd>
+<dd><code>array2</code> - Second array to combine</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Two-dimensional array with the contents of the second array appended to the first
          array</dd>
@@ -831,7 +832,7 @@ extends java.lang.Object</pre>
 <div class="block">Convert an object array to a string array</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>asObject</code> - single-dimensional object array to convert</dd>
+<dd><code>asObject</code> - Single-dimensional object array to convert</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Single-dimensional array of string values</dd>
 </dl>
@@ -848,7 +849,7 @@ extends java.lang.Object</pre>
  have to have the same number of columns</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>asObject</code> - two-dimensional object array to convert</dd>
+<dd><code>asObject</code> - Two-dimensional object array to convert</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Two-dimensional array of string values</dd>
 </dl>
@@ -865,8 +866,8 @@ extends java.lang.Object</pre>
 <div class="block">Remove trailing characters from the end of a string</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>text</code> - string from which to remove the trailing characters</dd>
-<dd><code>trailingText</code> - trailing characters to remove</dd>
+<dd><code>text</code> - String from which to remove the trailing characters</dd>
+<dd><code>trailingText</code> - Trailing characters to remove</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Input string minus the trailing characters (if present)</dd>
 </dl>
@@ -884,7 +885,7 @@ extends java.lang.Object</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>text</code> - StringBuilder string from which to remove the trailing characters</dd>
-<dd><code>trailingText</code> - trailing characters to remove</dd>
+<dd><code>trailingText</code> - Trailing characters to remove</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Input string minus the trailing characters (if present)</dd>
 </dl>
@@ -901,7 +902,7 @@ extends java.lang.Object</pre>
  quotes with one double quote</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>text</code> - string from which to remove the excess quotes</dd>
+<dd><code>text</code> - String from which to remove the excess quotes</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Input string minus any excess quotes</dd>
 </dl>
@@ -917,7 +918,7 @@ extends java.lang.Object</pre>
 <div class="block">Convert the array into a single string and remove the leading and trailing brackets</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>array</code> - array of strings</dd>
+<dd><code>array</code> - Array of strings</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Single string containing the strings from the array, separated by a comma and a
          space</dd>
@@ -936,7 +937,7 @@ extends java.lang.Object</pre>
  with a blank</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>text</code> - string from which to remove the HTML tags</dd>
+<dd><code>text</code> - String from which to remove the HTML tags</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Input string with spaces replacing breaks, minus any HTML tag(s), and with special
          character markers replaced</dd>
@@ -956,8 +957,9 @@ extends java.lang.Object</pre>
  the special character if recognized, else with a blank</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>text</code> - string from which to remove the HTML tags</dd>
-<dd><code>preserveBreaks</code> - true to replace breaks with line feeds; false to replace breaks with spaces</dd>
+<dd><code>text</code> - String from which to remove the HTML tags</dd>
+<dd><code>preserveBreaks</code> - True to replace breaks with line feeds; false to replace breaks with
+                       spaces</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Input string with line feeds or spaces replacing breaks, minus any HTML tag(s), and
          with special character markers replaced</dd>
@@ -975,8 +977,8 @@ extends java.lang.Object</pre>
 <div class="block">Add the HTML tags to the supplied text to change the font color to the one specified</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>text</code> - string to which to apply the HTML tags</dd>
-<dd><code>color</code> - color to which to set the text (Color)</dd>
+<dd><code>text</code> - String to which to apply the HTML tags</dd>
+<dd><code>color</code> - Color to which to set the text (Color)</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Input string with the HTML tags to alter the color to the one supplied</dd>
 </dl>
@@ -993,7 +995,7 @@ extends java.lang.Object</pre>
  regular expression the characters are recognized properly</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>text</code> - string in which to escape any reserved characters</dd>
+<dd><code>text</code> - String in which to escape any reserved characters</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>String with any reserved PostgreSQL characters escaped so that they are recognized
          by a regular expression</dd>
@@ -1011,7 +1013,7 @@ extends java.lang.Object</pre>
  string with the equivalent HTML tags</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>inputText</code> - string to format for HTML</dd>
+<dd><code>inputText</code> - String to format for HTML</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Input string converted to HTML format</dd>
 </dl>
@@ -1029,9 +1031,9 @@ extends java.lang.Object</pre>
  string with the equivalent HTML tags</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>inputText</code> - string to format for HTML</dd>
-<dd><code>ignoreBreaks</code> - true to ignore replacing line feeds with breaks; false to replace line feeds with
-            breaks</dd>
+<dd><code>inputText</code> - String to format for HTML</dd>
+<dd><code>ignoreBreaks</code> - True to ignore replacing line feeds with breaks; false to replace line
+                     feeds with breaks</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Input string converted to HTML format</dd>
 </dl>
@@ -1048,8 +1050,8 @@ extends java.lang.Object</pre>
 <div class="block">Search a string list for the specified text string, ignoring case</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>text</code> - text string to search for in the list</dd>
-<dd><code>list</code> - string list to search through for the specified text</dd>
+<dd><code>text</code> - Text string to search for in the list</dd>
+<dd><code>list</code> - String list to search through for the specified text</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>true if the specified text string is present in the supplied list (case insensitive)</dd>
 </dl>
@@ -1070,8 +1072,8 @@ extends java.lang.Object</pre>
  including conversion of any special characters</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>inputText</code> - string to format for wrapping</dd>
-<dd><code>maxLength</code> - maximum length, in characters, to wrap the text</dd>
+<dd><code>inputText</code> - String to format for wrapping</dd>
+<dd><code>maxLength</code> - Maximum length, in characters, to wrap the text</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The input text, converted to HTML format (if not already), with line breaks inserted
          to limit the line length to the maximum specified; null if the input string is null
@@ -1089,7 +1091,7 @@ extends java.lang.Object</pre>
 <div class="block">Highlight the data type portion of a structure table/variable path</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>path</code> - structure/variable path</dd>
+<dd><code>path</code> - Structure/variable path</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Structure/variable path with the data type(s) highlighted</dd>
 </dl>
@@ -1108,10 +1110,10 @@ extends java.lang.Object</pre>
 <div class="block">Highlight any text matching the search text in the the specified text component</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>component</code> - reference to the table cell renderer component</dd>
-<dd><code>text</code> - cell value</dd>
-<dd><code>hightlightColor</code> - color used for highlighting the matching text</dd>
-<dd><code>searchPattern</code> - search pattern; can be a regular expression (Pattern)</dd>
+<dd><code>component</code> - Reference to the table cell renderer component</dd>
+<dd><code>text</code> - Cell value</dd>
+<dd><code>hightlightColor</code> - Color used for highlighting the matching text</dd>
+<dd><code>searchPattern</code> - Search pattern; can be a regular expression (Pattern)</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>true if the supplied text contains a match to the specified search pattern</dd>
 </dl>
@@ -1128,7 +1130,7 @@ extends java.lang.Object</pre>
 <div class="block">Display a dialog for a generic exception, showing the cause and the stack trace</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>e</code> - exception reference</dd>
+<dd><code>e</code> - Exception reference</dd>
 <dd><code>parent</code> - GUI component over which to center the dialog</dd>
 </dl>
 </li>
@@ -1146,10 +1148,11 @@ extends java.lang.Object</pre>
  and server auto-completion lists, and by the lists of previously opened projects and tables</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>text</code> - item to add to the list. The item is placed at the head of the list. The list
-            size is constrained to the maximum number specified when the field was created</dd>
-<dd><code>itemList</code> - list containing the items</dd>
-<dd><code>maxItems</code> - maximum number of items allowed in the list</dd>
+<dd><code>text</code> - Item to add to the list. The item is placed at the head of the list. The
+                 list size is constrained to the maximum number specified when the field was
+                 created</dd>
+<dd><code>itemList</code> - List containing the items</dd>
+<dd><code>maxItems</code> - Maximum number of items allowed in the list</dd>
 </dl>
 </li>
 </ul>
@@ -1164,7 +1167,7 @@ extends java.lang.Object</pre>
  and server auto-completion lists, and by the lists of previously opened projects and tables</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>itemList</code> - list containing the items to combine into a single string</dd>
+<dd><code>itemList</code> - List containing the items to combine into a single string</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>String containing the items from which the text is extracted, separated by delimiter
          characters</dd>

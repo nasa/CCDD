@@ -17,7 +17,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -215,28 +215,28 @@ extends <a href="../CCDD/CcddDialogHandler.html" title="class in CCDD">CcddDialo
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddSearchVariablesDialog.html#allowRegexCb">allowRegexCb</a></span></code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>private javax.swing.border.Border</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddSearchVariablesDialog.html#border">border</a></span></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>private <a href="../CCDD/CcddMain.html" title="class in CCDD">CcddMain</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddSearchVariablesDialog.html#ccddMain">ccddMain</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>private javax.swing.JCheckBox</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddSearchVariablesDialog.html#ignoreCaseCb">ignoreCaseCb</a></span></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private javax.swing.JPanel</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddSearchVariablesDialog.html#inputPnl">inputPnl</a></span></code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>private javax.swing.JLabel</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddSearchVariablesDialog.html#numMatchesLbl">numMatchesLbl</a></span></code>&nbsp;</td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>private boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddSearchVariablesDialog.html#prevAllowRegex">prevAllowRegex</a></span></code>&nbsp;</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>private boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddSearchVariablesDialog.html#prevIgnoreCase">prevIgnoreCase</a></span></code>&nbsp;</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>private java.lang.String</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddSearchVariablesDialog.html#prevSearchText">prevSearchText</a></span></code>&nbsp;</td>
+<td class="colFirst"><code>private javax.swing.JLabel</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddSearchVariablesDialog.html#numVariablesLbl">numVariablesLbl</a></span></code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>private <a href="../CCDD/CcddClassesComponent.AutoCompleteTextField.html" title="class in CCDD">CcddClassesComponent.AutoCompleteTextField</a></code></td>
@@ -247,18 +247,54 @@ extends <a href="../CCDD/CcddDialogHandler.html" title="class in CCDD">CcddDialo
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddSearchVariablesDialog.html#searchPattern">searchPattern</a></span></code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>private javax.swing.JCheckBox</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddSearchVariablesDialog.html#searchViaTableTreeCB">searchViaTableTreeCB</a></span></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private javax.swing.JCheckBox</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddSearchVariablesDialog.html#showAllVarCB">showAllVarCB</a></span></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private java.lang.Object[][]</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddSearchVariablesDialog.html#tableData">tableData</a></span></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>(package private) java.awt.GridBagConstraints</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddSearchVariablesDialog.html#tableTreeGbc">tableTreeGbc</a></span></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>(package private) <a href="../CCDD/CcddClassesComponent.CustomSplitPane.html" title="class in CCDD">CcddClassesComponent.CustomSplitPane</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddSearchVariablesDialog.html#tableTreePane">tableTreePane</a></span></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>private javax.swing.JPanel</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddSearchVariablesDialog.html#upperPnl">upperPnl</a></span></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private <a href="../CCDD/CcddVariableHandler.html" title="class in CCDD">CcddVariableHandler</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddSearchVariablesDialog.html#variableHandler">variableHandler</a></span></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>private java.util.List&lt;java.lang.String[]&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddSearchVariablesDialog.html#variablePaths">variablePaths</a></span></code>&nbsp;</td>
 </tr>
+<tr class="rowColor">
+<td class="colFirst"><code>private javax.swing.JPanel</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddSearchVariablesDialog.html#variablesPnl">variablesPnl</a></span></code>&nbsp;</td>
+</tr>
 <tr class="altColor">
+<td class="colFirst"><code>private javax.swing.JPanel</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddSearchVariablesDialog.html#variablesTblPnl">variablesTblPnl</a></span></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>private <a href="../CCDD/CcddJTableHandler.html" title="class in CCDD">CcddJTableHandler</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddSearchVariablesDialog.html#variableTable">variableTable</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>private <a href="../CCDD/CcddTableTreeHandler.html" title="class in CCDD">CcddTableTreeHandler</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddSearchVariablesDialog.html#variableTree">variableTree</a></span></code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>private static java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddSearchVariablesDialog.html#WILD_CARD_LABEL">WILD_CARD_LABEL</a></span></code>&nbsp;</td>
 </tr>
@@ -333,11 +369,26 @@ extends <a href="../CCDD/CcddDialogHandler.html" title="class in CCDD">CcddDialo
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddSearchVariablesDialog.html#buildTableTreeForSearch-boolean-java.awt.GridBagConstraints-">buildTableTreeForSearch</a></span>(boolean&nbsp;delete,
+                       java.awt.GridBagConstraints&nbsp;gbc)</code>&nbsp;</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddSearchVariablesDialog.html#buildTableTreeForSelection--">buildTableTreeForSelection</a></span>()</code>&nbsp;</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>private java.lang.Object[][]</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddSearchVariablesDialog.html#getVariables--">getVariables</a></span>()</code>
+<div class="block">Get the array of variables.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddSearchVariablesDialog.html#initialize--">initialize</a></span>()</code>
 <div class="block">Create and display the table variable search dialog</div>
 </td>
 </tr>
-<tr id="i1" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddSearchVariablesDialog.html#searchVariableTree--">searchVariableTree</a></span>()</code>
 <div class="block">Search the variables for text matching the search criteria</div>
@@ -349,7 +400,7 @@ extends <a href="../CCDD/CcddDialogHandler.html" title="class in CCDD">CcddDialo
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;CCDD.<a href="../CCDD/CcddDialogHandler.html" title="class in CCDD">CcddDialogHandler</a></h3>
-<code><a href="../CCDD/CcddDialogHandler.html#addCheckBoxes-java.lang.String-java.lang.String:A:A-java.util.List-java.lang.String-boolean-javax.swing.JPanel-">addCheckBoxes</a>, <a href="../CCDD/CcddDialogHandler.html#addRadioButtons-java.lang.String-boolean-java.lang.String:A:A-java.util.List-java.lang.String-boolean-javax.swing.JPanel-java.awt.GridBagConstraints-">addRadioButtons</a>, <a href="../CCDD/CcddDialogHandler.html#adjustDialogLocationForScreen-java.awt.Rectangle-">adjustDialogLocationForScreen</a>, <a href="../CCDD/CcddDialogHandler.html#choosePathFile-CCDD.CcddMain-java.awt.Component-java.lang.String-java.lang.String-CCDD.CcddConstants.DialogOption-">choosePathFile</a>, <a href="../CCDD/CcddDialogHandler.html#choosePathFile-CCDD.CcddMain-java.awt.Component-java.lang.String-java.lang.String-javax.swing.filechooser.FileNameExtensionFilter:A-boolean-boolean-java.lang.String-java.lang.String-CCDD.CcddConstants.DialogOption-javax.swing.JPanel-">choosePathFile</a>, <a href="../CCDD/CcddDialogHandler.html#choosePathFile-CCDD.CcddMain-java.awt.Component-java.lang.String-java.lang.String-javax.swing.filechooser.FileNameExtensionFilter:A-boolean-java.lang.String-java.lang.String-CCDD.CcddConstants.DialogOption-">choosePathFile</a>, <a href="../CCDD/CcddDialogHandler.html#closeDialog--">closeDialog</a>, <a href="../CCDD/CcddDialogHandler.html#closeDialog-int-">closeDialog</a>, <a href="../CCDD/CcddDialogHandler.html#createDialog-java.awt.Component-java.lang.Object-javax.swing.JPanel-javax.swing.JButton-java.lang.String-CCDD.CcddConstants.DialogOption-javax.swing.Icon-boolean-boolean-">createDialog</a>, <a href="../CCDD/CcddDialogHandler.html#getCheckBoxes--">getCheckBoxes</a>, <a href="../CCDD/CcddDialogHandler.html#getCheckBoxSelected--">getCheckBoxSelected</a>, <a href="../CCDD/CcddDialogHandler.html#getColorChoicePanel-javax.swing.JColorChooser-java.awt.Color-">getColorChoicePanel</a>, <a href="../CCDD/CcddDialogHandler.html#getFileNameField--">getFileNameField</a>, <a href="../CCDD/CcddDialogHandler.html#getMinimumWidth--">getMinimumWidth</a>, <a href="../CCDD/CcddDialogHandler.html#getRadioButtonSelected--">getRadioButtonSelected</a>, <a href="../CCDD/CcddDialogHandler.html#getRadioButtonSelected-int-">getRadioButtonSelected</a>, <a href="../CCDD/CcddDialogHandler.html#setButtonRows-int-">setButtonRows</a>, <a href="../CCDD/CcddDialogHandler.html#setButtonWidth--">setButtonWidth</a>, <a href="../CCDD/CcddDialogHandler.html#setControlsEnabled-boolean-">setControlsEnabled</a>, <a href="../CCDD/CcddDialogHandler.html#setInitialFocusComponent-java.awt.Component-">setInitialFocusComponent</a>, <a href="../CCDD/CcddDialogHandler.html#setLocationRelativeTo-java.awt.Component-">setLocationRelativeTo</a>, <a href="../CCDD/CcddDialogHandler.html#showIgnoreCancelDialog-java.awt.Component-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-boolean-">showIgnoreCancelDialog</a>, <a href="../CCDD/CcddDialogHandler.html#showMessageDialog-java.awt.Component-java.lang.String-javax.swing.JPanel-javax.swing.JButton-java.lang.String-int-">showMessageDialog</a>, <a href="../CCDD/CcddDialogHandler.html#showMessageDialog-java.awt.Component-java.lang.String-java.lang.String-CCDD.CcddConstants.DialogOption-javax.swing.Icon-">showMessageDialog</a>, <a href="../CCDD/CcddDialogHandler.html#showMessageDialog-java.awt.Component-java.lang.String-java.lang.String-int-CCDD.CcddConstants.DialogOption-">showMessageDialog</a>, <a href="../CCDD/CcddDialogHandler.html#showMessageDialog-java.awt.Component-java.lang.String-java.lang.String-int-CCDD.CcddConstants.DialogOption-boolean-">showMessageDialog</a>, <a href="../CCDD/CcddDialogHandler.html#showOptionsDialog-java.awt.Component-java.awt.Component-java.lang.String-CCDD.CcddConstants.DialogOption-">showOptionsDialog</a>, <a href="../CCDD/CcddDialogHandler.html#showOptionsDialog-java.awt.Component-java.awt.Component-java.lang.String-CCDD.CcddConstants.DialogOption-boolean-">showOptionsDialog</a>, <a href="../CCDD/CcddDialogHandler.html#showOptionsDialog-java.awt.Component-java.awt.Component-java.lang.String-CCDD.CcddConstants.DialogOption-boolean-boolean-">showOptionsDialog</a>, <a href="../CCDD/CcddDialogHandler.html#showOptionsDialog-java.awt.Component-java.lang.Object-javax.swing.JPanel-javax.swing.JButton-java.lang.String-boolean-">showOptionsDialog</a>, <a href="../CCDD/CcddDialogHandler.html#verifySelection--">verifySelection</a>, <a href="../CCDD/CcddDialogHandler.html#windowCloseButtonAction--">windowCloseButtonAction</a>, <a href="../CCDD/CcddDialogHandler.html#windowClosedAction--">windowClosedAction</a></code></li>
+<code><a href="../CCDD/CcddDialogHandler.html#addCheckBoxes-java.lang.String-java.lang.String:A:A-java.util.List-java.lang.String-boolean-javax.swing.JPanel-">addCheckBoxes</a>, <a href="../CCDD/CcddDialogHandler.html#addRadioButtons-java.lang.String-boolean-java.lang.String:A:A-java.util.List-java.lang.String-boolean-javax.swing.JPanel-java.awt.GridBagConstraints-">addRadioButtons</a>, <a href="../CCDD/CcddDialogHandler.html#adjustDialogLocationForScreen-java.awt.Rectangle-">adjustDialogLocationForScreen</a>, <a href="../CCDD/CcddDialogHandler.html#choosePathFile-CCDD.CcddMain-java.awt.Component-java.lang.String-java.lang.String-CCDD.CcddConstants.DialogOption-">choosePathFile</a>, <a href="../CCDD/CcddDialogHandler.html#choosePathFile-CCDD.CcddMain-java.awt.Component-java.lang.String-java.lang.String-javax.swing.filechooser.FileNameExtensionFilter:A-boolean-boolean-java.lang.String-java.lang.String-CCDD.CcddConstants.DialogOption-javax.swing.JPanel-">choosePathFile</a>, <a href="../CCDD/CcddDialogHandler.html#choosePathFile-CCDD.CcddMain-java.awt.Component-java.lang.String-java.lang.String-javax.swing.filechooser.FileNameExtensionFilter:A-boolean-java.lang.String-java.lang.String-CCDD.CcddConstants.DialogOption-">choosePathFile</a>, <a href="../CCDD/CcddDialogHandler.html#closeDialog--">closeDialog</a>, <a href="../CCDD/CcddDialogHandler.html#closeDialog-int-">closeDialog</a>, <a href="../CCDD/CcddDialogHandler.html#createDialog-java.awt.Component-java.lang.Object-javax.swing.JPanel-javax.swing.JButton-java.lang.String-CCDD.CcddConstants.DialogOption-javax.swing.Icon-boolean-boolean-">createDialog</a>, <a href="../CCDD/CcddDialogHandler.html#getAllFilesContaining-java.lang.String-java.lang.String-">getAllFilesContaining</a>, <a href="../CCDD/CcddDialogHandler.html#getCheckBoxes--">getCheckBoxes</a>, <a href="../CCDD/CcddDialogHandler.html#getCheckBoxSelected--">getCheckBoxSelected</a>, <a href="../CCDD/CcddDialogHandler.html#getColorChoicePanel-javax.swing.JColorChooser-java.awt.Color-">getColorChoicePanel</a>, <a href="../CCDD/CcddDialogHandler.html#getFileNameField--">getFileNameField</a>, <a href="../CCDD/CcddDialogHandler.html#getMinimumWidth--">getMinimumWidth</a>, <a href="../CCDD/CcddDialogHandler.html#getRadioButtonSelected--">getRadioButtonSelected</a>, <a href="../CCDD/CcddDialogHandler.html#getRadioButtonSelected-int-">getRadioButtonSelected</a>, <a href="../CCDD/CcddDialogHandler.html#searchForWildCard-java.util.Map-javax.swing.JFileChooser-java.lang.String:A-java.lang.String-">searchForWildCard</a>, <a href="../CCDD/CcddDialogHandler.html#setButtonRows-int-">setButtonRows</a>, <a href="../CCDD/CcddDialogHandler.html#setButtonWidth--">setButtonWidth</a>, <a href="../CCDD/CcddDialogHandler.html#setControlsEnabled-boolean-">setControlsEnabled</a>, <a href="../CCDD/CcddDialogHandler.html#setInitialFocusComponent-java.awt.Component-">setInitialFocusComponent</a>, <a href="../CCDD/CcddDialogHandler.html#setLocationRelativeTo-java.awt.Component-">setLocationRelativeTo</a>, <a href="../CCDD/CcddDialogHandler.html#showIgnoreCancelDialog-java.awt.Component-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-boolean-">showIgnoreCancelDialog</a>, <a href="../CCDD/CcddDialogHandler.html#showMessageDialog-java.awt.Component-java.lang.String-javax.swing.JPanel-javax.swing.JButton-java.lang.String-int-">showMessageDialog</a>, <a href="../CCDD/CcddDialogHandler.html#showMessageDialog-java.awt.Component-java.lang.String-java.lang.String-CCDD.CcddConstants.DialogOption-javax.swing.Icon-">showMessageDialog</a>, <a href="../CCDD/CcddDialogHandler.html#showMessageDialog-java.awt.Component-java.lang.String-java.lang.String-int-CCDD.CcddConstants.DialogOption-">showMessageDialog</a>, <a href="../CCDD/CcddDialogHandler.html#showMessageDialog-java.awt.Component-java.lang.String-java.lang.String-int-CCDD.CcddConstants.DialogOption-boolean-">showMessageDialog</a>, <a href="../CCDD/CcddDialogHandler.html#showOptionsDialog-java.awt.Component-java.awt.Component-java.lang.String-CCDD.CcddConstants.DialogOption-">showOptionsDialog</a>, <a href="../CCDD/CcddDialogHandler.html#showOptionsDialog-java.awt.Component-java.awt.Component-java.lang.String-CCDD.CcddConstants.DialogOption-boolean-">showOptionsDialog</a>, <a href="../CCDD/CcddDialogHandler.html#showOptionsDialog-java.awt.Component-java.awt.Component-java.lang.String-CCDD.CcddConstants.DialogOption-boolean-boolean-">showOptionsDialog</a>, <a href="../CCDD/CcddDialogHandler.html#showOptionsDialog-java.awt.Component-java.lang.Object-javax.swing.JPanel-javax.swing.JButton-java.lang.String-boolean-">showOptionsDialog</a>, <a href="../CCDD/CcddDialogHandler.html#verifySelection--">verifySelection</a>, <a href="../CCDD/CcddDialogHandler.html#windowCloseButtonAction--">windowCloseButtonAction</a>, <a href="../CCDD/CcddDialogHandler.html#windowClosedAction--">windowClosedAction</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.javax.swing.JDialog">
@@ -425,6 +476,15 @@ extends <a href="../CCDD/CcddDialogHandler.html" title="class in CCDD">CcddDialo
 <pre>private&nbsp;<a href="../CCDD/CcddTableTreeHandler.html" title="class in CCDD">CcddTableTreeHandler</a> variableTree</pre>
 </li>
 </ul>
+<a name="variableHandler">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>variableHandler</h4>
+<pre>private final&nbsp;<a href="../CCDD/CcddVariableHandler.html" title="class in CCDD">CcddVariableHandler</a> variableHandler</pre>
+</li>
+</ul>
 <a name="searchFld">
 <!--   -->
 </a>
@@ -452,6 +512,24 @@ extends <a href="../CCDD/CcddDialogHandler.html" title="class in CCDD">CcddDialo
 <pre>private&nbsp;javax.swing.JCheckBox allowRegexCb</pre>
 </li>
 </ul>
+<a name="showAllVarCB">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>showAllVarCB</h4>
+<pre>private&nbsp;javax.swing.JCheckBox showAllVarCB</pre>
+</li>
+</ul>
+<a name="searchViaTableTreeCB">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>searchViaTableTreeCB</h4>
+<pre>private&nbsp;javax.swing.JCheckBox searchViaTableTreeCB</pre>
+</li>
+</ul>
 <a name="numMatchesLbl">
 <!--   -->
 </a>
@@ -459,6 +537,42 @@ extends <a href="../CCDD/CcddDialogHandler.html" title="class in CCDD">CcddDialo
 <li class="blockList">
 <h4>numMatchesLbl</h4>
 <pre>private&nbsp;javax.swing.JLabel numMatchesLbl</pre>
+</li>
+</ul>
+<a name="variablesPnl">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>variablesPnl</h4>
+<pre>private&nbsp;javax.swing.JPanel variablesPnl</pre>
+</li>
+</ul>
+<a name="variablesTblPnl">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>variablesTblPnl</h4>
+<pre>private&nbsp;javax.swing.JPanel variablesTblPnl</pre>
+</li>
+</ul>
+<a name="upperPnl">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>upperPnl</h4>
+<pre>private&nbsp;javax.swing.JPanel upperPnl</pre>
+</li>
+</ul>
+<a name="inputPnl">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>inputPnl</h4>
+<pre>private&nbsp;javax.swing.JPanel inputPnl</pre>
 </li>
 </ul>
 <a name="variableTable">
@@ -470,6 +584,51 @@ extends <a href="../CCDD/CcddDialogHandler.html" title="class in CCDD">CcddDialo
 <pre>private&nbsp;<a href="../CCDD/CcddJTableHandler.html" title="class in CCDD">CcddJTableHandler</a> variableTable</pre>
 </li>
 </ul>
+<a name="tableTreePane">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>tableTreePane</h4>
+<pre><a href="../CCDD/CcddClassesComponent.CustomSplitPane.html" title="class in CCDD">CcddClassesComponent.CustomSplitPane</a> tableTreePane</pre>
+</li>
+</ul>
+<a name="tableTreeGbc">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>tableTreeGbc</h4>
+<pre>java.awt.GridBagConstraints tableTreeGbc</pre>
+</li>
+</ul>
+<a name="numVariablesLbl">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>numVariablesLbl</h4>
+<pre>private&nbsp;javax.swing.JLabel numVariablesLbl</pre>
+</li>
+</ul>
+<a name="border">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>border</h4>
+<pre>private&nbsp;javax.swing.border.Border border</pre>
+</li>
+</ul>
+<a name="tableData">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>tableData</h4>
+<pre>private&nbsp;java.lang.Object[][] tableData</pre>
+</li>
+</ul>
 <a name="searchPattern">
 <!--   -->
 </a>
@@ -477,33 +636,6 @@ extends <a href="../CCDD/CcddDialogHandler.html" title="class in CCDD">CcddDialo
 <li class="blockList">
 <h4>searchPattern</h4>
 <pre>private&nbsp;java.util.regex.Pattern searchPattern</pre>
-</li>
-</ul>
-<a name="prevSearchText">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>prevSearchText</h4>
-<pre>private&nbsp;java.lang.String prevSearchText</pre>
-</li>
-</ul>
-<a name="prevIgnoreCase">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>prevIgnoreCase</h4>
-<pre>private&nbsp;boolean prevIgnoreCase</pre>
-</li>
-</ul>
-<a name="prevAllowRegex">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>prevAllowRegex</h4>
-<pre>private&nbsp;boolean prevAllowRegex</pre>
 </li>
 </ul>
 <a name="variablePaths">
@@ -542,7 +674,7 @@ extends <a href="../CCDD/CcddDialogHandler.html" title="class in CCDD">CcddDialo
 <div class="block">Search variable tree dialog class constructor</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>ccddMain</code> - main class</dd>
+<dd><code>ccddMain</code> - Main class</dd>
 </dl>
 </li>
 </ul>
@@ -567,11 +699,46 @@ extends <a href="../CCDD/CcddDialogHandler.html" title="class in CCDD">CcddDialo
 <a name="searchVariableTree--">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>searchVariableTree</h4>
 <pre>private&nbsp;void&nbsp;searchVariableTree()</pre>
 <div class="block">Search the variables for text matching the search criteria</div>
+</li>
+</ul>
+<a name="buildTableTreeForSearch-boolean-java.awt.GridBagConstraints-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>buildTableTreeForSearch</h4>
+<pre>private&nbsp;void&nbsp;buildTableTreeForSearch(boolean&nbsp;delete,
+                                     java.awt.GridBagConstraints&nbsp;gbc)</pre>
+</li>
+</ul>
+<a name="buildTableTreeForSelection--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>buildTableTreeForSelection</h4>
+<pre>public&nbsp;void&nbsp;buildTableTreeForSelection()</pre>
+</li>
+</ul>
+<a name="getVariables--">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>getVariables</h4>
+<pre>private&nbsp;java.lang.Object[][]&nbsp;getVariables()</pre>
+<div class="block">Get the array of variables. If the table tree has any selections use these to filter the
+ variable array</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Array of variables matching the filter tables, or all variables if no filter table
+         is selected</dd>
+</dl>
 </li>
 </ul>
 </li>

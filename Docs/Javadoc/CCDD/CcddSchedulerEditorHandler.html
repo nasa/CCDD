@@ -708,11 +708,11 @@ extends java.lang.Object</pre>
 <div class="block">Scheduler editor handler class constructor</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>ccddMain</code> - main class reference</dd>
-<dd><code>schedulerHndlr</code> - reference to the scheduler dialog that created this class</dd>
-<dd><code>totalMessages</code> - total number of parent messages</dd>
-<dd><code>totalBytes</code> - total number of bytes per a second</dd>
-<dd><code>msgsPerSecond</code> - total messages per second</dd>
+<dd><code>ccddMain</code> - Main class reference</dd>
+<dd><code>schedulerHndlr</code> - Reference to the scheduler dialog that created this class</dd>
+<dd><code>totalMessages</code> - Total number of parent messages</dd>
+<dd><code>totalBytes</code> - Total number of bytes per a second</dd>
+<dd><code>msgsPerSecond</code> - Total messages per second</dd>
 </dl>
 </li>
 </ul>
@@ -789,7 +789,7 @@ extends java.lang.Object</pre>
 <div class="block">Update the assignment tree/list with the specified message's variables</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>message</code> - reference to the message from which the package list is populated</dd>
+<dd><code>message</code> - Reference to the message from which the package list is populated</dd>
 </dl>
 </li>
 </ul>
@@ -814,8 +814,8 @@ extends java.lang.Object</pre>
  bytes is less than zero the text is displayed in red</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>msgIndex</code> - index of the message to update, which is the same as the row in the scheduler
-            table</dd>
+<dd><code>msgIndex</code> - Index of the message to update, which is the same as the row in the
+                 scheduler table</dd>
 </dl>
 </li>
 </ul>
@@ -886,7 +886,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the sub-message scheduler column name or assigned variables tab name</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>index</code> - sub-message index</dd>
+<dd><code>index</code> - Sub-message index</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Sub-message scheduler column name or assigned variables tab name</dd>
 </dl>
@@ -913,8 +913,8 @@ extends java.lang.Object</pre>
 <div class="block">Update the scheduler table based on the current messages</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>isLoadData</code> - true to load the scheduler table with the data; false to only update the
-            scheduler table data array</dd>
+<dd><code>isLoadData</code> - True to load the scheduler table with the data; false to only update the
+                   scheduler table data array</dd>
 </dl>
 </li>
 </ul>
@@ -951,9 +951,9 @@ extends java.lang.Object</pre>
 <div class="block">Copy the specified (sub-)messages to the specified copy location</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>messageList</code> - list of (sub-)messages to copy</dd>
-<dd><code>copyList</code> - reference to the list to which to copy the (sub-)messages</dd>
-<dd><code>parentMessage</code> - parent of the sub-message; null if this is not a sub-message</dd>
+<dd><code>messageList</code> - List of (sub-)messages to copy</dd>
+<dd><code>copyList</code> - Reference to the list to which to copy the (sub-)messages</dd>
+<dd><code>parentMessage</code> - Parent of the sub-message; null if this is not a sub-message</dd>
 </dl>
 </li>
 </ul>
@@ -970,10 +970,10 @@ extends java.lang.Object</pre>
  values</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>variable</code> - variable that will be added</dd>
-<dd><code>messageIndex</code> - message index if the variable is not assigned to a sub-message; sub-message index
-            if the message is assigned to a sub-message</dd>
-<dd><code>subMsgIndex</code> - message index if the variable is assigned to a sub-message, -1 if not</dd>
+<dd><code>variable</code> - Variable that will be added</dd>
+<dd><code>messageIndex</code> - Message index if the variable is not assigned to a sub-message;
+                     sub-message index if the message is assigned to a sub-message</dd>
+<dd><code>subMsgIndex</code> - Message index if the variable is assigned to a sub-message, -1 if not</dd>
 </dl>
 </li>
 </ul>
@@ -997,7 +997,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the number of variables in the specified message</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>index</code> - message index</dd>
+<dd><code>index</code> - Message index</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Number of variables in the specified message</dd>
 </dl>
@@ -1013,7 +1013,7 @@ extends java.lang.Object</pre>
 <div class="block">Select the message name column in the specified row of the scheduler table</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>row</code> - row to select, model coordinates</dd>
+<dd><code>row</code> - Row to select, model coordinates</dd>
 </dl>
 </li>
 </ul>
@@ -1044,8 +1044,8 @@ extends java.lang.Object</pre>
 <div class="block">Remove the specified variable(s) from all messages it is contained in</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>variables</code> - list of variables to remove</dd>
-<dd><code>row</code> - message row index</dd>
+<dd><code>variables</code> - List of variables to remove</dd>
+<dd><code>row</code> - Message row index</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>List of the variable names removed</dd>
 </dl>
@@ -1061,7 +1061,7 @@ extends java.lang.Object</pre>
 <div class="block">Find all the combinations of messages into which a a rate fits</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>rate</code> - rate, in hertz, of the selected variable</dd>
+<dd><code>rate</code> - Rate, in hertz, of the selected variable</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>List of the combinations</dd>
 </dl>
@@ -1078,7 +1078,7 @@ extends java.lang.Object</pre>
  MessageName2],...]]</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>rate</code> - rate filter, in hertz</dd>
+<dd><code>rate</code> - Rate filter, in hertz</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>List of all the combinations</dd>
 </dl>
@@ -1094,7 +1094,7 @@ extends java.lang.Object</pre>
 <div class="block">Find all the options for sub-hertz</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>rate</code> - hertz of the selected variable</dd>
+<dd><code>rate</code> - Hertz of the selected variable</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>List of all the combinations</dd>
 </dl>
@@ -1112,8 +1112,8 @@ extends java.lang.Object</pre>
  red. Also set the table model to display the number of bytes after the variable is added</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>messageIndex</code> - row number for which to set the values</dd>
-<dd><code>size</code> - size that needs to fit in the message</dd>
+<dd><code>messageIndex</code> - Row number for which to set the values</dd>
+<dd><code>size</code> - Size that needs to fit in the message</dd>
 </dl>
 </li>
 </ul>
@@ -1137,7 +1137,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the message size for the specified message index</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>index</code> - message index</dd>
+<dd><code>index</code> - Message index</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Message size</dd>
 </dl>
@@ -1154,9 +1154,9 @@ extends java.lang.Object</pre>
 <div class="block">Get the message at the specified indices</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>messageIndex</code> - message index if this is a parent message; sub-message index if this is a
-            sub-message</dd>
-<dd><code>parentIndex</code> - parent message index if this is a sub-message; -1 if not a sub-message</dd>
+<dd><code>messageIndex</code> - Message index if this is a parent message; sub-message index if this is
+                     a sub-message</dd>
+<dd><code>parentIndex</code> - Parent message index if this is a sub-message; -1 if not a sub-message</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Message object at the given indices</dd>
 </dl>
@@ -1186,8 +1186,8 @@ extends java.lang.Object</pre>
 <div class="block">Remove the variables (applications) assigned to the messages (time slots)</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>rateFilter</code> - rate of the variables to removed from the telemetry messages; null to remove all
-            variables. Not used for the application scheduler</dd>
+<dd><code>rateFilter</code> - Rate of the variables to removed from the telemetry messages; null to
+                   remove all variables. Not used for the application scheduler</dd>
 </dl>
 </li>
 </ul>
@@ -1221,7 +1221,7 @@ extends java.lang.Object</pre>
 <div class="block">Deallocate any sub-message variables if the number of sub-messages is changed</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>message</code> - message for which the variables are deallocated from each sub-message</dd>
+<dd><code>message</code> - Message for which the variables are deallocated from each sub-message</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>true if the variable is deallocated or there are no variables to deallocate; false
          if there are variable to deallocate but the user cancels the operation</dd>
@@ -1267,8 +1267,8 @@ extends java.lang.Object</pre>
 <div class="block">Compare the current (sub-)message to the committed (sub-)message to detect any changes</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>currMsg</code> - reference to the message's current values</dd>
-<dd><code>commMsg</code> - reference to the message's original values</dd>
+<dd><code>currMsg</code> - Reference to the message's current values</dd>
+<dd><code>commMsg</code> - Reference to the message's original values</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>true if the (sub-)message's content changed; false if no change exists</dd>
 </dl>

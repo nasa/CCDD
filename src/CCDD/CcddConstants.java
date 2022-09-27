@@ -35,7 +35,10 @@ import java.util.prefs.Preferences;
 import java.util.regex.Matcher;
 
 import javax.swing.JCheckBox;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -86,6 +89,7 @@ public class CcddConstants
     protected static final String TYPE_NAME_SEPARATOR = "TypeNameSeparator";
     protected static final String HIDE_DATA_TYPE = "HideDataType";
     protected static final String HIDE_SCRIPT_PATH = "HideScriptPath";
+    protected static final String FONT_SCALE = "FontScale";
 
     // Default server information
     protected static final String DEFAULT_POSTGRESQL_HOST = "localhost";
@@ -727,6 +731,7 @@ public class CcddConstants
         private final int defaultStyle;
         private final int defaultSize;
         private ModifiableFont font;
+        private int unscaledSize;
 
         /******************************************************************************************
          * Modifiable font information constructor
@@ -756,6 +761,7 @@ public class CcddConstants
             this.defaultFamily = defaultFamily;
             this.defaultStyle = defaultStyle;
             this.defaultSize = defaultSize;
+            this.unscaledSize = defaultSize;
 
             // Create the modifiable font using the default settings
             font = new ModifiableFont(preferenceKey, defaultFamily, defaultStyle, defaultSize);
@@ -859,6 +865,16 @@ public class CcddConstants
         }
 
         /******************************************************************************************
+         * Get the modifiable font's actual size (without scaling)
+         *
+         * @return Actual font size, without scaling
+         *****************************************************************************************/
+        protected int getUnscaledSize()
+        {
+            return unscaledSize;
+        }
+
+        /******************************************************************************************
          * Set the modifiable font to the new font values and store the changes in the program
          * preferences
          *
@@ -874,6 +890,9 @@ public class CcddConstants
         {
             font = new ModifiableFont(preferenceKey, family, style, size);
             progPrefs.put(preferenceKey, family + "," + style + "," + size);
+
+            // Store the font's unscaled size
+            unscaledSize = size;
         }
 
         /******************************************************************************************
@@ -883,11 +902,14 @@ public class CcddConstants
          *****************************************************************************************/
         protected static void setModifiableFonts(Preferences progPrefs)
         {
+            // Get the font scaling factor from the program preferences
+            float scale = Float.valueOf(progPrefs.get(FONT_SCALE, "1"));
+
             // Step through each modifiable font
             for (ModifiableFontInfo modFont : ModifiableFontInfo.values())
             {
                 // Retrieve the font information from the program preferences and use this
-                // information to set the modifiable font
+                // information to set the modifiable font (including scaling, if applicable)
                 String[] fontInfo = progPrefs.get(modFont.getPreferenceKey(),
                                                   modFont.getDefaultFamily()
                                                   + ","
@@ -897,8 +919,21 @@ public class CcddConstants
                 modFont.font = new ModifiableFont(modFont.getPreferenceKey(),
                                                   fontInfo[0],
                                                   Integer.valueOf(fontInfo[1]),
-                                                  Integer.valueOf(fontInfo[2]));
+                                                  (int)(Float.valueOf(fontInfo[2]) * scale));
             }
+        }
+
+        /******************************************************************************************
+         * Update the font size using the supplied font scaling factor
+         *
+         * @param scaleFactor Font scaling factor
+         *****************************************************************************************/
+        protected void scaleFont(float scaleFactor)
+        {
+            font = new ModifiableFont(preferenceKey,
+                                      font.getFamily(),
+                                      font.getStyle(),
+                                      (int)((float) unscaledSize * scaleFactor));
         }
 
         /******************************************************************************************
@@ -912,48 +947,89 @@ public class CcddConstants
             // Step through each component in the container
             for (Component comp : container.getComponents())
             {
-                // Check if the component represents a Swing component and that it has child
-                // components
-                if (comp instanceof JComponent && ((JComponent) comp).getComponentCount() != 0)
+                // Check if this component is a menu bar item
+                if (comp instanceof JMenu)
                 {
-                    // Update the child's components
-                    updateFonts((Container) comp);
+                    // Update the menu item fonts (and sub-menu item fonts)
+                    updateMenuFonts((JMenu) comp);
                 }
-
-                // Check if the component is a table
-                if (comp instanceof JTable)
+                // The component isn't a menu bar item
+                else
                 {
-                    // Step through each column in the table
-                    for (int column = 0; column < ((JTable) comp).getColumnCount(); column++)
+                    // Check if the component represents a Swing component and that it has child
+                    // components
+                    if (comp instanceof JComponent && ((JComponent) comp).getComponentCount() != 0)
                     {
-                        // Set the font for the header specified by the column to the modifiable
-                        // font
-                        setModifiableFont(((JTable) comp).getColumnModel().getColumn(column).getHeaderRenderer()
-                                                         .getTableCellRendererComponent((JTable) comp,
-                                                                                        "",
-                                                                                        false,
-                                                                                        false,
-                                                                                        -1,
-                                                                                        column));
+                        // Update the child's components
+                        updateFonts((Container) comp);
+                    }
 
-                        // Step through each row in the table
-                        for (int row = 0; row < ((JTable) comp).getRowCount(); row++)
+                    // Check if the component is a table
+                    if (comp instanceof JTable)
+                    {
+                        // Step through each column in the table
+                        for (int column = 0; column < ((JTable) comp).getColumnCount(); column++)
                         {
-                            // Set the font for the cell specified by the row and column to the
+                            // Set the font for the header specified by the column to the
                             // modifiable font
-                            setModifiableFont(((JTable) comp).getCellRenderer(row, column)
+                            setModifiableFont(((JTable) comp).getColumnModel()
+                                                             .getColumn(column)
+                                                             .getHeaderRenderer()
                                                              .getTableCellRendererComponent((JTable) comp,
                                                                                             "",
                                                                                             false,
                                                                                             false,
-                                                                                            row,
+                                                                                            -1,
                                                                                             column));
+
+                            // Step through each row in the table
+                            for (int row = 0; row < ((JTable) comp).getRowCount(); row++)
+                            {
+                                // Set the font for the cell specified by the row and column to the
+                                // modifiable font
+                                setModifiableFont(((JTable) comp).getCellRenderer(row, column)
+                                                                 .getTableCellRendererComponent((JTable) comp,
+                                                                                                "",
+                                                                                                false,
+                                                                                                false,
+                                                                                                row,
+                                                                                                column));
+                            }
                         }
                     }
-                }
 
-                // Set the component's font to the updated font
-                setModifiableFont(comp);
+                    // Set the component's font to the updated font
+                    setModifiableFont(comp);
+                }
+            }
+        }
+
+        /******************************************************************************************
+         * Update the components of the specified menu bar item that use a modifiable font to the
+         * updated font
+         *
+         * @param menu Menu bar item in which to check the fonts of the menu items
+         *****************************************************************************************/
+        protected static void updateMenuFonts(JMenu menu)
+        {
+            // Set the menu bar item's font to the updated font
+            setModifiableFont(menu);
+
+            // Step through each item in the menu
+            for (Component item : menu.getMenuComponents())
+            {
+                // Check if this item defines a sub-menu
+                if (item instanceof JMenu)
+                {
+                    // Update the sub-menu items
+                    updateMenuFonts((JMenu) item);
+                }
+                // Check if this is a menu item
+                else if (item instanceof JMenuItem || item instanceof JCheckBoxMenuItem)
+                {
+                    // Set the menu item's font to the updated font
+                    setModifiableFont(item);
+                }
             }
         }
 
@@ -972,8 +1048,7 @@ public class CcddConstants
                 for (ModifiableFontInfo modFont : ModifiableFontInfo.values())
                 {
                     // Check if the component is using this font
-                    if (((ModifiableFont) comp.getFont()).getModifiableFontIdentifier()
-                            .equals(modFont.getPreferenceKey()))
+                    if (((ModifiableFont) comp.getFont()).getModifiableFontIdentifier().equals(modFont.getPreferenceKey()))
                     {
                         // Set the component's font to the one specified by the modifiable font and
                         // stop searching
@@ -1079,7 +1154,11 @@ public class CcddConstants
         DATA_TYPE("Data type", "Text color for a data type in a table or variable tree", "DataTypeTextColor", 130, 0, 110),
         TOOL_TIP_TEXT("Tool tip text", "Text color for tool tip pop-ups. Ignored by some look & feels", "ToolTipTextColor", 0, 0, 0),
         TOOL_TIP_BACK("Tool tip background", "Background color for tool tip pop-ups. Ignored by some look & feels", "ToolTipBackgroundColor", 245, 245, 180),
-        TAB_MOVE_LOCATION_INDICATOR("Tab move location indicator", "Color for the tabbed pane tab move location indicator", "TabMoveLocationIndicatorColor", 0, 100, 255);
+        TAB_MOVE_LOCATION_INDICATOR("Tab move location indicator", "Color for the tabbed pane tab move location indicator", "TabMoveLocationIndicatorColor", 0, 100, 255),
+        FIXED_COLUMN_TEXT("Fixed column text", "Text color for the fixed column rows", "FixedTextColor", 0, 0, 0),
+        FIXED_HEADER_BACK("Fixed column header background", "Background color for the fixed column header", "FixedTableHeaderBackgroundColor", 224, 199, 189),
+        FIXED_COLUMN_BACK("Fixed column background", "Background color for the fixed column rows", "FixedBackgroundColor", 245, 234, 224),
+        FIXED_COLUMN_ALTERNATE_BACK("Alternating fixed column row background", "Background color for alternating fixed column rows", "FixedTableAlternateBackgroundColor", 240, 219, 209);
 
         private final String name;
         private final String description;

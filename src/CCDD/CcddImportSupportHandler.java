@@ -303,8 +303,7 @@ public class CcddImportSupportHandler
             fieldDefn[FieldsColumn.FIELD_APPLICABILITY.ordinal()] = ApplicabilityType.ALL.getApplicabilityName();
         }
         // Check if the applicability is invalid
-        else if (ApplicabilityType
-                .getApplicabilityByName(fieldDefn[FieldsColumn.FIELD_APPLICABILITY.ordinal()]) == null)
+        else if (ApplicabilityType.getApplicabilityByName(fieldDefn[FieldsColumn.FIELD_APPLICABILITY.ordinal()]) == null)
         {
             isError = true;
 
@@ -339,9 +338,8 @@ public class CcddImportSupportHandler
         if (!isError || continueOnError)
         {
             // Get the reference to the data field from the existing field information
-            FieldInformation fieldInfo = fieldHandler
-                    .getFieldInformationByName(fieldDefn[FieldsColumn.OWNER_NAME.ordinal()],
-                                               fieldDefn[FieldsColumn.FIELD_NAME.ordinal()]);
+            FieldInformation fieldInfo = fieldHandler.getFieldInformationByName(fieldDefn[FieldsColumn.OWNER_NAME.ordinal()],
+                                                                                fieldDefn[FieldsColumn.FIELD_NAME.ordinal()]);
 
             // Check if this field already exists
             if (fieldInfo != null)
@@ -351,10 +349,8 @@ public class CcddImportSupportHandler
                 if (!fieldDefn[FieldsColumn.FIELD_DESC.ordinal()].equals(fieldInfo.getDescription())
                     || !fieldDefn[FieldsColumn.FIELD_SIZE.ordinal()].equals(Integer.toString(fieldInfo.getSize()))
                     || !fieldDefn[FieldsColumn.FIELD_TYPE.ordinal()].equals(fieldInfo.getInputType().getInputName())
-                    || !fieldDefn[FieldsColumn.FIELD_REQUIRED.ordinal()]
-                            .equalsIgnoreCase(Boolean.toString(fieldInfo.isRequired()))
-                    || !fieldDefn[FieldsColumn.FIELD_APPLICABILITY.ordinal()]
-                            .equals(fieldInfo.getApplicabilityType().getApplicabilityName())
+                    || !fieldDefn[FieldsColumn.FIELD_REQUIRED.ordinal()].equalsIgnoreCase(Boolean.toString(fieldInfo.isRequired()))
+                    || !fieldDefn[FieldsColumn.FIELD_APPLICABILITY.ordinal()].equals(fieldInfo.getApplicabilityType().getApplicabilityName())
                     || !fieldDefn[FieldsColumn.FIELD_VALUE.ordinal()].equals(fieldInfo.getValue()))
                 {
 
@@ -507,8 +503,8 @@ public class CcddImportSupportHandler
         else
         {
             // Get the array of table members, if any
-            String[] members = groupDefn[GroupDefinitionColumn.MEMBERS.ordinal()]
-                    .isEmpty() ? new String[] {} : groupDefn[GroupDefinitionColumn.MEMBERS.ordinal()].split(";");
+            String[] members = groupDefn[GroupDefinitionColumn.MEMBERS.ordinal()].isEmpty() ? new String[] {}
+                                                                                            : groupDefn[GroupDefinitionColumn.MEMBERS.ordinal()].split(";");
 
             // Set the flag if the number of members differs
             boolean isMismatch = members.length != groupInfo.getTablesAndAncestors().size();
@@ -531,8 +527,8 @@ public class CcddImportSupportHandler
 
             // Check if the existing group's table members or application status don't match (the
             // description is allowed to differ)
-            if (isMismatch || !groupDefn[GroupDefinitionColumn.IS_APPLICATION.ordinal()]
-                    .equals(Boolean.toString(groupInfo.isApplication())))
+            if (isMismatch
+                || !groupDefn[GroupDefinitionColumn.IS_APPLICATION.ordinal()].equals(Boolean.toString(groupInfo.isApplication())))
             {
                 throw new CCDDException("Imported group '<b>"
                                         + groupDefn[0]

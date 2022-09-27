@@ -376,8 +376,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                                         if (tableName.startsWith(GROUP_DATA_FIELD_IDENT))
                                         {
                                             // Get the node in the table tree for this group
-                                            node = tableTree.getNodeByNodeName(tableName
-                                                    .substring(GROUP_DATA_FIELD_IDENT.length()));
+                                            node = tableTree.getNodeByNodeName(tableName.substring(GROUP_DATA_FIELD_IDENT.length()));
                                         }
                                         // The name refers to a table
                                         else
@@ -1012,8 +1011,8 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                 {
                     // Check if this row isn't the one being edited, and if the association name
                     // matches the one being added (case insensitive)
-                    if (row != ignoreRow && nameFld.getText().equalsIgnoreCase(assnsTable
-                            .getValueAt(row, AssociationsTableColumnInfo.NAME.ordinal()).toString()))
+                    if (row != ignoreRow
+                        && nameFld.getText().equalsIgnoreCase(assnsTable.getValueAt(row, AssociationsTableColumnInfo.NAME.ordinal()).toString()))
                     {
                         throw new CCDDException("Association name already in use");
                     }

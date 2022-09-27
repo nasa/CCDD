@@ -591,8 +591,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                             applicationCb.setSelected(true);
 
                             // Get the field information for the group
-                            GroupInformation groupInfo = groupHandler
-                                    .getGroupInformationByName(selectedGroup.getName());
+                            GroupInformation groupInfo = groupHandler.getGroupInformationByName(selectedGroup.getName());
                             List<FieldInformation> fieldInformation = groupInfo.getFieldInformation();
 
                             // Step through each default application data field

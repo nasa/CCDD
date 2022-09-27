@@ -322,9 +322,8 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler
         searchViaTableTreeCB = new JCheckBox("Search via table tree");
         searchViaTableTreeCB.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         searchViaTableTreeCB.setBorder(BorderFactory.createEmptyBorder());
-        searchViaTableTreeCB
-                .setToolTipText(CcddUtilities.wrapText("Select tables from the table tree to show their variables",
-                                                       ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+        searchViaTableTreeCB.setToolTipText(CcddUtilities.wrapText("Select tables from the table tree to show their variables",
+                                                                   ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
 
         // Add a listener for allow regular expression check box selection changes
         searchViaTableTreeCB.addActionListener(new ActionListener()

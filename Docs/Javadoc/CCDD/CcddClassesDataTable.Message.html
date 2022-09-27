@@ -454,11 +454,11 @@ extends java.lang.Object</pre>
 <div class="block">Constructor for the message class</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>messageName</code> - message name</dd>
-<dd><code>messageID</code> - message ID</dd>
-<dd><code>totalBytes</code> - size of the initial number of bytes in the message</dd>
-<dd><code>parentMessage</code> - parent of the sub-message; null if this is not a sub-message</dd>
-<dd><code>subMessages</code> - sub-message initialization; null if this is not a parent message</dd>
+<dd><code>messageName</code> - Message name</dd>
+<dd><code>messageID</code> - Message ID</dd>
+<dd><code>totalBytes</code> - Size of the initial number of bytes in the message</dd>
+<dd><code>parentMessage</code> - Parent of the sub-message; null if this is not a sub-message</dd>
+<dd><code>subMessages</code> - Sub-message initialization; null if this is not a parent message</dd>
 </dl>
 </li>
 </ul>
@@ -474,9 +474,9 @@ extends java.lang.Object</pre>
 <div class="block">Message class constructor for a parent message</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>messageName</code> - message name</dd>
-<dd><code>messageID</code> - message ID</dd>
-<dd><code>bytes</code> - size of the initial amount of bytes in the message</dd>
+<dd><code>messageName</code> - Message name</dd>
+<dd><code>messageID</code> - Message ID</dd>
+<dd><code>bytes</code> - Size of the initial amount of bytes in the message</dd>
 </dl>
 </li>
 </ul>
@@ -493,10 +493,10 @@ extends java.lang.Object</pre>
 <div class="block">Message class constructor for a sub-message</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>subMessageName</code> - sub-message name</dd>
-<dd><code>subMsgID</code> - sub-message ID</dd>
-<dd><code>bytes</code> - size of the initial amount of bytes in the message</dd>
-<dd><code>msg</code> - parent of the sub-message</dd>
+<dd><code>subMessageName</code> - Sub-message name</dd>
+<dd><code>subMsgID</code> - Sub-message ID</dd>
+<dd><code>bytes</code> - Size of the initial amount of bytes in the message</dd>
+<dd><code>msg</code> - Parent of the sub-message</dd>
 </dl>
 </li>
 </ul>
@@ -532,7 +532,7 @@ extends java.lang.Object</pre>
 <div class="block">Set the message name</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>name</code> - message name</dd>
+<dd><code>name</code> - Message name</dd>
 </dl>
 </li>
 </ul>
@@ -560,7 +560,7 @@ extends java.lang.Object</pre>
 <div class="block">Set the message ID</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>messageID</code> - message ID</dd>
+<dd><code>messageID</code> - Message ID</dd>
 </dl>
 </li>
 </ul>
@@ -602,7 +602,7 @@ extends java.lang.Object</pre>
 <div class="block">Create a new sub-message</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>subMsgID</code> - sub-message ID</dd>
+<dd><code>subMsgID</code> - Sub-message ID</dd>
 </dl>
 </li>
 </ul>
@@ -616,7 +616,7 @@ extends java.lang.Object</pre>
 <div class="block">Delete the sub-message at the specified index</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>index</code> - sub-message index</dd>
+<dd><code>index</code> - Sub-message index</dd>
 </dl>
 </li>
 </ul>
@@ -630,7 +630,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the sub-message at the specified index</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>index</code> - message index</dd>
+<dd><code>index</code> - Message index</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The sub-message at the specified index</dd>
 </dl>
@@ -661,7 +661,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the variable at the specified index</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>index</code> - index of the variable</dd>
+<dd><code>index</code> - Index of the variable</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Specified variable object</dd>
 </dl>
@@ -677,7 +677,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the index of a variable with the specified name</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>name</code> - name of the variable</dd>
+<dd><code>name</code> - Name of the variable</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Index of the variable with the specified name; -1 if the variable doesn't exist</dd>
 </dl>
@@ -693,7 +693,7 @@ extends java.lang.Object</pre>
 <div class="block">Get the variable with the specified name</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>name</code> - name of the variable</dd>
+<dd><code>name</code> - Name of the variable</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Variable object with the specified name; null if the variable is not a member of
          the message or any of its sub-messages</dd>
@@ -767,7 +767,7 @@ extends java.lang.Object</pre>
 <div class="block">Add a variable to the message. Append the variable to the end of the list</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>variable</code> - variable to add</dd>
+<dd><code>variable</code> - Variable to add</dd>
 </dl>
 </li>
 </ul>
@@ -782,9 +782,9 @@ extends java.lang.Object</pre>
 <div class="block">Add a variable to the message. Insert the variable into the list at the specified index</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>variable</code> - variable to add</dd>
-<dd><code>index</code> - position in the variable list to insert the variable; -1 to append the
-            variable to the end of the list</dd>
+<dd><code>variable</code> - Variable to add</dd>
+<dd><code>index</code> - Position in the variable list to insert the variable; -1 to append the
+                 variable to the end of the list</dd>
 </dl>
 </li>
 </ul>
@@ -798,7 +798,7 @@ extends java.lang.Object</pre>
 <div class="block">Remove the variable with the specified name</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>varName</code> - name of the variable to remove</dd>
+<dd><code>varName</code> - Name of the variable to remove</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Variable object that is removed</dd>
 </dl>
@@ -828,7 +828,7 @@ extends java.lang.Object</pre>
 <div class="block">Set the number of bytes remaining in the message</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>bytesRemaining</code> - number of bytes remaining</dd>
+<dd><code>bytesRemaining</code> - Number of bytes remaining</dd>
 </dl>
 </li>
 </ul>
@@ -856,7 +856,7 @@ extends java.lang.Object</pre>
 <div class="block">Check if a variable is in the message</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>varName</code> - name of variable</dd>
+<dd><code>varName</code> - Name of variable</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>true if the message contains the specified variable</dd>
 </dl>

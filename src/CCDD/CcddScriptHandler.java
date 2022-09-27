@@ -1187,14 +1187,13 @@ public class CcddScriptHandler
         for (int row = 0; row < associations.size(); row++)
         {
             // Get the association members (single string format) with any HTML tags removed
-            String members = CcddUtilities
-                    .removeHTMLTags(associations.get(row)[AssociationsColumn.MEMBERS.ordinal()].toString());
+            String members = CcddUtilities.removeHTMLTags(associations.get(row)[AssociationsColumn.MEMBERS.ordinal()].toString());
 
             // Check if this isn't the current association being added (if applicable), and the
             // script and tables match between the two script associations
             boolean isRowValid = row != ignoreRow;
-            boolean isNameSame = scriptName
-                    .equals(associations.get(row)[AssociationsColumn.SCRIPT_FILE.ordinal()].toString());
+            boolean isNameSame = scriptName.equals(associations.get(row)[AssociationsColumn.SCRIPT_FILE.ordinal()].toString());
+
             // Pull out the string array to compare against. If it is empty, then create an array
             // with an empty entry
             String[] compareAgainst = members.isEmpty() ? new String[] {""}
