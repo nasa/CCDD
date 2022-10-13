@@ -49,8 +49,9 @@ public class CcddFieldHandler
     private final CcddDbTableCommandHandler dbTable;
     private final CcddInputTypeHandler inputTypeHandler;
 
-    // List of field information
+    // List of field information (in memory and stored in the database)
     private List<FieldInformation> fieldInformation;
+    private List<FieldInformation> storedFieldInformation;
 
     /**********************************************************************************************
      * Field handler class constructor
@@ -65,9 +66,20 @@ public class CcddFieldHandler
 
         // Create storage for the field information
         fieldInformation = new ArrayList<FieldInformation>();
+        storedFieldInformation = new ArrayList<FieldInformation>();
 
         // Use the field definitions to create the data field information
         buildFieldInformation(ccddMain.getMainFrame());
+    }
+
+    /**********************************************************************************************
+     * Determine if the current field information differs from that stored in the database
+     *
+     * @return true if the current field information differs from that stored in the database
+     *********************************************************************************************/
+    protected boolean isFieldInformationChanged()
+    {
+        return fieldInformation.equals(storedFieldInformation);
     }
 
     /**********************************************************************************************
@@ -149,6 +161,7 @@ public class CcddFieldHandler
         }
     }
 
+
     /**********************************************************************************************
      * Build the data field information from the field definitions stored in the database
      *
@@ -160,6 +173,9 @@ public class CcddFieldHandler
         setFieldInformationFromDefinitions(dbTable.retrieveInformationTable(InternalTable.FIELDS,
                                                                             false,
                                                                             parent));
+
+        // Store a copy of the field information to use to detect updates
+        storedFieldInformation = getFieldInformationCopy(fieldInformation);
     }
 
     /**********************************************************************************************

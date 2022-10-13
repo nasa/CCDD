@@ -5093,12 +5093,12 @@ extends java.lang.Object</pre>
 <h4>parseEnumerationParameters</h4>
 <pre>public&nbsp;java.lang.String[][]&nbsp;parseEnumerationParameters(java.lang.String&nbsp;enumeration)</pre>
 <div class="block">Divide the supplied enumeration string into the values and labels. The enumeration
- value/label separator character and the enumerated pair separator character are
+ value/label separator character and the enumerated group separator character are
  automatically determined. Any leading or trailing white space characters are removed from
- each array member</div>
+ each array member. Numbers and letters cannot be used as value or label separators</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>enumeration</code> - enumeration in the format &lt;enum value&gt;&lt;enum value separator&gt;&lt;enum label&gt;[&lt;enum value separator&gt;...][&lt;enum pair separator&gt;...]</dd>
+<dd><code>enumeration</code> - enumeration in the format &lt;enum value&gt;&lt;enum value separator&gt;&lt;enum label&gt;[&lt;enum value separator&gt;...][&lt;enum group separator&gt;...]</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Two-dimensional array representing the enumeration parameters ; returns null if the
          input text is empty or the enumeration separator characters cannot be determined</dd>

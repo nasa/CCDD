@@ -69,7 +69,6 @@ import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.InputType;
 import CCDD.CcddClassesDataTable.TableModification;
 import CCDD.CcddConstants.DefaultInputType;
-import CCDD.CcddConstants.DefaultPrimitiveTypeInfo;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.InputTypeEditorColumnInfo;
 import CCDD.CcddConstants.InputTypeFormat;
@@ -614,7 +613,7 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
     private JScrollPane createInputTypeTable()
     {
         // Define the input type editor JTable
-        inputTypeTable = new CcddJTableHandler(DefaultPrimitiveTypeInfo.values().length)
+        inputTypeTable = new CcddJTableHandler()
         {
             /**************************************************************************************
              * Allow multiple line display in all but the format column

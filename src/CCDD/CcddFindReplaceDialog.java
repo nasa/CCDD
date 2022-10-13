@@ -856,7 +856,7 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
                             table.setSelectedCells(selRow, selRow, selColumn, selColumn);
                             table.setRowSelectionInterval(selRow, selRow);
                             table.setColumnSelectionInterval(selColumn, selColumn);
-                            table.scrollToCell(selRow, selColumn);
+                            table.scrollToCell(selRow, selColumn, false);
                         }
 
                         break;

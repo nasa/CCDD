@@ -272,6 +272,7 @@ public class CcddConstants
     protected static final String REDO_ICON = "/images/redo.png";
     protected static final String UNLOCK_ICON = "/images/unlock.png";
     protected static final String PRINT_ICON = "/images/print.png";
+    protected static final String SAVE_ICON = "/images/save.png";
     protected static final String SCRIPTS_ICON = "/images/scripts.png";
     protected static final String AUTO_CREATE_ICON = "/images/auto_create.png";
     protected static final String RENAME_ICON = "/images/rename.png";
@@ -6258,7 +6259,7 @@ public class CcddConstants
                        + "pg_catalog.pg_database d WHERE d.datname = '_db_name_';"),
 
         // Get the list of PostgreSQL keywords
-        KEYWORDS("SELECT * FROM pg_get_keywords()"),
+        KEYWORDS("SELECT word FROM pg_get_keywords();"),
 
         // Get the list of tables of type '_type_', sorted alphabetically. '_type_' must be
         // replaced by the type of table for which to search. _type_ is case insensitive

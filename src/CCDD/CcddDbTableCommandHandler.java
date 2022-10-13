@@ -422,7 +422,8 @@ public class CcddDbTableCommandHandler
                          + InternalTable.VALUES.getTableName()
                          + " WHERE "
                          + ValuesColumn.TABLE_PATH.getColumnName()
-                         + " = '" + tablePath
+                         + " = '"
+                         + tablePath
                          + "' AND "
                          + ValuesColumn.COLUMN_NAME.getColumnName()
                          + " = ''; ";
@@ -1123,17 +1124,7 @@ public class CcddDbTableCommandHandler
     {
         rootStructures = getRootStructures(parent);
         variableHandler.buildPathAndOffsetLists();
-
-        if (commandHandler != null)
-        {
-            commandHandler.buildCommandList();
-        }
-        else
-        {
-            commandHandler = ccddMain.getCommandHandler();
-            commandHandler.buildCommandList();
-        }
-
+        commandHandler.buildCommandList();
         inputTypeHandler.updateMessageReferences(parent);
     }
 
@@ -2249,6 +2240,10 @@ public class CcddDbTableCommandHandler
                 throw new CCDDException("Invalid table type");
             }
 
+            // Get the column names and number
+            List<String> columnNames = Arrays.asList(typeDefn.getColumnNamesDatabase());
+            int numColumns = typeDefn.getColumnCountDatabase();
+
             // Get the table's row information for the specified columns. The table must have all
             // of its table type's columns or else it fails to load
             StringBuilder command = new StringBuilder();
@@ -2266,14 +2261,12 @@ public class CcddDbTableCommandHandler
             while (rowData.next())
             {
                 // Create an array to contain the column values
-                Object[] columnValues = new Object[typeDefn.getColumnCountDatabase()];
+                Object[] columnValues = new Object[numColumns];
 
-                // Grab the column names
-                List<String> columnNames = Arrays.asList(typeDefn.getColumnNamesDatabase());
                 ResultSetMetaData metaData = rowData.getMetaData();
 
                 // Step through each column in the row
-                for (int index = 0; index < typeDefn.getColumnCountDatabase(); index++)
+                for (int index = 0; index < numColumns; index++)
                 {
                     // Check which column should be updated as they may not be in the expected
                     // order
@@ -2640,6 +2633,8 @@ public class CcddDbTableCommandHandler
             List<String> bitLengths;
             List<String[]> rates;
 
+            int numRateColumns = rateHandler.getNumRateColumns();
+
             // Set the flag based on if any data was returned by the database query
             boolean doLoop = rowData.next();
 
@@ -2663,7 +2658,7 @@ public class CcddDbTableCommandHandler
                     String dataType = rowData.getString(2);
                     String variableName = rowData.getString(3);
                     String bitLength = rowData.getString(4);
-                    String[] rate = rowData.getString(5).split(",", rateHandler.getNumRateColumns());
+                    String[] rate = rowData.getString(5).split(",", numRateColumns);
 
                     // Check if a data type and variable name exist, and that the data type is not
                     // a primitive type (i.e., this is a structure) or if primitive types are to be
@@ -2789,11 +2784,11 @@ public class CcddDbTableCommandHandler
                 if (!isFound)
                 {
                     // Grab the table info
-                    TableInfo tableInfo = ccddMain.getDbTableCommandHandler().loadTableData(tableName.toLowerCase(),
-                                                                                            false,
-                                                                                            true,
-                                                                                            false,
-                                                                                            parent);
+                    TableInfo tableInfo = loadTableData(tableName.toLowerCase(),
+                                                        false,
+                                                        true,
+                                                        false,
+                                                        parent);
 
                     // Check if this table is of type ENUM
                     if (tableInfo.getType().equals(TYPE_ENUM) && memberType == TableMemberType.INCLUDE_PRIMITIVES)
@@ -3027,6 +3022,7 @@ public class CcddDbTableCommandHandler
         boolean errorFlag = false;
         ReferenceCheckResults msgIDRefChk = null;
         boolean isRefFieldChange = false;
+        boolean isStructure = false;
 
         try
         {
@@ -3037,22 +3033,18 @@ public class CcddDbTableCommandHandler
             ReferenceCheckResults varRefChk = null;
             ReferenceCheckResults cmdRefChk = null;
 
-            // Store the data fields
-            storeInformationTable(InternalTable.FIELDS,
-                                  fieldHandler.getFieldDefnsFromInfo(),
-                                  null,
-                                  parent);
+            // Check if the current field information differs from that stored in the database
+            if (fieldHandler.isFieldInformationChanged())
+            {
+                // Store the data fields
+                storeInformationTable(InternalTable.FIELDS,
+                                      fieldHandler.getFieldDefnsFromInfo(),
+                                      null,
+                                      parent);
+            }
 
             // Build the command list for every command defined in the database
-            if (commandHandler != null)
-            {
-                commandHandler.buildCommandList();
-            }
-            else
-            {
-                commandHandler = ccddMain.getCommandHandler();
-                commandHandler.buildCommandList();
-            }
+            commandHandler.buildCommandList();
 
             if (updateListsAndRefs)
             {
@@ -3080,10 +3072,11 @@ public class CcddDbTableCommandHandler
 
             // Get the table type definition
             TypeDefinition typeDefinition = tableTypeHandler.getTypeDefinition(tableInfo.getType());
+            isStructure = typeDefinition.isStructure();
 
             // Check if references in the internal tables are to be updated and the table
             // represents a structure
-            if (!skipInternalTables && typeDefinition.isStructure())
+            if (!skipInternalTables && isStructure)
             {
                 deletedArrayDefns = new ArrayList<String>();
 
@@ -3236,7 +3229,7 @@ public class CcddDbTableCommandHandler
             if (commandExecuted)
             {
                 // Check if references in the internal tables are to be updated
-                if (!skipInternalTables && typeDefinition.isStructure())
+                if (!skipInternalTables && isStructure)
                 {
                     // Check if the table is a structure prototype and that the table had one or
                     // more variables to begin with
@@ -3271,7 +3264,7 @@ public class CcddDbTableCommandHandler
                 }
 
                 // Check if the table type is a structure
-                if (typeDefinition.isStructure())
+                if (isStructure)
                 {
                     // Update the list of root structure tables
                     rootStructures = getRootStructures(parent);
@@ -3351,6 +3344,12 @@ public class CcddDbTableCommandHandler
                                                               forceUpdate,
                                                               isRefFieldChange,
                                                               isMsgIDChange);
+
+            if (isStructure)
+            {
+                // Update the show variables dialog
+                ccddMain.updateShowVariablesDialog();
+            }
         }
 
         return errorFlag;
@@ -3435,7 +3434,7 @@ public class CcddDbTableCommandHandler
                                 if (tableMod.getRowData()[tableMod.getArraySizeColumn()].equals("")
                                     || variablePath.endsWith("]"))
                                 {
-                                    // Now build the command to update this tables data fields
+                                    // Now build the command to update this table's data fields
                                     command.append("INSERT INTO ")
                                            .append(InternalTable.FIELDS.getTableName())
                                            .append(" SELECT regexp_replace(")
@@ -3720,24 +3719,17 @@ public class CcddDbTableCommandHandler
 
             // Retrieve the largest key value in the database for this particular table and then add 1
             // to it. This will be the value used for the next insertion to keep them unique
-            try
-            {
-                StringBuilder queryCmd = new StringBuilder();
-                queryCmd.append("SELECT _key_ FROM ")
-                        .append(dbTableName)
-                        .append(" WHERE _key_ = (SELECT MAX(_key_) FROM ")
-                        .append(dbTableName)
-                        .append(");");
-                queryResult = dbCommand.executeDbQuery(queryCmd, ccddMain.getMainFrame());
+            StringBuilder queryCmd = new StringBuilder();
+            queryCmd.append("SELECT _key_ FROM ")
+                    .append(dbTableName)
+                    .append(" WHERE _key_ = (SELECT MAX(_key_) FROM ")
+                    .append(dbTableName)
+                    .append(");");
+            queryResult = dbCommand.executeDbQuery(queryCmd, ccddMain.getMainFrame());
 
-                if (queryResult.next())
-                {
-                    nextKeyValue = queryResult.getInt(1) + 1;
-                }
-            }
-            catch (Exception e)
+            if (queryResult.next())
             {
-                CcddUtilities.displayException(e, parent);
+                nextKeyValue = queryResult.getInt(1) + 1;
             }
 
             // Create the insert table data command. The array of column names is converted to a string
@@ -7328,7 +7320,6 @@ public class CcddDbTableCommandHandler
      * @param deletedGroups        List containing the names of groups that have been deleted
      *
      * @param parent               GUI component over which to center any error dialog
-     *
      *********************************************************************************************/
     protected void updateGroupsTable(List<List<FieldInformation>> fieldInformationList,
                                      List<String> deletedGroups,
@@ -7408,7 +7399,6 @@ public class CcddDbTableCommandHandler
      * Remove unused entries from the internal groups table
      *
      * @param parent GUI component over which to center any error dialog
-     *
      *********************************************************************************************/
     protected void cleanGroupsTable(Component parent)
     {
@@ -7422,7 +7412,8 @@ public class CcddDbTableCommandHandler
             // Get all members of the internal groups table
             List<String[]> members = queryDatabase(new StringBuilder("SELECT ").append(GroupsColumn.MEMBERS.getColumnName())
                                                                                .append(" FROM ")
-                                                                               .append(InternalTable.GROUPS.getTableName()),
+                                                                               .append(InternalTable.GROUPS.getTableName())
+                                                                               .append(";"),
                                                                                ccddMain.getMainFrame());
 
             // Initialize the command that will be used to update the internal groups table
@@ -7451,8 +7442,11 @@ public class CcddDbTableCommandHandler
                 }
             }
 
-            // Execute the command
-            dbCommand.executeDbCommand(command, ccddMain.getMainFrame());
+            if (command.length() != 0)
+            {
+                // Execute the command
+                dbCommand.executeDbCommand(command, ccddMain.getMainFrame());
+            }
         }
         catch (SQLException se)
         {
@@ -7708,16 +7702,24 @@ public class CcddDbTableCommandHandler
 
         // Get the internal table's name
         String tableName = intTable.getTableName(tableComment);
+        StringBuilder command = new StringBuilder();
 
-        // Build the command to delete the information list table if it exists, then the creation
-        // commands
-        StringBuilder command = new StringBuilder("DROP TABLE IF EXISTS ").append(tableName)
-                                                                          .append("; CREATE TABLE ")
-                                                                          .append(tableName)
-                                                                          .append(" ")
-                                                                          .append(intTable.getColumnCommand(false))
-                                                                          .append(dbControl.buildOwnerCommand(DatabaseObject.TABLE,
-                                                                                                              tableName));
+        // Delete the table contents if the table exists
+        if (isTableExists(tableName, parent))
+        {
+            command.append("TRUNCATE ").append(tableName).append("; ");
+        }
+        // The table doesn't exist
+        else
+        {
+        // Build the command to create the table
+            command.append("CREATE TABLE ")
+                   .append(tableName)
+                   .append(" ")
+                   .append(intTable.getColumnCommand(false))
+                   .append(dbControl.buildOwnerCommand(DatabaseObject.TABLE,
+                                                       tableName));
+        }
 
         try
         {
@@ -8583,10 +8585,6 @@ public class CcddDbTableCommandHandler
             String names = "";
 
             // Get the type definition based on the table type name
-            if (tableTypeHandler == null)
-            {
-                tableTypeHandler = ccddMain.getTableTypeHandler();
-            }
             TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(typeName);
 
             // Set the flags that indicates if the table type definition represents a structure
@@ -9232,8 +9230,11 @@ public class CcddDbTableCommandHandler
 
             try
             {
-                // Execute the command to change the table type and any table's of this type
-                dbCommand.executeDbCommand(command, editorDialog);
+                if (command.length() != 0)
+                {
+                    // Execute the command to change the table type and any tables of this type
+                    dbCommand.executeDbCommand(command, editorDialog);
+                }
 
                 // Check if the type changed to or from being a structure
                 if (isStructure != wasStructure)

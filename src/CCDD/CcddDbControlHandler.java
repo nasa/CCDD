@@ -1380,8 +1380,8 @@ public class CcddDbControlHandler
             // Update the internal table
             try
             {
-                StringBuilder command = new StringBuilder("DELETE FROM ").append(InternalTable.DBU_INFO.getTableName())
-                                                                         .append(";");
+                StringBuilder command = new StringBuilder("TRUNCATE ").append(InternalTable.DBU_INFO.getTableName())
+                                                                      .append(";");
 
                 // Delete the current contents of the __dbu_info_ internal table
                 dbCommand.executeDbCommand(command, ccddMain.getMainFrame());
@@ -1822,7 +1822,8 @@ public class CcddDbControlHandler
                    .append(", E'^([0-9])*.*', E'\\\\1') AS rate FROM ")
                    .append(InternalTable.LINKS.getTableName())
                    .append(") AS result WHERE rate != '' AND rate != '0'; FOR row IN SELECT * FROM ")
-                   .append(TEMP_TABLE_NAME).append(" LOOP IF EXISTS (SELECT * FROM (SELECT COUNT(1) FROM ")
+                   .append(TEMP_TABLE_NAME)
+                   .append(" LOOP IF EXISTS (SELECT * FROM (SELECT COUNT(1) FROM ")
                    .append(InternalTable.LINKS.getTableName())
                    .append(" WHERE ")
                    .append(LinksColumn.LINK_NAME.getColumnName())

@@ -61,7 +61,6 @@ import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClassesDataTable.TableOpener;
 import CCDD.CcddCommandHandler.CommandInformation;
 import CCDD.CcddConstants.CommandInformationTableColumnInfo;
-import CCDD.CcddConstants.DefaultPrimitiveTypeInfo;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
@@ -200,7 +199,7 @@ public class CcddCommandDialog extends CcddDialogHandler
                 dialogPnl.add(commandsPnl, gbc);
 
                 // Define the command paths & names JTable
-                commandTable = new CcddJTableHandler(DefaultPrimitiveTypeInfo.values().length)
+                commandTable = new CcddJTableHandler()
                 {
                     /******************************************************************************
                      * Allow multiple line display in all columns

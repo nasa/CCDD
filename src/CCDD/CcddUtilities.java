@@ -526,7 +526,7 @@ public class CcddUtilities
     /**********************************************************************************************
      * Determine the character that separates an enumeration value from its corresponding label
      *
-     * @param enumeration {@literal enumeration in the format <enum value><enum value separator><enum label>[<enum value separator>...][<enum pair separator>...]}
+     * @param enumeration {@literal enumeration in the format <enum value><enum value separator><enum label>[<enum value separator>...][<enum group separator>...]}
      *
      * @return Character that separates an enumeration value from its corresponding label
      *********************************************************************************************/
@@ -535,45 +535,104 @@ public class CcddUtilities
         String separator = null;
 
         // Check if the enumeration is in the expected format
-        if (enumeration.matches("^\\s*\\d+\\s*.+$"))
+        if (enumeration.matches("^\\s*[\\+\\-]?\\d+\\s*.+$"))
         {
             // Extract the enumerated value separator character
-            separator = enumeration.replaceFirst("^\\s*\\d+\\s*", "").substring(0, 1);
+            separator = enumeration.replaceFirst("^\\s*[\\+\\-]?\\d+\\s*", "").substring(0, 1);
         }
 
         return separator;
     }
 
     /**********************************************************************************************
-     * Determine the character that separates the enumerated pairs
+     * Determine the character that separates the enumerated groups
      *
-     * @param enumeration        {@literal enumeration in the format <enum value><enum value separator><enum label>[<enum value separator>...][<enum pair separator>...]}
+     * @param enumeration        {@literal enumeration in the format <enum value><enum value separator><enum label>[<enum value separator>...][<enum group separator>...]}
      *
      * @param enumValueSeparator Character used to separate an enumeration value from its
      *                           corresponding label
      *
-     * @return Character that separates the enumerated pairs
+     * @return Character that separates the enumerated groups; null if no separator is found
      *********************************************************************************************/
-    protected static String getEnumerationPairSeparator(String enumeration, String enumValueSeparator)
+    protected static String getEnumerationGroupSeparator(String enumeration, String enumValueSeparator)
     {
         String separator = null;
+        List<String> possibleSeparators = new ArrayList<String>(0);
 
-        // Check if the enumeration is in the expected format
-        if (enumeration
-.matches("^\\s*\\d+\\s*" + enumValueSeparator + "\\s*.+\\d+\\s*" + enumValueSeparator + "\\s*.+$"))
+        // Split the enumeration wherever a number followed by the value separator is found
+        String[] parts = enumeration.split("\\s*[\\+\\-]?\\d+\\s*"
+                                           + Pattern.quote(enumValueSeparator)
+                                           + "\\s*");
+
+        // Step through each part of the split enumeration
+        for (String part : parts)
         {
-            // Separate the enumeration at the value+enumerated value separator characters
-            String[] parts = enumeration.split("\\s*\\d+\\s*" + Pattern.quote(enumValueSeparator));
+            // Remove any leading and trailing whitespace
+            String trimPart = part.trim();
 
-            // If parts.length is less than or equal to 2 than that means there is only a single
-            // enum and no enum pair separator
-            if (parts.length > 2)
+            if (!trimPart.isEmpty())
             {
-                // Determine the length of the second array member. This consists of the first
-                // enumerated value followed by the enumerated pair separator character. Extract
-                // the ending character which is the enumerated pair separator
-                int index = parts[1].length();
-                separator = parts[1].substring(index - 1, index);
+                // Get the last character (the one that preceded the  value separator)
+                String lastChar = trimPart.substring(trimPart.length() - 1);
+
+                // Check if the part isn't empty and the last character (the one that preceded the
+                // value separator) isn't a letter or number (these are excluded from being a group
+                // separator)
+                if (!trimPart.isEmpty() && !lastChar.matches("[A-Za-z0-9]*"))
+                {
+                    // Check if this character has not been identified as a possible group
+                    // separator
+                    if (!possibleSeparators.contains(lastChar))
+                    {
+                        // Store the character as a possible group separator
+                        possibleSeparators.add(trimPart.substring(trimPart.length() - 1));
+                    }
+                }
+            }
+        }
+
+        // Check if only a single possible group separator was detected
+        if (possibleSeparators.size() == 1)
+        {
+            // Set the group separator to the only possible candidate
+            separator = possibleSeparators.get(0);
+        }
+        // Check if more than one possible group separator was detected
+        else if (possibleSeparators.size() > 1)
+        {
+            // Step through each possible group separator
+            for (String possibleSeparator : possibleSeparators)
+            {
+                // Split the enumeration using the possible group separator
+                String[] possibleEnumGroupings = enumeration.split(Pattern.quote(possibleSeparator));
+
+                // Get the number of sub-parts for this part (split by the value separator)
+                int numPartsBySeparator = possibleEnumGroupings[0].split(Pattern.quote(enumValueSeparator)).length;
+                boolean good = true;
+
+                // Step through each possible enumeration group
+                for (String possibleEnumGrouping : possibleEnumGroupings)
+                {
+                    // Check if the possible enumeration group doesn't begin with a number, or if
+                    // the number of values in the group (as defined by the value separator) don't
+                    // match that of the first group
+                    if (!possibleEnumGrouping.matches("\\s*[0-9].+")
+                        || (possibleEnumGrouping.split(Pattern.quote(enumValueSeparator)).length != numPartsBySeparator))
+                    {
+                        // The possible group separator doesn't meet the criteria; stop checking
+                        good = false;
+                        break;
+                    }
+                }
+
+                // Check if the possible group separator meets the criteria (each group begins with
+                // a number, and each group contains the same number of values)
+                if (good)
+                {
+                    // Save the group separator and stop looking
+                    separator = possibleSeparator;
+                    break;
+                }
             }
         }
 

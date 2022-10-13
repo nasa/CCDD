@@ -330,7 +330,7 @@ public class CcddFileIOHandler
      * @param replaceExistingDataTypes    True to replace existing data types that share a name
      *                                    with an imported data type
      *
-     * @param deleteNonExistingFiles      True to delete any tables from the database that were not
+     * @param deleteNonExistingTables     True to delete any tables from the database that were not
      *                                    part of the import
      *
      * @param importFileType              The extension for the file type being imported
@@ -353,7 +353,7 @@ public class CcddFileIOHandler
                                              final boolean replaceExistingAssociations,
                                              final boolean replaceExistingGroups,
                                              final boolean replaceExistingDataTypes,
-                                             final boolean deleteNonExistingFiles,
+                                             final boolean deleteNonExistingTables,
                                              FileExtension importFileType,
                                              ManagerDialogType dialogType,
                                              final Component parent)
@@ -499,8 +499,8 @@ public class CcddFileIOHandler
                 }
                 // End of checking for deleted files
 
-                // Does the user want non-existing files to be deleted?
-                if (deleteNonExistingFiles == true)
+                // Check if non-existing tables are to be deleted
+                if (deleteNonExistingTables == true)
                 {
                     // Is there anything to delete?
                     if (deletedFiles.size() != 0)
@@ -1804,7 +1804,7 @@ public class CcddFileIOHandler
      * @param replaceExistingAssociations True to overwrite internal associations with those from
      *                                    the import file
      *
-     * @param deleteNonExistingFiles      True to delete any tables from the database that were not
+     * @param deleteNonExistingTables     True to delete any tables from the database that were not
      *                                    part of the import
      *
      * @param replaceExistingDataTypes    True to replace existing data types that share a name
@@ -1831,7 +1831,7 @@ public class CcddFileIOHandler
                                              final boolean replaceExistingMacros,
                                              final boolean replaceExistingGroups,
                                              final boolean replaceExistingAssociations,
-                                             final boolean deleteNonExistingFiles,
+                                             final boolean deleteNonExistingTables,
                                              final boolean replaceExistingDataTypes,
                                              final FileExtension importFileType,
                                              final ManagerDialogType dialogType,
@@ -1875,7 +1875,7 @@ public class CcddFileIOHandler
                                                        replaceExistingAssociations,
                                                        replaceExistingGroups,
                                                        replaceExistingDataTypes,
-                                                       deleteNonExistingFiles,
+                                                       deleteNonExistingTables,
                                                        importFileType,
                                                        dialogType,
                                                        parent);
@@ -2152,7 +2152,7 @@ public class CcddFileIOHandler
                 // background)
                 if (haltDlg != null)
                 {
-                    // Check if the user canceled verification
+                    // Check if the user canceled importing
                     if (haltDlg.isHalted())
                     {
                         throw new CCDDException();
@@ -2697,7 +2697,7 @@ public class CcddFileIOHandler
                 // background)
                 if (haltDlg != null)
                 {
-                    // Check if the user canceled verification
+                    // Check if the user canceled importing
                     if (haltDlg.isHalted())
                     {
                         throw new CCDDException();
@@ -3294,8 +3294,9 @@ public class CcddFileIOHandler
                                                               extFilter,
                                                               false,
                                                               false,
-                                                              "Import Table Data", ccddMain.getProgPrefs().get(ModifiablePathInfo.TABLE_EXPORT_PATH.getPreferenceKey(),
-                                                                                                               null),
+                                                              "Import Table Data",
+                                                              ccddMain.getProgPrefs().get(ModifiablePathInfo.TABLE_EXPORT_PATH.getPreferenceKey(),
+                                                                                          null),
                                                               DialogOption.IMPORT_OPTION,
                                                               dialogPanel);
 
@@ -3482,7 +3483,9 @@ public class CcddFileIOHandler
                 }
 
                 // Store the data file path in the program preferences backing store
-                storePath(ccddMain, dataFile[0].getAbsolutePathWithEnvVars(), true,
+                storePath(ccddMain,
+                          dataFile[0].getAbsolutePathWithEnvVars(),
+                          true,
                           ModifiablePathInfo.TABLE_EXPORT_PATH);
             }
         }
@@ -4598,7 +4601,6 @@ public class CcddFileIOHandler
             // Strip the file name from the path
             pathName = pathName.substring(0, pathName.lastIndexOf(File.separator));
         }
-
         // Check if the path name ends with a period
         if (pathName.endsWith("."))
         {
@@ -4608,6 +4610,92 @@ public class CcddFileIOHandler
 
         // Store the file path
         modPath.setPath(ccddMain, pathName);
+    }
+
+    /**********************************************************************************************
+     * Write the specified string list to the selected file
+     *
+     * @param list   List containing the strings to write to the selected file
+     *
+     * @param parent GUI component over which to center the dialog
+     ********************************************************************************************/
+    protected void writeListToFile(List<String> list, Component parent)
+    {
+        // Create the file choice dialog
+        final CcddDialogHandler dlg = new CcddDialogHandler();
+
+
+        // Allow the user to select the backup file path + name
+        FileEnvVar[] dataFile = dlg.choosePathFile(ccddMain,
+                                                   parent,
+                                                   "",
+                                                   null,
+                                                   null,
+                                                   false,
+                                                   false,
+                                                   "Save to File",
+                                                   ccddMain.getProgPrefs().get(ModifiablePathInfo.TABLE_EXPORT_PATH.getPreferenceKey(), null),
+                                                   DialogOption.STORE_OPTION,
+                                                   null);
+
+        // File name with the white space stripped
+        String compliantFileName = dlg.getFileNameField().getText().replaceAll("\\s", "");
+
+        FileEnvVar chosenFilePath = CcddBackupName.reconstructBackupFilePath(dataFile, compliantFileName);
+
+        // Check if a file was chosen
+        if (chosenFilePath != null)
+        {
+            boolean cancelBackup = false;
+
+            // Check if the backup file exists
+            if (chosenFilePath.exists())
+            {
+                // Check if the existing file should be overwritten
+                if (new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                              "<html><b>Overwrite existing file?",
+                                                              "Overwrite File",
+                                                              JOptionPane.QUESTION_MESSAGE,
+                                                              DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
+                {
+                    // Check if the file can be deleted
+                    if (!chosenFilePath.delete())
+                    {
+                        // Inform the user that the existing file cannot be replaced
+                        new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                                  "<html><b>Cannot replace existing file '</b>"
+                                                                  + chosenFilePath.getAbsolutePath()
+                                                                  + "<b>'",
+                                                                  "File Error",
+                                                                  JOptionPane.ERROR_MESSAGE,
+                                                                  DialogOption.OK_OPTION);
+                        cancelBackup = true;
+                    }
+                }
+                // File should not be overwritten
+                else
+                {
+                    // Cancel saving the file
+                    cancelBackup = true;
+                }
+            }
+
+            // Check that no errors occurred and that the user didn't cancel saving the file
+            if (!cancelBackup)
+            {
+                // Open the selected file
+                PrintWriter printWriter =  openOutputFile(chosenFilePath.getAbsolutePath());
+
+                // Write the list contents to the file
+                for (String line : list)
+                {
+                    writeToFileLn(printWriter, line);
+                }
+
+                // Close the file
+                closeFile(printWriter);
+            }
+        }
     }
 
     /**********************************************************************************************

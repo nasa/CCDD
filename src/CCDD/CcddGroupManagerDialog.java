@@ -217,6 +217,9 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
             // Update the script associations manager and executive dialogs
             ccddMain.updateScriptAssociationsDialogs();
 
+            // Update the show variables dialog
+            ccddMain.updateShowVariablesDialog();
+
             // Remove the group dialog's change indicator
             setTitle(DIALOG_TITLE);
 

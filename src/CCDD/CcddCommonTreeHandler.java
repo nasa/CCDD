@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
@@ -50,6 +51,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
 import javax.swing.JTree;
+import javax.swing.border.EmptyBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
@@ -133,11 +135,12 @@ public class CcddCommonTreeHandler extends JTree
 
                 // Create the label. The label is required so that an icon can be displayed
                 nodeLbl = new JLabel();
-                nodeLbl.setBorder(BorderFactory.createEmptyBorder());
 
                 // Create a panel so that the label and text pane can be combined
                 nodePnl = new JPanel();
                 nodePnl.setBorder(BorderFactory.createEmptyBorder());
+                nodeLbl.setBorder(new EmptyBorder(0, 0, 0, ((FlowLayout) nodePnl.getLayout()).getHgap()));
+                ((FlowLayout) nodePnl.getLayout()).setHgap(0);
                 ((FlowLayout) nodePnl.getLayout()).setVgap(1);
                 nodePnl.setBackground(getBackground());
                 nodePnl.add(nodeLbl);
@@ -166,6 +169,7 @@ public class CcddCommonTreeHandler extends JTree
                                                       int row,
                                                       boolean hasFocus)
         {
+            boolean isHighlightable = false;
             boolean hasHighlight = false;
             Component comp = null;
 
@@ -196,6 +200,8 @@ public class CcddCommonTreeHandler extends JTree
             // header (i.e., it represents a table or variable)
             if (isAllowHighlight && searchPattern != null && node.getLevel() >= getHeaderNodeLevel())
             {
+                isHighlightable = true;
+
                 // Set the node's text and icon
                 nodeFld.setText(adjustedName);
 
@@ -208,6 +214,7 @@ public class CcddCommonTreeHandler extends JTree
                     // Set the node's icon and set the panel as the component to display; set the
                     // flag to indicate the node contains a highlight
                     nodeLbl.setIcon(getLeafIcon());
+                    comp = super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
                     comp = nodePnl;
                     hasHighlight = true;
                 }
@@ -216,14 +223,22 @@ public class CcddCommonTreeHandler extends JTree
             // Check if the node doesn't contain a highlight
             if (!hasHighlight)
             {
-                // Set the node name to display
-                ((ToolTipTreeNode) value).setUserObject(adjustedName);
+                // Set the node name to display. If the node could be highlighted but doesn't
+                // contain a match the strip any HTML so that the node is grayed out
+                ((ToolTipTreeNode) value).setUserObject(isHighlightable ? CcddUtilities.removeHTMLTags(adjustedName)
+                                                                        : adjustedName);
 
                 // Get the node component to display
                 comp = super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
 
                 // Restore the node's name (if changed)
                 ((ToolTipTreeNode) value).setUserObject(name);
+
+                // Gray-out the node if it could be highlighted but doesn't contain a match
+                if (isHighlightable)
+                {
+                    comp.setForeground(ModifiableColorInfo.INPUT_DISABLE_BACK.getColor());
+                }
             }
 
             return comp;
@@ -515,6 +530,59 @@ public class CcddCommonTreeHandler extends JTree
 
         // Restore the tree's expansion state
         setExpansionState(expState);
+    }
+
+    /**********************************************************************************************
+     * Expand only those nodes that match the search pattern or are selected
+     *********************************************************************************************/
+    protected void expandedHighlighted()
+    {
+        Matcher matcher = null;
+
+        // Get a list of the currently selected tree paths
+        TreePath[] selectedPaths = getSelectionPaths();
+        List<TreePath> paths = null;
+
+        if (selectedPaths != null)
+        {
+            paths = Arrays.asList(selectedPaths);
+        }
+
+        // Get the path to the root node and collapse the entire tree
+        TreePath path = getPathFromNode((TreeNode) getModel().getRoot());
+        collapseTreePath(path);
+
+        // Get the node for the root path
+        TreeNode node = (TreeNode) path.getLastPathComponent();
+
+        // Step through each element and child of the node
+        for (Enumeration<?> element = ((ToolTipTreeNode) node).preorderEnumeration(); element.hasMoreElements();)
+        {
+            // Get the next element
+            TreeNode childNode = (TreeNode) element.nextElement();
+
+            // Determine if this node is selected
+            TreePath childPath = new TreePath(((ToolTipTreeNode) childNode).getPath());
+
+            // Check if a search pattern is set
+            if (searchPattern != null)
+            {
+                // Create the pattern matcher from the pattern
+                matcher = searchPattern.matcher(((ToolTipTreeNode) childNode).getUserObject().toString());
+            }
+
+            // Check if the node is selected or if there is a match in the node name
+            if ((selectedPaths != null && paths.contains(childPath))
+                || (matcher != null && matcher.find()))
+            {
+
+                // Expand the node that contains a match
+                collapsePath(getPathFromNode(childNode));
+            }
+        }
+
+        // Reselect the nodes that were originally selected
+        setSelectionPaths(selectedPaths);
     }
 
     /**********************************************************************************************
@@ -1030,10 +1098,12 @@ public class CcddCommonTreeHandler extends JTree
             }
         }
 
+        // Remove the trailing ","
         if (variablePath.length() > 0)
         {
-            variablePath.setLength(variablePath.length() - 1); // removes the last ","
+            variablePath.setLength(variablePath.length() - 1);
         }
+
         return variablePath.toString();
     }
 

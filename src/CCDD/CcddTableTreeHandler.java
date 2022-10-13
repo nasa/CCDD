@@ -348,6 +348,42 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     }
 
     /**********************************************************************************************
+     * Table tree handler class constructor. The order of variables is preserved (if included by
+     * this tree type)
+     *
+     * @param ccddMain          Main class
+     *
+     * @param groupHandler      Group handler
+     *
+     * @param treeType          Table tree type (TableTreeType)
+     *
+     * @param parent            GUI component over which to center any error dialog
+     *********************************************************************************************/
+    CcddTableTreeHandler(CcddMain ccddMain,
+                         CcddGroupHandler groupHandler,
+                         TableTreeType treeType,
+                         Component parent)
+    {
+        // Build the table tree
+        this(ccddMain,
+             groupHandler,
+             treeType,
+             true,
+             false,
+             true,
+             true,
+             false,
+             null,
+             null,
+             null,
+             false,
+             DEFAULT_PROTOTYPE_NODE_NAME,
+             DEFAULT_INSTANCE_NODE_NAME,
+             false,
+             parent);
+    }
+
+    /**********************************************************************************************
      * Table tree handler class constructor. Get just the tree information of the specified type
      *
      * @param ccddMain          Main class
@@ -721,12 +757,13 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                                   boolean isByGroupChanged,
                                   Component parent)
     {
-        if ((buildGroupTree == false) && (isByGroupChanged) && (isByGroup))
+        if ((buildGroupTree == false) && isByGroupChanged && isByGroup)
         {
             // Grab the pre-loaded group root
             root = ccddMain.getTableTreeHandler().getPreLoadedGroupRoot();
 
             ccddMain.getTableTreeHandler().removeAllTablesGroup(parent);
+
             // Add the pseudo-group containing all tables to the prototype and instance nodes
             addAllTablesGroup(parent);
 
@@ -783,7 +820,6 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             // Check if both groups and table type are to be used to filter the table tree
             if (isByGroup && isByType)
             {
-
                 // Step through the groups
                 for (GroupInformation groupInfo : groupHandler.getGroupInformation())
                 {
@@ -868,14 +904,12 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             // Check if the table types are to be used to filter the table tree
             else if (isByType)
             {
-
                 // Add all tables to the prototype and instances nodes by table type
                 addByType(null, null, parent);
             }
             // Do not use the groups or types to filter the tree
             else
             {
-
                 ToolTipTreeNode prototype = null;
                 ToolTipTreeNode instance = null;
 

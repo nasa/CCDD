@@ -4072,11 +4072,11 @@ public class CcddScriptDataAccessHandler
 
     /**********************************************************************************************
      * Divide the supplied enumeration string into the values and labels. The enumeration
-     * value/label separator character and the enumerated pair separator character are
+     * value/label separator character and the enumerated group separator character are
      * automatically determined. Any leading or trailing white space characters are removed from
-     * each array member
+     * each array member. Numbers and letters cannot be used as value or label separators
      *
-     * @param enumeration {@literal enumeration in the format <enum value><enum value separator><enum label>[<enum value separator>...][<enum pair separator>...]}
+     * @param enumeration {@literal enumeration in the format <enum value><enum value separator><enum label>[<enum value separator>...][<enum group separator>...]}
      *
      * @return Two-dimensional array representing the enumeration parameters ; returns null if the
      *         input text is empty or the enumeration separator characters cannot be determined
@@ -4092,13 +4092,13 @@ public class CcddScriptDataAccessHandler
         if (enumSeparator != null)
         {
             // Get the character that separates the enumerated pairs
-            String pairSeparator = CcddUtilities.getEnumerationPairSeparator(enumeration, enumSeparator);
+            String groupSeparator = CcddUtilities.getEnumerationGroupSeparator(enumeration, enumSeparator);
 
             // Check if the enumerated pair separator exists
-            if (pairSeparator != null)
+            if (groupSeparator != null)
             {
                 // Separate the enumeration parameters into an array
-                pairs = getArrayFromString(enumeration, enumSeparator, pairSeparator);
+                pairs = getArrayFromString(enumeration, enumSeparator, groupSeparator);
             }
         }
 

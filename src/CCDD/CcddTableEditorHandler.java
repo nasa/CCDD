@@ -6014,12 +6014,12 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
          *****************************************************************************************/
         protected void showHideFixedColumn(boolean show)
         {
-            // Show the frozen table column in the scroll pane
+            // Show the fixed table column in the scroll pane
             if (show)
             {
                 fixed.setPreferredScrollableViewportSize(fixed.getPreferredSize());
             }
-            // Hide the frozen table column
+            // Hide the fixed table column
             else
             {
                 fixed.setPreferredScrollableViewportSize(new Dimension(0, 0));

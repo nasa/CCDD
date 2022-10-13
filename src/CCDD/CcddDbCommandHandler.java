@@ -206,6 +206,7 @@ public class CcddDbCommandHandler
                     break;
             }
 
+
             // Check if auto-commit is disabled and a save point isn't established
             if (connection.getAutoCommit() == false && savePoint == null)
             {

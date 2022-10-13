@@ -313,9 +313,9 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i20" class="altColor">
 <td class="colFirst"><code>protected static java.lang.String</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddUtilities.html#getEnumerationPairSeparator-java.lang.String-java.lang.String-">getEnumerationPairSeparator</a></span>(java.lang.String&nbsp;enumeration,
-                           java.lang.String&nbsp;enumValueSeparator)</code>
-<div class="block">Determine the character that separates the enumerated pairs</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddUtilities.html#getEnumerationGroupSeparator-java.lang.String-java.lang.String-">getEnumerationGroupSeparator</a></span>(java.lang.String&nbsp;enumeration,
+                            java.lang.String&nbsp;enumValueSeparator)</code>
+<div class="block">Determine the character that separates the enumerated groups</div>
 </td>
 </tr>
 <tr id="i21" class="rowColor">
@@ -640,28 +640,28 @@ extends java.lang.Object</pre>
 <div class="block">Determine the character that separates an enumeration value from its corresponding label</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>enumeration</code> - enumeration in the format &lt;enum value&gt;&lt;enum value separator&gt;&lt;enum label&gt;[&lt;enum value separator&gt;...][&lt;enum pair separator&gt;...]</dd>
+<dd><code>enumeration</code> - enumeration in the format &lt;enum value&gt;&lt;enum value separator&gt;&lt;enum label&gt;[&lt;enum value separator&gt;...][&lt;enum group separator&gt;...]</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Character that separates an enumeration value from its corresponding label</dd>
 </dl>
 </li>
 </ul>
-<a name="getEnumerationPairSeparator-java.lang.String-java.lang.String-">
+<a name="getEnumerationGroupSeparator-java.lang.String-java.lang.String-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>getEnumerationPairSeparator</h4>
-<pre>protected static&nbsp;java.lang.String&nbsp;getEnumerationPairSeparator(java.lang.String&nbsp;enumeration,
-                                                              java.lang.String&nbsp;enumValueSeparator)</pre>
-<div class="block">Determine the character that separates the enumerated pairs</div>
+<h4>getEnumerationGroupSeparator</h4>
+<pre>protected static&nbsp;java.lang.String&nbsp;getEnumerationGroupSeparator(java.lang.String&nbsp;enumeration,
+                                                               java.lang.String&nbsp;enumValueSeparator)</pre>
+<div class="block">Determine the character that separates the enumerated groups</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>enumeration</code> - enumeration in the format &lt;enum value&gt;&lt;enum value separator&gt;&lt;enum label&gt;[&lt;enum value separator&gt;...][&lt;enum pair separator&gt;...]</dd>
+<dd><code>enumeration</code> - enumeration in the format &lt;enum value&gt;&lt;enum value separator&gt;&lt;enum label&gt;[&lt;enum value separator&gt;...][&lt;enum group separator&gt;...]</dd>
 <dd><code>enumValueSeparator</code> - Character used to separate an enumeration value from its
                            corresponding label</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>Character that separates the enumerated pairs</dd>
+<dd>Character that separates the enumerated groups; null if no separator is found</dd>
 </dl>
 </li>
 </ul>

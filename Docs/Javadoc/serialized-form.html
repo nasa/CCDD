@@ -2509,102 +2509,6 @@
 </li>
 </ul>
 </li>
-<li class="blockList"><a name="CCDD.CcddSearchVariablesDialog">
-<!--   -->
-</a>
-<h3>Class <a href="CCDD/CcddSearchVariablesDialog.html" title="class in CCDD">CCDD.CcddSearchVariablesDialog</a> extends <a href="CCDD/CcddDialogHandler.html" title="class in CCDD">CcddDialogHandler</a> implements Serializable</h3>
-<ul class="blockList">
-<li class="blockList">
-<h3>Serialized Fields</h3>
-<ul class="blockList">
-<li class="blockList">
-<h4>ccddMain</h4>
-<pre><a href="CCDD/CcddMain.html" title="class in CCDD">CcddMain</a> ccddMain</pre>
-</li>
-<li class="blockList">
-<h4>variableTree</h4>
-<pre><a href="CCDD/CcddTableTreeHandler.html" title="class in CCDD">CcddTableTreeHandler</a> variableTree</pre>
-</li>
-<li class="blockList">
-<h4>variableHandler</h4>
-<pre><a href="CCDD/CcddVariableHandler.html" title="class in CCDD">CcddVariableHandler</a> variableHandler</pre>
-</li>
-<li class="blockList">
-<h4>searchFld</h4>
-<pre><a href="CCDD/CcddClassesComponent.AutoCompleteTextField.html" title="class in CCDD">CcddClassesComponent.AutoCompleteTextField</a> searchFld</pre>
-</li>
-<li class="blockList">
-<h4>ignoreCaseCb</h4>
-<pre>javax.swing.JCheckBox ignoreCaseCb</pre>
-</li>
-<li class="blockList">
-<h4>allowRegexCb</h4>
-<pre>javax.swing.JCheckBox allowRegexCb</pre>
-</li>
-<li class="blockList">
-<h4>showAllVarCB</h4>
-<pre>javax.swing.JCheckBox showAllVarCB</pre>
-</li>
-<li class="blockList">
-<h4>searchViaTableTreeCB</h4>
-<pre>javax.swing.JCheckBox searchViaTableTreeCB</pre>
-</li>
-<li class="blockList">
-<h4>numMatchesLbl</h4>
-<pre>javax.swing.JLabel numMatchesLbl</pre>
-</li>
-<li class="blockList">
-<h4>variablesPnl</h4>
-<pre>javax.swing.JPanel variablesPnl</pre>
-</li>
-<li class="blockList">
-<h4>variablesTblPnl</h4>
-<pre>javax.swing.JPanel variablesTblPnl</pre>
-</li>
-<li class="blockList">
-<h4>upperPnl</h4>
-<pre>javax.swing.JPanel upperPnl</pre>
-</li>
-<li class="blockList">
-<h4>inputPnl</h4>
-<pre>javax.swing.JPanel inputPnl</pre>
-</li>
-<li class="blockList">
-<h4>variableTable</h4>
-<pre><a href="CCDD/CcddJTableHandler.html" title="class in CCDD">CcddJTableHandler</a> variableTable</pre>
-</li>
-<li class="blockList">
-<h4>tableTreePane</h4>
-<pre><a href="CCDD/CcddClassesComponent.CustomSplitPane.html" title="class in CCDD">CcddClassesComponent.CustomSplitPane</a> tableTreePane</pre>
-</li>
-<li class="blockList">
-<h4>tableTreeGbc</h4>
-<pre>java.awt.GridBagConstraints tableTreeGbc</pre>
-</li>
-<li class="blockList">
-<h4>numVariablesLbl</h4>
-<pre>javax.swing.JLabel numVariablesLbl</pre>
-</li>
-<li class="blockList">
-<h4>border</h4>
-<pre>javax.swing.border.Border border</pre>
-</li>
-<li class="blockList">
-<h4>tableData</h4>
-<pre>java.lang.Object[][] tableData</pre>
-</li>
-<li class="blockList">
-<h4>searchPattern</h4>
-<pre>java.util.regex.Pattern searchPattern</pre>
-</li>
-<li class="blockListLast">
-<h4>variablePaths</h4>
-<pre>java.util.List&lt;E&gt; variablePaths</pre>
-</li>
-</ul>
-</li>
-</ul>
-</li>
 <li class="blockList"><a name="CCDD.CcddServerPropertyDialog">
 <!--   -->
 </a>
@@ -3022,8 +2926,8 @@
 <pre>javax.swing.JCheckBox backupFirstCb</pre>
 </li>
 <li class="blockList">
-<h4>deleteNonExistingFilesCb</h4>
-<pre>javax.swing.JCheckBox deleteNonExistingFilesCb</pre>
+<h4>deleteNonExistingTablesCb</h4>
+<pre>javax.swing.JCheckBox deleteNonExistingTablesCb</pre>
 </li>
 <li class="blockList">
 <h4>importEntireDatabaseCb</h4>
@@ -3980,6 +3884,18 @@
 <pre><a href="CCDD/CcddTableTreeHandler.html" title="class in CCDD">CcddTableTreeHandler</a> tableTree</pre>
 </li>
 <li class="blockList">
+<h4>filterFld</h4>
+<pre><a href="CCDD/CcddClassesComponent.AutoCompleteTextField.html" title="class in CCDD">CcddClassesComponent.AutoCompleteTextField</a> filterFld</pre>
+</li>
+<li class="blockList">
+<h4>ignoreCaseCb</h4>
+<pre>javax.swing.JCheckBox ignoreCaseCb</pre>
+</li>
+<li class="blockList">
+<h4>allowRegexCb</h4>
+<pre>javax.swing.JCheckBox allowRegexCb</pre>
+</li>
+<li class="blockList">
 <h4>varPathSepFld</h4>
 <pre>javax.swing.JTextField varPathSepFld</pre>
 </li>
@@ -3995,9 +3911,13 @@
 <h4>numVariablesLbl</h4>
 <pre>javax.swing.JLabel numVariablesLbl</pre>
 </li>
-<li class="blockListLast">
+<li class="blockList">
 <h4>tableData</h4>
 <pre>java.lang.Object[][] tableData</pre>
+</li>
+<li class="blockListLast">
+<h4>filterPattern</h4>
+<pre>java.util.regex.Pattern filterPattern</pre>
 </li>
 </ul>
 </li>

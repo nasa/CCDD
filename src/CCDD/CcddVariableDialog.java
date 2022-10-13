@@ -10,14 +10,14 @@ package CCDD;
 import static CCDD.CcddConstants.CANCEL_BUTTON;
 import static CCDD.CcddConstants.CLOSE_ICON;
 import static CCDD.CcddConstants.DEFAULT_HIDE_DATA_TYPE;
-import static CCDD.CcddConstants.DEFAULT_INSTANCE_NODE_NAME;
-import static CCDD.CcddConstants.DEFAULT_PROTOTYPE_NODE_NAME;
 import static CCDD.CcddConstants.DEFAULT_TYPE_NAME_SEP;
 import static CCDD.CcddConstants.DEFAULT_VARIABLE_PATH_SEP;
 import static CCDD.CcddConstants.HIDE_DATA_TYPE;
-import static CCDD.CcddConstants.PRINT_ICON;
-import static CCDD.CcddConstants.RENAME_ICON;
+import static CCDD.CcddConstants.SAVE_ICON;
+import static CCDD.CcddConstants.SEARCH_ICON;
+import static CCDD.CcddConstants.SEARCH_STRINGS;
 import static CCDD.CcddConstants.STORE_ICON;
+import static CCDD.CcddConstants.STRING_LIST_TEXT_SEPARATOR;
 import static CCDD.CcddConstants.TABLE_ICON;
 import static CCDD.CcddConstants.TYPE_NAME_SEPARATOR;
 import static CCDD.CcddConstants.VARIABLE_PATH_SEPARATOR;
@@ -29,10 +29,13 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.print.PageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -50,11 +53,12 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.tree.TreeSelectionModel;
 
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
+import CCDD.CcddClassesComponent.AutoCompleteTextField;
 import CCDD.CcddClassesDataTable.TableOpener;
-import CCDD.CcddConstants.DefaultPrimitiveTypeInfo;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
+import CCDD.CcddConstants.ModifiableSizeInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.TableSelectionMode;
 import CCDD.CcddConstants.TableTreeType;
@@ -73,6 +77,9 @@ public class CcddVariableDialog extends CcddDialogHandler
     private CcddTableTreeHandler tableTree;
 
     // Components referenced from multiple methods
+    private AutoCompleteTextField filterFld;
+    private JCheckBox ignoreCaseCb;
+    private JCheckBox allowRegexCb;
     private JTextField varPathSepFld;
     private JTextField typeNameSepFld;
     private JCheckBox hideDataTypeCb;
@@ -80,6 +87,12 @@ public class CcddVariableDialog extends CcddDialogHandler
 
     // Variables table data
     private Object[][] tableData;
+
+    // Pattern for matching filter text in the table cells
+    private Pattern filterPattern;
+
+    // Wild card filter character explanation label
+    private static String WILD_CARD_LABEL = "? = character, * = string, \\ for literal ? or *";
 
     /**********************************************************************************************
      * Variable paths and names dialog class constructor
@@ -109,7 +122,7 @@ public class CcddVariableDialog extends CcddDialogHandler
             // Create a panel to hold the components of the dialog
             JPanel dialogPnl = new JPanel(new GridBagLayout());
             JPanel buttonPnl = new JPanel();
-            JButton btnShow;
+            JButton btnUpdate;
 
             /**************************************************************************************
              * Build the variable paths and names dialog
@@ -150,10 +163,124 @@ public class CcddVariableDialog extends CcddDialogHandler
                 upperPnl.setBorder(emptyBorder);
                 inputPnl.setBorder(emptyBorder);
 
+                // Create the filter label
+                JLabel filterLbl = new JLabel("Enter filter text");
+                filterLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+                inputPnl.add(filterLbl, gbc);
+
+                // Create the auto-completion filter field and add it to the dialog panel. The search list
+                // is initially empty as it is updated whenever a key is pressed
+                filterFld = new AutoCompleteTextField(ModifiableSizeInfo.NUM_REMEMBERED_SEARCHES.getSize());
+                filterFld.setCaseSensitive(true);
+                filterFld.setText("");
+                filterFld.setColumns(20);
+                filterFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
+                filterFld.setEditable(true);
+                filterFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+                filterFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
+                filterFld.setBorder(border);
+
+                // Add a listener for key press events
+                filterFld.addKeyListener(new KeyAdapter()
+                {
+                    /**************************************************************************************
+                     * Handle a key press event
+                     *************************************************************************************/
+                    @Override
+                    public void keyPressed(KeyEvent ke)
+                    {
+                        // Check if this is a visible character
+                        if (!ke.isActionKey()
+                            && ke.getKeyCode() != KeyEvent.VK_ENTER
+                            && !ke.isControlDown()
+                            && !ke.isAltDown()
+                            && !ke.isMetaDown()
+                            && ModifiableFontInfo.INPUT_TEXT.getFont().canDisplay(ke.getKeyCode()))
+                        {
+                            // Get the list of remembered searches from the program preferences. This is
+                            // done as a key press occurs so that the list is updated to the latest one. If
+                            // multiple find/replace dialogs are open this allows them to 'share' the list
+                            // rather than overwriting each other
+                            List<String> searches = new ArrayList<String>(ModifiableSizeInfo.NUM_REMEMBERED_SEARCHES.getSize());
+                            searches.addAll(Arrays.asList(ccddMain.getProgPrefs().get(SEARCH_STRINGS, "").split(STRING_LIST_TEXT_SEPARATOR)));
+                            filterFld.setList(searches);
+                        }
+                    }
+                });
+
+                gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
+                gbc.insets.bottom = 0;
+                gbc.gridy++;
+                inputPnl.add(filterFld, gbc);
+
+                // Add the wild card character explanation label
+                final JLabel wildCardLbl = new JLabel(WILD_CARD_LABEL);
+                wildCardLbl.setFont(ModifiableFontInfo.LABEL_ITALIC.getFont());
+                gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2;
+                gbc.insets.top = 0;
+                gbc.gridy++;
+                inputPnl.add(wildCardLbl, gbc);
+
+                // Create a check box for ignoring the text case
+                ignoreCaseCb = new JCheckBox("Ignore text case");
+                ignoreCaseCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+                ignoreCaseCb.setBorder(BorderFactory.createEmptyBorder());
+                ignoreCaseCb.setToolTipText(CcddUtilities.wrapText("Ignore case when matching the filter string",
+                                                                   ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+
+                // Add a listener for ignore case check box selection changes
+                ignoreCaseCb.addActionListener(new ActionListener()
+                {
+                    /**************************************************************************************
+                     * Handle a change in the ignore case check box state
+                     *************************************************************************************/
+                    @Override
+                    public void actionPerformed(ActionEvent ae)
+                    {
+                        // Change the case sensitivity for the remembered searches to match the case
+                        // sensitivity check box
+                        filterFld.setCaseSensitive(!ignoreCaseCb.isSelected());
+                    }
+                });
+
+                gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
+                gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
+                gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
+                gbc.gridy++;
+                inputPnl.add(ignoreCaseCb, gbc);
+
+                // Create a check box to allow a regular expression in the filter string
+                allowRegexCb = new JCheckBox("Allow regular expression");
+                allowRegexCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+                allowRegexCb.setBorder(BorderFactory.createEmptyBorder());
+                allowRegexCb.setToolTipText(CcddUtilities.wrapText("Allow the filter string to contain a regular expression",
+                                                                   ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+
+                // Add a listener for allow regular expression check box selection changes
+                allowRegexCb.addActionListener(new ActionListener()
+                {
+                    /**************************************************************************************
+                     * Handle a change in the allow regular expression check box state
+                     *************************************************************************************/
+                    @Override
+                    public void actionPerformed(ActionEvent ae)
+                    {
+                        // Hide the wild card label if the allow regular expression check box is enabled
+                        wildCardLbl.setText(allowRegexCb.isSelected() ? " " : WILD_CARD_LABEL);
+                    }
+                });
+
+                gbc.gridy++;
+                inputPnl.add(allowRegexCb, gbc);
+
                 // Create the variable path separator label and input field, and add them to the
                 // dialog panel
-                JLabel varPathSepLbl = new JLabel("<html>Enter variable path<br>&#160separator character(s)");
+                JLabel varPathSepLbl = new JLabel("<html>Enter variable path<br>&#160;separator character(s)");
                 varPathSepLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+                gbc.insets.left = 0;
+                gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() * 2;
+                gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
+                gbc.gridy++;
                 inputPnl.add(varPathSepLbl, gbc);
                 varPathSepFld = new JTextField(ccddMain.getProgPrefs().get(VARIABLE_PATH_SEPARATOR,
                                                                            DEFAULT_VARIABLE_PATH_SEP),
@@ -164,6 +291,7 @@ public class CcddVariableDialog extends CcddDialogHandler
                 varPathSepFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
                 varPathSepFld.setBorder(border);
                 gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
+                gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
                 gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
                 gbc.gridy++;
                 inputPnl.add(varPathSepFld, gbc);
@@ -190,10 +318,12 @@ public class CcddVariableDialog extends CcddDialogHandler
 
                 // Create a check box for hiding data types
                 hideDataTypeCb = new JCheckBox("Hide data types",
-                                               Boolean.parseBoolean(ccddMain.getProgPrefs().get(HIDE_DATA_TYPE, DEFAULT_HIDE_DATA_TYPE)));
+                                               Boolean.parseBoolean(ccddMain.getProgPrefs().get(HIDE_DATA_TYPE,
+                                                                                                DEFAULT_HIDE_DATA_TYPE)));
                 hideDataTypeCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 hideDataTypeCb.setBorder(emptyBorder);
                 gbc.insets.left = 0;
+                gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() * 2;
                 gbc.gridy++;
                 inputPnl.add(hideDataTypeCb, gbc);
 
@@ -210,6 +340,9 @@ public class CcddVariableDialog extends CcddDialogHandler
                         // field
                         typeNameSepLbl.setEnabled(!((JCheckBox) ae.getSource()).isSelected());
                         typeNameSepFld.setEnabled(!((JCheckBox) ae.getSource()).isSelected());
+
+                        // Update the User Format variables
+                        updateResultsAfterTableChange();
                     }
                 });
 
@@ -221,15 +354,14 @@ public class CcddVariableDialog extends CcddDialogHandler
                 upperPnl.add(inputPnl, gbc);
 
                 // Build the table tree showing both table prototypes and table instances; i.e.,
-                // parent tables with their child tables (i.e., parents with children)
+                // parent tables with their child tables (i.e., parents with children). The order
+                // of the variables is preserved in the tree
                 tableTree = new CcddTableTreeHandler(ccddMain,
-                                                     new CcddGroupHandler(ccddMain,
-                                                                          null,
-                                                                          ccddMain.getMainFrame()),
-                                                     TableTreeType.STRUCTURE_TABLES,
-                                                     DEFAULT_PROTOTYPE_NODE_NAME,
-                                                     DEFAULT_INSTANCE_NODE_NAME,
-                                                     ccddMain.getMainFrame());
+                                                        new CcddGroupHandler(ccddMain,
+                                                                             null,
+                                                                             ccddMain.getMainFrame()),
+                                                        TableTreeType.INSTANCE_STRUCTURES_WITH_PRIMITIVES,
+                                                        ccddMain.getMainFrame());
 
                 // Add the tree to the upper panel
                 gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
@@ -239,9 +371,9 @@ public class CcddVariableDialog extends CcddDialogHandler
                 gbc.weightx = 1.0;
                 gbc.weighty = 1.0;
                 gbc.gridx++;
-                upperPnl.add(tableTree.createTreePanel("Structure Tables",
+                upperPnl.add(tableTree.createTreePanel("Structures & Variables",
                                                        TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION,
-                                                       false,
+                                                       true,
                                                        ccddMain.getMainFrame()),
                              gbc);
                 gbc.gridwidth = 1;
@@ -269,7 +401,7 @@ public class CcddVariableDialog extends CcddDialogHandler
                 dialogPnl.add(variablesPnl, gbc);
 
                 // Define the variable paths & names JTable
-                variableTable = new CcddJTableHandler(DefaultPrimitiveTypeInfo.values().length)
+                variableTable = new CcddJTableHandler()
                 {
                     /******************************************************************************
                      * Allow multiple line display in all columns
@@ -280,13 +412,22 @@ public class CcddVariableDialog extends CcddDialogHandler
                         return true;
                     }
 
-                    /******************************************************************************
-                     * Allow HTML-formatted text in the specified column(s)
-                     *****************************************************************************/
+                    /**************************************************************************************
+                     * Allow HTML-formatted text in the variable path column
+                     *************************************************************************************/
                     @Override
                     protected boolean isColumnHTML(int column)
                     {
-                        return column == 0;
+                        return true;
+                    }
+
+                    /**************************************************************************************
+                     * Allow the variable path column to be displayed with the text highlighted
+                     *************************************************************************************/
+                    @Override
+                    protected boolean isColumnHighlight(int column)
+                    {
+                        return true;
                     }
 
                     /******************************************************************************
@@ -368,14 +509,14 @@ public class CcddVariableDialog extends CcddDialogHandler
                     }
                 };
 
-                // Show variables button
-                btnShow = CcddButtonPanelHandler.createButton("Show",
-                                                              RENAME_ICON,
-                                                              KeyEvent.VK_W,
-                                                              "Show the project variables");
+                // Update variables button
+                btnUpdate = CcddButtonPanelHandler.createButton("Update",
+                                                                SEARCH_ICON,
+                                                                KeyEvent.VK_U,
+                                                                "Update the list of project variables after applying any filtering");
 
-                // Add a listener for the Show button
-                btnShow.addActionListener(new ActionListener()
+                // Add a listener for the Update button
+                btnUpdate.addActionListener(new ActionListener()
                 {
                     /******************************************************************************
                      * Convert the variables and display the results
@@ -402,10 +543,27 @@ public class CcddVariableDialog extends CcddDialogHandler
                         // The separator fields are valid
                         else
                         {
+                            filterPattern = null;
+
+                            // Check if the filter field isn't empty
+                            if (!filterFld.getText().isEmpty())
+                            {
+                                // Create the match pattern from the filter criteria
+                                filterPattern = CcddSearchHandler.createSearchPattern(filterFld.getText(),
+                                                                                      ignoreCaseCb.isSelected(),
+                                                                                      allowRegexCb.isSelected(),
+                                                                                      CcddVariableDialog.this);
+                            }
+
                             // Get the variables (matching the filtering tables, if applicable) and
                             // display them in the table
                             tableData = getVariables();
                             variableTable.loadAndFormatData();
+                            variableTable.highlightSearchText(filterPattern);
+
+                            // Highlight the table tree items that match the pattern
+                            tableTree.setHighlightPattern(filterPattern);
+                            tableTree.expandedHighlighted();
                         }
                     }
                 });
@@ -429,27 +587,41 @@ public class CcddVariableDialog extends CcddDialogHandler
                     }
                 });
 
-                // Print variable paths button
-                JButton btnPrint = CcddButtonPanelHandler.createButton("Print",
-                                                                       PRINT_ICON,
-                                                                       KeyEvent.VK_P,
-                                                                       "Print the variable paths list");
+                // Save variable paths button
+                JButton btnSave = CcddButtonPanelHandler.createButton("Save",
+                                                                       SAVE_ICON,
+                                                                       KeyEvent.VK_V,
+                                                                       "Save the variable paths to a file");
 
-                // Add a listener for the Print button
-                btnPrint.addActionListener(new ActionListener()
+                // Add a listener for the Save button
+                btnSave.addActionListener(new ActionListener()
                 {
                     /******************************************************************************
-                     * Print the variables list
+                     * Save the variables to a file
                      *****************************************************************************/
                     @Override
                     public void actionPerformed(ActionEvent ae)
                     {
-                        variableTable.printTable("Project '"
-                                                 + ccddMain.getDbControlHandler().getDatabaseName()
-                                                 + "' Variables",
-                                                 null,
-                                                 CcddVariableDialog.this,
-                                                 PageFormat.LANDSCAPE);
+                        // Add the application format variables to the list
+                        List<String> variables = new ArrayList<String>();
+                        variables.add("Application variables:");
+
+                        for (Object[] row : tableData)
+                        {
+                            variables.add(CcddUtilities.removeHTMLTags((String) row[VariablePathTableColumnInfo.APP_FORMAT.ordinal()]));
+                        }
+
+                        // Add the user-defined format variables to the list
+                        variables.add("");
+                        variables.add("User-defined variables:");
+
+                        for (Object[] row : tableData)
+                        {
+                            variables.add((String) row[VariablePathTableColumnInfo.USER_FORMAT.ordinal()]);
+                        }
+
+                        // Allow the user to select the output file and output the variable list
+                        ccddMain.getFileIOHandler().writeListToFile(variables, CcddVariableDialog.this);
                     }
                 });
 
@@ -512,9 +684,9 @@ public class CcddVariableDialog extends CcddDialogHandler
 
                 // Add the buttons to the dialog's button panel
                 buttonPnl.setBorder(emptyBorder);
-                buttonPnl.add(btnShow);
+                buttonPnl.add(btnUpdate);
                 buttonPnl.add(btnOpen);
-                buttonPnl.add(btnPrint);
+                buttonPnl.add(btnSave);
                 buttonPnl.add(btnStore);
                 buttonPnl.add(btnCancel);
             }
@@ -525,14 +697,17 @@ public class CcddVariableDialog extends CcddDialogHandler
             @Override
             protected void complete()
             {
-                // Display the variable name dialog
-                showOptionsDialog(ccddMain.getMainFrame(),
-                                  dialogPnl,
-                                  buttonPnl,
-                                  btnShow,
-                                  ""
-                                  + "Variable Paths & Names",
-                                  true);
+                // Display the show variable dialog
+                createDialog(ccddMain.getMainFrame(),
+                             dialogPnl,
+                             buttonPnl,
+                             btnUpdate,
+                             "Variable Paths & Names",
+                             null,
+                             null,
+                             true,
+                             false);
+
             }
         });
     }
@@ -547,48 +722,73 @@ public class CcddVariableDialog extends CcddDialogHandler
     private Object[][] getVariables()
     {
         List<Object[]> variableList = new ArrayList<Object[]>();
+        Matcher matcher = null;
 
         // Get the list of selected tables
         List<String> filterTables = tableTree.getSelectedTablesWithChildren();
 
+        // Get the total number of variables
+        int numVariables = variableHandler.getAllVariableNames().size();
+
         // Step through each variable in the project
-        for (String variableName : variableHandler.getAllVariableNames())
+        for (int index = 0; index < numVariables; index++)
         {
-            // Check if no tables are selected for use as filters
-            if (filterTables.isEmpty())
-            {
-                // Add the variable to the list
-                variableList.add(new Object[] {CcddUtilities.highlightDataType(variableName),
-                                               variableHandler.getFullVariableName(variableName,
-                                                                                   varPathSepFld.getText(),
-                                                                                   hideDataTypeCb.isSelected(),
-                                                                                   typeNameSepFld.getText())});
-            }
-            // One or more tables are selected for use as filters
-            else
-            {
-                String variablePath = variableName;
+            // Get a reference to the variable name to shorten subsequent calls
+            String variableName = variableHandler.getAllVariableNames().get(index);
 
-                // Get the index of the last comma in the variable path, which defines the
-                // beginning of the variable (and the end of the variable's path)
-                int varIndex = variableName.lastIndexOf(",");
-
-                // Check if the variable has a path
-                if (varIndex != -1)
+            // Check if this variable is not an array definition
+            if (!((index < numVariables - 1)
+                  && variableHandler.getAllVariableNames().get(index + 1).endsWith("]")
+                  && !variableName.endsWith("]")))
+            {
+                // Check if a filter is in place
+                if (filterPattern != null)
                 {
-                    // Remove the variable from the path
-                    variablePath = variablePath.substring(0, varIndex);
+                    // Create the pattern matcher
+                    matcher = filterPattern.matcher(variableName);
                 }
 
-                // Check if the table path is in the list of filter tables
-                if (filterTables.contains(variablePath))
+                // Check if no filter is in place, or if one is that the variable name matches the
+                // filter pattern
+                if (matcher == null || matcher.find())
                 {
-                    // Add the variable to the list
-                    variableList.add(new Object[] {CcddUtilities.highlightDataType(variableName),
-                                                   variableHandler.getFullVariableName(variableName,
-                                                                                       varPathSepFld.getText(),
-                                                                                       hideDataTypeCb.isSelected(),
-                                                                                       typeNameSepFld.getText())});
+                    // Check if no tables are selected for use as filters
+                    if (filterTables.isEmpty())
+                    {
+                        // Add the variable to the list
+                        variableList.add(new Object[] {CcddUtilities.highlightDataType(variableName),
+                                                       variableHandler.getFullVariableName(variableName,
+                                                                                           varPathSepFld.getText(),
+                                                                                           hideDataTypeCb.isSelected(),
+                                                                                           typeNameSepFld.getText())});
+                    }
+                    // One or more tables are selected for use as filters
+                    else
+                    {
+                        String variablePath = variableName;
+
+                        // Get the index of the last comma in the variable path, which defines the
+                        // beginning of the variable (and the end of the variable's path)
+                        int varIndex = variableName.lastIndexOf(",");
+
+                        // Check if the variable has a path
+                        if (varIndex != -1)
+                        {
+                            // Remove the variable from the path
+                            variablePath = variablePath.substring(0, varIndex);
+                        }
+
+                        // Check if the table path is in the list of filter tables
+                        if (filterTables.contains(variablePath))
+                        {
+                            // Add the variable to the list
+                            variableList.add(new Object[] {CcddUtilities.highlightDataType(variableName),
+                                                           variableHandler.getFullVariableName(variableName,
+                                                                                               varPathSepFld.getText(),
+                                                                                               hideDataTypeCb.isSelected(),
+                                                                                               typeNameSepFld.getText())});
+                        }
+                    }
                 }
             }
         }
@@ -597,5 +797,16 @@ public class CcddVariableDialog extends CcddDialogHandler
         numVariablesLbl.setText("  (" + variableList.size() + " total)");
 
         return variableList.toArray(new Object[0][0]);
+    }
+
+    /**********************************************************************************************
+     * Update the show variables dialog. Any tables selected as filters are cleared, but the filter
+     * string is retained and the results filtered accordingly
+     *********************************************************************************************/
+    protected void updateResultsAfterTableChange()
+    {
+        tableData = getVariables();
+        variableTable.loadAndFormatData();
+        tableTree.buildTableTreeFromDatabase(ccddMain.getMainFrame());
     }
 }

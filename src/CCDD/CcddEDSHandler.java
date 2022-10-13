@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.JOptionPane;
@@ -116,6 +117,7 @@ import CCDD.CcddConstants.EndianType;
 import CCDD.CcddConstants.InputTypeFormat;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
 import CCDD.CcddConstants.ModifiableOtherSettingInfo;
+import CCDD.CcddConstants.TableTypeUpdate;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /**************************************************************************************************
@@ -318,7 +320,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                                                                  IOException,
                                                                                  Exception
     {
-        // Will not be implemented
+        // Not implemented
         return;
     }
 
@@ -351,7 +353,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                                                         IOException,
                                                                         Exception
     {
-        // Will not be implemented
+        // Not implemented
         return;
     }
 
@@ -381,7 +383,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                                                          IOException,
                                                                          Exception
     {
-        // Will not be implemented
+        // Not implemented
         return;
     }
 
@@ -613,7 +615,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
 
                 // Create a table type definition for structure tables
                 TableTypeDefinition tableTypeDefn = new TableTypeDefinition(typeName,
-                                                                            "EDS import structure table type");
+                                                                            "0EDS import structure table type");
 
                 // Step through each default structure column
                 for (Object[] columnDefn : DefaultColumn.getDefaultColumnDefinitions(TYPE_STRUCTURE, false))
@@ -627,14 +629,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                                          parent);
                 }
 
-                // Add the structure table type definition
-                tableTypeDefns.add(tableTypeDefn);
-
-                // Continue to check while a table type with this name exists. This also adds the
-                // tab for the new definition to the table type manager, if open
-                List<String> tableTypeNames = Arrays.asList(dbTable.queryTableTypesList(parent));
-
-                while (tableTypeNames.contains(tableTypeDefns.get(0).getTypeName()))
+                // Check if a table type definition already exists with this name, but differing properties
+                if (tableTypeHandler.updateTableTypes(tableTypeDefn) == TableTypeUpdate.MISMATCH)
                 {
                     // Alter the name so that there isn't a duplicate
                     typeName = "EDS Structure " + sequence;
@@ -642,6 +638,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                     sequence++;
                 }
 
+                // Add the structure table type definition
+                tableTypeDefns.add(tableTypeDefn);
                 tableTypeHandler.updateTableTypes(tableTypeDefns);
 
                 // Store the reference to the structure table type definition
@@ -683,7 +681,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                 int sequence = 2;
 
                 // Create a table type definition for command tables
-                TableTypeDefinition tableTypeDefn = new TableTypeDefinition(typeName, "EDS import command table type");
+                TableTypeDefinition tableTypeDefn = new TableTypeDefinition(typeName,
+                                                                            "0EDS import command table type");
 
                 // Step through each default command column
                 for (Object[] columnDefn : DefaultColumn.getDefaultColumnDefinitions(TYPE_COMMAND, false))
@@ -697,21 +696,18 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                                          parent);
                 }
 
-                // Add the command table type definition
-                tableTypeDefns.add(tableTypeDefn);
 
-                // Continue to check while a table type with this name exists. This also adds the
-                // tab for the new definition to the table type manager, if open
-                List<String> tableTypeNames = Arrays.asList(dbTable.queryTableTypesList(parent));
-
-                while (tableTypeNames.contains(tableTypeDefns.get(0).getTypeName()))
+                // Check if a table type definition already exists with this name, but differing properties
+                if (tableTypeHandler.updateTableTypes(tableTypeDefn) == TableTypeUpdate.MISMATCH)
                 {
                     // Alter the name so that there isn't a duplicate
                     typeName = "EDS Command " + sequence;
-                    tableTypeDefns.get(0).setTypeName(typeName);
+                    tableTypeDefn.setTypeName(typeName);
                     sequence++;
                 }
 
+                // Add the structure table type definition
+                tableTypeDefns.add(tableTypeDefn);
                 tableTypeHandler.updateTableTypes(tableTypeDefns);
 
                 // Store the reference to the command table type definition
@@ -823,9 +819,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                 // definition exists to define it (the structure table type won't exists if
                 // importing into a single command table). If the interface contains a parameter
                 // set the assumption is made that this is a structure table
-                if (intfcDecType.getParameterSet() != null
-                    && !intfcDecType.getParameterSet().getParameter().isEmpty()
-                    && structureTypeDefn != null)
+                if (intfcDecType.getParameterSet() != null && structureTypeDefn != null)
                 {
                     // Build the structure table from the telemetry data
                     importStructureTable(namespace, intfcDecType, tableName, systemPath, hasCommand);
@@ -902,306 +896,132 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
 
         typeName += TYPE;
 
-        // The name space for a structure should contain in its data type set a container with all
-        // of the variables as members. Those variables with minimum and maximum values should have
-        // a valid range set with those values. Step through the parameter type set to find the
-        // container for this structure
-        for (RootDataType parmType : namespace.getDataTypeSet().getArrayDataTypeOrBinaryDataTypeOrBooleanDataType())
+        // Check if the structure contains a data type (a structure with no variables will have no
+        // data type set)
+       if (namespace.getDataTypeSet() != null)
         {
-            // Check if this is the container for the structure's members
-            if (parmType instanceof ContainerDataType && parmType.getName().equals(typeName))
+            // The name space for a structure should contain in its data type set a container with
+            // all of the variables as members. Those variables with minimum and maximum values
+            // should have a valid range set with those values. Step through the parameter type set
+            // to find the container for this structure
+            for (RootDataType parmType : namespace.getDataTypeSet().getArrayDataTypeOrBinaryDataTypeOrBooleanDataType())
             {
-                // Check if the member list exists
-                if (((ContainerDataType) parmType).getEntryList() != null
-                    && !((ContainerDataType) parmType).getEntryList().getEntryOrFixedValueEntryOrPaddingEntry().isEmpty())
+                // Check if this is the container for the structure's members
+                if (parmType instanceof ContainerDataType && parmType.getName().equals(typeName))
                 {
-                    // Set the reference to the container's member list
-                    memberList = ((ContainerDataType) parmType).getEntryList().getEntryOrFixedValueEntryOrPaddingEntry();
-                }
+                    // Check if the member list exists
+                    if (((ContainerDataType) parmType).getEntryList() != null
+                        && !((ContainerDataType) parmType).getEntryList().getEntryOrFixedValueEntryOrPaddingEntry().isEmpty())
+                    {
+                        // Set the reference to the container's member list
+                        memberList = ((ContainerDataType) parmType).getEntryList().getEntryOrFixedValueEntryOrPaddingEntry();
+                    }
 
-                // Stop searching since the matching container was found
-                break;
+                    // Stop searching since the matching container was found
+                    break;
+                }
             }
         }
 
-        // Step through each telemetry parameter
-        for (int parmIndex = 0; parmIndex < intfcDecType.getParameterSet().getParameter().size(); parmIndex++)
+        // Check if the structure contains a parameter (a structure with no variables will have no
+        // parameter set)
+        if (intfcDecType.getParameterSet().getParameter() != null)
         {
-            // Get the reference to the parameter in the parameter set
-            InterfaceParameterType parm = intfcDecType.getParameterSet().getParameter().get(parmIndex);
-
-            // Step through the parameter type set to find the data type entry where the name
-            // matches the parameter type reference from the parameter set
-            for (RootDataType parmType : namespace.getDataTypeSet().getArrayDataTypeOrBinaryDataTypeOrBooleanDataType())
+            // Step through each telemetry parameter
+            for (int parmIndex = 0; parmIndex < intfcDecType.getParameterSet().getParameter().size(); parmIndex++)
             {
-                // Check if the parameter set's parameter type reference matches the parameter type
-                // set's name
-                if (parm.getType().equals(parmType.getName()))
+                // Get the reference to the parameter in the parameter set
+                InterfaceParameterType parm = intfcDecType.getParameterSet().getParameter().get(parmIndex);
+
+                // Step through the parameter type set to find the data type entry where the name
+                // matches the parameter type reference from the parameter set
+                for (RootDataType parmType : namespace.getDataTypeSet().getArrayDataTypeOrBinaryDataTypeOrBooleanDataType())
                 {
-                    String dataType = null;
-                    String arraySize = null;
-                    BigInteger bitLength = null;
-                    long sizeInBits = 0;
-                    String enumeration = null;
-                    String minimum = null;
-                    String maximum = null;
-                    Unit units = null;
-
-                    // Check if the parameter is an array data type
-                    if (parmType instanceof ArrayDataType)
+                    // Check if the parameter set's parameter type reference matches the parameter
+                    // type set's name
+                    if (parm.getType().equals(parmType.getName()))
                     {
-                        arraySize = "";
+                        String dataType = null;
+                        String arraySize = null;
+                        BigInteger bitLength = null;
+                        long sizeInBits = 0;
+                        String enumeration = null;
+                        String minimum = null;
+                        String maximum = null;
+                        Unit units = null;
 
-                        // Store the reference to the array parameter type
-                        ArrayDataType arrayType = (ArrayDataType) parmType;
-
-                        // Step through each dimension for the array variable
-                        for (DimensionSizeType dim : ((ArrayDataType) parmType).getDimensionList().getDimension())
+                        // Check if the parameter is an array data type
+                        if (parmType instanceof ArrayDataType)
                         {
-                            // Build the array size string
-                            arraySize += String.valueOf(dim.getSize().longValue()) + ",";
-                        }
+                            arraySize = "";
 
-                        arraySize = CcddUtilities.removeTrailer(arraySize, ",");
-                        parmType = null;
+                            // Store the reference to the array parameter type
+                            ArrayDataType arrayType = (ArrayDataType) parmType;
 
-                        // The array parameter type references a non-array parameter type that
-                        // describes the individual array members. Step through each data type in
-                        // the parameter type set in order to locate this data type entry
-                        for (RootDataType type : namespace.getDataTypeSet().getArrayDataTypeOrBinaryDataTypeOrBooleanDataType())
-                        {
-                            // Check if the array parameter's array type reference matches the data
-                            // type name
-                            if (arrayType.getDataTypeRef().equals(type.getName()))
+                            // Step through each dimension for the array variable
+                            for (DimensionSizeType dim : ((ArrayDataType) parmType).getDimensionList().getDimension())
                             {
-                                // Store the reference to the array parameter's data type and stop
-                                // searching
-                                parmType = type;
-                                break;
-                            }
-                        }
-                    }
-
-                    // Check if a data type entry for the parameter exists in the parameter type
-                    // set (note that if the parameter is an array the steps above locate the data
-                    // type entry for the individual array members)
-                    if (parmType != null)
-                    {
-                        boolean isInteger = false;
-                        boolean isUnsigned = false;
-                        boolean isFloat = false;
-                        boolean isString = false;
-
-                        // Check if the parameter is an integer data type
-                        if (parmType instanceof IntegerDataType)
-                        {
-                            // The 'sizeInBits' references are the integer size for non-bit-wise
-                            // parameters, but equal the number of bits assigned to the parameter
-                            // for a bit-wise parameter. It doens't appear that the size of the
-                            // integer used to contain the parameter is stored. The assumption is
-                            // made that the smallest integer required to store the bits is used.
-                            // However, this can alter the originally intended bit-packing (e.g., a
-                            // 3-bit and a 9-bit fit within a single 16-bit integer, but the code
-                            // below assigns the first to an 8-bit integer and the second to a
-                            // 16-bit integer)
-
-                            IntegerDataType itlm = (IntegerDataType) parmType;
-
-                            // Get the number of bits occupied by the parameter
-                            bitLength = itlm.getIntegerDataEncoding().getSizeInBits();
-
-                            // Check if units exist for this parameter
-                            if (itlm.getSemantics() != null && itlm.getSemantics().getUnit() != null)
-                            {
-                                // Get the parameter units reference
-                                units = itlm.getSemantics().getUnit();
+                                // Build the array size string
+                                arraySize += String.valueOf(dim.getSize().longValue()) + ",";
                             }
 
-                            // Check if integer encoding is set to 'unsigned'
-                            if (itlm.getIntegerDataEncoding().getEncoding() == IntegerEncodingType.UNSIGNED)
-                            {
-                                isUnsigned = true;
-                            }
+                            arraySize = CcddUtilities.removeTrailer(arraySize, ",");
+                            parmType = null;
 
-                            // Determine the smallest integer size that contains the number of bits
-                            // occupied by the parameter
-                            sizeInBits = 8;
-
-                            while (bitLength.longValue() > sizeInBits)
+                            // The array parameter type references a non-array parameter type that
+                            // describes the individual array members. Step through each data type
+                            // in the parameter type set in order to locate this data type entry
+                            for (RootDataType type : namespace.getDataTypeSet().getArrayDataTypeOrBinaryDataTypeOrBooleanDataType())
                             {
-                                sizeInBits *= 2;
-                            }
-
-                            // Check if the table's member list exists
-                            if (memberList != null)
-                            {
-                                // Step through each member in the member list
-                                for (DescriptionType entry : memberList)
+                                // Check if the array parameter's array type reference matches the
+                                // data type name
+                                if (arrayType.getDataTypeRef().equals(type.getName()))
                                 {
-                                    // Check if this is the entry for this parameter
-                                    if (((EntryType) entry).getName().equals(parm.getName() + TYPE))
-                                    {
-                                        // Get the minimum and maximum values, if present
-                                        DerivedTypeRangeType range = ((EntryType) entry).getValidRange();
-
-                                        // Check if the range information exists
-                                        if (range != null)
-                                        {
-                                            // Get the minimum and maximum information
-                                            MinMaxRangeType minMaxRange = range.getMinMaxRange();
-
-                                            // Check if the minimum value is specified
-                                            if (minMaxRange.getMin() != null)
-                                            {
-                                                // Set the minimum value
-                                                minimum = minMaxRange.getMin().toString();
-                                            }
-
-                                            // Check if the maximum value is specified
-                                            if (minMaxRange.getMax() != null)
-                                            {
-                                                // Set the maximum value
-                                                maximum = minMaxRange.getMax().toString();
-                                            }
-                                        }
-
-                                        // Stop searching since the matching parameter was located
-                                        break;
-                                    }
+                                    // Store the reference to the array parameter's data type and
+                                    // stop searching
+                                    parmType = type;
+                                    break;
                                 }
                             }
-
-                            isInteger = true;
                         }
-                        // Check if the parameter is a floating point data type
-                        else if (parmType instanceof FloatDataType)
+
+                        // Check if a data type entry for the parameter exists in the parameter
+                        // type set (note that if the parameter is an array the steps above locate
+                        // the data type entry for the individual array members)
+                        if (parmType != null)
                         {
-                            // Get the float parameter attributes
-                            FloatDataType ftlm = (FloatDataType) parmType;
+                            boolean isInteger = false;
+                            boolean isUnsigned = false;
+                            boolean isFloat = false;
+                            boolean isString = false;
 
-                            switch (ftlm.getFloatDataEncoding().getEncodingAndPrecision())
+                            // Check if the parameter is an integer data type
+                            if (parmType instanceof IntegerDataType)
                             {
-                                case IEEE_754_2008_SINGLE:
-                                    sizeInBits = 32;
-                                    break;
+                                // The 'sizeInBits' references are the integer size for non-bit
+                                // -wise parameters, but equal the number of bits assigned to the
+                                // parameter for a bit-wise parameter. It doens't appear that the
+                                // size of the integer used to contain the parameter is stored. The
+                                // assumption is made that the smallest integer required to store
+                                // the bits is used. However, this can alter the originally
+                                // intended bit-packing (e.g., a 3-bit and a 9-bit fit within a
+                                // single 16-bit integer, but the code below assigns the first to
+                                // an 8-bit integer and the second to a 16-bit integer)
 
-                                case IEEE_754_2008_DOUBLE:
-                                    sizeInBits = 64;
-                                    break;
+                                IntegerDataType itlm = (IntegerDataType) parmType;
 
-                                case IEEE_754_2008_QUAD:
-                                    sizeInBits = 128;
-                                    break;
-
-                                default:
-                                    break;
-                            }
-
-                            // Check if units exist for this parameter
-                            if (ftlm.getSemantics() != null && ftlm.getSemantics().getUnit() != null)
-                            {
-                                // Get the parameter units reference
-                                units = ftlm.getSemantics().getUnit();
-                            }
-
-                            // Check if the table's member list exists
-                            if (memberList != null)
-                            {
-                                // Step through each member in the member list
-                                for (DescriptionType entry : memberList)
-                                {
-                                    // Check if this is the entry for this parameter
-                                    if (((EntryType) entry).getName().equals(parm.getName()))
-                                    {
-                                        // Get the minimum and maximum values, if present
-                                        DerivedTypeRangeType range = ((EntryType) entry).getValidRange();
-
-                                        // Check if the range information exists
-                                        if (range != null)
-                                        {
-                                            // Get the minimum and maximum information
-                                            MinMaxRangeType minMaxRange = range.getMinMaxRange();
-
-                                            // Check if the minimum value is specified
-                                            if (minMaxRange.getMin() != null)
-                                            {
-                                                // Set the minimum value
-                                                minimum = minMaxRange.getMin().toString();
-                                            }
-
-                                            // Check if the maximum value is specified
-                                            if (minMaxRange.getMax() != null)
-                                            {
-                                                // Set the maximum value
-                                                maximum = minMaxRange.getMax().toString();
-                                            }
-                                        }
-
-                                        // Stop searching since the matching parameter was located
-                                        break;
-                                    }
-                                }
-                            }
-
-                            isFloat = true;
-                        }
-                        // Check if the parameter is a string data type
-                        else if (parmType instanceof StringDataType)
-                        {
-                            // Get the string parameter attributes
-                            StringDataType stlm = (StringDataType) parmType;
-                            sizeInBits = stlm.getLength().longValue() * 8;
-
-                            // Check if units exist for this parameter
-                            if (stlm.getSemantics() != null && stlm.getSemantics().getUnit() != null)
-                            {
-                                // Get the parameter units reference
-                                units = stlm.getSemantics().getUnit();
-                            }
-
-                            isString = true;
-                        }
-                        // Check if the parameter is an enumerated data type
-                        else if (parmType instanceof EnumeratedDataType)
-                        {
-                            // Get the enumeration parameters
-                            EnumeratedDataType etlm = (EnumeratedDataType) parmType;
-                            EnumerationListType enumList = etlm.getEnumerationList();
-
-                            // Check if any enumeration parameters are defined
-                            if (enumList != null)
-                            {
-                                // Step through each enumeration parameter
-                                for (ValueEnumerationType enumType : enumList.getEnumeration())
-                                {
-                                    // Check if this is the first parameter
-                                    if (enumeration == null)
-                                    {
-                                        // Initialize the enumeration string
-                                        enumeration = "";
-                                    }
-                                    // Not the first parameter
-                                    else
-                                    {
-                                        // Add the separator for the enumerations
-                                        enumeration += ",";
-                                    }
-
-                                    // Begin building this enumeration
-                                    enumeration += enumType.getValue() + " | " + enumType.getLabel();
-                                }
-
-                                bitLength = etlm.getIntegerDataEncoding().getSizeInBits();
+                                // Get the number of bits occupied by the parameter
+                                bitLength = itlm.getIntegerDataEncoding().getSizeInBits();
 
                                 // Check if units exist for this parameter
-                                if (etlm.getSemantics() != null && etlm.getSemantics().getUnit() != null)
+                                if (itlm.getSemantics() != null && itlm.getSemantics().getUnit() != null)
                                 {
                                     // Get the parameter units reference
-                                    units = etlm.getSemantics().getUnit();
+                                    units = itlm.getSemantics().getUnit();
                                 }
 
                                 // Check if integer encoding is set to 'unsigned'
-                                if (etlm.getIntegerDataEncoding().getEncoding() == IntegerEncodingType.UNSIGNED)
+                                if (itlm.getIntegerDataEncoding().getEncoding() == IntegerEncodingType.UNSIGNED)
                                 {
                                     isUnsigned = true;
                                 }
@@ -1215,123 +1035,311 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                     sizeInBits *= 2;
                                 }
 
+                                // Check if the table's member list exists
+                                if (memberList != null)
+                                {
+                                    // Step through each member in the member list
+                                    for (DescriptionType entry : memberList)
+                                    {
+                                        // Check if this is the entry for this parameter
+                                        if (((EntryType) entry).getName().equals(parm.getName() + TYPE))
+                                        {
+                                            // Get the minimum and maximum values, if present
+                                            DerivedTypeRangeType range = ((EntryType) entry).getValidRange();
+
+                                            // Check if the range information exists
+                                            if (range != null)
+                                            {
+                                                // Get the minimum and maximum information
+                                                MinMaxRangeType minMaxRange = range.getMinMaxRange();
+
+                                                // Check if the minimum value is specified
+                                                if (minMaxRange.getMin() != null)
+                                                {
+                                                    // Set the minimum value
+                                                    minimum = minMaxRange.getMin().toString();
+                                                }
+
+                                                // Check if the maximum value is specified
+                                                if (minMaxRange.getMax() != null)
+                                                {
+                                                    // Set the maximum value
+                                                    maximum = minMaxRange.getMax().toString();
+                                                }
+                                            }
+
+                                            // Stop searching since the matching parameter was
+                                            // located
+                                            break;
+                                        }
+                                    }
+                                }
+
                                 isInteger = true;
                             }
-                        }
-                        // Check if the parameter is a container data type, i.e., a structure
-                        // reference
-                        else if (parmType instanceof ContainerDataType)
-                        {
-                            // The container name is the prototype table name (with _Type
-                            // appended). Extract the prototype table name from the parameter type
-                            dataType = parmType.getName();
-
-                            // Check that the type name has the type indicator appended
-                            if (dataType.matches(".+" + TYPE + "[0-9]*"))
+                            // Check if the parameter is a floating point data type
+                            else if (parmType instanceof FloatDataType)
                             {
-                                // Remove the type indicator
-                                dataType = dataType.substring(0, dataType.length() - TYPE.length());
-                            }
+                                // Get the float parameter attributes
+                                FloatDataType ftlm = (FloatDataType) parmType;
 
-                            ConstraintSet constraintSet = ((ContainerDataType) parmType).getConstraintSet();
-
-                            // Check if this is the constraint set for the telemetry header table
-                            if (constraintSet != null && constraintSet.getConstraint() != null
-                                && dataType.equals(tlmHeaderTable))
-                            {
-                                // Step through each constraint
-                                for (ContainerConstraintType constraint : constraintSet.getConstraint())
+                                switch (ftlm.getFloatDataEncoding().getEncodingAndPrecision())
                                 {
-                                    ContainerValueConstraintType constraintValue = constraint.getValueConstraint();
-
-                                    // Check if the application ID is present
-                                    if (constraint.getEntry() != null && constraintValue != null
-                                        && constraintValue.getValue() != null
-                                        && constraint.getEntry().equals(applicationIDName))
-                                    {
-                                        // Create a data field for the application ID name. Once a
-                                        // match is found the search is discontinued
-                                        tableDefn.addDataField(CcddFieldHandler.getFieldDefinitionArray(tableName,
-                                                                                                        applicationIDName,
-                                                                                                        "Application Name & ID",
-                                                                                                        inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.MESSAGE_NAME_AND_ID),
-                                                                                                        Math.min(Math.max(systemPath.length(), 5), 40),
-                                                                                                        false,
-                                                                                                        ApplicabilityType.ROOT_ONLY,
-                                                                                                        constraintValue.getValue(),
-                                                                                                        false));
+                                    case IEEE_754_2008_SINGLE:
+                                        sizeInBits = 32;
                                         break;
+
+                                    case IEEE_754_2008_DOUBLE:
+                                        sizeInBits = 64;
+                                        break;
+
+                                    case IEEE_754_2008_QUAD:
+                                        sizeInBits = 128;
+                                        break;
+
+                                    default:
+                                        break;
+                                }
+
+                                // Check if units exist for this parameter
+                                if (ftlm.getSemantics() != null && ftlm.getSemantics().getUnit() != null)
+                                {
+                                    // Get the parameter units reference
+                                    units = ftlm.getSemantics().getUnit();
+                                }
+
+                                // Check if the table's member list exists
+                                if (memberList != null)
+                                {
+                                    // Step through each member in the member list
+                                    for (DescriptionType entry : memberList)
+                                    {
+                                        // Check if this is the entry for this parameter
+                                        if (((EntryType) entry).getName().equals(parm.getName()))
+                                        {
+                                            // Get the minimum and maximum values, if present
+                                            DerivedTypeRangeType range = ((EntryType) entry).getValidRange();
+
+                                            // Check if the range information exists
+                                            if (range != null)
+                                            {
+                                                // Get the minimum and maximum information
+                                                MinMaxRangeType minMaxRange = range.getMinMaxRange();
+
+                                                // Check if the minimum value is specified
+                                                if (minMaxRange.getMin() != null)
+                                                {
+                                                    // Set the minimum value
+                                                    minimum = minMaxRange.getMin().toString();
+                                                }
+
+                                                // Check if the maximum value is specified
+                                                if (minMaxRange.getMax() != null)
+                                                {
+                                                    // Set the maximum value
+                                                    maximum = minMaxRange.getMax().toString();
+                                                }
+                                            }
+
+                                            // Stop searching since the matching parameter was
+                                            // located
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                isFloat = true;
+                            }
+                            // Check if the parameter is a string data type
+                            else if (parmType instanceof StringDataType)
+                            {
+                                // Get the string parameter attributes
+                                StringDataType stlm = (StringDataType) parmType;
+                                sizeInBits = stlm.getLength().longValue() * 8;
+
+                                // Check if units exist for this parameter
+                                if (stlm.getSemantics() != null && stlm.getSemantics().getUnit() != null)
+                                {
+                                    // Get the parameter units reference
+                                    units = stlm.getSemantics().getUnit();
+                                }
+
+                                isString = true;
+                            }
+                            // Check if the parameter is an enumerated data type
+                            else if (parmType instanceof EnumeratedDataType)
+                            {
+                                // Get the enumeration parameters
+                                EnumeratedDataType etlm = (EnumeratedDataType) parmType;
+                                EnumerationListType enumList = etlm.getEnumerationList();
+
+                                // Check if any enumeration parameters are defined
+                                if (enumList != null)
+                                {
+                                    // Step through each enumeration parameter
+                                    for (ValueEnumerationType enumType : enumList.getEnumeration())
+                                    {
+                                        // Check if this is the first parameter
+                                        if (enumeration == null)
+                                        {
+                                            // Initialize the enumeration string
+                                            enumeration = "";
+                                        }
+                                        // Not the first parameter
+                                        else
+                                        {
+                                            // Add the separator for the enumerations
+                                            enumeration += ",";
+                                        }
+
+                                        // Begin building this enumeration
+                                        enumeration += enumType.getValue() + " | " + enumType.getLabel();
+                                    }
+
+                                    bitLength = etlm.getIntegerDataEncoding().getSizeInBits();
+
+                                    // Check if units exist for this parameter
+                                    if (etlm.getSemantics() != null && etlm.getSemantics().getUnit() != null)
+                                    {
+                                        // Get the parameter units reference
+                                        units = etlm.getSemantics().getUnit();
+                                    }
+
+                                    // Check if integer encoding is set to 'unsigned'
+                                    if (etlm.getIntegerDataEncoding().getEncoding() == IntegerEncodingType.UNSIGNED)
+                                    {
+                                        isUnsigned = true;
+                                    }
+
+                                    // Determine the smallest integer size that contains the number
+                                    // of bits occupied by the parameter
+                                    sizeInBits = 8;
+
+                                    while (bitLength.longValue() > sizeInBits)
+                                    {
+                                        sizeInBits *= 2;
+                                    }
+
+                                    isInteger = true;
+                                }
+                            }
+                            // Check if the parameter is a container data type, i.e., a structure
+                            // reference
+                            else if (parmType instanceof ContainerDataType)
+                            {
+                                // The container name is the prototype table name (with _Type[#]
+                                // appended). Extract the prototype table name from the parameter
+                                dataType = parmType.getName();
+                                String typeInd = TYPE + "[0-9]*";
+                                Pattern typePattern = Pattern.compile("(.+)" + typeInd);
+                                Matcher typeMatcher = typePattern.matcher(dataType);
+
+                                // Check that the type name has the type indicator appended
+                                if (typeMatcher.find())
+                                {
+                                    // Remove the type indicator
+                                    dataType = typeMatcher.group(1);
+                                }
+
+                                ConstraintSet constraintSet = ((ContainerDataType) parmType).getConstraintSet();
+
+                                // Check if this is the constraint set for the telemetry header
+                                // table
+                                if (constraintSet != null && constraintSet.getConstraint() != null
+                                    && dataType.equals(tlmHeaderTable))
+                                {
+                                    // Step through each constraint
+                                    for (ContainerConstraintType constraint : constraintSet.getConstraint())
+                                    {
+                                        ContainerValueConstraintType constraintValue = constraint.getValueConstraint();
+
+                                        // Check if the application ID is present
+                                        if (constraint.getEntry() != null && constraintValue != null
+                                            && constraintValue.getValue() != null
+                                            && constraint.getEntry().equals(applicationIDName))
+                                        {
+                                            // Create a data field for the application ID name.
+                                            // Once a match is found the search is discontinued
+                                            tableDefn.addDataField(CcddFieldHandler.getFieldDefinitionArray(tableName,
+                                                                                                            applicationIDName,
+                                                                                                            "Application Name & ID",
+                                                                                                            inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.MESSAGE_NAME_AND_ID),
+                                                                                                            Math.min(Math.max(systemPath.length(), 5), 40),
+                                                                                                            false,
+                                                                                                            ApplicabilityType.ROOT_ONLY,
+                                                                                                            constraintValue.getValue(),
+                                                                                                            false));
+                                            break;
+                                        }
                                     }
                                 }
                             }
+
+                            // Check if the data type is a primitive
+                            if (dataType == null)
+                            {
+                                // Get the name of the data type from the data type table that
+                                // matches the base type and size of the parameter
+                                dataType = getMatchingDataType(sizeInBits / 8,
+                                                               isInteger,
+                                                               isUnsigned,
+                                                               isFloat,
+                                                               isString,
+                                                               dataTypeHandler);
+                            }
+
+                            // Check if a bit length exists and it matches the data type size
+                            if (bitLength != null && bitLength.longValue() == sizeInBits)
+                            {
+                                // Remove the bit length value
+                                bitLength = null;
+                            }
+
+                            // Get the total number of array members for the command argument; set
+                            // to 0 if the argument isn't an array
+                            int numArrayMembers = arraySize != null
+                                                  && !arraySize.isEmpty() ? ArrayVariable.getNumMembersFromArraySize(arraySize)
+                                                                          : 0;
+
+                            // Add the row to the structure table. Multiple rows are added for an
+                            // array
+                            rowIndex = addVariableDefinitionToStructure(tableDefn,
+                                                                        rowIndex,
+                                                                        numArrayMembers,
+                                                                        parm.getName(),
+                                                                        dataType,
+                                                                        arraySize,
+                                                                        (bitLength == null ? null
+                                                                                           : bitLength.toString()),
+                                                                        parm.getLongDescription(),
+                                                                        (units == null ? null
+                                                                                       : units.value()),
+                                                                        enumeration,
+                                                                        minimum,
+                                                                        maximum);
                         }
 
-                        // Check if the data type is a primitive
-                        if (dataType == null)
-                        {
-                            // Get the name of the data type from the data type table that matches
-                            // the base type and size of the parameter
-                            dataType = getMatchingDataType(sizeInBits / 8,
-                                                           isInteger,
-                                                           isUnsigned,
-                                                           isFloat,
-                                                           isString,
-                                                           dataTypeHandler);
-                        }
-
-                        // Check if a bit length exists and it matches the data type size
-                        if (bitLength != null && bitLength.longValue() == sizeInBits)
-                        {
-                            // Remove the bit length value
-                            bitLength = null;
-                        }
-
-                        // Get the total number of array members for the command argument; set to 0
-                        // if the argument isn't an array
-                        int numArrayMembers = arraySize != null
-                                              && !arraySize.isEmpty() ? ArrayVariable.getNumMembersFromArraySize(arraySize)
-                                                                      : 0;
-
-                        // Add the row to the structure table. Multiple rows are added for an array
-                        rowIndex = addVariableDefinitionToStructure(tableDefn,
-                                                                    rowIndex,
-                                                                    numArrayMembers,
-                                                                    parm.getName(),
-                                                                    dataType,
-                                                                    arraySize,
-                                                                    (bitLength == null ? null
-                                                                                       : bitLength.toString()),
-                                                                    parm.getLongDescription(),
-                                                                    (units == null ? null
-                                                                                   : units.value()),
-                                                                    enumeration,
-                                                                    minimum,
-                                                                    maximum);
+                        break;
                     }
-
-                    break;
                 }
             }
         }
 
-        // Check if the structure table definition contains any variable definitions
-        if (!tableDefn.getData().isEmpty())
-        {
-            isStructureExists = true;
+        isStructureExists = true;
 
-            // Create a data field for the system path
-            tableDefn.addDataField(CcddFieldHandler.getFieldDefinitionArray(tableName,
-                                                                            "System path",
-                                                                            "System Path",
-                                                                            inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.SYSTEM_PATH),
-                                                                            Math.min(Math.max(systemPath.length(), 5), 40),
-                                                                            false,
-                                                                            ApplicabilityType.ALL, systemPath,
-                                                                            false));
+        // Create a data field for the system path
+        tableDefn.addDataField(CcddFieldHandler.getFieldDefinitionArray(tableName,
+                                                                        "System path",
+                                                                        "System Path",
+                                                                        inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.SYSTEM_PATH),
+                                                                        Math.min(Math.max(systemPath.length(), 5), 40),
+                                                                        false,
+                                                                        ApplicabilityType.ALL,
+                                                                        systemPath,
+                                                                        false));
 
-            // Add the structure table definition to the list
-            tableDefinitions.add(tableDefn);
-        }
+        // Add the structure table definition to the list
+        tableDefinitions.add(tableDefn);
     }
 
     /**********************************************************************************************
@@ -1914,7 +1922,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                                                                       inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.SYSTEM_PATH),
                                                                                       Math.min(Math.max(systemPath.length(), 5), 40),
                                                                                       false,
-                                                                                      ApplicabilityType.ALL, systemPath,
+                                                                                      ApplicabilityType.ALL,
+                                                                                      systemPath,
                                                                                       false));
 
                 // Add the command header structure table definition to the list
@@ -2350,7 +2359,8 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                                                                    DefaultInputType.SYSTEM_PATH));
 
                     // Add the name space
-                    NamespaceType namespace = addNamespace(systemPath, macroHandler.getMacroExpansion(tableName),
+                    NamespaceType namespace = addNamespace(systemPath,
+                                                           macroHandler.getMacroExpansion(tableName),
                                                            tableInfo.getDescription());
 
                     // Check if this is a structure table
@@ -2392,6 +2402,11 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                         {
                             int uniqueID = 0;
                             List<String> dataTypes = new ArrayList<String>();
+
+                            // Create a parameter set for the structure. A parameter set is
+                            // required to identify the namespace as a structure when the file is
+                            // imported Even if the structure contains no variables
+                            createParameterSet(namespace);
 
                             // Export the parameter container for this structure
                             addParameterContainer(namespace,
@@ -2617,6 +2632,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *********************************************************************************************/
     private InterfaceDeclarationType createParameterSet(NamespaceType namespace)
     {
+        namespace.setDeclaredInterfaceSet(factory.createInterfaceDeclarationSetType());
         InterfaceDeclarationType intParmType = factory.createInterfaceDeclarationType();
         intParmType.setName(TELEMETRY);
         intParmType.setParameterSet(factory.createParameterSetType());
@@ -2808,13 +2824,6 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
 
             InterfaceDeclarationType intParmType = null;
 
-            // Check if the declared interface set doesn't exist
-            if (namespace.getDeclaredInterfaceSet() == null)
-            {
-                // Create an interface set for the name space
-                namespace.setDeclaredInterfaceSet(factory.createInterfaceDeclarationSetType());
-            }
-
             // Step through the interfaces in order to locate the name space's parameter set
             for (InterfaceDeclarationType intfcDecType : namespace.getDeclaredInterfaceSet().getInterface())
             {
@@ -2825,13 +2834,6 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                     intParmType = intfcDecType;
                     break;
                 }
-            }
-
-            // Check if a parameter set exists
-            if (intParmType == null)
-            {
-                // Create the parameter set for this name space
-                intParmType = createParameterSet(namespace);
             }
 
             // Add the parameter to the parameter set
@@ -3390,7 +3392,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                     if (bitLength != null && !bitLength.isEmpty())
                     {
                         // Set the size in bits to the value supplied
-                        intEncodingType.setSizeInBits(BigInteger.valueOf(Integer.parseInt(bitLength)));
+                        intEncodingType.setSizeInBits(new BigInteger(bitLength));
                     }
                     // Not a bit-wise parameter
                     else
@@ -3433,7 +3435,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                             if (bitLength != null && !bitLength.isEmpty())
                             {
                                 // Set the size in bits to the value supplied
-                                intEncodingType.setSizeInBits(BigInteger.valueOf(Integer.parseInt(bitLength)));
+                                intEncodingType.setSizeInBits(new BigInteger(bitLength));
                             }
                             // Not a bit-wise parameter
                             else
@@ -3623,16 +3625,21 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             }
 
             // Get the character that separates the enumerated pairs
-            String enumPairSep = CcddUtilities.getEnumerationPairSeparator(enumeration, enumValSep);
+            String enumPairSep = CcddUtilities.getEnumerationGroupSeparator(enumeration, enumValSep);
+            String[] enumDefn;
 
-            // Check if the enumerated pair separator couldn't be located
+            // Check if the enumerated pair separator couldn't be located, which indicated that
+            // only a single enumerated value is defined
             if (enumPairSep == null)
             {
-                throw new CCDDException("separator character between enumerated pairs missing");
+                enumDefn = new String[] {enumeration};
             }
-
-            // Divide the enumeration string into the separate enumeration definitions
-            String[] enumDefn = enumeration.split(Pattern.quote(enumPairSep));
+            // Multiple enumerated values are defined
+            else
+            {
+                // Divide the enumeration string into the separate enumeration definitions
+                enumDefn = enumeration.split(Pattern.quote(enumPairSep));
+            }
 
             // Step through each enumeration definition
             for (int index = 0; index < enumDefn.length; index++)
@@ -3644,7 +3651,7 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                 // enumeration list
                 ValueEnumerationType valueEnum = factory.createValueEnumerationType();
                 valueEnum.setLabel(enumParts[1].trim());
-                valueEnum.setValue(BigInteger.valueOf(Integer.valueOf(enumParts[0].trim())));
+                valueEnum.setValue(new BigInteger(enumParts[0].trim()));
                 enumList.getEnumeration().add(valueEnum);
             }
         }

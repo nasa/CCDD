@@ -116,7 +116,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
     private JCheckBox openEditorCb;
     private JCheckBox ignoreErrorsCb;
     private JCheckBox backupFirstCb;
-    private JCheckBox deleteNonExistingFilesCb;
+    private JCheckBox deleteNonExistingTablesCb;
     private JCheckBox importEntireDatabaseCb;
     private JCheckBox replaceMacrosCb;
     private JCheckBox includeBuildInfoCb;
@@ -723,7 +723,12 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                 }
 
                                 // Store the export file path in the backing store
-                                CcddFileIOHandler.storePath(ccddMain, pathFld.getText(), false, ModifiablePathInfo.TABLE_EXPORT_PATH);
+                                CcddFileIOHandler.storePath(ccddMain,
+                                                            pathFld.getText(),
+                                                            (singleFileRBtn != null ? singleFileRBtn.isSelected()
+                                                                                    : (dialogType == ManagerDialogType.EXPORT_XTCE
+                                                                                      || dialogType == ManagerDialogType.EXPORT_EDS)),
+                                                            ModifiablePathInfo.TABLE_EXPORT_PATH);
 
                                 // Export the contents of the selected table(s) in the specified
                                 // format
@@ -801,7 +806,10 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                                                                                  fileExt.getExtensionName())},
                                                       false,
                                                       true,
-                                                      "Import Data",
+                                                      "Import Data in "
+                                                      + (fileExt != FileExtension.C_HEADER ? fileExt.getExtensionName().toUpperCase()
+                                                                                           : "C Header")
+                                                      + " Format",
                                                       ccddMain.getProgPrefs().get(ModifiablePathInfo.TABLE_EXPORT_PATH.getPreferenceKey(),
                                                                                   null),
                                                       DialogOption.IMPORT_OPTION,
@@ -819,18 +827,19 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                 // Export the contents of the selected table(s) in the specified
                                 // format
                                 fileIOHandler.importFileInBackground(filePath,
-                                                                     importEntireDatabaseCb.isSelected(),
-                                                                     backupFirstCb.isSelected(),
-                                                                     replaceExistingTablesCb.isSelected(),
-                                                                     appendExistingFieldsCb.isSelected(),
-                                                                     useExistingFieldsCb.isSelected(),
-                                                                     openEditorCb.isSelected(),
-                                                                     ignoreErrorsCb.isSelected(),
-                                                                     replaceExistingMacrosCb.isSelected(),
-                                                                     replaceExistingGroupsCb.isSelected(),
-                                                                     replaceExistingAssociationsCb.isSelected(),
-                                                                     deleteNonExistingFilesCb.isSelected(),
-                                                                     replaceExistingDataTypesCb.isSelected(),
+                                                                     (importEntireDatabaseCb != null ? importEntireDatabaseCb.isSelected() : false),
+                                                                     (backupFirstCb != null ? backupFirstCb.isSelected() : false),
+                                                                     (replaceExistingTablesCb != null ? replaceExistingTablesCb.isSelected() : false),
+                                                                     (appendExistingFieldsCb != null ? appendExistingFieldsCb.isSelected() : false),
+                                                                     (useExistingFieldsCb != null ? useExistingFieldsCb.isSelected() : false),
+                                                                     (openEditorCb != null ? openEditorCb.isSelected() : false),
+                                                                     (ignoreErrorsCb != null ? ignoreErrorsCb.isSelected() : false),
+                                                                     (replaceExistingMacrosCb != null ? replaceExistingMacrosCb.isSelected()
+                                                                                                      : (dialogType == ManagerDialogType.IMPORT_C_HEADER ? true : false)),
+                                                                     (replaceExistingGroupsCb != null ? replaceExistingGroupsCb.isSelected() : false),
+                                                                     (replaceExistingAssociationsCb != null ? replaceExistingAssociationsCb.isSelected() : false),
+                                                                     (deleteNonExistingTablesCb != null ? deleteNonExistingTablesCb.isSelected() : false),
+                                                                     (replaceExistingDataTypesCb != null ? replaceExistingDataTypesCb.isSelected() : false),
                                                                      fileExt,
                                                                      dialogType,
                                                                      null,
@@ -1008,24 +1017,47 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         // Create a panel to hold the dialog components
         JPanel dialogPnl = new JPanel(new GridBagLayout());
 
-        // Create a check box for indicating if an entire database is to be imported
-        importEntireDatabaseCb = new JCheckBox("Importing an entire database");
-        importEntireDatabaseCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
-        importEntireDatabaseCb.setBorder(emptyBorder);
-        importEntireDatabaseCb.setToolTipText(CcddUtilities.wrapText("Check this box if a complete database is about to be imported.",
-                                                                     ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
-        importEntireDatabaseCb.setEnabled(false);
-
-        // If the IMPORT type is not JSON than set this check box to disabled
-        if ((dialogType == ManagerDialogType.IMPORT_JSON) || (dialogType == ManagerDialogType.IMPORT_CSV))
-        {
-            importEntireDatabaseCb.setEnabled(true);
-        }
-
         gbc.weightx = 0.0;
-        gbc.insets.bottom = 0;
+        gbc.insets.top = 0;
+        gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
         gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
-        dialogPnl.add(importEntireDatabaseCb, gbc);
+
+        // Check if this a CSV or JSON import dialog
+        if ((dialogType == ManagerDialogType.IMPORT_CSV)
+            || (dialogType == ManagerDialogType.IMPORT_JSON))
+        {
+            // Create a check box for indicating if an entire database is to be imported
+            importEntireDatabaseCb = new JCheckBox("Import an entire database");
+            importEntireDatabaseCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+            importEntireDatabaseCb.setBorder(emptyBorder);
+            importEntireDatabaseCb.setToolTipText(CcddUtilities.wrapText("Import an entire database (tables, table types, etc.)",
+                                                                         ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+            importEntireDatabaseCb.setEnabled(true);
+
+            // Add a listener for changes to the i,port entire database check box selection status
+            importEntireDatabaseCb.addActionListener(new ActionListener()
+            {
+                /**********************************************************************************
+                 * Handle a change to the Replace Existing Tables check box selection status
+                 *********************************************************************************/
+                @Override
+                public void actionPerformed(ActionEvent ae)
+                {
+                    replaceExistingMacrosCb.setEnabled(!importEntireDatabaseCb.isSelected());
+                    replaceExistingMacrosCb.setSelected(importEntireDatabaseCb.isSelected());
+                    replaceExistingTablesCb.setEnabled(!importEntireDatabaseCb.isSelected());
+                    replaceExistingTablesCb.setSelected(importEntireDatabaseCb.isSelected());
+                    replaceExistingGroupsCb.setEnabled(!importEntireDatabaseCb.isSelected());
+                    replaceExistingGroupsCb.setSelected(importEntireDatabaseCb.isSelected());
+                    deleteNonExistingTablesCb.setEnabled(!importEntireDatabaseCb.isSelected());
+                    deleteNonExistingTablesCb.setSelected(importEntireDatabaseCb.isSelected());
+                    appendExistingFieldsCb.setEnabled(importEntireDatabaseCb.isSelected());
+                }
+            });
+
+            dialogPnl.add(importEntireDatabaseCb, gbc);
+            gbc.gridy++;
+        }
 
         // Create a check box for indicating existing tables can be replaced
         replaceExistingTablesCb = new JCheckBox("Replace existing tables");
@@ -1049,9 +1081,6 @@ public class CcddTableManagerDialog extends CcddDialogHandler
             }
         });
 
-        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
-        gbc.insets.top = 0;
-        gbc.gridy++;
         dialogPnl.add(replaceExistingTablesCb, gbc);
 
         // Create a check box for indicating existing data fields are retained
@@ -1077,7 +1106,6 @@ public class CcddTableManagerDialog extends CcddDialogHandler
             }
         });
 
-        gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
         gbc.insets.left += ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2;
         gbc.gridy++;
         dialogPnl.add(appendExistingFieldsCb, gbc);
@@ -1093,62 +1121,67 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         gbc.insets.left += ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 2;
         gbc.gridy++;
         dialogPnl.add(useExistingFieldsCb, gbc);
-
-        // Create a check box for indicating existing macro values can be replaced
-        replaceExistingMacrosCb = new JCheckBox("Replace existing macros");
-        replaceExistingMacrosCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
-        replaceExistingMacrosCb.setBorder(emptyBorder);
-        replaceExistingMacrosCb.setToolTipText(CcddUtilities.wrapText("If a macro that is imported shares the same name as "
-                                                                      + "an existing one, the existing one will be replaced",
-                                                                      ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
         gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
-        gbc.gridy = 0;
+
+        // Check if this a CSV or JSON import dialog
+        if ((dialogType == ManagerDialogType.IMPORT_CSV)
+            || (dialogType == ManagerDialogType.IMPORT_JSON))
+        {
+            // Create a check box for indicating existing data types can be replaced
+            replaceExistingDataTypesCb = new JCheckBox("Replace existing data types");
+            replaceExistingDataTypesCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+            replaceExistingDataTypesCb.setBorder(emptyBorder);
+            replaceExistingDataTypesCb.setToolTipText(CcddUtilities.wrapText("Replace data types that already exist which "
+                                                                             + "share the name with an imported data type",
+                                                                             ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+            gbc.gridy++;
+            dialogPnl.add(replaceExistingDataTypesCb, gbc);
+
+            // Create a check box for indicating existing macro values can be replaced
+            replaceExistingMacrosCb = new JCheckBox("Replace existing macros");
+            replaceExistingMacrosCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+            replaceExistingMacrosCb.setBorder(emptyBorder);
+            replaceExistingMacrosCb.setToolTipText(CcddUtilities.wrapText("If a macro that is imported shares the same name as "
+                                                                          + "an existing one, the existing one will be replaced",
+                                                                          ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+            replaceExistingMacrosCb.setEnabled(true);
+            gbc.gridy++;
+            dialogPnl.add(replaceExistingMacrosCb, gbc);
+
+            // Create a check box for indicating existing group definitions can be replaced
+            replaceExistingGroupsCb = new JCheckBox("Replace existing groups");
+            replaceExistingGroupsCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+            replaceExistingGroupsCb.setBorder(emptyBorder);
+            replaceExistingGroupsCb.setToolTipText(CcddUtilities.wrapText("Replace group definitions for groups that already exist",
+                                                                          ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+            replaceExistingGroupsCb.setEnabled(true);
+            gbc.gridy++;
+            dialogPnl.add(replaceExistingGroupsCb, gbc);
+
+            // Create a check box for indicating existing group definitions can be replaced
+            replaceExistingAssociationsCb = new JCheckBox("Replace existing associations");
+            replaceExistingAssociationsCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+            replaceExistingAssociationsCb.setBorder(emptyBorder);
+            replaceExistingAssociationsCb.setToolTipText(CcddUtilities.wrapText("Replace associations for groups that already exist",
+                                                                                ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+            replaceExistingAssociationsCb.setEnabled(true);
+            gbc.gridy++;
+            dialogPnl.add(replaceExistingAssociationsCb, gbc);
+        }
+
         gbc.weightx = 1.0;
         gbc.gridx++;
-        dialogPnl.add(replaceExistingMacrosCb, gbc);
-        replaceExistingMacrosCb.setEnabled(false);
-        gbc.weightx = 0.0;
+        gbc.gridy = 0;
 
-        // If the IMPORT type is not JSON than set this check box to disabled
-        if ((dialogType == ManagerDialogType.IMPORT_JSON) || (dialogType == ManagerDialogType.IMPORT_CSV)
-            || (dialogType == ManagerDialogType.IMPORT_C_HEADER))
-        {
-            replaceExistingMacrosCb.setEnabled(true);
-        }
-
-        // Create a check box for indicating existing group definitions can be replaced
-        replaceExistingGroupsCb = new JCheckBox("Replace existing groups");
-        replaceExistingGroupsCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
-        replaceExistingGroupsCb.setBorder(emptyBorder);
-        replaceExistingGroupsCb.setToolTipText(CcddUtilities.wrapText("Replace group definitions for groups that already exist",
-                                                                      ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
-        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
-        gbc.gridy++;
-        dialogPnl.add(replaceExistingGroupsCb, gbc);
-        replaceExistingGroupsCb.setEnabled(false);
-
-        // If the IMPORT type is not JSON or CSV than set this check box to disabled
-        if ((dialogType == ManagerDialogType.IMPORT_JSON) || (dialogType == ManagerDialogType.IMPORT_CSV))
-        {
-            replaceExistingGroupsCb.setEnabled(true);
-        }
-
-        // Create a check box for indicating existing group definitions can be replaced
-        replaceExistingAssociationsCb = new JCheckBox("Replace existing associations");
-        replaceExistingAssociationsCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
-        replaceExistingAssociationsCb.setBorder(emptyBorder);
-        replaceExistingAssociationsCb.setToolTipText(CcddUtilities.wrapText("Replace associations for groups that already exist",
-                                                                            ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
-        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
-        gbc.gridy++;
-        dialogPnl.add(replaceExistingAssociationsCb, gbc);
-        replaceExistingAssociationsCb.setEnabled(false);
-
-        // If the IMPORT type is not JSON or CSV than set this check box to disabled
-        if ((dialogType == ManagerDialogType.IMPORT_JSON) || (dialogType == ManagerDialogType.IMPORT_CSV))
-        {
-            replaceExistingAssociationsCb.setEnabled(true);
-        }
+        // Create a check box for indicating that the project should be backed up prior to
+        // importing tables
+        backupFirstCb = new JCheckBox("Backup project before importing");
+        backupFirstCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        backupFirstCb.setBorder(emptyBorder);
+        backupFirstCb.setToolTipText(CcddUtilities.wrapText("Back up the project database prior to importing the table files",
+                                                            ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+        backupFirstCb.setEnabled(true);
+        dialogPnl.add(backupFirstCb, gbc);
 
         // Create a check box for indicating that the a table editor should be opened for each
         // imported table
@@ -1157,6 +1190,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         openEditorCb.setBorder(emptyBorder);
         openEditorCb.setToolTipText(CcddUtilities.wrapText("Open a table editor for each imported table",
                                                            ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+        openEditorCb.setEnabled(true);
         gbc.gridy++;
         dialogPnl.add(openEditorCb, gbc);
 
@@ -1167,87 +1201,25 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         ignoreErrorsCb.setToolTipText(CcddUtilities.wrapText("Ignore all import file errors and continue importing "
                                                              + "(applies to CSV and JSON imports only",
                                                              ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+        ignoreErrorsCb.setEnabled(true);
         gbc.gridy++;
         dialogPnl.add(ignoreErrorsCb, gbc);
-        ignoreErrorsCb.setEnabled(false);
 
-        // If the IMPORT type is not JSON than set this check box to disabled
-        if ((dialogType == ManagerDialogType.IMPORT_JSON) || (dialogType == ManagerDialogType.IMPORT_CSV))
+        // Check if this a CSV or JSON import dialog
+        if ((dialogType == ManagerDialogType.IMPORT_CSV)
+            || (dialogType == ManagerDialogType.IMPORT_JSON))
         {
-            ignoreErrorsCb.setEnabled(true);
+            // Create a check box for indicating if tables that are not in the import should be
+            // deleted from the database
+            deleteNonExistingTablesCb = new JCheckBox("Delete undefined tables");
+            deleteNonExistingTablesCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+            deleteNonExistingTablesCb.setBorder(emptyBorder);
+            deleteNonExistingTablesCb.setToolTipText(CcddUtilities.wrapText("Delete a table from the database if it is not defined in the import file(s)",
+                                                                           ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
+            deleteNonExistingTablesCb.setEnabled(true);
+            gbc.gridy++;
+            dialogPnl.add(deleteNonExistingTablesCb, gbc);
         }
-
-        // Create a check box for indicating that the project should be backed up prior to
-        // importing tables
-        backupFirstCb = new JCheckBox("Backup project before importing");
-        backupFirstCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
-        backupFirstCb.setBorder(emptyBorder);
-        backupFirstCb.setToolTipText(CcddUtilities.wrapText("Back up the project database prior to importing the table files",
-                                                            ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
-        gbc.insets.bottom = 0;
-        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
-        gbc.gridy++;
-        gbc.gridx = 0;
-        dialogPnl.add(backupFirstCb, gbc);
-
-        // Create a check box for indicating if files that are not in the import should be deleted
-        // from the database
-        deleteNonExistingFilesCb = new JCheckBox("Delete absent files");
-        deleteNonExistingFilesCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
-        deleteNonExistingFilesCb.setBorder(emptyBorder);
-        deleteNonExistingFilesCb.setToolTipText(CcddUtilities.wrapText("If a file is not in the import it "
-                                                                       + "will be deleted from the database "
-                                                                       + "(applies to JSON and CSV imports)",
-                                                                       ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
-        deleteNonExistingFilesCb.setEnabled(false);
-
-        // If the IMPORT type is not JSON than set this check box to disabled
-        if ((dialogType == ManagerDialogType.IMPORT_JSON) || (dialogType == ManagerDialogType.IMPORT_CSV))
-        {
-            deleteNonExistingFilesCb.setEnabled(true);
-        }
-
-        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
-        gbc.weightx = 1.0;
-        gbc.gridx++;
-        dialogPnl.add(deleteNonExistingFilesCb, gbc);
-
-        // Add a listener for changes to the i,port entire database check box selection status
-        importEntireDatabaseCb.addActionListener(new ActionListener()
-        {
-            /**************************************************************************************
-             * Handle a change to the Replace Existing Tables check box selection status
-             *************************************************************************************/
-            @Override
-            public void actionPerformed(ActionEvent ae)
-            {
-                replaceExistingMacrosCb.setEnabled(!importEntireDatabaseCb.isSelected());
-                replaceExistingMacrosCb.setSelected(importEntireDatabaseCb.isSelected());
-
-                replaceExistingTablesCb.setEnabled(!importEntireDatabaseCb.isSelected());
-                replaceExistingTablesCb.setSelected(importEntireDatabaseCb.isSelected());
-
-                replaceExistingGroupsCb.setEnabled(!importEntireDatabaseCb.isSelected());
-                replaceExistingGroupsCb.setSelected(importEntireDatabaseCb.isSelected());
-
-                deleteNonExistingFilesCb.setEnabled(!importEntireDatabaseCb.isSelected());
-                deleteNonExistingFilesCb.setSelected(importEntireDatabaseCb.isSelected());
-
-                appendExistingFieldsCb.setEnabled(importEntireDatabaseCb.isSelected());
-            }
-        });
-
-        // Create a check box for indicating existing data types can be replaced
-        replaceExistingDataTypesCb = new JCheckBox("Replace existing data types");
-        replaceExistingDataTypesCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
-        replaceExistingDataTypesCb.setBorder(emptyBorder);
-        replaceExistingDataTypesCb.setToolTipText(CcddUtilities.wrapText("Replace data types that already exist which "
-                                                                         + "share the name with an imported data type",
-                                                                         ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
-        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
-        gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
-        gbc.gridy++;
-        dialogPnl.add(replaceExistingDataTypesCb, gbc);
 
         return dialogPnl;
     }

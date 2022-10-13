@@ -353,7 +353,7 @@ public class CcddCommandHandler
             // Add the command information to the command references input type and refresh any
             // open editors
             ccddMain.getInputTypeHandler().updateCommandReferences();
-            ccddMain.getDbTableCommandHandler().updateInputTypeColumns(null, ccddMain.getMainFrame());
+            dbTable.updateInputTypeColumns(null, ccddMain.getMainFrame());
         }
     }
 }

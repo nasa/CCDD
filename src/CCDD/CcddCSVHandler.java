@@ -974,7 +974,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                     }
                     else
                     {
-                        // The number of inputs is incorrect Check if the error should be ignored
+                        // The number of inputs is incorrect. Check if the error should be ignored
                         // or the import canceled
                         ignoreErrors = getErrorResponse(ignoreErrors,
                                                         "<html><b>Missing or extra data type definition "
@@ -1533,6 +1533,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                         readingNameType = false;
                         readingColumnData = true;
                         readingDataField = false;
+                        columnsCounted = false;
                         line = br.readLine();
                     }
                     else if (line.replace(Chars.COMMA.getValue(), Chars.EMPTY_STRING.getValue())

@@ -2747,23 +2747,55 @@ public abstract class CcddJTableHandler extends JTable
      *********************************************************************************************/
     protected void scrollToRow(final int row)
     {
-        scrollToCell(row, 0);
+        scrollToCell(row, 0, false);
+    }
+
+    /**********************************************************************************************
+     * Scroll the table so that the current position within the viewport doesn't change
+     *********************************************************************************************/
+    protected void scrollToCurrent()
+    {
+        // Prevent the table from scrolling by forcing it to scroll to its current position
+        int topRow = rowAtPoint(scrollPane.getViewport().getViewPosition());
+        scrollToCell(topRow, getSelectedColumn() + getSelectedColumnCount() - 1, true);
     }
 
     /**********************************************************************************************
      * Scroll the table so that the specified cell is visible
      *
-     * @param row    Row index to which to scroll, view coordinates
+     * @param row          Row index to which to scroll, view coordinates
      *
-     * @param column Column index to which to scroll, view coordinates
+     * @param column       Column index to which to scroll, view coordinates
+     *
+     * @param retainOffset Affects scrolling if a portion of the target row is outside the viewport
+     *                     boundaries. If set to true scrolling doesn't take place (the row remains
+     *                     partially visible); if set to false the viewport is scrolled to make as
+     *                     much of the row visible as possible
      *********************************************************************************************/
-    protected void scrollToCell(final int row, final int column)
+    protected void scrollToCell(final int row, final int column, boolean retainOffset)
     {
+        // Get the rectangle for the cell indicated by the row and column
+        Rectangle rectBefore = getCellRect(row, column, true);
+
+        int pixelOffset = 0;
+
+        // Check if the row should remain partially outside the viewport
+        if (retainOffset)
+        {
+            // Calculate the y-offset if only a portion of the cell is visible
+            pixelOffset = scrollPane.getViewport().getViewRect().y - rectBefore.y;
+        }
+
+        final int offset = pixelOffset;
+
+        // Apply the offset so that the cell isn't shifted up or down when scrolling below
+        rectBefore.y += offset;
+
         // Scroll the window to keep the specified cell visible. This is called twice; immediately
         // and then in the invokeLater() call below. If only performed once the specified cell may
         // not be visible since the rectangle returned by getCellRect() can differ; the second call
         // ensures the cell is visible
-        scrollRectToVisible(getCellRect(row, column, true));
+        scrollRectToVisible(rectBefore);
 
         // Create a runnable object to be executed
         SwingUtilities.invokeLater(new Runnable()
@@ -2774,8 +2806,13 @@ public abstract class CcddJTableHandler extends JTable
             @Override
             public void run()
             {
+                // Get the rectangle for the cell indicated by the row and column and apply the
+                // offset
+                Rectangle rectAfter = getCellRect(row, column, true);
+                rectAfter.y += offset;
+
                 // Scroll the window to keep the specified cell visible
-                scrollRectToVisible(getCellRect(row, column, true));
+                scrollRectToVisible(rectAfter);
             }
         });
     }
@@ -3409,7 +3446,7 @@ public abstract class CcddJTableHandler extends JTable
     }
 
     /**********************************************************************************************
-     * Move the rows in the specified direction and update the cell selection
+     * Move the row(s) in the specified direction and update the cell selection
      *
      * @param startRow Selected starting row, in model coordinates
      *
@@ -3430,6 +3467,10 @@ public abstract class CcddJTableHandler extends JTable
         // Flag the end of the editing sequence for undo/redo purposes
         undoManager.endEditSequence();
 
+        // Scroll to the current position (i.e., no change in scroll position). This helps to keep
+        // the viewport from scrolling unnecessarily
+        scrollToCurrent();
+
         // Move the selected row(s) up or down one row
         tableModel.moveRow(startRow, endRow, toRow);
 
@@ -3437,7 +3478,9 @@ public abstract class CcddJTableHandler extends JTable
         selected.moveCellSelection(rowDelta, 0);
 
         // Scroll the window to keep the moved row(s) visible
-        scrollToRow(convertRowIndexToView(startRow + rowDelta));
+        scrollToCell(convertRowIndexToView(startRow + rowDelta),
+                     getSelectedColumn() + getSelectedColumnCount() - 1,
+                     false);
 
         // Flag the end of the editing sequence for undo/redo purposes
         undoManager.endEditSequence();
@@ -3506,6 +3549,9 @@ public abstract class CcddJTableHandler extends JTable
                 nextRow = removeRow(tableData, convertRowIndexToModel(rows[row]));
             }
         }
+
+        // Keep the table's current scroll position from changing if possible
+        scrollToCurrent();
 
         // Load the array of data, with the selected row(s) removed, into the table
         loadDataArrayIntoTable(tableData.toArray(new Object[0][0]), true);
@@ -4048,7 +4094,7 @@ public abstract class CcddJTableHandler extends JTable
                 // Editing has completed on this cell
                 else if (wasEditing)
                 {
-                    // Reset the flag that indicates editing completed
+                   // Reset the flag that indicates editing completed
                     wasEditing = false;
 
                     // Get the cell value from the table
@@ -4139,7 +4185,10 @@ public abstract class CcddJTableHandler extends JTable
                             // the altered value
                             tableModel.setValueAt(oldValue, editRow, editColumn, false);
                         }
-                    }
+
+                        // Keep the table's current scroll position from changing if possible
+                        scrollToCurrent();
+                   }
                 }
             }
         }

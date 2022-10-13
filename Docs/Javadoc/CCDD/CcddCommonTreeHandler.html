@@ -17,7 +17,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":9,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":9,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -365,31 +365,37 @@ extends javax.swing.JTree</pre>
 </td>
 </tr>
 <tr id="i6" class="altColor">
+<td class="colFirst"><code>protected void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommonTreeHandler.html#expandedHighlighted--">expandedHighlighted</a></span>()</code>
+<div class="block">Expand only those nodes that match the search pattern or are selected</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommonTreeHandler.html#expandTreePath-javax.swing.tree.TreePath-">expandTreePath</a></span>(javax.swing.tree.TreePath&nbsp;path)</code>
 <div class="block">Expand the specified tree path and all of its child paths.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>protected <a href="../CCDD/CcddClassesDataTable.BitPackNodeIndex.html" title="class in CCDD">CcddClassesDataTable.BitPackNodeIndex</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommonTreeHandler.html#getBitPackedVariables-CCDD.CcddClassesComponent.ToolTipTreeNode-">getBitPackedVariables</a></span>(<a href="../CCDD/CcddClassesComponent.ToolTipTreeNode.html" title="class in CCDD">CcddClassesComponent.ToolTipTreeNode</a>&nbsp;node)</code>
 <div class="block">Determine the node indices in the table tree that encompass a group of bit-packed variables</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>protected java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommonTreeHandler.html#getExpansionState--">getExpansionState</a></span>()</code>
 <div class="block">Store the current tree expansion state</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>protected java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommonTreeHandler.html#getFullVariablePath-java.lang.Object:A-">getFullVariablePath</a></span>(java.lang.Object[]&nbsp;path)</code>
 <div class="block">Convert the path array into a single string showing the full variable path in the format
  rootTable[,dataType1.variable1[,dataType2.variable2[,...]]].</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>protected java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommonTreeHandler.html#getFullVariablePath-java.lang.Object:A-int-">getFullVariablePath</a></span>(java.lang.Object[]&nbsp;path,
                    int&nbsp;levelAdjust)</code>
@@ -397,81 +403,81 @@ extends javax.swing.JTree</pre>
  rootTable[,dataType1.variable1[,dataType2.variable2[,...]]].</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>protected int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommonTreeHandler.html#getHeaderNodeLevel--">getHeaderNodeLevel</a></span>()</code>
 <div class="block">Get the first applicable node index.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>protected int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommonTreeHandler.html#getNodeCount-javax.swing.tree.DefaultMutableTreeNode-">getNodeCount</a></span>(javax.swing.tree.DefaultMutableTreeNode&nbsp;node)</code>
 <div class="block">Get the total number of nodes that descend from the specified node</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>protected static javax.swing.tree.TreePath</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommonTreeHandler.html#getPathFromNode-javax.swing.tree.TreeNode-">getPathFromNode</a></span>(javax.swing.tree.TreeNode&nbsp;node)</code>
 <div class="block">Get the tree path for the specified tree node</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>protected <a href="../CCDD/CcddClassesDataTable.BitPackNodeIndex.html" title="class in CCDD">CcddClassesDataTable.BitPackNodeIndex</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommonTreeHandler.html#getStringVariableMembers-CCDD.CcddClassesComponent.ToolTipTreeNode-">getStringVariableMembers</a></span>(<a href="../CCDD/CcddClassesComponent.ToolTipTreeNode.html" title="class in CCDD">CcddClassesComponent.ToolTipTreeNode</a>&nbsp;node)</code>
 <div class="block">Determine the node indices in the table tree that encompass the array members that represent
  the individual bytes of a string variable</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>(package private) boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommonTreeHandler.html#isLeaf-javax.swing.tree.TreeNode-">isLeaf</a></span>(javax.swing.tree.TreeNode&nbsp;node)</code>
 <div class="block">Determine if the TreeNode is a leaf (has no children)</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommonTreeHandler.html#refreshTree--">refreshTree</a></span>()</code>
 <div class="block">Force the root node to redraw , preserving the tree expansion state</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommonTreeHandler.html#removeAllNodes--">removeAllNodes</a></span>()</code>
 <div class="block">Remove all nodes from the tree</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>protected java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommonTreeHandler.html#removeExtraText-java.lang.String-">removeExtraText</a></span>(java.lang.String&nbsp;text)</code>
 <div class="block">Remove HTML tag(s).</div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommonTreeHandler.html#setEnableDataType-boolean-">setEnableDataType</a></span>(boolean&nbsp;enable)</code>
 <div class="block">Set the flag indicating if the data type portion of a node name (in the format
  dataType.variableName) should be hidden or displayed</div>
 </td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommonTreeHandler.html#setExpansionState-java.lang.String-">setExpansionState</a></span>(java.lang.String&nbsp;expState)</code>
 <div class="block">Restore the tree expansion state</div>
 </td>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommonTreeHandler.html#setHighlightPattern-java.util.regex.Pattern-">setHighlightPattern</a></span>(java.util.regex.Pattern&nbsp;searchPattern)</code>
 <div class="block">Set the pattern used for text matching in the node names</div>
 </td>
 </tr>
-<tr id="i22" class="altColor">
+<tr id="i23" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommonTreeHandler.html#setTreeExpansion-boolean-">setTreeExpansion</a></span>(boolean&nbsp;expandTree)</code>
 <div class="block">Expand or collapse all of the nodes in the tree</div>
 </td>
 </tr>
-<tr id="i23" class="rowColor">
+<tr id="i24" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommonTreeHandler.html#setVariableNodeIcon-javax.swing.tree.DefaultTreeCellRenderer-CCDD.CcddClassesComponent.ToolTipTreeNode-int-boolean-">setVariableNodeIcon</a></span>(javax.swing.tree.DefaultTreeCellRenderer&nbsp;renderer,
                    <a href="../CCDD/CcddClassesComponent.ToolTipTreeNode.html" title="class in CCDD">CcddClassesComponent.ToolTipTreeNode</a>&nbsp;node,
@@ -480,7 +486,7 @@ extends javax.swing.JTree</pre>
 <div class="block">Set the tree icon for nodes representing a variable.</div>
 </td>
 </tr>
-<tr id="i24" class="altColor">
+<tr id="i25" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddCommonTreeHandler.html#updateTableSelection--">updateTableSelection</a></span>()</code>
 <div class="block">Placeholder for method to respond to changes in selection of a table in the table tree</div>
@@ -854,6 +860,16 @@ extends javax.swing.JTree</pre>
 <h4>refreshTree</h4>
 <pre>protected&nbsp;void&nbsp;refreshTree()</pre>
 <div class="block">Force the root node to redraw , preserving the tree expansion state</div>
+</li>
+</ul>
+<a name="expandedHighlighted--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>expandedHighlighted</h4>
+<pre>protected&nbsp;void&nbsp;expandedHighlighted()</pre>
+<div class="block">Expand only those nodes that match the search pattern or are selected</div>
 </li>
 </ul>
 <a name="setExpansionState-java.lang.String-">

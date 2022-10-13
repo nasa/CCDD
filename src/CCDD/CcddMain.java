@@ -149,6 +149,7 @@ public class CcddMain
     private CcddFieldHandler fieldHandler;
     private CcddMessageIDHandler messageIDHandler;
     private CcddWebServer webServer;
+    private CcddVariableDialog showVariablesDialog;
 
     // References to the various search dialogs
     private CcddSearchDialog searchLogDlg;
@@ -216,7 +217,6 @@ public class CcddMain
     private JMenuItem mntmShowVariables;
     private JMenuItem mntmShowCommands;
     private JMenuItem mntmSearchTable;
-    private JMenuItem mntmSearchVariables;
     private JMenuItem[] mntmRecentTables;
     private JMenuItem mntmManageLinks;
     private JMenuItem mntmManageTlm;
@@ -901,6 +901,9 @@ public class CcddMain
         // Read the reserved message IDs from the project database
         rsvMsgIDHandler = new CcddReservedMsgIDHandler(CcddMain.this);
 
+        // Create a command handler for the project database
+        commandHandler = new CcddCommandHandler(CcddMain.this);
+
         // Now that the handlers exist, store its reference in the other persistent classes that
         // use them
         CcddClassesDataTable.setHandlers(CcddMain.this);
@@ -934,9 +937,6 @@ public class CcddMain
         // reference before calling the path and offset list build method)
         variableHandler.buildPathAndOffsetLists();
 
-        // Create a command handler for the project database
-        commandHandler = new CcddCommandHandler(CcddMain.this);
-
         // Build the command information list
         commandHandler.buildCommandList();
 
@@ -950,6 +950,7 @@ public class CcddMain
         // message ID class must be fully instantiated before calling the name and ID list build
         // method)
         inputTypeHandler.updateMessageReferences(getMainFrame());
+
         // Check if the web server is enabled
         if (isWebServer())
         {
@@ -1137,6 +1138,19 @@ public class CcddMain
     }
 
     /**********************************************************************************************
+     * Update the show variables dialog following a data table or group change
+     *********************************************************************************************/
+    protected void updateShowVariablesDialog()
+    {
+        // Check if the show variables dialog is open
+        if (showVariablesDialog != null && showVariablesDialog.isShowing())
+        {
+            // Update the filter results table
+            showVariablesDialog.updateResultsAfterTableChange();
+        }
+    }
+
+    /**********************************************************************************************
      * Activate/deactivate the main menu by setting the component enable flags appropriately. While
      * disabled these components are grayed out and do not respond to inputs
      *
@@ -1209,7 +1223,6 @@ public class CcddMain
         mntmShowVariables.setEnabled(activateIfDatabase);
         mntmShowCommands.setEnabled(activateIfDatabase);
         mntmSearchTable.setEnabled(activateIfDatabase);
-        mntmSearchVariables.setEnabled(activateIfDatabase);
         mntmManageLinks.setEnabled(activateIfRate);
         mntmManageTlm.setEnabled(activateIfRate);
         mntmManageApps.setEnabled(activateIfDatabase);
@@ -1980,8 +1993,6 @@ public class CcddMain
         mnData.addSeparator();
         mntmSearchTable = createMenuItem(mnData, "Search tables", KeyEvent.VK_S, 1,
                                          "Search the project database data and internal tables");
-        mntmSearchVariables = createMenuItem(mnData, "Search variables", KeyEvent.VK_B, 1,
-                                             "Search the project variables");
 
         // Update the recently opened tables command menu items in the main window and table editor
         // dialogs
@@ -2822,7 +2833,7 @@ public class CcddMain
             @Override
             public void actionPerformed(ActionEvent ae)
             {
-                new CcddVariableDialog(CcddMain.this);
+                showVariablesDialog = new CcddVariableDialog(CcddMain.this);
             }
         });
 
@@ -2849,19 +2860,6 @@ public class CcddMain
             public void actionPerformed(ActionEvent ae)
             {
                 showSearchDialog(SearchDialogType.TABLES, getMainFrame());
-            }
-        });
-
-        // Add a listener for the Search variables menu item
-        mntmSearchVariables.addActionListener(new ActionListener()
-        {
-            /**************************************************************************************
-             * Display the search variables dialog
-             *************************************************************************************/
-            @Override
-            public void actionPerformed(ActionEvent ae)
-            {
-                new CcddSearchVariablesDialog(CcddMain.this);
             }
         });
 

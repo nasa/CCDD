@@ -7,9 +7,11 @@ The CCDD application uses tables, similar to a spreadsheet, to display and allow
 
 See the CCDD installation guide for details on set up.  See the developer's and user's guides for details on use.  A tutorial is also provided.
 
-_Note: The master branch contains_ **CCDD version 1**_, which is superseded by_ **CCDD version 2** _located in branch CCDD-2_
+_Note: The master branch contains_ **CCDD version 1**_, which is superseded by_ **CCDD version 2** _located in branch CCDD-2;_ **CCDD version 1** _is no longer being updated_
 
 ## CCDD version 1 (master branch)
+
+_Note:_ **CCDD version 1** _is no longer being updated; use _ **CCDD version 2**
 
 *** CCDD Version 1.5.37 ***
 
@@ -17,15 +19,28 @@ _Note: The master branch contains_ **CCDD version 1**_, which is superseded by_ 
 
 ## CCDD version 2 (CCDD-2 branch)
 
-*** Version 2.0.34 is now released (see below for details) ***
+*** Version 2.0.35 is now released (see below for details) ***
 
-*** CCDD version 2 works with JAVA 7-13 ***
+*** CCDD version 2 works with Java 7-13 ***
 
 *** CCDD version 2 has changed the way that the json import/export works. You can now import and export entire databases. Check CCDDv2 users guide for more details ***
 
 Version 2 redefines the behavior of command tables.  Command arguments are no longer defined as columns within a command table.  Instead, the command table has a column that is a reference to a structure table; this structure defines the command argument(s).  The version 2 user's guide is updated to provide further details.
 
 When version 2 attempts to open a version 1.x.x version project database then a dialog appears asking to convert the project.  Unlike previous patches, this patch alters user-defined tables and table definitions, and creates new ones.  The argument columns in any command tables are replaced with the argument structure reference column, and the argument structure is created and populated using the original argument information.  Many of the command table script data access methods no longer exist, so existing scripts may need to be updated. Before this patch is applied to the version 1.x.x database a backup will be performed to ensure no data loss on the chance that something does not work as anticipated. 
+
+*** Version 2.0.35 has been released ***
+
+Below is a brief description of what has changed in version 2.0.35
+* The Import dialog is separated into five separate dialogs based on import file type (CSV, EDS, JSON, XTEC, and C Header). Check boxes that don't apply to the import type are removed from that type's dialog
+* Corrected unintentional table scrolling when cell editing is completed, or when (re)moving one or more rows
+* Combined the Show Variables and Search Variables dialogs
+* EDS and XTCE import/export functionality is restored. Note that the limitations of the EDS and XTCE formats still exist, so only basic table data can be exported/imported
+* Changed internal table storage to use the 'TRUNCATE' rather than the 'DROP TABLE' command. The 'DROP' creates a lock in the database that remains until the changes are committed; for a large number of table updates these locks can use up all of the shared memory and cause a SQL command failure
+* During the table modification process the data fields are checked to see if any have changed; the internal fields table is only rewritten if a change occurred
+* The method that extracts an enumeration group separator now works for enumerations with more than one enumeration value (example: 0|First group first value|First group second value,1|Second group first value|Second group second value)
+* Corrected export path storage bug that erroneously stored the file name with the path
+* The User's Guide is updated to reflect the latest changes
 
 *** Version 2.0.34 has been released ***
 

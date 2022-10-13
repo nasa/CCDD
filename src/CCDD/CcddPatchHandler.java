@@ -106,6 +106,7 @@ public class CcddPatchHandler
     CcddPatchHandler(CcddMain ccddMain)
     {
         this.ccddMain = ccddMain;
+
         // Add each of the patches here
         patchSet.clear();
         String patch_06012019_dialogMsg = "<html><b>Apply patch to update the command "

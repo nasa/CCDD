@@ -66,7 +66,6 @@ import javax.swing.tree.TreeSelectionModel;
 import CCDD.CcddClassesComponent.AutoCompleteTextField;
 import CCDD.CcddClassesComponent.CustomSplitPane;
 import CCDD.CcddClassesDataTable.TableOpener;
-import CCDD.CcddConstants.DefaultPrimitiveTypeInfo;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.ModifiableColorInfo;
 import CCDD.CcddConstants.ModifiableFontInfo;
@@ -86,6 +85,7 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler
     private final CcddMain ccddMain;
     private CcddTableTreeHandler variableTree;
     private final CcddVariableHandler variableHandler;
+
     // Components referenced from multiple methods
     private AutoCompleteTextField searchFld;
     private JCheckBox ignoreCaseCb;
@@ -98,8 +98,8 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler
     private JPanel upperPnl;
     private JPanel inputPnl;
     private CcddJTableHandler variableTable;
-    CustomSplitPane tableTreePane;
-    GridBagConstraints tableTreeGbc;
+    private CustomSplitPane tableTreePane;
+    private GridBagConstraints tableTreeGbc;
     private JLabel numVariablesLbl;
     private Border border;
 
@@ -796,7 +796,7 @@ public class CcddSearchVariablesDialog extends CcddDialogHandler
         inputPnl.add(variablesPnl, gbc);
 
         // Define the variable paths & names JTable
-        variableTable = new CcddJTableHandler(DefaultPrimitiveTypeInfo.values().length)
+        variableTable = new CcddJTableHandler()
         {
             /**************************************************************************************
              * Allow multiple line display in all columns

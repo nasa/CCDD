@@ -1115,7 +1115,7 @@ public class CcddVariableHandler
         ConversionListStorage conversionList = new ConversionListStorage(varPathSeparator,
                                                                          excludeDataTypes,
                                                                          typeNameSeparator,
-convertedVariableName);
+                                                                         convertedVariableName);
 
         // Check if the number of stored conversion lists has reached the maximum allowed
         if (conversionLists.size() == ModifiableSizeInfo.MAX_STORED_CONVERSIONS.getSize()

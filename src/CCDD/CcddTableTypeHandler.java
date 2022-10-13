@@ -1576,7 +1576,7 @@ public class CcddTableTypeHandler
      * @throws CCDDException If an imported data field name will cause an existing table's field to
      *                       be renamed and the user elects to cancel the update
      *********************************************************************************************/
-    private TableTypeUpdate updateTableTypes(TableTypeDefinition tableTypeDefn) throws CCDDException
+    protected TableTypeUpdate updateTableTypes(TableTypeDefinition tableTypeDefn) throws CCDDException
     {
         TableTypeUpdate typeUpdate = TableTypeUpdate.MATCH;
 
@@ -1607,8 +1607,8 @@ public class CcddTableTypeHandler
         }
         else
         {
-            // A table type with this name already exists Get a list of all of the table type names
-            // and descriptions
+            // A table type with this name already exists. Get a list of all of the table type
+            // names and descriptions
             String[][] tableTypeNamesAndDescriptions = dbTable.queryTableTypeNamesAndDescriptions(ccddMain.getMainFrame());
 
             // Check if the description differs

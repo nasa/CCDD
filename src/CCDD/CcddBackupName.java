@@ -41,34 +41,30 @@ public final class CcddBackupName
      * there are spaces entered into the filename
      *
      * @param selectedPaths        Array containing file paths
+     *
      * @param chosenBackupFileName User selected backup file name
+     *
      * @return A reconstructed path with the expected backup filename at the expected location or
      *         null on error
      **********************************************************************************************/
     public static final FileEnvVar reconstructBackupFilePath(FileEnvVar[] selectedPaths,
                                                              String chosenBackupFileName)
     {
-        if (selectedPaths == null)
-            return null;
+        FileEnvVar chosenBackupPath = null;
 
-        if (selectedPaths[0] == null)
-            return null;
+        if (!(selectedPaths == null
+              || selectedPaths[0] == null
+              || selectedPaths[0].getAbsolutePath().length() <= 0
+              || chosenBackupFileName == null
+              || chosenBackupFileName.isEmpty()))
+        {
+            // Get the chosen file name and remove all whitespace chars
+            String selectedFileName = chosenBackupFileName.replaceAll("\"", "");
 
-        if (selectedPaths[0].getAbsolutePath().length() <= 0)
-            return null;
-
-        if (chosenBackupFileName == null)
-            return null;
-
-        if (chosenBackupFileName.isEmpty())
-            return null;
-
-        // Get the chosen file name and remove all whitespace chars
-        String selectedFileName = chosenBackupFileName.replaceAll("\"", "");
-
-        // Reconstruct the resultant full file name
-        FileEnvVar chosenBackupPath = new FileEnvVar(FilenameUtils.getFullPath(selectedPaths[0].toString())
-                                                     + selectedFileName);
+            // Reconstruct the resultant full file name
+            chosenBackupPath = new FileEnvVar(FilenameUtils.getFullPath(selectedPaths[0].toString())
+                                              + selectedFileName);
+        }
 
         return chosenBackupPath;
     }
@@ -80,9 +76,13 @@ public final class CcddBackupName
      * entered, an exception will be thrown
      *
      * @param extension            Extension type (typically .dbu)
+     *
      * @param dateTimeFormat       Format of the datetime (HHMMSS etc..)
+     *
      * @param chosenBackupFileName User selected backup file name
+     *
      * @param isTimeDateStamped    Is there an _[DATE-TIME-STAMP] field in the chosenBackupFileName
+     *
      * @return [ID]
      **********************************************************************************************/
     public static String removeExtensionTimeStamp(String extension,
