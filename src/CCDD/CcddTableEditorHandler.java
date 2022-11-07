@@ -1376,12 +1376,14 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             {
                 // Highlight any macro names in the table cell. Adjust the highlight color to
                 // account for the cell selection highlighting so that the macro is easily readable
-                macroHandler.highlightMacro(component, text,
+                macroHandler.highlightMacro(component,
+                                            text,
                                             isSelected ? ModifiableColorInfo.INPUT_TEXT.getColor()
                                                        : ModifiableColorInfo.TEXT_HIGHLIGHT.getColor());
 
                 // Highlight 'sizeof(data type)' instances
-                CcddDataTypeHandler.highlightSizeof(component, text,
+                CcddDataTypeHandler.highlightSizeof(component,
+                                                    text,
                                                     isSelected ? ModifiableColorInfo.INPUT_TEXT.getColor()
                                                                : ModifiableColorInfo.TEXT_HIGHLIGHT.getColor());
 
@@ -3104,7 +3106,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                         // first row of imported data and leave the rest as is
                         startRow = tableData.size();
                     }
-                    // This data is coming from the clipboard. Meaning it was copied and pasted
+                    // This data is coming from the clipboard, meaning it was copied and pasted
                     else
                     {
                         // Check if no row is selected
@@ -3166,7 +3168,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     // Check to see if a variable name was included. If numOfArrayMembersVerified
                     // is greater than 0 then that means that this is an array member, but it has
                     // already been verified that the definition and all members exist
-                    if ((variableNameColumn != -1) && (numOfArrayMembersVerified == 0) && (!dataComingFromClipboard))
+                    if ((variableNameColumn != -1)
+                        && (numOfArrayMembersVerified == 0)
+                        && (!dataComingFromClipboard))
                     {
                         // Get the index within the cell data that represents this row's variable
                         // name
@@ -3633,8 +3637,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                     // that the current cell's value won't be overwritten). For the
                                     // first pass through this row's column process only blank
                                     // cells; for the second pass process only non-blank cells
-                                    if (newValue != null && ((pass == 1 && newValue.toString().isEmpty())
-                                                             || (pass == 2 && !newValue.toString().isEmpty())))
+                                    if ((newValue != null)
+                                        && ((pass == 1 && newValue.toString().isEmpty())
+                                            || (pass == 2 && !newValue.toString().isEmpty())))
                                     {
                                         // Check if the cell value should be replaced regardless of
                                         // its unalterable status (i.e., when importing a table, so
@@ -3643,11 +3648,11 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                         if (forceOverwrite || isDataAlterable(tableData.get(row), row, columnModel))
                                         {
                                             // Get the original cell value
-                                            Object oldValue = oldData.size() > row ? oldData.get(row)[columnModel]: "";
+                                            Object oldValue = oldData.size() > row ? oldData.get(row)[columnModel] : "";
 
                                             // Check to see if we are working with a boolean as it
                                             // needs special handling
-                                            if (isColumnBoolean(column + 2) && !(newValue instanceof Boolean))
+                                            if (isColumnBoolean(columnModel) && !(newValue instanceof Boolean))
                                             {
                                                 newValue = Boolean.parseBoolean((String) newValue);
                                             }
@@ -3664,40 +3669,38 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                                 // duplicated
                                                 if (typeDefn.isRowValueUnique()[columnModel])
                                                 {
-                                                    try
+                                                    // Step through each row in the table
+                                                    for (int otherRow = 0; otherRow < tableData.size(); otherRow++)
                                                     {
-                                                        // Step through each row in the table
-                                                        for (int otherRow = 0; otherRow < tableData.size(); otherRow++)
+                                                        // Check if this isn't the row being/
+                                                        // edited, and if the cell value
+                                                        // matches the one being added (case
+                                                        // insensitive)
+                                                        String test = getExpandedValueAt(tableData,
+                                                                                         otherRow,
+                                                                                         columnModel);
+
+                                                        if (otherRow != row
+                                                            && newValue.toString().equalsIgnoreCase(test))
                                                         {
-                                                            // Check if this isn't the row being/
-                                                            // edited, and if the cell value
-                                                            // matches the one being added (case
-                                                            // insensitive)
-                                                            String test = getExpandedValueAt(tableData,
-                                                                                             otherRow,
-                                                                                             columnModel);
+                                                            new CcddDialogHandler().showMessageDialog(parent,
+                                                                                                      "<html><b>"
+                                                                                                      + "Invalid input value in table '</b>"
+                                                                                                      + currentTableInfo.getTablePath()
+                                                                                                      + "<b>' for column '</b>"
+                                                                                                      + typeDefn.getColumnNamesUser()[columnModel]
+                                                                                                      + "<b>'; value must be unique: '"
+                                                                                                      + newValue
+                                                                                                      + "'",
+                                                                                                      "Invalid Input",
+                                                                                                      JOptionPane.WARNING_MESSAGE,
+                                                                                                      DialogOption.OK_OPTION);
 
-                                                            if (otherRow != row
-                                                                && newValue.toString().equalsIgnoreCase(test))
-                                                            {
-                                                                throw new CCDDException("Invalid input value in table '</b>"
-                                                                                        + currentTableInfo.getTablePath()
-                                                                                        + "<b>' for column '</b>"
-                                                                                        + typeDefn.getColumnNamesUser()[columnModel]
-                                                                                        + "<b>'; value must be unique: '"
-                                                                                        + newValue
-                                                                                        + "'");
-                                                            }
+                                                            // Insert a blank into the cell
+                                                            tableData.get(row)[columnModel] = "";
+
+                                                            break;
                                                         }
-                                                    }
-                                                    catch (Exception e)
-                                                    {
-                                                        // Insert the value into the cell
-                                                        tableData.get(row)[columnModel] = "";
-
-                                                        // Display a dialog providing details on
-                                                        // the unanticipated error
-                                                        CcddUtilities.displayException(e, parent);
                                                     }
                                                 }
                                             }
@@ -3711,7 +3714,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                         {
                                             // The column is not alterable so set it equal to the
                                             // old value
-                                            if ((oldData != null) && !oldData.isEmpty()
+                                            if ((oldData != null)
+                                                && !oldData.isEmpty()
                                                 && (oldData.size() - 1 >= row))
                                             {
                                                 tableData.get(row)[columnModel] = oldData.get(row)[columnModel];
@@ -3781,21 +3785,23 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 // Check to see if the data came from the clipboard
                 if (dataComingFromClipboard)
                 {
-                    // Determine the number of columns to copy based on the length of the first
-                    // entry in the tableData list. We subtract two as the first two columns
-                    // contain information that we do not need
-                    int numberOfColumnsToCopy = tableData.get(0).length - 2;
+                    // Determine the number of columns to copy. Subtract two to account for the
+                    // first two columns (key and index) that are not paste-able
+                    int numberOfColumnsToCopy = getColumnCount() - NUM_HIDDEN_COLUMNS;
 
                     // Adjust the size of cell data so that it can hold all of the required data
                     cellData = new Object[tableData.size() * numberOfColumnsToCopy];
 
-                    // Step through all of the data in tableData and copy it to cellData while
-                    // skipping the first two indexes of each entry in tableData
-                    for (int i = 0; i < tableData.size(); i++)
+                    // Step through all of the data in tableData and copy it to cellData. The
+                    // column indices must be converted to the model coordinates in case the
+                    // visible column order has been changed by the user
+                    for (int row = 0; row < tableData.size(); row++)
                     {
-                        for (int y = 0; y < numberOfColumnsToCopy; y++)
+                        int rowOffset = row * numberOfColumnsToCopy;
+
+                        for (int column = 0; column < numberOfColumnsToCopy; column++)
                         {
-                            cellData[(i * numberOfColumnsToCopy) + y] = tableData.get(i)[y + 2];
+                            cellData[rowOffset + column] = tableData.get(row)[convertColumnIndexToModel(column)];
                         }
                     }
 

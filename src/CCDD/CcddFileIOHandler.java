@@ -6031,6 +6031,11 @@ public class CcddFileIOHandler
                                 // Add the column value to the array. Note that the first column's
                                 // index in the database is 1, not 0
                                 currRowData[column] = rs.getString(column + 1);
+
+                                if (currRowData[column] == null)
+                                {
+                                    currRowData[column] = "";
+                                }
                             }
 
                             tableData.add(currRowData);
