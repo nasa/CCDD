@@ -13,29 +13,35 @@ _Note: The master branch contains_ **CCDD version 1**_, which is superseded by_ 
 
 _Note:_ **CCDD version 1** _is no longer being updated; use _ **CCDD version 2**
 
-*** CCDD Version 1.5.37 ***
+*** CCDD Version 1.5.37 **
 
-*** CCDD works with JAVA 7-13 ***
+*** CCDD works with JAVA 7-13 **
 
 ## CCDD version 2 (CCDD-2 branch)
 
-*** Version 2.0.36 is now released (see below for details) ***
+*** Version 2.0.37 is now released (see below for details) **
 
-*** CCDD version 2 works with Java 7-13 ***
+*** CCDD version 2 works with Java 7-13 **
 
-*** CCDD version 2 has changed the way that the json import/export works. You can now import and export entire databases. Check CCDDv2 users guide for more details ***
+*** CCDD version 2 has changed the way that the json import/export works. You can now import and export entire databases. Check CCDDv2 users guide for more details **
 
 Version 2 redefines the behavior of command tables.  Command arguments are no longer defined as columns within a command table.  Instead, the command table has a column that is a reference to a structure table; this structure defines the command argument(s).  The version 2 user's guide is updated to provide further details.
 
 When version 2 attempts to open a version 1.x.x version project database then a dialog appears asking to convert the project.  Unlike previous patches, this patch alters user-defined tables and table definitions, and creates new ones.  The argument columns in any command tables are replaced with the argument structure reference column, and the argument structure is created and populated using the original argument information.  Many of the command table script data access methods no longer exist, so existing scripts may need to be updated. Before this patch is applied to the version 1.x.x database a backup will be performed to ensure no data loss on the chance that something does not work as anticipated. 
 
-*** Version 2.0.36 has been released ***
+*** Version 2.0.37 has been released **
+
+Below is a brief description of what has changed in version 2.0.37
+* Adding a new column to a table type could result in an error; this has been corrected
+* The utility method to remove HTML tags no longer attempts remove tags type unused in CCDD. Removal of 'generic' tags could, in certain cases, eliminate portions of the string that were not actual tags
+
+*** Version 2.0.36 has been released **
 
 Below is a brief description of what has changed in version 2.0.36
 * A bug that affected validating the contents of data pasted into table cells is corrected
 * When exporting tables in JSON format if a NULL table cell value is found it's converted to a blank
 
-*** Version 2.0.35 has been released ***
+*** Version 2.0.35 has been released **
 
 Below is a brief description of what has changed in version 2.0.35
 * The Import dialog is separated into five separate dialogs based on import file type (CSV, EDS, JSON, XTEC, and C Header). Check boxes that don't apply to the import type are removed from that type's dialog
@@ -48,7 +54,7 @@ Below is a brief description of what has changed in version 2.0.35
 * Corrected export path storage bug that erroneously stored the file name with the path
 * The User's Guide is updated to reflect the latest changes
 
-*** Version 2.0.34 has been released ***
+*** Version 2.0.34 has been released **
 
 Below is a brief description of what has changed in version 2.0.34
 * The Table Type Editor dialog converts a user-defined column name to one that meets the PostgreSQL constraints when creating the table in the database. The constraints are that the column name contains only lowercase letters, numerals, or underscores, and only begins with a letter or underscore. The conversion replaces any 'illegal' characters with an underscore (example: A@b.com is converted to a\_b\_com). CCDD erroneously allowed a leading numeral in the database version of the column name, causing table access errors. A column name with a leading numeral now has an underscore prepended (example: 1\_is\_the\_name is converted to \_1\_is\_the\_name)
@@ -56,30 +62,30 @@ Below is a brief description of what has changed in version 2.0.34
 * A fixed, or 'frozen' column can be enabled in the Table Editor. The first column displayed is duplicated and displayed to the left of the table. If the table is scrolled horizontally the fixed column remains in position. Dragging another column to the first position changes the fixed column to the duplicate this new column
 * Restored the Show Variables dialog
 
-*** Version 2.0.33 has been released ***
+*** Version 2.0.33 has been released **
 
 Below is a brief description of what has changed in version 2.0.33
 * More improvements in speed have been made in handling SQL commands for table updates. This can significantly improve the time it takes to complete an update for large tables
 
-*** Version 2.0.32 has been released ***
+*** Version 2.0.32 has been released **
 
 Below is a brief description of what has changed in version 2.0.32
 * Improvements in speed have been made in handling SQL commands for table updates. This can significantly improve the time it takes to complete an update for large tables
 * Maximum SQL command length is based on a user-specified (Preferences) value
 
-*** Version 2.0.31 has been released ***
+*** Version 2.0.31 has been released **
 
 Below is a brief description of what has changed in version 2.0.31
 * Corrected a bug in the CSV data type export (types were not sorted)
 * Corrected a file/path error when restoring a database from multiple JSON or CSV files
 
-*** Version 2.0.30 has been released ***
+*** Version 2.0.30 has been released **
 
 Below is a brief description of what has changed in version 2.0.30
 * Corrected issues with JSON and CSV file import and export
 * Corrected storage of last directory accessed
 
-*** Version 2.0.25 has been released ***
+*** Version 2.0.25 has been released **
 
 Below is a brief description of what has changed from version 2.0.24 to 2.0.25.
 * Addressed a bug that prevented CCDD from auto-correcting data field related issues found during the verification process
@@ -101,14 +107,14 @@ Below is a brief description of what has changed from version 2.0.24 to 2.0.25.
 * Merged the 'Show variables' and 'Search variables' dialogs
 * Addressed a bug that was preventing the table type data from being exported unless the entire database was being exported
 
-*** Version 2.0.24 has been released ***
+*** Version 2.0.24 has been released **
 
 * CCDD has 2 new data types which can be assigned in the data type manager which are 'Structure' and 'Enum'. The Structure data type was added so that users do not have to define a table for every 'Structure' based data type they wish to use. So if you have a Structure that is not defined within your database, like CFE structures that are often shared, but you wish to assign the type to a variable you can now add that type to the data type manager without creating a table and defining all the elements that the structure consists of. The same goes for the 'Enum' type but this can be used for 'typedef enum' structures. 
 * A new table type was added to CCDD called 'Enum'. This new table allows users to store the names of all of the enums that make up a 'typedef enum' structure. Once this table is defined users can assign the data type to any variable they wish.
 * Two new data access methods were added for the new 'Enum' table type so that a user can retrieve all defined Enum tables and their members via scripts. More details available in the users guide.
 * The copy and paste functionality has been fixed. 
 
-*** Version 2.0.23 has been released ***
+*** Version 2.0.23 has been released **
 
 Below is a brief description of what has changed from version 2.0.22 to 2.0.23.
 * CCDD can now import and verify 3d arrays
@@ -121,7 +127,7 @@ Below is a brief description of what has changed from version 2.0.22 to 2.0.23.
 * Added new functionality to CCDD so that a user can now import new table type or changes to an existing table type if they wish. All associated files will be updated during the import. 
 * Updated the users guide to include information related to the new 'tablepaths' option and the new 'replaceExistingAssociations' flags.
 
-*** Version 2.0.22 has been released ***
+*** Version 2.0.22 has been released **
 
 Below is a brief description of what has changed from version 2.0.21 to 2.0.22.
 * CCDD can now detect and better report issues related to unexpected JSON formats during an import
@@ -135,7 +141,7 @@ Below is a brief description of what has changed from version 2.0.21 to 2.0.22.
 * Addressed an issue where some tables could not be directly opened from the seach dialog.
 * Addressed an issue where some databases could not be converted from v1 to v2.
 
-*** Version 2.0.21 has been released ***
+*** Version 2.0.21 has been released **
 The ccdd.build.xml file is included in the repo. I have added notes to section 4.1 of the users guide that describe how to rebuild the tool if needed.
 
 Below is a brief description of what has changed from version 2.0.20 to 2.0.21.
@@ -160,7 +166,7 @@ Below is a brief description of what has changed from version 2.0.20 to 2.0.21.
 * When backing up a database the name of the database will now be the same as the selected file name.
 * COPY AND PASTE FUNCTIONALITY IS NOT WORKING AS EXPECTED. IT CAN BE USED, BUT DOES NOT WORK AS WELL AS IT DID IN THE PAST. WILL BE ADDRESSED IN A FUTURE RELEASE.
 
-*** Version 2.0.20 has been released ***
+*** Version 2.0.20 has been released **
 * Fixed an issue with the patch handler that caused it to fail to convert a database from version 1 to version 2 if any text fields within the database contained an apostrophe.
 * Fixed an issue with the patch handler where the internal __orders table was not being updated when converting a v1 database to v2. This resulted in the database failing when the "verify" functionality was used and reporting that tables with table type "Command" had out of order columns.
 * Fixed an issue with the patch handler related to the conversion of tables with table type "Command". If these tables contained an array they were not being properly expanded. This resulted in the database failing to "verify" due to missing table members.

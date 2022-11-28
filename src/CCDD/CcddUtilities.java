@@ -1119,8 +1119,7 @@ public class CcddUtilities
                    .replaceAll(HTMLTag.SPACE.getHTMLTag(), " ")
                    .replaceAll(HTMLTag.AMP.getHTMLTag(), "&")
                    .replaceAll(HTMLTag.GREAT.getHTMLTag(), ">")
-                   .replaceAll(HTMLTag.LESS.getHTMLTag(), "<")
-                   .replaceAll("&.+;", "");
+                   .replaceAll(HTMLTag.LESS.getHTMLTag(), "<");
     }
 
     /**********************************************************************************************

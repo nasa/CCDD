@@ -1129,7 +1129,7 @@ public class CcddDialogHandler extends JDialog
         {
             // Prevent the lower panel from resizing if the parent is resized
             lowerPanel.setMaximumSize(new Dimension(Short.MAX_VALUE,
-                                                    (int) lowerPanel.getPreferredSize().getHeight()));
+                                                    lowerPanel.getPreferredSize().height));
 
             // Add the lower panel to the dialog panel
             dialogPanel.add(lowerPanel);

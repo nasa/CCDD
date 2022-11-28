@@ -7378,7 +7378,6 @@ public class CcddDbTableCommandHandler
 
             // Update the table tree information
             updateTableTree();
-
         }
         catch (SQLException se)
         {
@@ -8998,11 +8997,15 @@ public class CcddDbTableCommandHandler
                 // UPDATE DATA FIELDS
                 // ////////////////////////////////////////////////////////////////////////////
 
-                // Get the list of names of all tables of the specified type
                 if (newDataFields != null)
                 {
+                    // Get the list of names of all tables of the specified type. Do not clear
+                    // the preloaded table members list - the table type has been updated at
+                    // this point, but the tables of the specified type have not, so attempting
+                    // to load the tables' members would result in an error
                     List<String> tableNamesList = getAllTablesOfType(typeName,
                                                                      protoTableNames,
+                                                                     false,
                                                                      editorDialog);
                     List<FieldInformation> tableTypeFields = fieldHandler.getFieldInformationByTableType(typeName);
                     boolean fieldsUpdated = false;
@@ -9132,7 +9135,6 @@ public class CcddDbTableCommandHandler
                                                 // Keep the table field's current value
                                                 fieldValue = currentFields.get(currIndex).getValue();
                                                 break;
-
                                         }
 
                                         // Replace the existing field with the new one
@@ -9251,6 +9253,9 @@ public class CcddDbTableCommandHandler
                     // Rebuild the command list
                     commandHandler.buildCommandList();
                 }
+
+                // Update the table tree
+                updateTableTree();
 
                 // Log that updating the table type succeeded
                 eventLog.logEvent(SUCCESS_MSG,
@@ -10841,7 +10846,8 @@ public class CcddDbTableCommandHandler
     }
 
     /**********************************************************************************************
-     * Get a list containing all tables that are of the specified table type
+     * Get a list containing all tables that are of the specified table type. Rebuild the preloaded
+     * table members list
      *
      * @param typeName        Table type name
      *
@@ -10857,6 +10863,32 @@ public class CcddDbTableCommandHandler
                                               String[] protoTableNames,
                                               Component parent)
     {
+        return getAllTablesOfType(typeName,
+                                  protoTableNames,
+                                  true,
+                                  parent);
+    }
+
+    /**********************************************************************************************
+     * Get a list containing all tables that are of the specified table type
+     *
+     * @param typeName        Table type name
+     *
+     * @param protoTableNames Names of the prototype tables of the specified table type; null to
+     *                        load the list
+     *
+     *@param clearPreload     true to clear the preloaded table members
+     *
+     * @param parent          GUI component over which to center any error dialog
+     *
+     * @return List containing all tables that are of the specified table type. Returns an empty
+     *         list if no table of the specified type exists in the project database
+     *********************************************************************************************/
+    protected List<String> getAllTablesOfType(String typeName,
+                                              String[] protoTableNames,
+                                              boolean clearPreload,
+                                              Component parent)
+    {
         // Create a list to store the names of all tables of the specified type
         List<String> tableNamesList = new ArrayList<String>();
 
@@ -10870,8 +10902,11 @@ public class CcddDbTableCommandHandler
         // Check if a table of this type exists
         if (protoTableNames.length != 0)
         {
-            // Clear the preloaded table members
-            clearPreLoadedTableMembers();
+            if (clearPreload)
+            {
+                // Clear the preloaded table members
+                clearPreLoadedTableMembers();
+            }
 
             // Build a table tree with all prototype and instance tables
             CcddTableTreeHandler tableTree = new CcddTableTreeHandler(ccddMain, TableTreeType.TABLES, parent);

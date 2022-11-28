@@ -1578,7 +1578,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                 {
                     // Get the rate value for this variable. Use the prototype's value if the
                     // variable doesn't have a specific rate assigned
-                    int index = rateValues.indexOf(tablePath.toString());
+                    int index = rateValues.indexOf((Object) tablePath.toString());
                     rate = isChildVariable && index != -1 ? rateValues.get(index)[2]
                                                           : thisMember.getRates().get(memIndex)[rateIndex];
                 }
