@@ -3142,7 +3142,8 @@ public class CcddConstants
             // Build the array of default table types and type names
             String[][] defTypes = new String[][] {{TYPE_STRUCTURE, STRUCT_TELEMETRY},
                                                   {TYPE_COMMAND, TYPE_COMMAND},
-                                                  {TYPE_STRUCTURE, STRUCT_CMD_ARG_REF}};
+                                                  {TYPE_STRUCTURE, STRUCT_CMD_ARG_REF},
+                                                  {TYPE_ENUM, TYPE_ENUM}};
 
             // Step through each table type
             for (String[] type : defTypes)
@@ -3186,6 +3187,12 @@ public class CcddConstants
                                 // Set the description of the command argument structure reference
                                 // table type
                                 typeDescription = "1Command argument structure reference table definition";
+                            }
+                            // Check if this is an enum table type
+                            else if (type[1].equals(TYPE_ENUM))
+                            {
+                                // Set the description of the enum table type
+                                typeDescription = "0ENUM table";
                             }
                         }
 
@@ -3348,21 +3355,31 @@ public class CcddConstants
                                 {FieldsColumn.FIELD_INHERITED.columnName, FieldsColumn.FIELD_INHERITED.dataType}},
                 "WITH OIDS",
 
-                // Create default data fields for the telemetry and command table types
-                "INSERT INTO " + INTERNAL_TABLE_PREFIX + "fields (" + FieldsColumn.OWNER_NAME.columnName + ", "
-                + FieldsColumn.FIELD_NAME.columnName + ", " + FieldsColumn.FIELD_DESC.columnName + ", "
-                + FieldsColumn.FIELD_SIZE.columnName + ", " + FieldsColumn.FIELD_TYPE.columnName + ", "
+                // Create default data fields for the telemetry, command, and ENUM table types
+                "INSERT INTO " + INTERNAL_TABLE_PREFIX
+                + "fields ("
+                + FieldsColumn.OWNER_NAME.columnName + ", "
+                + FieldsColumn.FIELD_NAME.columnName  + ", "
+                + FieldsColumn.FIELD_DESC.columnName + ", "
+                + FieldsColumn.FIELD_SIZE.columnName + ", "
+                + FieldsColumn.FIELD_TYPE.columnName + ", "
                 + FieldsColumn.FIELD_REQUIRED.columnName + ", "
-                + FieldsColumn.FIELD_APPLICABILITY.columnName + ", " + FieldsColumn.FIELD_VALUE.columnName
-                + ", " + FieldsColumn.FIELD_INHERITED.columnName
-                + ") VALUES ('Type:Structure', 'Telemetry message "
-                + "name & ID', 'Telemetry message name and ID', '15', '"
-                + DefaultInputType.MESSAGE_NAME_AND_ID.getInputName() + "', 'true', '"
+                + FieldsColumn.FIELD_APPLICABILITY.columnName + ", "
+                + FieldsColumn.FIELD_VALUE.columnName + ", "
+                + FieldsColumn.FIELD_INHERITED.columnName
+                + ") VALUES ('Type:Structure', 'Telemetry message name & ID', 'Telemetry message name and ID', '15', '"
+                + DefaultInputType.MESSAGE_NAME_AND_ID.getInputName()
+                + "', 'true', '"
                 + ApplicabilityType.ROOT_ONLY.getApplicabilityName()
-                + "', '', 'false'), ('Type:Command', 'Command "
-                + "name & ID', 'Command name and ID', '15', '"
-                + DefaultInputType.MESSAGE_NAME_AND_ID.getInputName() + "', 'true', '"
-                + ApplicabilityType.ALL.getApplicabilityName() + "', '', 'false')"),
+                + "', '', 'false'), ('Type:Command', 'Command name & ID', 'Command name and ID', '15', '"
+                + DefaultInputType.MESSAGE_NAME_AND_ID.getInputName()
+                + "', 'true', '"
+                + ApplicabilityType.ALL.getApplicabilityName()
+                + "', '', 'false'), ('Type:ENUM', 'Size (Bytes):', 'Size of the enumeration in bytes', '2', '"
+                + DefaultInputType.TEXT.getInputName()
+                + "', 'true', '"
+                + ApplicabilityType.ALL.getApplicabilityName()
+                + "', '', 'true')"),
 
         // Data table groupings
         GROUPS("groups",

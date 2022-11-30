@@ -17,7 +17,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -157,30 +157,6 @@ extends java.lang.Object</pre>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddPatchHandler.html#PATCH_06012019">PATCH_06012019</a></span></code>&nbsp;</td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>private java.lang.String</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddPatchHandler.html#PATCH_06212018">PATCH_06212018</a></span></code>&nbsp;</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>private java.lang.String</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddPatchHandler.html#PATCH_07242018">PATCH_07242018</a></span></code>&nbsp;</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>private java.lang.String</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddPatchHandler.html#PATCH_08292018">PATCH_08292018</a></span></code>&nbsp;</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>private java.lang.String</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddPatchHandler.html#PATCH_11052018">PATCH_11052018</a></span></code>&nbsp;</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>private boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddPatchHandler.html#patch11052018Continue">patch11052018Continue</a></span></code>&nbsp;</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>private int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddPatchHandler.html#patch11052018RenamedFields">patch11052018RenamedFields</a></span></code>&nbsp;</td>
-</tr>
-<tr class="altColor">
 <td class="colFirst"><code>private java.util.HashMap&lt;java.lang.String,<a href="../CCDD/CcddPatchHandler.PatchUtility.html" title="class in CCDD">CcddPatchHandler.PatchUtility</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddPatchHandler.html#patchSet">patchSet</a></span></code>&nbsp;</td>
 </tr>
@@ -239,42 +215,9 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>private void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddPatchHandler.html#updateFieldsPart1--">updateFieldsPart1</a></span>()</code>
-<div class="block">Update the fields table to include a field_inherited column and set each field's default
- status.</div>
-</td>
-</tr>
-<tr id="i4" class="altColor">
-<td class="colFirst"><code>private void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddPatchHandler.html#updateFieldsPart2--">updateFieldsPart2</a></span>()</code>
-<div class="block">After updating the fields table to include a field_inherited column add inherited fields to
- those tables that don't already have the field.</div>
-</td>
-</tr>
-<tr id="i5" class="rowColor">
-<td class="colFirst"><code>private void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddPatchHandler.html#updateMessageNamesAndIDs--">updateMessageNamesAndIDs</a></span>()</code>
-<div class="block">Update the project database table type and data field table references to the message ID
- name and message ID input types.</div>
-</td>
-</tr>
-<tr id="i6" class="altColor">
-<td class="colFirst"><code>private void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddPatchHandler.html#updatePaddingVariables--">updatePaddingVariables</a></span>()</code>
-<div class="block">Update the padding variable format from '__pad#' to 'pad#__'.</div>
-</td>
-</tr>
-<tr id="i7" class="rowColor">
-<td class="colFirst"><code>private void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddPatchHandler.html#UpdateTableTypeAndDataTypeTables--">UpdateTableTypeAndDataTypeTables</a></span>()</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddPatchHandler.html#updateTableTypeAndDataTypeTables--">updateTableTypeAndDataTypeTables</a></span>()</code>
 <div class="block">The internal data types table is modified so that the 'size' column has a type of 'text'
  rather than a size of 'int'.</div>
-</td>
-</tr>
-<tr id="i8" class="altColor">
-<td class="colFirst"><code>private void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddPatchHandler.html#updateUserAccess--">updateUserAccess</a></span>()</code>
-<div class="block">Update the project database so that user access levels are supported</div>
 </td>
 </tr>
 </table>
@@ -320,7 +263,7 @@ extends java.lang.Object</pre>
 <a name="PATCH_06012019">
 <!--   -->
 </a>
-<ul class="blockList">
+<ul class="blockListLast">
 <li class="blockList">
 <h4>PATCH_06012019</h4>
 <pre>private final&nbsp;java.lang.String PATCH_06012019</pre>
@@ -328,76 +271,6 @@ extends java.lang.Object</pre>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../constant-values.html#CCDD.CcddPatchHandler.PATCH_06012019">Constant Field Values</a></dd>
 </dl>
-</li>
-</ul>
-<a name="PATCH_11052018">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>PATCH_11052018</h4>
-<pre>private final&nbsp;java.lang.String PATCH_11052018</pre>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../constant-values.html#CCDD.CcddPatchHandler.PATCH_11052018">Constant Field Values</a></dd>
-</dl>
-</li>
-</ul>
-<a name="PATCH_08292018">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>PATCH_08292018</h4>
-<pre>private final&nbsp;java.lang.String PATCH_08292018</pre>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../constant-values.html#CCDD.CcddPatchHandler.PATCH_08292018">Constant Field Values</a></dd>
-</dl>
-</li>
-</ul>
-<a name="PATCH_07242018">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>PATCH_07242018</h4>
-<pre>private final&nbsp;java.lang.String PATCH_07242018</pre>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../constant-values.html#CCDD.CcddPatchHandler.PATCH_07242018">Constant Field Values</a></dd>
-</dl>
-</li>
-</ul>
-<a name="PATCH_06212018">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>PATCH_06212018</h4>
-<pre>private final&nbsp;java.lang.String PATCH_06212018</pre>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../constant-values.html#CCDD.CcddPatchHandler.PATCH_06212018">Constant Field Values</a></dd>
-</dl>
-</li>
-</ul>
-<a name="patch11052018Continue">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>patch11052018Continue</h4>
-<pre>private&nbsp;boolean patch11052018Continue</pre>
-</li>
-</ul>
-<a name="patch11052018RenamedFields">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>patch11052018RenamedFields</h4>
-<pre>private&nbsp;int patch11052018RenamedFields</pre>
 </li>
 </ul>
 </li>
@@ -474,13 +347,13 @@ extends java.lang.Object</pre>
 </dl>
 </li>
 </ul>
-<a name="UpdateTableTypeAndDataTypeTables--">
+<a name="updateTableTypeAndDataTypeTables--">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>UpdateTableTypeAndDataTypeTables</h4>
-<pre>private&nbsp;void&nbsp;UpdateTableTypeAndDataTypeTables()</pre>
+<h4>updateTableTypeAndDataTypeTables</h4>
+<pre>private&nbsp;void&nbsp;updateTableTypeAndDataTypeTables()</pre>
 <div class="block">The internal data types table is modified so that the 'size' column has a type of 'text'
  rather than a size of 'int'. The internal table types table it updated with a new table type
  called 'ENUM'</div>
@@ -489,7 +362,7 @@ extends java.lang.Object</pre>
 <a name="updateCommandTables--">
 <!--   -->
 </a>
-<ul class="blockList">
+<ul class="blockListLast">
 <li class="blockList">
 <h4>updateCommandTables</h4>
 <pre>private&nbsp;void&nbsp;updateCommandTables()
@@ -508,95 +381,6 @@ extends java.lang.Object</pre>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If the user elects to not install the patch or an error occurs while
                        applying the patch</dd>
-</dl>
-</li>
-</ul>
-<a name="updateFieldsPart1--">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>updateFieldsPart1</h4>
-<pre>private&nbsp;void&nbsp;updateFieldsPart1()
-                        throws <a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></pre>
-<div class="block">Update the fields table to include a field_inherited column and set each field's default
- status. Older versions of CCDD are not compatible with the project database after applying
- this patch</div>
-<dl>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If the user elects to not install the patch or an error occurs while
-                       applying the patch</dd>
-</dl>
-</li>
-</ul>
-<a name="updateFieldsPart2--">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>updateFieldsPart2</h4>
-<pre>private&nbsp;void&nbsp;updateFieldsPart2()
-                        throws <a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></pre>
-<div class="block">After updating the fields table to include a field_inherited column add inherited fields to
- those tables that don't already have the field. Older versions of CCDD are not compatible
- with the project database after applying this patch</div>
-<dl>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If the user elects to not install the patch or an error occurs while
-                       applying the patch</dd>
-</dl>
-</li>
-</ul>
-<a name="updateMessageNamesAndIDs--">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>updateMessageNamesAndIDs</h4>
-<pre>private&nbsp;void&nbsp;updateMessageNamesAndIDs()
-                               throws <a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></pre>
-<div class="block">Update the project database table type and data field table references to the message ID
- name and message ID input types. The message name and ID have been combined into a single
- input type, 'Message name &amp; ID'. Change the message ID name input type to 'Text' and the
- message ID input type to 'Message name &amp; ID'. Note that the original message ID names
- are no longer associated with the IDs; this must be done manually</div>
-<dl>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - if an error occurs performing the update or the user elects to not
-                       install the patch</dd>
-</dl>
-</li>
-</ul>
-<a name="updateUserAccess--">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>updateUserAccess</h4>
-<pre>private&nbsp;void&nbsp;updateUserAccess()
-                       throws <a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></pre>
-<div class="block">Update the project database so that user access levels are supported</div>
-<dl>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - if an error occurs performing the update or the user elects to not
-                       install the patch</dd>
-</dl>
-</li>
-</ul>
-<a name="updatePaddingVariables--">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>updatePaddingVariables</h4>
-<pre>private&nbsp;void&nbsp;updatePaddingVariables()
-                             throws <a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></pre>
-<div class="block">Update the padding variable format from '__pad#' to 'pad#__'. This is to accommodate XML
- exports that don't allow leading underscores in variable names (e.g., EDS)</div>
-<dl>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - if an error occurs performing the update or the user elects to not
-                       install the patch</dd>
 </dl>
 </li>
 </ul>

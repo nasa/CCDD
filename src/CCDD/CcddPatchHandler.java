@@ -31,8 +31,6 @@ import static CCDD.CcddConstants.STRUCT_CMD_ARG_REF;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
 import static CCDD.CcddConstants.TYPE_ENUM;
 import static CCDD.CcddConstants.COL_VALUE;
-import static CCDD.CcddConstants.EventLogMessageType.SUCCESS_MSG;
-
 import java.io.File;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -50,26 +48,18 @@ import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddClassesDataTable.InputType;
 import CCDD.CcddClassesDataTable.TableInfo;
-import CCDD.CcddConstants.AccessLevel;
 import CCDD.CcddConstants.ApplicabilityType;
-import CCDD.CcddConstants.DatabaseComment;
 import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.EventLogMessageType;
 import CCDD.CcddConstants.FileExtension;
-import CCDD.CcddConstants.InputTypeFormat;
 import CCDD.CcddConstants.InternalTable;
-import CCDD.CcddConstants.InternalTable.AppSchedulerColumn;
 import CCDD.CcddConstants.InternalTable.FieldsColumn;
-import CCDD.CcddConstants.InternalTable.LinksColumn;
 import CCDD.CcddConstants.InternalTable.TableTypesColumn;
-import CCDD.CcddConstants.InternalTable.TlmSchedulerColumn;
-import CCDD.CcddConstants.InternalTable.ValuesColumn;
 import CCDD.CcddConstants.ModifiablePathInfo;
 import CCDD.CcddConstants.OverwriteFieldValueType;
 import CCDD.CcddConstants.ServerPropertyDialogType;
-import CCDD.CcddConstants.TableCommentIndex;
 import CCDD.CcddInputTypeHandler.InputTypeReference;
 import CCDD.CcddInputTypeHandler.ReferenceCheckResults;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
@@ -82,17 +72,6 @@ public class CcddPatchHandler
     private HashMap<String, PatchUtility> patchSet = new HashMap<String, PatchUtility>();
     private final CcddMain ccddMain;
     private final String PATCH_06012019 = "#06012019";
-    private final String PATCH_11052018 = "#11052018";
-    private final String PATCH_08292018 = "#08292018";
-    private final String PATCH_07242018 = "#07242018";
-    private final String PATCH_06212018 = "#06212018";
-
-    // Patch 11052018 specific variables: Flag that indicates that part 1 completed successfully,
-    // and part 2 should be performed
-    private boolean patch11052018Continue;
-
-    // Number of data fields that were renamed to prevent a duplicate with an inherited field
-    private int patch11052018RenamedFields;
 
     /**********************************************************************************************
      * CFS Command and Data Dictionary project database patch handler class constructor. The patch
@@ -134,44 +113,7 @@ public class CcddPatchHandler
                                           + "structure. <br><b><i>Older versions of "
                                           + "CCDD will be incompatible with this "
                                           + "project database after applying the patch";
-
         patchSet.put(PATCH_06012019, new PatchUtility(ccddMain, PATCH_06012019, patch_06012019_dialogMsg));
-
-        String patch_11052018_dialogMsg = "<html><b>Apply patch to update the data " + "fields table?<br><br></b>"
-                                          + "Adds a column in the data fields " + "table to store field inheritance "
-                                          + "status. A field is inherited if " + "defined in the table's type "
-                                          + "definition. Fields are renamed to " + "prevent an instance of a fields "
-                                          + "matching an inherited field when the " + "input types differ. Missing an "
-                                          + "inherited fields are added to " + "tables<br><b><i>Older versions of "
-                                          + "CCDD will be incompatible with this "
-                                          + "project database after applying the patch";
-        patchSet.put(this.PATCH_11052018, new PatchUtility(ccddMain, this.PATCH_11052018, patch_11052018_dialogMsg));
-
-        String patch_08292018_dialogMsg = "<html><b>Apply patch to update the table type, data field, and "
-                                          + "application scheduler tables message "
-                                          + "name and IDs?<br><br></b>Changes "
-                                          + "message ID name input type to 'Text' "
-                                          + "and the message ID input type to " + "'Message name & ID'. Combines the "
-                                          + "application scheduler wake-up " + "message name and ID pairs into a "
-                                          + "single<br><b><i>Older versions of " + "CCDD are incompatible with this "
-                                          + "project database after applying the " + "patch";
-
-        patchSet.put(this.PATCH_08292018, new PatchUtility(ccddMain, this.PATCH_08292018, patch_08292018_dialogMsg));
-
-        String patch_07242018_dialogMsg = "<html><b>Apply patch to update the database to support user access "
-                                          + "levels?<br><br></b>Changes the database "
-                                          + "to support user access levels. <b>The "
-                                          + "current user is set as the creator/"
-                                          + "administrator of the database!</b> "
-                                          + "Older versions of CCDD will remain "
-                                          + "compatible with this project database " + "after applying the patch";
-        patchSet.put(this.PATCH_07242018, new PatchUtility(ccddMain, this.PATCH_07242018, patch_07242018_dialogMsg));
-
-        String patch_06212018_dialogMsg = "<html><b>Apply patch to update padding variable names?<br><br></b>"
-                                          + "Changes the padding variable format from "
-                                          + "'__pad#' to 'pad#__'.<br><b><i>If patch "
-                                          + "not applied the affected variables will " + "not be recognized as padding";
-        patchSet.put(PATCH_06212018, new PatchUtility(ccddMain, PATCH_06212018, patch_06212018_dialogMsg));
     }
 
     /**********************************************************************************************
@@ -189,41 +131,25 @@ public class CcddPatchHandler
         // *** NOTE *** NOTE *** NOTE *** NOTE *** NOTE *** NOTE *** NOTE *** NOTE *** NOTE ***
         // Patches are removed after an appropriate amount of time has been given for the patch to
         // be applied. In the event that an older database needs to be updated the old patches can
-        // be found in the MR submitted on 3/11/2021
+        // be found in the MRs submitted on 3/11/2021 and on 11/28/2022
 
         // Check if only patches that must be performed prior to handler initialization should be
         // implemented
         if (isBeforeHandlerInit)
         {
-            // Patch #11052018: PartA - Add a column, field_inherited, to the fields table that
-            // indicates if the field is owned by a table and is inherited from the table's type
-            updateFieldsPart1();
+            // No current patch meets this criteria
         }
         // Only patches that must be performed after handler initialization should be implemented
         else
         {
-            // Patch #06012019 - Convert command tables to the new command table / command argument
-            // structure table format
-            updateCommandTables();
-
-            // Patch #11052018: Part B - Add inherited fields to tables that don't already have the
-            // field
-            updateFieldsPart2();
-
-            // Patch #06212018: Update the padding variable format from '__pad#' to 'pad#__'
-            updatePaddingVariables();
-
-            // Patch #07242018: Update the database to support user access levels
-            updateUserAccess();
-
-            // Patch #08292018: Change the message ID name input type to 'Text' and the message ID
-            // input type to 'Message name & ID' in the table type and data field tables
-            updateMessageNamesAndIDs();
-
             // Patch #10022020: Add the ENUM table type to the internal table types table and
             // update the size column of the data types internal table to have a type of text
             // rather than int
-            UpdateTableTypeAndDataTypeTables();
+            updateTableTypeAndDataTypeTables();
+
+            // Patch #06012019: Convert command tables to the new command table / command argument
+            // structure table format
+            updateCommandTables();
         }
     }
 
@@ -289,106 +215,113 @@ public class CcddPatchHandler
      * rather than a size of 'int'. The internal table types table it updated with a new table type
      * called 'ENUM'
      *********************************************************************************************/
-    private void UpdateTableTypeAndDataTypeTables()
+    private void updateTableTypeAndDataTypeTables()
     {
-        CcddTableTypeHandler tableTypeHandler = ccddMain.getTableTypeHandler();
         CcddDbTableCommandHandler dbTable = ccddMain.getDbTableCommandHandler();
 
-        // Get all existing type definitions
-        List<TypeDefinition> typeDefinitions = tableTypeHandler.getTypeDefinitions();
-        boolean enumFound = false;
-        boolean fieldFound = false;
-        TypeDefinition currTypeDefn = null;
-
-        // Step through each table type definition
-        for (TypeDefinition typeDefn : typeDefinitions)
+        // Check if the table types internal table exists. If it doesn't then the database has been
+        // created but never opened. When it is opened the ENUM table type and its data field are
+        // automatically created. If the table types table does exist then it is checked for the
+        // ENUM table type, which is added if not present
+        if (dbTable.isTableExists(InternalTable.TABLE_TYPES.getTableName(), ccddMain.getMainFrame()))
         {
-            if (typeDefn.getName().equals(TYPE_ENUM))
+            CcddTableTypeHandler tableTypeHandler = ccddMain.getTableTypeHandler();
+            CcddFieldHandler fieldHandler = ccddMain.getFieldHandler();
+            List<FieldInformation> fieldInfo = fieldHandler.getFieldInformation();
+
+            // Get all existing type definitions
+            List<TypeDefinition> typeDefinitions = tableTypeHandler.getTypeDefinitions();
+            boolean enumFound = false;
+            boolean valueFound = false;
+            boolean fieldFound = false;
+
+            // Step through each table type definition
+            for (TypeDefinition typeDefn : typeDefinitions)
             {
-                enumFound = true;
-                currTypeDefn = typeDefn;
-
-                // Check to see if the Value column exists
-                int valueColumn = typeDefn.getColumnIndexByDbName(COL_VALUE.toLowerCase());
-
-                if (valueColumn == -1)
+                if (typeDefn.getName().equals(TYPE_ENUM))
                 {
-                    // if not set enumFound to false and store the current type definition
-                    enumFound = false;
-                }
+                    enumFound = true;
 
-                List<FieldInformation> fieldInfo = ccddMain.getFieldHandler().getFieldInformationByTableType(TYPE_ENUM);
+                    // Check to see if the Value column exists
+                    int valueColumn = typeDefn.getColumnIndexByDbName(COL_VALUE.toLowerCase());
 
-                for (FieldInformation currField : fieldInfo)
-                {
-                    if (currField.getFieldName().contentEquals("Size (Bytes):"))
+                    if (valueColumn != -1)
                     {
-                        fieldFound = true;
+                        // if not set enumFound to false and store the current type definition
+                        valueFound = true;
                     }
+
+                    for (FieldInformation currField : fieldInfo)
+                    {
+                        if (currField.getOwnerName().contentEquals(CcddFieldHandler.getFieldTypeName(TYPE_ENUM))
+                            && currField.getFieldName().contentEquals("Size (Bytes):"))
+                        {
+                            fieldFound = true;
+                        }
+                    }
+
+                    break;
                 }
-                break;
             }
 
-        }
-
-        // If an enum table type was not found then add it
-        if (!enumFound || !fieldFound)
-        {
-            // Add the table type definition, 0 added as it is not a command argument
-            tableTypeHandler.createReplaceTypeDefinition(TYPE_ENUM,
-                                                         "0ENUM table",
-                                                         DefaultColumn.getDefaultColumnDefinitions(TYPE_ENUM,
-                                                                                                   false));
-
-            // Update the table type handler for dbTable before calling modifyTableType
-            dbTable.setTableTypeHandler();
-
-            // input_type offset by 1 to account for owner name
-            InputType inputType = new InputType("Text", "Size", "", "", InputTypeFormat.INTEGER, false);
-
-            // Create the new field for size and add it to a list
-            FieldInformation sizeField = new FieldInformation(TYPE_ENUM,
-                                                              "Size (Bytes):",
-                                                              "Size of the Enum in bytes",
-                                                              inputType,
-                                                              2,
-                                                              true,
-                                                              ApplicabilityType.ALL,
-                                                              "",
-                                                              true,
-                                                              null,
-                                                              -1);
-            List<FieldInformation> fieldInfo = Arrays.asList(sizeField);
-
-            // If currTypeDefn is null we are creating a new type. If not we are updating an
-            // existing type
-            if (currTypeDefn == null)
-            {
-                // Add the new table type to the project database
-                dbTable.modifyTableType(TYPE_ENUM,
-                                        fieldInfo,
-                                        OverwriteFieldValueType.NONE,
-                                        new ArrayList<String[]>(0),
-                                        new ArrayList<String[]>(0),
-                                        new ArrayList<String[]>(0),
-                                        false,
-                                        null,
-                                        null,
-                                        null,
-                                        null);
-            }
-            else
+            // If the enum table type was not found, or exists but is missing the Value column
+            // and/or Size data field then add what's missing
+            if (!enumFound || !valueFound || !fieldFound)
             {
                 List<String[]> typeAdditions = new ArrayList<String[]>(0);
 
-                if (!enumFound)
+                // Set the handler references in the database table command handler. This is
+                // required when modifying the table type
+                dbTable.setHandlers();
+
+                if (!fieldFound)
                 {
-                    // Define the new data type column and add it to the typeAdditions list
-                    String[] newValueCoulumn = {COL_VALUE, DefaultInputType.INTEGER.getInputName()};
-                    typeAdditions.add(newValueCoulumn);
+                    // Create the new field for size and add it to a list
+                    FieldInformation sizeField = new FieldInformation(CcddFieldHandler.getFieldTypeName(TYPE_ENUM),
+                                                                      "Size (Bytes):",
+                                                                      "Size of the enumeration in bytes",
+                                                                      ccddMain.getInputTypeHandler().getInputTypeByDefaultType(DefaultInputType.INTEGER),
+                                                                      2,
+                                                                      true,
+                                                                      ApplicabilityType.ALL,
+                                                                      "",
+                                                                      true,
+                                                                      null,
+                                                                      -1);
+                    fieldInfo.add(sizeField);
+
+                    // Update the fieldHandler
+                    fieldHandler.setFieldInformation(fieldInfo);
+
+                    // Store the updated fields table
+                    dbTable.storeInformationTable(InternalTable.FIELDS,
+                                                  fieldHandler.getFieldDefnsFromInfo(),
+                                                  null,
+                                                  ccddMain.getMainFrame());
                 }
 
-                // Update the table type
+                // ENUM type already exists, but the Value column is missing
+                if (!valueFound)
+                {
+                    // Define the new data type column and add it to the typeAdditions list
+                    String[] newValueColumn = {COL_VALUE, DefaultInputType.INTEGER.getInputName()};
+                    typeAdditions.add(newValueColumn);
+                }
+
+                // Check if the ENUM type was not found
+                if (!enumFound || !valueFound)
+                {
+                    // Add the table type definition, 0 added as it is not a command argument
+                    tableTypeHandler.createReplaceTypeDefinition(TYPE_ENUM,
+                                                                 "0ENUM table",
+                                                                 DefaultColumn.getDefaultColumnDefinitions(TYPE_ENUM,
+                                                                                                           false));
+
+                    // Update the table type handler for dbTable before calling modifyTableType
+                    dbTable.setTableTypeHandler();
+                }
+
+                // Add the new table type to the project database
                 dbTable.modifyTableType(TYPE_ENUM,
                                         fieldInfo,
                                         OverwriteFieldValueType.NONE,
@@ -396,17 +329,11 @@ public class CcddPatchHandler
                                         new ArrayList<String[]>(0),
                                         new ArrayList<String[]>(0),
                                         false,
-                                        currTypeDefn,
+                                        null,
                                         null,
                                         null,
                                         null);
             }
-
-            // Update the table types table in the database
-            dbTable.storeTableTypesInfoTable(ccddMain.getMainFrame());
-
-            // Update the fieldHandler
-            ccddMain.getFieldHandler().buildFieldInformation(ccddMain.getMainFrame());
         }
     }
 
@@ -454,9 +381,9 @@ public class CcddPatchHandler
             if (!isPatched)
             {
 
-                if (this.patchSet.get(this.PATCH_06012019).confirmPatchApplication() == false)
+                if (patchSet.get(PATCH_06012019).confirmPatchApplication() == false)
                 {
-                    throw new CCDDException(this.patchSet.get(this.PATCH_06012019).getUserCancelledMessage());
+                    throw new CCDDException(patchSet.get(PATCH_06012019).getUserCancelledMessage());
                 }
 
                 // Back up the project database before applying the patch
@@ -486,16 +413,18 @@ public class CcddPatchHandler
                     public String basedUpon; // Structure to base upon (copy)
                     public boolean isRateEnabled; // Is the rate enabled for this structure?
                     public String description; // The description
-                }
-                ;
+                };
 
                 // These pairs contain either a conversion from one type to another or the creation
                 // of a new type
                 List<DbTableType> structures = new ArrayList<>();
+
                 // Add Structure: Cmd Arg Ref and base it off of the Structure table. Don't include
                 // the rate variable
                 structures.add(new DbTableType(CcddConstants.STRUCT_CMD_ARG_REF,
-                                               CcddConstants.TYPE_STRUCTURE, false));
+                                               CcddConstants.TYPE_STRUCTURE,
+                                               false));
+
                 // Add the Command, do not include the rate
                 structures.add(new DbTableType(CcddConstants.TYPE_COMMAND, false));
 
@@ -1617,650 +1546,6 @@ public class CcddPatchHandler
         }
     }
 
-    /**********************************************************************************************
-     * Update the fields table to include a field_inherited column and set each field's default
-     * status. Older versions of CCDD are not compatible with the project database after applying
-     * this patch
-     *
-     * @throws CCDDException If the user elects to not install the patch or an error occurs while
-     *                       applying the patch
-     *********************************************************************************************/
-    private void updateFieldsPart1() throws CCDDException
-    {
-        patch11052018Continue = false;
-        patch11052018RenamedFields = 0;
-        CcddEventLogDialog eventLog = ccddMain.getSessionEventLog();
-        CcddDbControlHandler dbControl = ccddMain.getDbControlHandler();
-
-        try
-        {
-            CcddDbCommandHandler dbCommand = ccddMain.getDbCommandHandler();
-            CcddDbTableCommandHandler dbTable = ccddMain.getDbTableCommandHandler();
-
-            // Create lists to contain the old and new fields table items
-            List<String[]> tableData = new ArrayList<String[]>();
-
-            // Read the contents of the fields table
-            ResultSet fieldsData = dbCommand.executeDbQuery(new StringBuilder("SELECT * FROM ").append(InternalTable.FIELDS.getTableName())
-                                                                                               .append(" ORDER BY OID;"),
-                                                                                               ccddMain.getMainFrame());
-
-            // Check if the patch hasn't already been applied
-            if (fieldsData.getMetaData().getColumnCount() == 8)
-            {
-
-                if (this.patchSet.get(this.PATCH_11052018).confirmPatchApplication() == false)
-                {
-                    fieldsData.close();
-                    throw new CCDDException(this.patchSet.get(this.PATCH_11052018).getUserCancelledMessage());
-                }
-
-                // Step through each of the query results
-                while (fieldsData.next())
-                {
-                    // Create an array to contain the column values
-                    String[] columnValues = new String[9];
-
-                    // Step through each column in the row
-                    for (int column = 0; column < 8; column++)
-                    {
-                        // Add the column value to the array. Note that the first column's index in
-                        // the database is 1, not 0
-                        columnValues[column] = fieldsData.getString(column + 1);
-
-                        // Check if the value is null
-                        if (columnValues[column] == null)
-                        {
-                            // Replace the null with a blank
-                            columnValues[column] = "";
-                        }
-                    }
-
-                    // Set the field default flag to indicate it isn't inherited from a table type
-                    columnValues[8] = "false";
-
-                    // Add the row data to the list
-                    tableData.add(columnValues);
-                }
-
-                fieldsData.close();
-
-                // Back up the project database before applying the patch
-                backupDatabase(dbControl);
-
-                // Check if there are any fields in the table
-                if (tableData.size() != 0)
-                {
-                    int currentIndex = 0;
-
-                    // Indicate in the log that the old data successfully loaded
-                    eventLog.logEvent(SUCCESS_MSG,
-                                      new StringBuilder(InternalTable.FIELDS.getTableName()).append(" retrieved"));
-
-                    // Get the array containing the comments for all data tables
-                    String[][] comments = dbTable.queryDataTableComments(ccddMain.getMainFrame());
-
-                    // Step through the data field definitions
-                    for (String[] fieldDefn : tableData)
-                    {
-                        // Check if the field is owned by a table
-                        if (CcddFieldHandler.isTableField(fieldDefn[FieldsColumn.OWNER_NAME.ordinal()]))
-                        {
-                            // Get the table's type name from the table comment
-                            String tableType = dbTable.getTableComment(TableInfo.getPrototypeName(fieldDefn[FieldsColumn.OWNER_NAME.ordinal()]),
-                                                                       comments)[TableCommentIndex.TYPE.ordinal()];
-
-                            // Step through the data field definitions
-                            for (String[] otherFldDefn : tableData)
-                            {
-                                // Check if this is a data field belonging to the table's type
-                                // definition and the field names match
-                                if (CcddFieldHandler.getFieldTypeName(tableType).equals(otherFldDefn[FieldsColumn.OWNER_NAME.ordinal()])
-                                    && fieldDefn[FieldsColumn.FIELD_NAME.ordinal()].equals(otherFldDefn[FieldsColumn.FIELD_NAME.ordinal()]))
-                                {
-                                    // Check if the input types match
-                                    if (fieldDefn[FieldsColumn.FIELD_TYPE.ordinal()].equals(otherFldDefn[FieldsColumn.FIELD_TYPE.ordinal()]))
-                                    {
-                                        // Set the flag that indicates this field is inherited
-                                        fieldDefn[FieldsColumn.FIELD_INHERITED.ordinal()] = "true";
-
-                                        // Step through the original field definition parts except
-                                        // for field owner, name, and value (so as not to overwrite
-                                        // the field value with that from the inherited field)
-                                        for (int index = 2; index < 7; index++)
-                                        {
-                                            // Overwrite the instance of the field with the
-                                            // inherited field
-                                            fieldDefn[index] = otherFldDefn[index];
-                                        }
-                                    }
-                                    // The names match but the input types don't match. These are
-                                    // considered different fields
-                                    else
-                                    {
-                                        boolean isNoMatch = true;
-                                        patch11052018RenamedFields++;
-
-                                        // Continue to update the field's name until there's no
-                                        // match with one of its other fields
-                                        while (isNoMatch)
-                                        {
-                                            int dupIndex = 0;
-                                            isNoMatch = false;
-
-                                            // Modify the field's name
-                                            fieldDefn[FieldsColumn.FIELD_NAME.ordinal()] += "_";
-
-                                            // Step through the data field definitions
-                                            for (String[] dupFldDefn : tableData)
-                                            {
-                                                // Check if this isn't the field being changed
-                                                if (currentIndex != dupIndex)
-                                                {
-                                                    // Check if the field name matches another of
-                                                    // the table's fields or its default fields
-                                                    if (fieldDefn[FieldsColumn.FIELD_NAME.ordinal()].equals(dupFldDefn[FieldsColumn.FIELD_NAME.ordinal()])
-                                                        && (fieldDefn[FieldsColumn.OWNER_NAME.ordinal()].equals(dupFldDefn[FieldsColumn.OWNER_NAME.ordinal()])
-                                                            || dupFldDefn[FieldsColumn.OWNER_NAME.ordinal()].equals(CcddFieldHandler.getFieldTypeName(tableType))))
-                                                    {
-                                                        // Set the flag to indicate this name is in
-                                                        // use and stop searching
-                                                        isNoMatch = true;
-                                                        break;
-                                                    }
-                                                }
-
-                                                dupIndex++;
-                                            }
-                                        }
-                                    }
-
-                                    // Stop searching since a matching field name was found
-                                    break;
-                                }
-                            }
-
-                            // Update the data field definition to set the default status and
-                            // update the field name (if needed)
-                            tableData.set(currentIndex, fieldDefn);
-                        }
-
-                        currentIndex++;
-                    }
-                }
-
-                // Store the updated fields table
-                dbTable.storeInformationTable(InternalTable.FIELDS,
-                                              tableData,
-                                              null,
-                                              ccddMain.getMainFrame());
-
-                // Set the flag to indicate that part 2 of this patch should be performed
-                patch11052018Continue = true;
-
-                // Inform the user that updating the database fields table completed
-                eventLog.logEvent(EventLogMessageType.SUCCESS_MSG,
-                                  new StringBuilder("Project '").append(dbControl.getProjectName())
-                                                                .append("' data fields table conversion (part 1) complete"));
-            }
-        }
-        catch (Exception e)
-        {
-            // Inform the user that converting the fields table failed
-            eventLog.logFailEvent(ccddMain.getMainFrame(),
-                                  "Cannot convert project '"
-                                  + dbControl.getProjectName()
-                                  + "' data fields table to new format; cause '"
-                                  + e.getMessage()
-                                  + "'",
-                                  "<html><b>Cannot convert project '</b>"
-                                  + dbControl.getProjectName()
-                                  + "<b>' data fields table to new format "
-                                  + "(project database will be closed)");
-
-            throw new CCDDException();
-        }
-    }
-
-    /**********************************************************************************************
-     * After updating the fields table to include a field_inherited column add inherited fields to
-     * those tables that don't already have the field. Older versions of CCDD are not compatible
-     * with the project database after applying this patch
-     *
-     * @throws CCDDException If the user elects to not install the patch or an error occurs while
-     *                       applying the patch
-     *********************************************************************************************/
-    private void updateFieldsPart2() throws CCDDException
-    {
-        CcddEventLogDialog eventLog = ccddMain.getSessionEventLog();
-        CcddDbControlHandler dbControl = ccddMain.getDbControlHandler();
-        CcddInputTypeHandler inputTypeHandler = ccddMain.getInputTypeHandler();
-
-        // Check if part 1 of this patch successfully completed
-        if (patch11052018Continue)
-        {
-            try
-            {
-                int addedFields = 0;
-                CcddFieldHandler fieldHandler = ccddMain.getFieldHandler();
-                CcddDbTableCommandHandler dbTable = ccddMain.getDbTableCommandHandler();
-
-                // Step through each table type
-                for (String typeName : ccddMain.getTableTypeHandler().getTableTypeNames())
-                {
-                    // Get the list of names of all tables of the specified type
-                    List<String> tableNamesList = dbTable.getAllTablesOfType(typeName,
-                                                                             null,
-                                                                             ccddMain.getMainFrame());
-
-                    // Step through each of this table type's data fields
-                    for (FieldInformation fieldInfo : fieldHandler.getFieldInformationByOwner(CcddFieldHandler.getFieldTypeName(typeName)))
-                    {
-                        // Check if this isn't a separator or break
-                        if (!fieldInfo.getInputType().equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.SEPARATOR))
-                            && !fieldInfo.getInputType().equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.BREAK)))
-                        {
-                            // Step through each table of this type
-                            for (String tableName : tableNamesList)
-                            {
-                                // Check if the data field meets the criteria of a new field for
-                                // this table ...
-                                if (
-                                    // ... the table doesn't have this data field
-                                    (fieldHandler.getFieldInformationByName(tableName, fieldInfo.getFieldName()) == null)
-
-                                    // ... and the table isn't a child structure (all fields are
-                                    // stored for prototypes, even if not displayed) or the field
-                                    // is applicable to this table
-                                    && (!tableName.contains(".")
-                                        || fieldHandler.isFieldApplicable(tableName,
-                                                                          fieldInfo.getApplicabilityType().getApplicabilityName(),
-                                                                          null)))
-                                {
-                                    // Add the data field to the table and set the flag indicating
-                                    // a change has been made
-                                    fieldHandler.getFieldInformation().add(new FieldInformation(tableName,
-                                                                                                fieldInfo.getFieldName(),
-                                                                                                fieldInfo.getDescription(),
-                                                                                                fieldInfo.getInputType(), fieldInfo.getSize(),
-                                                                                                fieldInfo.isRequired(),
-                                                                                                fieldInfo.getApplicabilityType(),
-                                                                                                fieldInfo.getValue(),
-                                                                                                true,
-                                                                                                null,
-                                                                                                -1));
-                                    addedFields++;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // Check if any fields were added
-                if (addedFields != 0)
-                {
-                    // Store the data fields
-                    dbTable.storeInformationTable(InternalTable.FIELDS,
-                                                  fieldHandler.getFieldDefnsFromInfo(),
-                                                  null,
-                                                  ccddMain.getMainFrame());
-                }
-
-                // Check if any fields were added or renamed
-                if (addedFields != 0 || patch11052018RenamedFields != 0)
-                {
-                    // Inform the user how many inherited fields were added and renamed
-                    new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                              "<html><b>Number of inherited data fields added: </b>"
-                                                              + addedFields
-                                                              + "<br><b>Number of existing fields renamed: </b>"
-                                                              + patch11052018RenamedFields,
-                                                              "Patch #11052018 Data Field Updates",
-                                                              JOptionPane.INFORMATION_MESSAGE,
-                                                              DialogOption.OK_OPTION);
-                }
-
-                // Inform the user that updating the database fields table completed
-                eventLog.logEvent(EventLogMessageType.SUCCESS_MSG,
-                                  new StringBuilder("Project '").append(dbControl.getProjectName())
-                                                                .append("' data fields table conversion (part 2) complete"));
-            }
-            catch (Exception e)
-            {
-                // Inform the user that adding the inherited tables failed
-                eventLog.logFailEvent(ccddMain.getMainFrame(),
-                                      "Cannot convert project '"
-                                      + dbControl.getProjectName()
-                                      + "' data fields table to new format; cause '"
-                                      + e.getMessage()
-                                      + "'",
-                                      "<html><b>Cannot convert project '</b>"
-                                      + dbControl.getProjectName()
-                                      + "<b>' data fields table to new format "
-                                      + "(project database will be closed)");
-
-                throw new CCDDException();
-            }
-        }
-    }
-
-    /**********************************************************************************************
-     * Update the project database table type and data field table references to the message ID
-     * name and message ID input types. The message name and ID have been combined into a single
-     * input type, 'Message name &amp; ID'. Change the message ID name input type to 'Text' and the
-     * message ID input type to 'Message name &amp; ID'. Note that the original message ID names
-     * are no longer associated with the IDs; this must be done manually
-     *
-     * @throws CCDDException if an error occurs performing the update or the user elects to not
-     *                       install the patch
-     *********************************************************************************************/
-    private void updateMessageNamesAndIDs() throws CCDDException
-    {
-        CcddEventLogDialog eventLog = ccddMain.getSessionEventLog();
-        CcddDbControlHandler dbControl = ccddMain.getDbControlHandler();
-
-        try
-        {
-            CcddDbCommandHandler dbCommand = ccddMain.getDbCommandHandler();
-
-            // Determine if the table type or data field tables reference a message ID name or
-            // message ID input type, or if the application scheduler table has separate wake-up
-            // names and IDs
-            ResultSet msgData = dbCommand.executeDbQuery(new StringBuilder("SELECT 1 FROM ").append(InternalTable.TABLE_TYPES.getTableName())
-                                                                                            .append(" WHERE ")
-                                                                                            .append(TableTypesColumn.INPUT_TYPE.getColumnName())
-                                                                                            .append(" = 'Message ID name' OR ")
-                                                                                            .append(TableTypesColumn.INPUT_TYPE.getColumnName())
-                                                                                            .append(" = 'Message ID' UNION SELECT 1 FROM ")
-                                                                                            .append(InternalTable.FIELDS.getTableName())
-                                                                                            .append(" WHERE ")
-                                                                                            .append(FieldsColumn.FIELD_TYPE.getColumnName())
-                                                                                            .append(" = 'Message ID name' OR ")
-                                                                                            .append(FieldsColumn.FIELD_TYPE.getColumnName())
-                                                                                            .append(" = 'Message ID' UNION SELECT 1 FROM ")
-                                                                                            .append(InternalTable.APP_SCHEDULER.getTableName())
-                                                                                            .append(" WHERE ")
-                                                                                            .append(AppSchedulerColumn.APP_INFO.getColumnName())
-                                                                                            .append(" ~E'[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,.*';"),
-                                                         ccddMain.getMainFrame());
-
-            // Check if the patch hasn't already been applied
-            if (msgData.next())
-            {
-                msgData.close();
-
-                if (this.patchSet.get(this.PATCH_08292018).confirmPatchApplication() == false)
-                {
-                    throw new CCDDException(this.patchSet.get(this.PATCH_08292018).getUserCancelledMessage());
-                }
-
-                // Back up the project database before applying the patch
-                backupDatabase(dbControl);
-
-                // Update the table type and data field tables. The message ID fields are changed
-                // to use the message name & ID type, and the message ID name fields are changed to
-                // use the text input type
-                dbCommand.executeDbCommand(new StringBuilder("UPDATE ").append(InternalTable.TABLE_TYPES.getTableName())
-                                                                       .append(" SET ")
-                                                                       .append(TableTypesColumn.INPUT_TYPE.getColumnName())
-                                                                       .append(" = '")
-                                                                       .append(DefaultInputType.MESSAGE_NAME_AND_ID.getInputName())
-                                                                       .append("' WHERE ")
-                                                                       .append(TableTypesColumn.INPUT_TYPE.getColumnName())
-                                                                       .append(" = 'Message ID'; UPDATE ")
-                                                                       .append(InternalTable.TABLE_TYPES.getTableName())
-                                                                       .append(" SET ")
-                                                                       .append(TableTypesColumn.INPUT_TYPE.getColumnName())
-                                                                       .append(" = '")
-                                                                       .append(DefaultInputType.TEXT.getInputName())
-                                                                       .append("' WHERE ")
-                                                                       .append(TableTypesColumn.INPUT_TYPE.getColumnName())
-                                                                       .append(" = 'Message ID name'; UPDATE ")
-                                                                       .append(InternalTable.FIELDS.getTableName())
-                                                                       .append(" SET ")
-                                                                       .append(FieldsColumn.FIELD_TYPE.getColumnName())
-                                                                       .append(" = '")
-                                                                       .append(DefaultInputType.MESSAGE_NAME_AND_ID.getInputName())
-                                                                       .append("' WHERE ")
-                                                                       .append(FieldsColumn.FIELD_TYPE.getColumnName())
-                                                                       .append(" = 'Message ID'; UPDATE ")
-                                                                       .append(InternalTable.FIELDS.getTableName())
-                                                                       .append(" SET ")
-                                                                       .append(FieldsColumn.FIELD_TYPE.getColumnName())
-                                                                       .append(" = '")
-                                                                       .append(DefaultInputType.TEXT.getInputName())
-                                                                       .append("' WHERE ")
-                                                                       .append(FieldsColumn.FIELD_TYPE.getColumnName())
-                                                                       .append(" = 'Message ID name'; UPDATE ")
-                                                                       .append(InternalTable.APP_SCHEDULER.getTableName())
-                                                                       .append(" SET ")
-                                                                       .append(AppSchedulerColumn.APP_INFO.getColumnName())
-                                                                       .append(" = regexp_replace(")
-                                                                       .append(AppSchedulerColumn.APP_INFO.getColumnName())
-                                                                       .append(", E'([^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*),([^,]*,[^,]*,[^,]*),([^,]*,.*)', '\\\\1 \\\\2 \\\\3', 'g') WHERE ")
-                                                                       .append(AppSchedulerColumn.APP_INFO.getColumnName())
-                                                                       .append(" ~ E'[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,[^,]*,.*';"),
-                                           ccddMain.getMainFrame());
-
-                // Inform the user that updating the database table type, data field, and
-                // application scheduler tables completed
-                eventLog.logEvent(EventLogMessageType.SUCCESS_MSG,
-                                  new StringBuilder("Project '").append(dbControl.getProjectName())
-                                                                .append("' table type, data field, and application scheduler tables conversion complete"));
-            }
-        }
-        catch (Exception e)
-        {
-            // Inform the user that adding access level support failed
-            eventLog.logFailEvent(ccddMain.getMainFrame(),
-                                  "Cannot update project '"
-                                  + dbControl.getProjectName()
-                                  + "' to change message name and IDs; cause '"
-                                  + e.getMessage()
-                                  + "'",
-                                  "<html><b>Cannot update project '</b>"
-                                  + dbControl.getProjectName()
-                                  + "<b>' to change message name and IDs "
-                                  + "(project database will be closed)");
-
-            throw new CCDDException();
-        }
-    }
-
-    /**********************************************************************************************
-     * Update the project database so that user access levels are supported
-     *
-     * @throws CCDDException if an error occurs performing the update or the user elects to not
-     *                       install the patch
-     *********************************************************************************************/
-    private void updateUserAccess() throws CCDDException
-    {
-        CcddEventLogDialog eventLog = ccddMain.getSessionEventLog();
-        CcddDbControlHandler dbControl = ccddMain.getDbControlHandler();
-
-        try
-        {
-            // Check if the project administrator isn't in the database comment; this indicates the
-            // project hasn't been updated to support user access levels
-            if (dbControl.getDatabaseAdmins(dbControl.getDatabaseName()) == null)
-            {
-                CcddDbCommandHandler dbCommand = ccddMain.getDbCommandHandler();
-
-                if (this.patchSet.get(this.PATCH_07242018).confirmPatchApplication() == false)
-                {
-                    throw new CCDDException(this.patchSet.get(this.PATCH_07242018).getUserCancelledMessage());
-                }
-
-                // Back up the project database before applying the patch
-                backupDatabase(dbControl);
-
-                // Get the database comment, separated into its individual parts
-                String[] comment = dbControl.getDatabaseComment(dbControl.getDatabaseName());
-
-                // Update the database's comment, adding the current user as the project creator
-                dbCommand.executeDbUpdate(new StringBuilder(dbControl.buildDatabaseCommentCommandAndUpdateInternalTable(dbControl.getProjectName(),
-                                                                                                                        dbControl.getUser(),
-                                                                                                                        false,
-                                                                                                                        comment[DatabaseComment.DESCRIPTION.ordinal()])),
-                                          ccddMain.getMainFrame());
-
-                // Update the user access level table, setting the current user as the
-                // administrator
-                List<String[]> userData = new ArrayList<String[]>(1);
-                userData.add(new String[] {dbControl.getUser(), AccessLevel.ADMIN.getDisplayName()});
-                ccddMain.getDbTableCommandHandler().storeInformationTable(InternalTable.USERS,
-                                                                          userData,
-                                                                          null,
-                                                                          ccddMain.getMainFrame());
-
-                // Inform the user that updating the database to support user access levels
-                // completed
-                eventLog.logEvent(EventLogMessageType.SUCCESS_MSG,
-                                  new StringBuilder("Project '").append(dbControl.getProjectName())
-                                                                .append("' user access level conversion complete"));
-            }
-        }
-        catch (Exception e)
-        {
-            // Inform the user that adding access level support failed
-            eventLog.logFailEvent(ccddMain.getMainFrame(),
-                                  "Cannot update project '"
-                                  + dbControl.getProjectName()
-                                  + "' to support user access levels; cause '"
-                                  + e.getMessage()
-                                  + "'",
-                                  "<html><b>Cannot update project '</b>"
-                                  + dbControl.getProjectName()
-                                  + "<b>' to support user access levels "
-                                  + "(project database will be closed)");
-
-            throw new CCDDException();
-        }
-    }
-
-    /**********************************************************************************************
-     * Update the padding variable format from '__pad#' to 'pad#__'. This is to accommodate XML
-     * exports that don't allow leading underscores in variable names (e.g., EDS)
-     *
-     * @throws CCDDException if an error occurs performing the update or the user elects to not
-     *                       install the patch
-     *********************************************************************************************/
-    private void updatePaddingVariables() throws CCDDException
-    {
-        CcddEventLogDialog eventLog = ccddMain.getSessionEventLog();
-        CcddDbControlHandler dbControl = ccddMain.getDbControlHandler();
-
-        try
-        {
-            CcddDbCommandHandler dbCommand = ccddMain.getDbCommandHandler();
-            CcddDbTableCommandHandler dbTable = ccddMain.getDbTableCommandHandler();
-            CcddTableTypeHandler tableTypeHandler = ccddMain.getTableTypeHandler();
-
-            String varColNames = "";
-
-            // Step through each table type definition
-            for (TypeDefinition typeDefn : tableTypeHandler.getTypeDefinitions())
-            {
-                // Check if the table type represents a structure
-                if (typeDefn.isStructure())
-                {
-                    // Append the variable name column name
-                    varColNames += typeDefn.getDbColumnNameByInputType(DefaultInputType.VARIABLE) + ",";
-                }
-            }
-
-            varColNames = CcddUtilities.removeTrailer(varColNames, ",");
-
-            // Search for pad variables using the old format in all prototype tables
-            ResultSet padData = dbCommand.executeDbQuery(new StringBuilder("SELECT * FROM search_tables(E'__pad', false, ").append("false, 'PROTO', '{")
-                                                                                                                           .append(varColNames)
-                                                                                                                           .append("}');"),
-                                                         ccddMain.getMainFrame());
-
-            // Check if there are any pad variables using the old format in any structure table
-            if (padData.next())
-            {
-                padData.close();
-
-                if (this.patchSet.get(PATCH_06212018).confirmPatchApplication() == false)
-                {
-                    throw new CCDDException(this.patchSet.get(PATCH_06212018).getUserCancelledMessage());
-                }
-
-                // Back up the project database before applying the patch
-                backupDatabase(dbControl);
-
-                // Step through each prototype structure table
-                for (String protoStruct : dbTable.getPrototypeTablesOfType(TYPE_STRUCTURE))
-                {
-                    // Get the table's comment
-                    String[] comment = dbTable.queryDataTableComment(protoStruct, ccddMain.getMainFrame());
-
-                    // Get the table type definition for this table
-                    TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(comment[TableCommentIndex.TYPE.ordinal()]);
-
-                    // Get the table's variable name column name
-                    String variableNameColumn = typeDefn.getDbColumnNameByInputType(DefaultInputType.VARIABLE);
-
-                    // Update the padding variable names to the new format
-                    dbCommand.executeDbCommand(new StringBuilder("UPDATE ").append(dbControl.getQuotedName(protoStruct))
-                                                                           .append(" SET ")
-                                                                           .append(dbControl.getQuotedName(variableNameColumn))
-                                                                           .append(" = regexp_replace(")
-                                                                           .append(variableNameColumn)
-                                                                           .append(", E'^__pad([0-9]+)(\\\\[[0-9]+\\\\])?$', E'pad\\\\1__\\\\2');"),
-                                               ccddMain.getMainFrame());
-                }
-
-                // Update the padding variable names in the custom values table to the new format
-                dbCommand.executeDbCommand(new StringBuilder("UPDATE ").append(InternalTable.VALUES.getTableName())
-                                                                       .append(" SET ")
-                                                                       .append(ValuesColumn.TABLE_PATH.getColumnName())
-                                                                       .append(" = regexp_replace(")
-                                                                       .append(ValuesColumn.TABLE_PATH.getColumnName())
-                                                                       .append(", E',__pad([0-9]+)(\\\\[[0-9]+\\\\])?$', E',pad\\\\1__\\\\2');"),
-                                           ccddMain.getMainFrame());
-
-                // Update the padding variable names in the links table to the new format
-                dbCommand.executeDbCommand(new StringBuilder("UPDATE ").append(InternalTable.LINKS.getTableName())
-                                                                       .append(" SET ")
-                                                                       .append(LinksColumn.MEMBER.getColumnName())
-                                                                       .append(" = regexp_replace(")
-                                                                       .append(LinksColumn.MEMBER.getColumnName())
-                                                                       .append(", E',__pad([0-9]+)(\\\\[[0-9]+\\\\])?$', E',pad\\\\1__\\\\2');"),
-                                           ccddMain.getMainFrame());
-
-                // Update the padding variable names in the telemetry scheduler table to the new
-                // format
-                dbCommand.executeDbCommand(new StringBuilder("UPDATE ").append(InternalTable.TLM_SCHEDULER.getTableName())
-                                                                       .append(" SET ")
-                                                                       .append(TlmSchedulerColumn.MEMBER.getColumnName())
-                                                                       .append(" = regexp_replace(")
-                                                                       .append(TlmSchedulerColumn.MEMBER.getColumnName())
-                                                                       .append(", E',__pad([0-9]+)(\\\\[[0-9]+\\\\])?$', E',pad\\\\1__\\\\2');"),
-                                           ccddMain.getMainFrame());
-
-                // Inform the user that updating the padding variables completed
-                eventLog.logEvent(EventLogMessageType.SUCCESS_MSG,
-                                  new StringBuilder("Project '").append(dbControl.getProjectName())
-                                                                .append("' padding variable conversion complete"));
-            }
-        }
-        catch (Exception e)
-        {
-            // Inform the user that converting the padding variable names failed
-            eventLog.logFailEvent(ccddMain.getMainFrame(),
-                                  "Cannot convert project '"
-                                  + dbControl.getProjectName()
-                                  + "' padding variable names to new format; cause '"
-                                  + e.getMessage()
-                                  + "'",
-                                  "<html><b>Cannot convert project '</b>"
-                                  + dbControl.getProjectName()
-                                  + "<b>' padding variable names to new format");
-        }
-    }
-
     class PatchUtility
     {
         final String patchId;
@@ -2291,9 +1576,9 @@ public class CcddPatchHandler
         public boolean confirmPatchApplication() throws CCDDException
         {
             boolean isNotAutoPatch = !context.isAutoPatch();
+
             if (isNotAutoPatch)
             {
-
                 if (context.isGUIHidden())
                 {
                     // The GUI is hidden and we are not automatically patching so ... we can't
@@ -2305,7 +1590,8 @@ public class CcddPatchHandler
 
                 return !this.generateQuestionDialog();
             }
-            System.out.println(this.getAutoPatchMessage());
+
+            System.out.println(getAutoPatchMessage());
             return true;
         }
 
@@ -2314,14 +1600,14 @@ public class CcddPatchHandler
             // Check if the user elects to not apply the patch
             return new CcddDialogHandler().showMessageDialog(context.getMainFrame(),
                                                              htmlDialogMessage,
-                                                             "Apply Patch " + this.patchId,
+                                                             "Apply Patch " + patchId,
                                                              JOptionPane.QUESTION_MESSAGE,
                                                              DialogOption.OK_CANCEL_OPTION) != OK_BUTTON;
         }
 
         public String getUserCancelledMessage()
         {
-            return "User elected to not install patch (" + this.patchId + ")";
+            return "User elected to not install patch (" + patchId + ")";
         }
     }
 }

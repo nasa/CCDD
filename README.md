@@ -19,7 +19,7 @@ _Note:_ **CCDD version 1** _is no longer being updated; use _ **CCDD version 2**
 
 ## CCDD version 2 (CCDD-2 branch)
 
-*** Version 2.0.37 is now released (see below for details) **
+*** Version 2.0.38 is now released (see below for details) **
 
 *** CCDD version 2 works with Java 7-13 **
 
@@ -28,6 +28,12 @@ _Note:_ **CCDD version 1** _is no longer being updated; use _ **CCDD version 2**
 Version 2 redefines the behavior of command tables.  Command arguments are no longer defined as columns within a command table.  Instead, the command table has a column that is a reference to a structure table; this structure defines the command argument(s).  The version 2 user's guide is updated to provide further details.
 
 When version 2 attempts to open a version 1.x.x version project database then a dialog appears asking to convert the project.  Unlike previous patches, this patch alters user-defined tables and table definitions, and creates new ones.  The argument columns in any command tables are replaced with the argument structure reference column, and the argument structure is created and populated using the original argument information.  Many of the command table script data access methods no longer exist, so existing scripts may need to be updated. Before this patch is applied to the version 1.x.x database a backup will be performed to ensure no data loss on the chance that something does not work as anticipated. 
+
+*** Version 2.0.38 has been released **
+
+Below is a brief description of what has changed in version 2.0.38
+* Corrected the exception thrown due to a missing ENUM table type when opening a database for the first time
+* Removed patches from the patch handler dated before 6/1/2019. These patches can be found in version 2.0.37
 
 *** Version 2.0.37 has been released **
 
