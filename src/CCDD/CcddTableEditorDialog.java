@@ -2088,7 +2088,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     private void storeAllChanges()
     {
         // Execute the command in the background
-        CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
+        CcddBackgroundCommand.executeInBackground(ccddMain, CcddTableEditorDialog.this, new BackgroundCommand()
         {
             /**************************************************************************************
              * Update the database for every table that has changes

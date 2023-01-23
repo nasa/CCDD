@@ -106,6 +106,10 @@ public class CcddConstants
     // Prefix assigned to internally created CCDD database tables
     protected static final String INTERNAL_TABLE_PREFIX = "__";
 
+    // Row number column name and data type for internal tables
+    protected static final String ROW_NUM_COLUMN_NAME = "row_num";
+    protected static final String ROW_NUM_COLUMN_TYPE = "int8";
+
     // Script description text tag
     protected static final String SCRIPT_DESCRIPTION_TAG = "description:";
 
@@ -314,10 +318,13 @@ public class CcddConstants
     protected static final int IGNORE_BUTTON = 0xfc;
 
     // DBU info place holders
-    protected static final String NAME = "_db_name_";
-    protected static final String LOCK = "_db_lock_";
-    protected static final String ADMINS = "_db_admins_";
-    protected static final String DESC = "_db_desc_";
+    protected static final String DB_PLACEHOLDER_NAME = "_db_name_";
+    protected static final String DB_PLACEHOLDER_LOCK = "_db_lock_";
+    protected static final String DB_PLACEHOLDER_ADMINS = "_db_admins_";
+    protected static final String DB_PLACEHOLDER_DESC = "_db_desc_";
+
+    // USERS place holder
+    protected static final String USER_PLACEHOLDER_ADMIN_USER = "_admin_user_";
 
     // Order in which check boxes are added to the createTableImportPanel JPanel
     protected static final int overwriteExistingCbIndex = 0;
@@ -341,6 +348,8 @@ public class CcddConstants
     protected static final String DEFAULT_DATABASE_NAME = "restored_db";
     protected static final String DEFAULT_DATABASE_USER = "current user";
     protected static final String DEFAULT_DATABASE_DESCRIPTION = "Recently restored database.";
+
+    protected static final String C_STRUCT_TO_C_CONVERSION = "c_struct_to_csv_conversion";
 
     // Endian type
     protected static enum EndianType
@@ -2288,6 +2297,7 @@ public class CcddConstants
         protected static String getDataTypeDefinitions()
         {
             String columnDefn = "";
+            int oid = 1;
 
             // Step through the default data types
             for (DefaultPrimitiveTypeInfo defType : DefaultPrimitiveTypeInfo.values())
@@ -2295,11 +2305,17 @@ public class CcddConstants
                 // Add the column definition
                 columnDefn += "('"
                               + defType.getUserName()
-                              + "', '" + defType.getCType()
+                              + "', '"
+                              + defType.getCType()
                               + "', "
                               + defType.getSizeInBytes()
-                              + ", '" + defType.getBaseType().getName()
-                              + "'), ";
+                              + ", '"
+                              + defType.getBaseType().getName()
+                              + "', "
+                              + oid
+                              + "), ";
+
+                ++oid;
             }
 
             // Remove the ending comma
@@ -3145,6 +3161,8 @@ public class CcddConstants
                                                   {TYPE_STRUCTURE, STRUCT_CMD_ARG_REF},
                                                   {TYPE_ENUM, TYPE_ENUM}};
 
+            int oid = 1;
+
             // Step through each table type
             for (String[] type : defTypes)
             {
@@ -3217,9 +3235,12 @@ public class CcddConstants
                                       + defCol.isStructureAllowed
                                       + ", "
                                       + defCol.isPointerAllowed
+                                      + ", "
+                                      + oid
                                       + "), ";
 
                         index++;
+                        oid++;
                     }
                 }
             }
@@ -3303,39 +3324,51 @@ public class CcddConstants
      *********************************************************************************************/
     protected static enum InternalTable
     {
-        // Database info - Name, databaseLock, users and description
+        // Database info
         DBU_INFO("dbu_info",
                 new String[][] {{DbuInfoColumn.DATABASE_LOCK.columnName, DbuInfoColumn.DATABASE_LOCK.dataType},
                                 {DbuInfoColumn.DATABASE_NAME.columnName, DbuInfoColumn.DATABASE_NAME.dataType},
                                 {DbuInfoColumn.DATABASE_USERS.columnName, DbuInfoColumn.DATABASE_USERS.dataType},
-                                {DbuInfoColumn.DATABASE_DESC.columnName, DbuInfoColumn.DATABASE_DESC.dataType}},
-                "WITH OIDS",
+                                {DbuInfoColumn.DATABASE_DESC.columnName, DbuInfoColumn.DATABASE_DESC.dataType},
+                                {DbuInfoColumn.ROW_NUM.columnName, DbuInfoColumn.ROW_NUM.dataType}},
+                "",
 
                 // Create default table definition for the telemetry and command table types
                 "INSERT INTO " + INTERNAL_TABLE_PREFIX + "dbu_info VALUES "
-                + "('_db_lock_', '_db_name_', '_db_admins_', '_db_desc_')"),
+                + "('"
+                + DB_PLACEHOLDER_LOCK
+                + "', '"
+                + DB_PLACEHOLDER_NAME
+                + "', '"
+                + DB_PLACEHOLDER_ADMINS
+                + "', '"
+                + DB_PLACEHOLDER_DESC
+                + "', 1)"),
 
         // Application scheduler
         APP_SCHEDULER("app_scheduler",
                 new String[][] {{AppSchedulerColumn.TIME_SLOT.columnName, AppSchedulerColumn.TIME_SLOT.dataType},
-                                {AppSchedulerColumn.APP_INFO.columnName, AppSchedulerColumn.APP_INFO.dataType}},
-                "WITH OIDS", "COMMENT ON TABLE " + INTERNAL_TABLE_PREFIX + "app_scheduler IS '1,10,10,128'"),
+                                {AppSchedulerColumn.APP_INFO.columnName, AppSchedulerColumn.APP_INFO.dataType},
+                                {AppSchedulerColumn.ROW_NUM.columnName, AppSchedulerColumn.ROW_NUM.dataType}},
+                "", "COMMENT ON TABLE " + INTERNAL_TABLE_PREFIX + "app_scheduler IS '1,10,10,128'"),
 
         // Script & data table combinations
         ASSOCIATIONS("associations",
                 new String[][] {{AssociationsColumn.NAME.columnName, AssociationsColumn.NAME.dataType},
                                 {AssociationsColumn.DESCRIPTION.columnName, AssociationsColumn.DESCRIPTION.dataType},
                                 {AssociationsColumn.SCRIPT_FILE.columnName, AssociationsColumn.SCRIPT_FILE.dataType},
-                                {AssociationsColumn.MEMBERS.columnName, AssociationsColumn.MEMBERS.dataType}},
-                "WITH OIDS", ""),
+                                {AssociationsColumn.MEMBERS.columnName, AssociationsColumn.MEMBERS.dataType},
+                                {AssociationsColumn.ROW_NUM.columnName, AssociationsColumn.ROW_NUM.dataType}},
+                "", ""),
 
         // Data types
         DATA_TYPES("data_types",
                 new String[][] {{DataTypesColumn.USER_NAME.columnName, DataTypesColumn.USER_NAME.dataType},
                                 {DataTypesColumn.C_NAME.columnName, DataTypesColumn.C_NAME.dataType},
                                 {DataTypesColumn.SIZE.columnName, DataTypesColumn.SIZE.dataType},
-                                {DataTypesColumn.BASE_TYPE.columnName, DataTypesColumn.BASE_TYPE.dataType}},
-                "WITH OIDS",
+                                {DataTypesColumn.BASE_TYPE.columnName, DataTypesColumn.BASE_TYPE.dataType},
+                                {DataTypesColumn.ROW_NUM.columnName, DataTypesColumn.ROW_NUM.dataType}},
+                "",
 
                 // Create default data type definitions
                 "INSERT INTO " + INTERNAL_TABLE_PREFIX + "data_types VALUES "
@@ -3352,8 +3385,9 @@ public class CcddConstants
                                 {FieldsColumn.FIELD_APPLICABILITY.columnName,
                                  FieldsColumn.FIELD_APPLICABILITY.dataType},
                                 {FieldsColumn.FIELD_VALUE.columnName, FieldsColumn.FIELD_VALUE.dataType},
-                                {FieldsColumn.FIELD_INHERITED.columnName, FieldsColumn.FIELD_INHERITED.dataType}},
-                "WITH OIDS",
+                                {FieldsColumn.FIELD_INHERITED.columnName, FieldsColumn.FIELD_INHERITED.dataType},
+                                {FieldsColumn.ROW_NUM.columnName, FieldsColumn.ROW_NUM.dataType}},
+                "",
 
                 // Create default data fields for the telemetry, command, and ENUM table types
                 "INSERT INTO " + INTERNAL_TABLE_PREFIX
@@ -3366,26 +3400,28 @@ public class CcddConstants
                 + FieldsColumn.FIELD_REQUIRED.columnName + ", "
                 + FieldsColumn.FIELD_APPLICABILITY.columnName + ", "
                 + FieldsColumn.FIELD_VALUE.columnName + ", "
-                + FieldsColumn.FIELD_INHERITED.columnName
+                + FieldsColumn.FIELD_INHERITED.columnName + ", "
+                + FieldsColumn.ROW_NUM.columnName
                 + ") VALUES ('Type:Structure', 'Telemetry message name & ID', 'Telemetry message name and ID', '15', '"
                 + DefaultInputType.MESSAGE_NAME_AND_ID.getInputName()
                 + "', 'true', '"
                 + ApplicabilityType.ROOT_ONLY.getApplicabilityName()
-                + "', '', 'false'), ('Type:Command', 'Command name & ID', 'Command name and ID', '15', '"
+                + "', '', 'false', 1), ('Type:Command', 'Command name & ID', 'Command name and ID', '15', '"
                 + DefaultInputType.MESSAGE_NAME_AND_ID.getInputName()
                 + "', 'true', '"
                 + ApplicabilityType.ALL.getApplicabilityName()
-                + "', '', 'false'), ('Type:ENUM', 'Size (Bytes):', 'Size of the enumeration in bytes', '2', '"
+                + "', '', 'false', 2), ('Type:ENUM', 'Size (Bytes):', 'Size of the enumeration in bytes', '2', '"
                 + DefaultInputType.TEXT.getInputName()
                 + "', 'true', '"
                 + ApplicabilityType.ALL.getApplicabilityName()
-                + "', '', 'true')"),
+                + "', '', 'true', 3)"),
 
         // Data table groupings
         GROUPS("groups",
                 new String[][] {{GroupsColumn.GROUP_NAME.columnName, GroupsColumn.GROUP_NAME.dataType},
-                                {GroupsColumn.MEMBERS.columnName, GroupsColumn.MEMBERS.dataType}},
-                "WITH OIDS", ""),
+                                {GroupsColumn.MEMBERS.columnName, GroupsColumn.MEMBERS.dataType},
+                                {GroupsColumn.ROW_NUM.columnName, GroupsColumn.ROW_NUM.dataType}},
+                "", ""),
 
         // User-defined input types
         INPUT_TYPES("input_types",
@@ -3393,45 +3429,51 @@ public class CcddConstants
                                 {InputTypesColumn.DESCRIPTION.columnName, InputTypesColumn.DESCRIPTION.dataType},
                                 {InputTypesColumn.MATCH.columnName, InputTypesColumn.MATCH.dataType},
                                 {InputTypesColumn.ITEMS.columnName, InputTypesColumn.ITEMS.dataType},
-                                {InputTypesColumn.FORMAT.columnName, InputTypesColumn.FORMAT.dataType}},
-                "WITH OIDS", ""),
+                                {InputTypesColumn.FORMAT.columnName, InputTypesColumn.FORMAT.dataType},
+                                {InputTypesColumn.ROW_NUM.columnName, InputTypesColumn.ROW_NUM.dataType}},
+                "", ""),
 
         // Variable links
         LINKS("links",
                 new String[][] {{LinksColumn.RATE_NAME.columnName, LinksColumn.RATE_NAME.dataType},
                                 {LinksColumn.LINK_NAME.columnName, LinksColumn.LINK_NAME.dataType},
-                                {LinksColumn.MEMBER.columnName, LinksColumn.MEMBER.dataType}},
-                "WITH OIDS", ""),
+                                {LinksColumn.MEMBER.columnName, LinksColumn.MEMBER.dataType},
+                                {LinksColumn.ROW_NUM.columnName, LinksColumn.ROW_NUM.dataType}},
+                "", ""),
 
         // Macro values
         MACROS("macros",
                 new String[][] {{MacrosColumn.MACRO_NAME.columnName, MacrosColumn.MACRO_NAME.dataType},
-                                {MacrosColumn.VALUE.columnName, MacrosColumn.VALUE.dataType}},
-                "WITH OIDS", ""),
+                                {MacrosColumn.VALUE.columnName, MacrosColumn.VALUE.dataType},
+                                {MacrosColumn.ROW_NUM.columnName, MacrosColumn.ROW_NUM.dataType}},
+                "", ""),
 
         // Table column orders
         ORDERS("orders",
                 new String[][] {{OrdersColumn.USER_NAME.columnName, OrdersColumn.USER_NAME.dataType},
                                 {OrdersColumn.TABLE_PATH.columnName, OrdersColumn.TABLE_PATH.dataType},
-                                {OrdersColumn.COLUMN_ORDER.columnName, OrdersColumn.COLUMN_ORDER.dataType}},
-                "WITH OIDS", ""),
+                                {OrdersColumn.COLUMN_ORDER.columnName, OrdersColumn.COLUMN_ORDER.dataType},
+                                {OrdersColumn.ROW_NUM.columnName, OrdersColumn.ROW_NUM.dataType}},
+                "", ""),
 
         // Reserved message IDs
         RESERVED_MSG_IDS("reserved_msg_ids",
                 new String[][] {{ReservedMsgIDsColumn.MSG_ID.columnName, ReservedMsgIDsColumn.MSG_ID.dataType},
-                                {ReservedMsgIDsColumn.DESCRIPTION.columnName,
-                                 ReservedMsgIDsColumn.DESCRIPTION.dataType}},
-                "WITH OIDS",
-                "INSERT INTO " + INTERNAL_TABLE_PREFIX + "reserved_msg_ids (" + ReservedMsgIDsColumn.MSG_ID.columnName
-                             + ", " + ReservedMsgIDsColumn.DESCRIPTION.columnName
-                             + ") VALUES ('0x0800 - 0x08FF', 'cFE telemetry IDs'), "
-                             + "('0x1800 - 0x18FF', 'cFE command IDs')"),
+                                {ReservedMsgIDsColumn.DESCRIPTION.columnName, ReservedMsgIDsColumn.DESCRIPTION.dataType},
+                                {ReservedMsgIDsColumn.ROW_NUM.columnName, ReservedMsgIDsColumn.ROW_NUM.dataType}},
+                "",
+                "INSERT INTO " + INTERNAL_TABLE_PREFIX + "reserved_msg_ids ("
+                + ReservedMsgIDsColumn.MSG_ID.columnName + ", "
+                + ReservedMsgIDsColumn.DESCRIPTION.columnName + ", "
+                + ReservedMsgIDsColumn.ROW_NUM.columnName
+                + ") VALUES ('0x0800 - 0x08FF', 'cFE telemetry IDs', 1), "
+                + "('0x1800 - 0x18FF', 'cFE command IDs', 2)"),
 
         // Script files
         SCRIPT("script_",
-                new String[][] {{ScriptColumn.LINE_NUM.columnName, ScriptColumn.LINE_NUM.dataType},
-                                {ScriptColumn.LINE_TEXT.columnName, ScriptColumn.LINE_TEXT.dataType}},
-                "WITH OIDS", ""),
+                new String[][] {{ScriptColumn.LINE_TEXT.columnName, ScriptColumn.LINE_TEXT.dataType},
+                                {ScriptColumn.ROW_NUM.columnName, ScriptColumn.ROW_NUM.dataType}},
+                "", ""),
 
         // Data table types
         TABLE_TYPES("table_types",
@@ -3454,11 +3496,14 @@ public class CcddConstants
                                 {TableTypesColumn.STRUCTURE_ALLOWED.columnName,
                                  TableTypesColumn.STRUCTURE_ALLOWED.dataType},
                                 {TableTypesColumn.POINTER_ALLOWED.columnName,
-                                 TableTypesColumn.POINTER_ALLOWED.dataType}},
-                "WITH OIDS",
+                                 TableTypesColumn.POINTER_ALLOWED.dataType},
+                                {TableTypesColumn.ROW_NUM.columnName,
+                                 TableTypesColumn.ROW_NUM.dataType}},
+                "",
 
                 // Enforce that (type, index) must be unique
-                "CREATE UNIQUE INDEX " + INTERNAL_TABLE_PREFIX + "table_types_idx ON " + INTERNAL_TABLE_PREFIX + "table_types (type, index); "
+                "CREATE UNIQUE INDEX " + INTERNAL_TABLE_PREFIX + "table_types_idx ON "
+                + INTERNAL_TABLE_PREFIX + "table_types (type, index); "
 
                 // Create default table definition for the telemetry and command table types
                 + "INSERT INTO " + INTERNAL_TABLE_PREFIX + "table_types VALUES "
@@ -3469,18 +3514,20 @@ public class CcddConstants
                 new String[][] {{TlmSchedulerColumn.RATE_NAME.columnName, TlmSchedulerColumn.RATE_NAME.dataType},
                                 {TlmSchedulerColumn.MESSAGE_NAME.columnName, TlmSchedulerColumn.MESSAGE_NAME.dataType},
                                 {TlmSchedulerColumn.MESSAGE_ID.columnName, TlmSchedulerColumn.MESSAGE_ID.dataType},
-                                {TlmSchedulerColumn.MEMBER.columnName, TlmSchedulerColumn.MEMBER.dataType}},
-                "WITH OIDS",
+                                {TlmSchedulerColumn.MEMBER.columnName, TlmSchedulerColumn.MEMBER.dataType},
+                                {TlmSchedulerColumn.ROW_NUM.columnName, TlmSchedulerColumn.ROW_NUM.dataType}},
+                "",
                 "COMMENT ON TABLE " + INTERNAL_TABLE_PREFIX + "tlm_scheduler IS '1,1,false,\""
                 + DefaultColumn.RATE.getName() + "\",\"" + DefaultColumn.RATE.getName() + "\",1,56000'"),
 
         // User authorization
         USERS("users", new String[][] {{UsersColumn.USER_NAME.columnName, UsersColumn.USER_NAME.dataType},
-                                       {UsersColumn.ACCESS_LEVEL.columnName, UsersColumn.ACCESS_LEVEL.dataType}},
-                "WITH OIDS",
+                                       {UsersColumn.ACCESS_LEVEL.columnName, UsersColumn.ACCESS_LEVEL.dataType},
+                                       {UsersColumn.ROW_NUM.columnName, UsersColumn.ROW_NUM.dataType}},
+                "",
                 "INSERT INTO " + INTERNAL_TABLE_PREFIX + "users (" + UsersColumn.USER_NAME.columnName + ", "
-                + UsersColumn.ACCESS_LEVEL.columnName + ") VALUES ('_admin_user_', '"
-                + AccessLevel.ADMIN.getDisplayName() + "')"),
+                + UsersColumn.ACCESS_LEVEL.columnName + ", " + UsersColumn.ROW_NUM.columnName + ") VALUES ('"
+                + USER_PLACEHOLDER_ADMIN_USER + "', '" + AccessLevel.ADMIN.getDisplayName() + "', 1)"),
 
         // Data table values for non-prototype tables
         VALUES("values",
@@ -3497,7 +3544,8 @@ public class CcddConstants
             DATABASE_NAME("database_name", "text"),
             DATABASE_LOCK("database_lock", "text"),
             DATABASE_USERS("database_users", "text"),
-            DATABASE_DESC("database_description", "text");
+            DATABASE_DESC("database_description", "text"),
+            ROW_NUM(ROW_NUM_COLUMN_NAME, ROW_NUM_COLUMN_TYPE);
 
             private final String columnName;
             private final String dataType;
@@ -3532,7 +3580,8 @@ public class CcddConstants
         protected static enum AppSchedulerColumn
         {
             TIME_SLOT("time_slot", "text"),
-            APP_INFO("application_info", "text");
+            APP_INFO("application_info", "text"),
+            ROW_NUM(ROW_NUM_COLUMN_NAME, ROW_NUM_COLUMN_TYPE);
 
             private final String columnName;
             private final String dataType;
@@ -3592,7 +3641,8 @@ public class CcddConstants
             NAME("name", "text"),
             DESCRIPTION("description", "text"),
             SCRIPT_FILE("script_file", "text"),
-            MEMBERS("member_tables", "text");
+            MEMBERS("member_tables", "text"),
+            ROW_NUM(ROW_NUM_COLUMN_NAME, ROW_NUM_COLUMN_TYPE);
 
             private final String columnName;
             private final String dataType;
@@ -3630,7 +3680,7 @@ public class CcddConstants
             C_NAME("c_name", "text"),
             SIZE("size", "text"),
             BASE_TYPE("base_type", "text"),
-            OID("index", "text");
+            ROW_NUM(ROW_NUM_COLUMN_NAME, ROW_NUM_COLUMN_TYPE);
 
             private final String columnName;
             private final String dataType;
@@ -3672,7 +3722,8 @@ public class CcddConstants
             FIELD_REQUIRED("field_required", "text"),
             FIELD_APPLICABILITY("field_applicability", "text"),
             FIELD_VALUE("field_value", "text"),
-            FIELD_INHERITED("field_inherited", "text");
+            FIELD_INHERITED("field_inherited", "text"),
+            ROW_NUM(ROW_NUM_COLUMN_NAME, ROW_NUM_COLUMN_TYPE);
 
             private final String columnName;
             private final String dataType;
@@ -3707,7 +3758,8 @@ public class CcddConstants
         protected static enum GroupsColumn
         {
             GROUP_NAME("group_name", "text"),
-            MEMBERS("member_tables", "text");
+            MEMBERS("member_tables", "text"),
+            ROW_NUM(ROW_NUM_COLUMN_NAME, ROW_NUM_COLUMN_TYPE);
 
             private final String columnName;
             private final String dataType;
@@ -3743,7 +3795,8 @@ public class CcddConstants
         {
             RATE_NAME("rate_name", "text"),
             LINK_NAME("link_name", "text"),
-            MEMBER("member_variables", "text");
+            MEMBER("member_variables", "text"),
+            ROW_NUM(ROW_NUM_COLUMN_NAME, ROW_NUM_COLUMN_TYPE);
 
             private final String columnName;
             private final String dataType;
@@ -3779,7 +3832,7 @@ public class CcddConstants
         {
             MACRO_NAME("macro_name", "text"),
             VALUE("value", "text"),
-            OID("index", "text");
+            ROW_NUM(ROW_NUM_COLUMN_NAME, ROW_NUM_COLUMN_TYPE);
 
             private final String columnName;
             private final String dataType;
@@ -3815,7 +3868,8 @@ public class CcddConstants
         {
             USER_NAME("user_name", "text"),
             TABLE_PATH("table_path", "text"),
-            COLUMN_ORDER("column_order", "text");
+            COLUMN_ORDER("column_order", "text"),
+            ROW_NUM(ROW_NUM_COLUMN_NAME, ROW_NUM_COLUMN_TYPE);
 
             private final String columnName;
             private final String dataType;
@@ -3851,7 +3905,7 @@ public class CcddConstants
         {
             MSG_ID("msg_id", "text"),
             DESCRIPTION("description", "text"),
-            OID("index", "text");
+            ROW_NUM(ROW_NUM_COLUMN_NAME, ROW_NUM_COLUMN_TYPE);
 
             private final String columnName;
             private final String dataType;
@@ -3868,6 +3922,16 @@ public class CcddConstants
                 this.columnName = columnName;
                 this.dataType = dataType;
             }
+
+            /**************************************************************************************
+             * Get the reserved message IDs table column name
+             *
+             * @return Reserved message IDs table column name
+             *************************************************************************************/
+            protected String getColumnName()
+            {
+                return columnName;
+            }
         }
 
         /******************************************************************************************
@@ -3875,8 +3939,8 @@ public class CcddConstants
          *****************************************************************************************/
         protected static enum ScriptColumn
         {
-            LINE_NUM("line_number", "text"),
-            LINE_TEXT("line_text", "text");
+            LINE_TEXT("line_text", "text"),
+            ROW_NUM(ROW_NUM_COLUMN_NAME, ROW_NUM_COLUMN_TYPE);
 
             private final String columnName;
             private final String dataType;
@@ -3905,7 +3969,7 @@ public class CcddConstants
             MATCH("match", "text"),
             ITEMS("items", "text"),
             FORMAT("format", "text"),
-            OID("index", "text");
+            ROW_NUM(ROW_NUM_COLUMN_NAME, ROW_NUM_COLUMN_TYPE);
 
             private final String columnName;
             private final String dataType;
@@ -3921,6 +3985,16 @@ public class CcddConstants
             {
                 this.columnName = columnName;
                 this.dataType = dataType;
+            }
+
+            /**************************************************************************************
+             * Get the input type column name
+             *
+             * @return Input type column name
+             *************************************************************************************/
+            protected String getColumnName()
+            {
+                return columnName;
             }
         }
 
@@ -3938,7 +4012,8 @@ public class CcddConstants
             ROW_VALUE_UNIQUE("row_value_unique", "boolean"),
             COLUMN_REQUIRED("column_required", "boolean"),
             STRUCTURE_ALLOWED("allow_structure", "boolean"),
-            POINTER_ALLOWED("allow_pointer", "boolean");
+            POINTER_ALLOWED("allow_pointer", "boolean"),
+            ROW_NUM(ROW_NUM_COLUMN_NAME, ROW_NUM_COLUMN_TYPE);
 
             private final String columnName;
             private final String dataType;
@@ -3975,7 +4050,8 @@ public class CcddConstants
             RATE_NAME("rate_name", "text"),
             MESSAGE_NAME("message_name", "text"),
             MESSAGE_ID("message_id", "text"),
-            MEMBER("member_variable", "text");
+            MEMBER("member_variable", "text"),
+            ROW_NUM(ROW_NUM_COLUMN_NAME, ROW_NUM_COLUMN_TYPE);
 
             private final String columnName;
             private final String dataType;
@@ -4034,7 +4110,7 @@ public class CcddConstants
         {
             USER_NAME("user_name", "text"),
             ACCESS_LEVEL("access_level", "text"),
-            OID("index", "text");
+            ROW_NUM(ROW_NUM_COLUMN_NAME, ROW_NUM_COLUMN_TYPE);
 
             private final String columnName;
             private final String dataType;
@@ -4589,7 +4665,7 @@ public class CcddConstants
     {
         NAME("Macro Name", "Macro name", "", true),
         VALUE("Value", "Macro value", "", false),
-        OID("OID", "Macro index", "", false);
+        ROW_NUM(ROW_NUM_COLUMN_NAME, "Macro index", "", false);
 
         private final String columnName;
         private final String toolTip;
@@ -4711,7 +4787,7 @@ public class CcddConstants
         C_NAME("C Name", "C-language data type name", "", false),
         SIZE("Size", "Data type size in bytes", "", true),
         BASE_TYPE("Base Type", "Base data type", "", true),
-        OID("OID", "Data type index", "", false);
+        ROW_NUM(ROW_NUM_COLUMN_NAME, "Data type index", "", false);
 
         private final String columnName;
         private final String toolTip;
@@ -4834,7 +4910,7 @@ public class CcddConstants
         MATCH("RegEx Match", "Regular expression for constraining values of this input type", ".*", true),
         ITEMS("Selection Items", "Text strings, separated by line feeds, by which the input value is constrained", "", false),
         FORMAT("Value Format", "Generic type for formatting values", InputTypeFormat.TEXT.getFormatName(), true),
-        OID("OID", "Input type index", "", false);
+        ROW_NUM(ROW_NUM_COLUMN_NAME, "Input type index", "", false);
 
         private final String columnName;
         private final String toolTip;
@@ -5121,7 +5197,7 @@ public class CcddConstants
     {
         MSG_ID("Message ID(s)", "Message ID or range of IDs", "", true),
         DESCRIPTION("Description", "Description", "", false),
-        OID("OID", "Reserved message ID index", "", false);
+        ROW_NUM(ROW_NUM_COLUMN_NAME, "Reserved message ID index", "", false);
 
         private final String columnName;
         private final String toolTip;
@@ -5457,7 +5533,7 @@ public class CcddConstants
     {
         USER_NAME("User Name", "PostgreSQL server user name", "", true),
         ACCESS_LEVEL("Access Level", "User's project database access level", AccessLevel.READ_WRITE.getDisplayName(), true),
-        OID("OID", "Access level index", "", false);
+        ROW_NUM(ROW_NUM_COLUMN_NAME, "Access level index", "", false);
 
         private final String columnName;
         private final String toolTip;

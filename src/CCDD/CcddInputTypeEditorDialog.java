@@ -110,8 +110,8 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
     // repeated searches for a the same input type
     private List<InputTypeReference> loadedReferences;
 
-    // Temporary OID
-    private int tempOID;
+    // Temporary row number
+    private long tempRowNum;
 
     // Dialog title
     private static final String DIALOG_TITLE = "Input Type Editor";
@@ -190,9 +190,10 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
         // Check that no error occurred performing the database commands
         if (!commandError)
         {
-            // Assign temporary OIDs to the added rows so that these can be matched when building
-            // updates
-            tempOID = inputTypeTable.assignOIDsToNewRows(tempOID, InputTypesColumn.OID.ordinal());
+            // Assign temporary row numbers to the added rows so that these can be matched when
+            // building updates
+            tempRowNum = inputTypeTable.assignTemporaryRowNumbersToNewRows(tempRowNum,
+                                                                           InputTypesColumn.ROW_NUM.ordinal());
 
             // Update the input type handler with the changes. The variable paths input type must
             // be re-added since it gets removed when the input types are built
@@ -241,8 +242,8 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                 modifications = new ArrayList<TableModification>();
                 loadedReferences = new ArrayList<InputTypeReference>();
 
-                // Initialize the temporary OID
-                tempOID = -1;
+                // Initialize the temporary row number
+                tempRowNum = -1;
 
                 // Set the initial layout manager characteristics
                 GridBagConstraints gbc = new GridBagConstraints(0,
@@ -630,7 +631,7 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
             @Override
             protected boolean isColumnHidden(int column)
             {
-                return column == InputTypeEditorColumnInfo.OID.ordinal();
+                return column == InputTypeEditorColumnInfo.ROW_NUM.ordinal();
             }
 
             /**************************************************************************************
@@ -1129,8 +1130,8 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
         // Step through each row in the input type table
         for (int tblRow = 0; tblRow < tableData.length; tblRow++)
         {
-            // Check if the OID isn't blank
-            if (!tableData[tblRow][InputTypesColumn.OID.ordinal()].toString().isEmpty())
+            // Check if the row number isn't blank
+            if (!tableData[tblRow][InputTypesColumn.ROW_NUM.ordinal()].toString().isEmpty())
             {
                 boolean matchFound = false;
 
@@ -1138,7 +1139,7 @@ public class CcddInputTypeEditorDialog extends CcddDialogHandler
                 for (int comRow = 0; comRow < numCommitted && !matchFound; comRow++)
                 {
                     // Check if the index values match for these rows
-                    if (tableData[tblRow][InputTypesColumn.OID.ordinal()].equals(committedData[comRow][InputTypesColumn.OID.ordinal()]))
+                    if (tableData[tblRow][InputTypesColumn.ROW_NUM.ordinal()].equals(committedData[comRow][InputTypesColumn.ROW_NUM.ordinal()]))
                     {
                         // Set the flags indicating this row has a match
                         matchFound = true;

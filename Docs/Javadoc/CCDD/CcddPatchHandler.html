@@ -17,7 +17,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -154,9 +154,13 @@ extends java.lang.Object</pre>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>private java.lang.String</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddPatchHandler.html#PATCH_06012019">PATCH_06012019</a></span></code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddPatchHandler.html#PATCH_01112023">PATCH_01112023</a></span></code>&nbsp;</td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>private java.lang.String</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddPatchHandler.html#PATCH_06012019">PATCH_06012019</a></span></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>private java.util.HashMap&lt;java.lang.String,<a href="../CCDD/CcddPatchHandler.PatchUtility.html" title="class in CCDD">CcddPatchHandler.PatchUtility</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddPatchHandler.html#patchSet">patchSet</a></span></code>&nbsp;</td>
 </tr>
@@ -208,12 +212,28 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddPatchHandler.html#eliminateOIDs--">eliminateOIDs</a></span>()</code>
+<div class="block">Convert the project to eliminate OIDs in the internal tables</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>private void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddPatchHandler.html#eliminateOIDs-CCDD.CcddDbCommandHandler-CCDD.CcddDbTableCommandHandler-CCDD.CcddConstants.InternalTable-java.lang.String-java.lang.String-">eliminateOIDs</a></span>(<a href="../CCDD/CcddDbCommandHandler.html" title="class in CCDD">CcddDbCommandHandler</a>&nbsp;dbCommand,
+             <a href="../CCDD/CcddDbTableCommandHandler.html" title="class in CCDD">CcddDbTableCommandHandler</a>&nbsp;dbTable,
+             <a href="../CCDD/CcddConstants.InternalTable.html" title="enum in CCDD">CcddConstants.InternalTable</a>&nbsp;intTable,
+             java.lang.String&nbsp;tableName,
+             java.lang.String&nbsp;scriptName)</code>
+<div class="block">Eliminate OIDs in the specified internal table</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddPatchHandler.html#updateCommandTables--">updateCommandTables</a></span>()</code>
 <div class="block">The command table types are altered by removing any argument columns and adding a command
  argument structure reference column.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddPatchHandler.html#updateTableTypeAndDataTypeTables--">updateTableTypeAndDataTypeTables</a></span>()</code>
 <div class="block">The internal data types table is modified so that the 'size' column has a type of 'text'
@@ -263,13 +283,26 @@ extends java.lang.Object</pre>
 <a name="PATCH_06012019">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>PATCH_06012019</h4>
 <pre>private final&nbsp;java.lang.String PATCH_06012019</pre>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../constant-values.html#CCDD.CcddPatchHandler.PATCH_06012019">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a name="PATCH_01112023">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>PATCH_01112023</h4>
+<pre>private final&nbsp;java.lang.String PATCH_01112023</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../constant-values.html#CCDD.CcddPatchHandler.PATCH_01112023">Constant Field Values</a></dd>
 </dl>
 </li>
 </ul>
@@ -344,6 +377,47 @@ extends java.lang.Object</pre>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If the project database cannot be backed up and the user elects to not
                        continue</dd>
+</dl>
+</li>
+</ul>
+<a name="eliminateOIDs--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>eliminateOIDs</h4>
+<pre>private&nbsp;void&nbsp;eliminateOIDs()
+                    throws <a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></pre>
+<div class="block">Convert the project to eliminate OIDs in the internal tables</div>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../CCDD/CcddClassesDataTable.CCDDException.html" title="class in CCDD">CcddClassesDataTable.CCDDException</a></code> - If the user elects to not install the patch or an error occurs while
+                       applying the patch</dd>
+</dl>
+</li>
+</ul>
+<a name="eliminateOIDs-CCDD.CcddDbCommandHandler-CCDD.CcddDbTableCommandHandler-CCDD.CcddConstants.InternalTable-java.lang.String-java.lang.String-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>eliminateOIDs</h4>
+<pre>private&nbsp;void&nbsp;eliminateOIDs(<a href="../CCDD/CcddDbCommandHandler.html" title="class in CCDD">CcddDbCommandHandler</a>&nbsp;dbCommand,
+                           <a href="../CCDD/CcddDbTableCommandHandler.html" title="class in CCDD">CcddDbTableCommandHandler</a>&nbsp;dbTable,
+                           <a href="../CCDD/CcddConstants.InternalTable.html" title="enum in CCDD">CcddConstants.InternalTable</a>&nbsp;intTable,
+                           java.lang.String&nbsp;tableName,
+                           java.lang.String&nbsp;scriptName)
+                    throws java.sql.SQLException</pre>
+<div class="block">Eliminate OIDs in the specified internal table</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>dbCommand</code> - Reference to the database command handler</dd>
+<dd><code>dbTable</code> - Reference to the database table command handler</dd>
+<dd><code>intTable</code> - Internal table type</dd>
+<dd><code>tableName</code> - Table name</dd>
+<dd><code>scriptName</code> - Script name and description; null if not a script table</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code>java.sql.SQLException</code> - If an error occurs retrieving or updating the table data</dd>
 </dl>
 </li>
 </ul>

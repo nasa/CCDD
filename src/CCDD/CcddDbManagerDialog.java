@@ -214,8 +214,8 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                         case CREATE:
                             // Create a panel containing a grid of radio buttons representing the
                             // roles from which to choose
-                            if (!addRadioButtons(null,
-                                                 false,
+                            if (!addRadioButtons(dbControl.getUser(),
+                                                 true,
                                                  getRoleInformation(),
                                                  null,
                                                  "Select project owner",
@@ -611,7 +611,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                                         // Store the updated user access level table
                                         dbTable.storeInformationTableInBackground(InternalTable.USERS,
                                                                                   CcddUtilities.removeArrayListColumn(getUpdatedData(),
-                                                                                                                      UsersColumn.OID.ordinal()),
+                                                                                                                      UsersColumn.ROW_NUM.ordinal()),
                                                                                   null,
                                                                                   CcddDbManagerDialog.this);
                                     }
@@ -1251,7 +1251,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
             @Override
             protected boolean isColumnHidden(int column)
             {
-                return column == AccessLevelEditorColumnInfo.OID.ordinal();
+                return column == AccessLevelEditorColumnInfo.ROW_NUM.ordinal();
             }
 
             /**************************************************************************************
@@ -1500,7 +1500,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                 // Add or remove the change indicator based on whether or not any unstored changes
                 // exist
                 setTitle(DIALOG_TITLE + (accessTable.isTableChanged(committedData,
-                                                                    Arrays.asList(new Integer[] {AccessLevelEditorColumnInfo.OID.ordinal()})) ? CHANGE_INDICATOR
+                                                                    Arrays.asList(new Integer[] {AccessLevelEditorColumnInfo.ROW_NUM.ordinal()})) ? CHANGE_INDICATOR
                                                                                                                                               : ""));
 
                 // Force the table to redraw so that changes to the cells are displayed
@@ -1587,7 +1587,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
         if (accessTable == null
             || (accessTable.isLastCellValid()
                 && (!accessTable.isTableChanged(committedData,
-                                                Arrays.asList(new Integer[] {AccessLevelEditorColumnInfo.OID.ordinal()}))
+                                                Arrays.asList(new Integer[] {AccessLevelEditorColumnInfo.ROW_NUM.ordinal()}))
                     || new CcddDialogHandler().showMessageDialog(CcddDbManagerDialog.this,
                                                                  "<html><b>Discard changes?",
                                                                  "Discard Changes",

@@ -2582,6 +2582,7 @@ public class CcddClassesDataTable
             {
                 // First check to see if this is a 1d or 2d array. We do not support 3d or above
                 int count = StringUtils.countMatches(arrayInfo, ",");
+
                 if (count == 0)
                 {
                     // This is a 1d array

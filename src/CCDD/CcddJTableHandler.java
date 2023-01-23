@@ -699,21 +699,22 @@ public abstract class CcddJTableHandler extends JTable
     }
 
     /**********************************************************************************************
-     * Assign OIDs to newly added table rows. Some tables use OIDs, when building the table updates
-     * used to generate the SQL commands to adjust the database, to match up a row that has had one
-     * or more column values or its position in the table changed with the same row prior to the
-     * change(s). New rows are initialized with a blank OID (the OID is assigned when the table is
-     * written to the database). If a subsequent table store operation is performed then rows with
-     * blank OIDs can't be matched, so assigning a temporary OID allows matching.
+     * Assign row numbers to newly added table rows. Some tables use row numbers, when building the
+     * table updates used to generate the SQL commands to adjust the database, to match up a row
+     * that has had one or more column values or its position in the table changed with the same
+     * row prior to the change(s). New rows are initialized with a blank row number (the row number
+     * is assigned when the table is written to the database). If a subsequent table store
+     * operation is performed then rows with blank row numbers can't be matched, so assigning a
+     * temporary row number allows matching.
      *
-     * @param tempOID   Starting number for the temporary OID. This should be negative so as not to
-     *                  duplicate an actual OIDs in another table row
+     * @param tempRowNum   Starting number for the temporary row number. This should be negative so
+     *                     as not to duplicate an actual row numbers in another table row
      *
-     * @param oidColumn Table column containing the OID, model coordinates
+     * @param rowNumColumn Table column containing the row number, model coordinates
      *
-     * @return The updated temporary OID value
+     * @return The updated temporary row number value
      *********************************************************************************************/
-    protected int assignOIDsToNewRows(int tempOID, int oidColumn)
+    protected long assignTemporaryRowNumbersToNewRows(long tempRowNum, int rowNumColumn)
     {
         // Step through each row in the table
         for (int row = 0; row < tableModel.getRowCount(); row++)
@@ -721,19 +722,19 @@ public abstract class CcddJTableHandler extends JTable
             // Skip rows in the table that have no data
             row = getNextPopulatedRowNumber(row);
 
-            // Check if the end of the table hasn't been reached and the OID is blank (i.e., this
-            // is a newly added row)
+            // Check if the end of the table hasn't been reached and the row number is blank (i.e.,
+            // this is a newly added row)
             if (row < tableModel.getRowCount()
-                && tableModel.getValueAt(row, oidColumn).toString().isEmpty())
+                && tableModel.getValueAt(row, rowNumColumn).toString().isEmpty())
             {
-                // Provide a temporary OID value so that the row can be matched when building
-                // updates
-                tableModel.setValueAt(String.valueOf(tempOID), row, oidColumn, false);
-                tempOID--;
+                // Provide a temporary row number value so that the row can be matched when
+                // building updates
+                tableModel.setValueAt(String.valueOf(tempRowNum), row, rowNumColumn, false);
+                tempRowNum--;
             }
         }
 
-        return tempOID;
+        return tempRowNum;
     }
 
     /**********************************************************************************************
@@ -1449,15 +1450,6 @@ public abstract class CcddJTableHandler extends JTable
      *********************************************************************************************/
     protected void loadDataArrayIntoTable(Object[][] tableData, boolean undoable)
     {
-        // Check if the number of table rows or columns changed
-        if (tableData.length != tableModel.getRowCount()
-            || (tableData.length != 0 && tableData[0].length != tableModel.getColumnCount()))
-        {
-            // Initialize the row sorter to null in order to prevent an error when the table is
-            // empty and to remove the effects of any row filtering
-            setRowSorter(null);
-        }
-
         // Set the flag indicating that a model data update is in progress
         isReloadData = true;
 
@@ -1467,11 +1459,23 @@ public abstract class CcddJTableHandler extends JTable
         // Reset the model update in progress flag
         isReloadData = false;
 
+        // Check if the number of table rows or columns changed
+        if (tableData.length != tableModel.getRowCount()
+            || (tableData.length != 0 && tableData[0].length != tableModel.getColumnCount()))
+        {
+            // Initialize the row sorter to null in order to prevent an error when the table is
+            // empty and to remove the effects of any row filtering
+            setRowSorter(null);
+        }
+
         // Enable/disable table sort capability based on if any rows exist
         setTableSortable();
 
         // Check if the table was sorted prior to loading the table data
-        if (allowSort && tableModel.getRowCount() != 0 && getRowSorter() != null && lastSortKeys != null)
+        if (allowSort
+            && (tableModel.getRowCount() != 0)
+            && (getRowSorter() != null)
+            && (lastSortKeys != null))
         {
             // Restore the sort order
             ((TableRowSorter<?>) getRowSorter()).setSortKeys(lastSortKeys);
@@ -3101,7 +3105,7 @@ public abstract class CcddJTableHandler extends JTable
 
                     // Replace the tabs with a tab+space so that empty cells at the end of a line
                     // aren't discarded by the split commands. The extra space is removed later
-                    data = data.replaceAll("    ", "     ");
+                    data = data.replaceAll("\t", "\t ");
 
                     // Count the number of rows and columns in the pasted data. The remaining new
                     // line characters indicate the end of a row of cells, so the number of new
@@ -3110,12 +3114,12 @@ public abstract class CcddJTableHandler extends JTable
                     // of columns is determined by counting the number of tab characters (which
                     // separate the cells in a row) for the first row of the data
                     int numRows = (data + " ").split("\n").length;
-                    int numColumns = data.split("\n")[0].split("    ").length;
+                    int numColumns = data.split("\n")[0].split("\t").length;
 
                     // Replace the new line characters that terminate each row with a tab
                     // character; the string can be split into cell values based on the tabs (cells
                     // in a row are already tab-separated)
-                    data = data.replaceAll("\n", "     ");
+                    data = data.replaceAll("\n", "\t ");
 
                     // Restore the double quotes that are part of the cell contents by replacing
                     // each place holder with a double quote
@@ -3124,7 +3128,7 @@ public abstract class CcddJTableHandler extends JTable
                     // Break the data string into the individual cells. The size of the array is
                     // specified to prevent the split command from discarding any empty trailing
                     // cells
-                    String[] cellData = data.split("     ", numRows * numColumns);
+                    String[] cellData = data.split("\t ", numRows * numColumns);
 
                     // Step through each cell
                     for (int index = 0; index < cellData.length; index++)
@@ -3323,73 +3327,79 @@ public abstract class CcddJTableHandler extends JTable
                 // Step through the columns, beginning at the one with the focus
                 for (int column = startColumn; column <= endColumn && showMessage != null; column++)
                 {
-                    // Convert the view column index to model coordinates
-                    int modelColumn = convertColumnIndexToModel(column);
-
-                    // Get the old cell value
-                    Object oldValue = tableData.get(modelRow)[modelColumn];
-                    Object newValue;
-
-                    // Check if the cell is displayed as a check box (boolean value)
-                    if (oldValue instanceof Boolean)
+                    // Check that the column falls within the bounds of the table. If
+                    // outside the bounds or protected then discard the value
+                    if (column < getColumnCount())
                     {
-                        // Get the new cell value as a boolean. Use a blank for any pasted value
-                        // not equal to "true" or "false". If the number of cells to be filled
-                        // exceeds the stored values then use "false" as the default. A null paste
-                        // value indicates that the current cell's value won't be overwritten
-                        newValue = index < cellData.length ? (cellData[index] != null ? (cellData[index].equals("true") ? true
-                                                                                                                        : (cellData[index].equals("false") ? false
-                                                                                                                                                           : ""))
-                                                                                      : (isInsert ? false : null))
-                                                           : false;
-                    }
-                    // The cell displays text
-                    else
-                    {
-                        // Get the new cell value as text, cleaning up the value if needed. If the
-                        // number of cells to be filled exceeds the stored values then use a blank
-                        // as the default. A null paste value indicates that the current cell's
-                        // value won't be overwritten
-                        newValue = index < cellData.length ? (cellData[index] != null ? cleanUpCellValue(cellData[index],
-                                                                                                         modelRow,
-                                                                                                         modelColumn)
-                                                                                      : (isInsert ? "" : null))
-                                                           : "";
-                    }
+                        // Convert the view column index to model coordinates
+                        int modelColumn = convertColumnIndexToModel(column);
 
-                    // Check if the paste value isn't null (a null value indicates that the current
-                    // cell's value won't be overwritten). For the first pass through this row's
-                    // column process only blank cells; for the second pass process only non-blank
-                    // cells. If one of these criteria is met then check if the column index is
-                    // within the table boundaries and if the cell is alterable
-                    if (newValue != null
-                        && ((pass == 1 && newValue.toString().isEmpty())
-                            || (pass == 2 && !newValue.toString().isEmpty()))
-                        && modelColumn < tableModel.getColumnCount()
-                        && isDataAlterable(tableData.get(modelRow), modelRow, modelColumn))
-                    {
-                        // Check if the value has changed and, if this values are being inserted,
-                        // that the value isn't blank
-                        if (!oldValue.equals(newValue) && !(isInsert && newValue.toString().isEmpty()))
+                        // Get the old cell value
+                        Object oldValue = tableData.get(modelRow)[modelColumn];
+                        Object newValue;
+
+                        // Check if the cell is displayed as a check box (boolean value)
+                        if (oldValue instanceof Boolean)
                         {
-                            // Insert the value into the cell
-                            tableData.get(modelRow)[modelColumn] = newValue;
+                            // Get the new cell value as a boolean. Use a blank for any pasted
+                            // value not equal to "true" or "false". If the number of cells to be
+                            // filled exceeds the stored values then use "false" as the default. A
+                            // null paste value indicates that the current cell's value won't be
+                            // overwritten
+                            newValue = index < cellData.length ? (cellData[index] != null ? (cellData[index].equals("true") ? true
+                                                                                                                            : (cellData[index].equals("false") ? false
+                                                                                                                                                               : ""))
+                                                                                          : (isInsert ? false : null))
+                                                               : false;
+                        }
+                        // The cell displays text
+                        else
+                        {
+                            // Get the new cell value as text, cleaning up the value if needed. If
+                            // the number of cells to be filled exceeds the stored values then use
+                            // a blank as the default. A null paste value indicates that the
+                            // current cell's value won't be overwritten
+                            newValue = index < cellData.length ? (cellData[index] != null ? cleanUpCellValue(cellData[index],
+                                                                                                             modelRow,
+                                                                                                             modelColumn)
+                                                                                          : (isInsert ? "" : null))
+                                                               : "";
+                        }
 
-                            // Validate the new cell contents
-                            showMessage = validateCellContent(tableData,
-                                                              modelRow,
-                                                              modelColumn,
-                                                              oldValue,
-                                                              newValue,
-                                                              showMessage,
-                                                              cellData.length > 1);
-
-                            // Check if the user selected the Cancel button following an invalid
-                            // input
-                            if (showMessage == null)
+                        // Check if the paste value isn't null (a null value indicates that the
+                        // current cell's value won't be overwritten). For the first pass through
+                        // this row's column process only blank cells; for the second pass process
+                        // only non-blank cells. If one of these criteria is met then check if the
+                        // column index is within the table boundaries and if the cell is alterable
+                        if (newValue != null
+                            && ((pass == 1 && newValue.toString().isEmpty())
+                                || (pass == 2 && !newValue.toString().isEmpty()))
+                            && modelColumn < tableModel.getColumnCount()
+                            && isDataAlterable(tableData.get(modelRow), modelRow, modelColumn))
+                        {
+                            // Check if the value has changed and, if this values are being
+                            // inserted, that the value isn't blank
+                            if (!oldValue.equals(newValue) && !(isInsert && newValue.toString().isEmpty()))
                             {
-                                // Stop pasting data
-                                continue;
+                                // Insert the value into the cell
+                                tableData.get(modelRow)[modelColumn] = newValue;
+
+                                // Validate the new cell contents
+                                showMessage = validateCellContent(tableData,
+                                                                  modelRow,
+                                                                  modelColumn,
+                                                                  oldValue,
+                                                                  newValue,
+                                                                  showMessage,
+                                                                  cellData.length > 1);
+
+                                // Check if the user selected the Cancel button following an
+                                // invalid input
+                                if (showMessage == null)
+                                {
+                                    // Stop pasting data
+                                    continue;
+                                }
                             }
                         }
                     }
@@ -3549,9 +3559,6 @@ public abstract class CcddJTableHandler extends JTable
                 nextRow = removeRow(tableData, convertRowIndexToModel(rows[row]));
             }
         }
-
-        // Keep the table's current scroll position from changing if possible
-        scrollToCurrent();
 
         // Load the array of data, with the selected row(s) removed, into the table
         loadDataArrayIntoTable(tableData.toArray(new Object[0][0]), true);

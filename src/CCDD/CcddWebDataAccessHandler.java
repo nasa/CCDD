@@ -121,7 +121,9 @@ public class CcddWebDataAccessHandler extends AbstractHandler
      * Handle a web-based request
      *********************************************************************************************/
     @Override
-    public void handle(String target, Request baseRequest, HttpServletRequest request,
+    public void handle(String target,
+                       Request baseRequest,
+                       HttpServletRequest request,
                        HttpServletResponse response) throws IOException
     {
         // Indicate that the request has been handled

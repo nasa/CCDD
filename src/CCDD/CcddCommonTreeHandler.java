@@ -376,7 +376,7 @@ public class CcddCommonTreeHandler extends JTree
         TreeNode node = (TreeNode) path.getLastPathComponent();
 
         // Check if the node has any child nodes
-        if (node.getChildCount() >= 0)
+        if (node.getChildCount() > 0)
         {
             // Step through each child node
             for (Enumeration<?> e = node.children(); e.hasMoreElements();)
@@ -415,7 +415,7 @@ public class CcddCommonTreeHandler extends JTree
         TreeNode node = (TreeNode) path.getLastPathComponent();
 
         // Check if the node has any child nodes
-        if (node.getChildCount() >= 0)
+        if (node.getChildCount() > 0)
         {
             // Step through each child node
             for (Enumeration<?> e = node.children(); e.hasMoreElements();)

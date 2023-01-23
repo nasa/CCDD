@@ -25,12 +25,15 @@
  **************************************************************************************************/
 package CCDD;
 
+import static CCDD.CcddConstants.ROW_NUM_COLUMN_NAME;
+import static CCDD.CcddConstants.ROW_NUM_COLUMN_TYPE;
 import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.STRUCT_CMD_ARG_REF;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
 import static CCDD.CcddConstants.TYPE_ENUM;
 import static CCDD.CcddConstants.COL_VALUE;
+
 import java.io.File;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -72,6 +75,7 @@ public class CcddPatchHandler
     private HashMap<String, PatchUtility> patchSet = new HashMap<String, PatchUtility>();
     private final CcddMain ccddMain;
     private final String PATCH_06012019 = "#06012019";
+    private final String PATCH_01112023 = "#01112023";
 
     /**********************************************************************************************
      * CFS Command and Data Dictionary project database patch handler class constructor. The patch
@@ -114,6 +118,17 @@ public class CcddPatchHandler
                                           + "CCDD will be incompatible with this "
                                           + "project database after applying the patch";
         patchSet.put(PATCH_06012019, new PatchUtility(ccddMain, PATCH_06012019, patch_06012019_dialogMsg));
+
+        String patch_01112023_dialogMsg = "<html><b>Apply patch to update the project to "
+                                          + "eliminate OIDs?<br><br></b>"
+                                          + "The internal tables are altered by "
+                                          + "removing the existing OID (object identifier) "
+                                          + "column and adding a new row number column. <br><b><i>"
+                                          + "Project databases created by CCDD versions prior to "
+                                          + "2.1.0 will be incompatible with this project "
+                                          + "database after applying the patch";
+        patchSet.put(PATCH_01112023, new PatchUtility(ccddMain, PATCH_01112023, patch_01112023_dialogMsg));
+
     }
 
     /**********************************************************************************************
@@ -137,7 +152,9 @@ public class CcddPatchHandler
         // implemented
         if (isBeforeHandlerInit)
         {
-            // No current patch meets this criteria
+            // Patch #01112023: Convert the project to eliminate the OID columns in the internal
+            // tables
+            eliminateOIDs();
         }
         // Only patches that must be performed after handler initialization should be implemented
         else
@@ -209,6 +226,181 @@ public class CcddPatchHandler
             }
         }
     }
+
+    /**********************************************************************************************
+     * Convert the project to eliminate OIDs in the internal tables
+     *
+     * @throws CCDDException If the user elects to not install the patch or an error occurs while
+     *                       applying the patch
+     *********************************************************************************************/
+    private void eliminateOIDs() throws CCDDException
+    {
+        CcddEventLogDialog eventLog = ccddMain.getSessionEventLog();
+        CcddDbControlHandler dbControl = ccddMain.getDbControlHandler();
+        CcddDbCommandHandler dbCommand = ccddMain.getDbCommandHandler();
+        CcddDbTableCommandHandler dbTable = ccddMain.getDbTableCommandHandler();
+
+        try
+        {
+            boolean isPatched = false;
+
+            // Execute the command to get the number of columns in one of the affected internal
+            // tables
+            ResultSet result = dbCommand.executeDbQuery(new StringBuilder("SELECT COUNT(*) FROM information_schema.columns WHERE table_name = '").append(InternalTable.DATA_TYPES.getTableName())
+                                                                                                                                                 .append("';"),
+                                                        ccddMain.getMainFrame());
+
+            // Get the number of table columns from the result set
+            result.next();
+            int numColumns = result.getInt(1);
+            result.close();
+
+            // Check if the table has the expected number of columns
+            if (numColumns == InternalTable.DATA_TYPES.getNumColumns())
+            {
+                isPatched = true;
+            }
+
+            // Check if the patch hasn't been applied
+            if (!isPatched)
+            {
+                if (patchSet.get(PATCH_01112023).confirmPatchApplication() == false)
+                {
+                    throw new CCDDException(patchSet.get(PATCH_01112023).getUserCancelledMessage());
+                }
+
+                // Back up the project database before applying the patch
+                backupDatabase(dbControl);
+
+                // Create a save point in case an error occurs while applying the patch
+                dbCommand.createSavePoint(ccddMain.getMainFrame());
+
+                // Step through each internal table type
+                for (InternalTable intTable : InternalTable.values())
+                {
+                    // Only update internal tables that use the OID column
+                    if (intTable != InternalTable.VALUES)
+                    {
+                        // Check if the table isn't a script
+                        if (intTable != InternalTable.SCRIPT)
+                        {
+                            eliminateOIDs(dbCommand, dbTable, intTable, intTable.getTableName(), null);
+                        }
+                        // Script file
+                        else
+                        {
+                            // Get the list of script files from the database
+                            String[] scripts = dbTable.queryScriptTables(ccddMain.getMainFrame());
+
+                            // Step through each script file
+                            for (String script : scripts)
+                            {
+                                eliminateOIDs(dbCommand, dbTable, intTable, InternalTable.SCRIPT.getTableName(script), script);
+                            }
+                        }
+                    }
+                }
+
+                // Release the save point. This must be done within a transaction block, so it must
+                // be done prior to the commit below
+                dbCommand.releaseSavePoint(ccddMain.getMainFrame());
+
+                // Commit the change(s) to the database
+                dbControl.getConnection().commit();
+
+                // Inform the user that updating the database tables completed
+                eventLog.logEvent(EventLogMessageType.SUCCESS_MSG,
+                                  new StringBuilder("Project '").append(dbControl.getProjectName())
+                                                                .append("' OID replacement complete"));
+            }
+        }
+        catch (Exception e)
+        {
+            // Inform the user that converting the command tables failed
+            eventLog.logFailEvent(ccddMain.getMainFrame(),
+                                  "Cannot remove OIDs from project '"
+                                  + dbControl.getProjectName()
+                                  + "'; cause '"
+                                  + e.getMessage()
+                                  + "'",
+                                  "<html><b>Cannot remove OIDs from project '</b>"
+                                  + dbControl.getProjectName()
+                                  + "<b>' (project database will be closed)");
+
+            try
+            {
+                // Revert any changes made to the database
+                dbCommand.rollbackToSavePoint(ccddMain.getMainFrame());
+            }
+            catch (SQLException se)
+            {
+                // Inform the user that rolling back the changes failed
+                eventLog.logFailEvent(ccddMain.getMainFrame(),
+                                      "Cannot revert changes to project; cause '"
+                                      + se.getMessage()
+                                      + "'",
+                                      "<html><b>Cannot revert changes to project");
+            }
+
+            throw new CCDDException();
+        }
+    }
+
+    /**********************************************************************************************
+     * Eliminate OIDs in the specified internal table
+     *
+     * @param dbCommand  Reference to the database command handler
+     *
+     * @param dbTable    Reference to the database table command handler
+     *
+     * @param intTable   Internal table type
+     *
+     * @param tableName  Table name
+     *
+     * @param scriptName Script name and description; null if not a script table
+     *
+     * @throws SQLException If an error occurs retrieving or updating the table data
+     *********************************************************************************************/
+    private void eliminateOIDs(CcddDbCommandHandler dbCommand,
+                               CcddDbTableCommandHandler dbTable,
+                               InternalTable intTable,
+                               String tableName,
+                               String scriptName) throws SQLException
+    {
+        // Remove the OID column and add the new row index column
+        dbCommand.executeDbCommand(new StringBuilder("ALTER TABLE ").append(tableName)
+                                                                    .append(" SET WITHOUT OIDS; ALTER TABLE ")
+                                                                    .append(tableName)
+                                                                    .append(" ADD COLUMN ")
+                                                                    .append(ROW_NUM_COLUMN_NAME)
+                                                                    .append(" ")
+                                                                    .append(ROW_NUM_COLUMN_TYPE)
+                                                                    .append(";"),
+                                   ccddMain.getMainFrame());
+
+        // Get the internal table contents
+        List<String[]> tableData = dbTable.retrieveInformationTable(intTable,
+                                                                    false,
+                                                                    scriptName,
+                                                                    ccddMain.getMainFrame());
+
+        // Check if the table is a script
+        if (intTable == InternalTable.SCRIPT)
+        {
+            // Remove the line number column
+            tableData = CcddUtilities.removeArrayListColumn(tableData, 0);
+
+            dbCommand.executeDbCommand(new StringBuilder("ALTER TABLE ").append(tableName)
+                                                                        .append(" DROP COLUMN line_number;"),
+                                       ccddMain.getMainFrame());
+        }
+
+        // Rewrite the internal table
+        dbTable.storeNonTableTypesInfoTable(intTable,
+                                            tableData,
+                                            scriptName,
+                                            ccddMain.getMainFrame());
+   }
 
     /**********************************************************************************************
      * The internal data types table is modified so that the 'size' column has a type of 'text'
@@ -380,7 +572,6 @@ public class CcddPatchHandler
             // Check if the patch hasn't been applied
             if (!isPatched)
             {
-
                 if (patchSet.get(PATCH_06012019).confirmPatchApplication() == false)
                 {
                     throw new CCDDException(patchSet.get(PATCH_06012019).getUserCancelledMessage());
@@ -1500,6 +1691,7 @@ public class CcddPatchHandler
                     // Update the command reference input type cells and fields
                     dbCommand.executeDbCommand(cmdRefInpTypeCmd, ccddMain.getMainFrame());
                 }
+
                 // Release the save point. This must be done within a transaction block, so it must
                 // be done prior to the commit below
                 dbCommand.releaseSavePoint(ccddMain.getMainFrame());
@@ -1510,7 +1702,7 @@ public class CcddPatchHandler
                 // Inform the user that updating the database command tables completed
                 eventLog.logEvent(EventLogMessageType.SUCCESS_MSG,
                                   new StringBuilder("Project '").append(dbControl.getProjectName())
-                                                                .append("' command tables conversion  complete"));
+                                                                .append("' command tables conversion complete"));
             }
         }
         catch (Exception e)

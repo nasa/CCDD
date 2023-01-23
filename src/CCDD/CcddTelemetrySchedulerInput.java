@@ -237,10 +237,11 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
                                           String rateName,
                                           String rateFilter,
                                           boolean isByGroupChanged,
+                                          boolean isByTypeChanged,
                                           Component parent)
             {
                 // Call to the super to build the tree
-                super.buildTableTree(isExpanded, rateName, rateFilter, false, parent);
+                super.buildTableTree(isExpanded, rateName, rateFilter, false, false, parent);
 
                 // Create a tree showing the links that contain variables with a sample rate
                 // matching the currently selected rate
@@ -732,7 +733,7 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
         linkTree.setSelectedRate(selectedRate);
 
         // Rebuild the variable tree using the selected rate as a filter
-        variableTree.buildTableTree(null, rateName, selectedRate, false, ccddMain.getMainFrame());
+        variableTree.buildTableTree(null, rateName, selectedRate, false, false, ccddMain.getMainFrame());
     }
 
     /**********************************************************************************************

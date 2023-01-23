@@ -635,7 +635,7 @@ public class CcddSearchHandler extends CcddDialogHandler
                 {
                     // Set the search result table values
                     target = nameAndType[0];
-                    location = columnValue[ScriptColumn.LINE_NUM.ordinal()];
+                    location = columnValue[ScriptColumn.ROW_NUM.ordinal()];
                     context = columnValue[ScriptColumn.LINE_TEXT.ordinal()];
                 }
 

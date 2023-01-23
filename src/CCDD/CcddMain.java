@@ -33,6 +33,8 @@ import static CCDD.CcddConstants.DEFAULT_DATABASE;
 import static CCDD.CcddConstants.DEFAULT_POSTGRESQL_HOST;
 import static CCDD.CcddConstants.DEFAULT_POSTGRESQL_PORT;
 import static CCDD.CcddConstants.DEFAULT_SERVER;
+import static CCDD.CcddConstants.DEFAULT_INSTANCE_NODE_NAME;
+import static CCDD.CcddConstants.DEFAULT_PROTOTYPE_NODE_NAME;
 import static CCDD.CcddConstants.FONT_SCALE;
 import static CCDD.CcddConstants.INIT_WINDOW_HEIGHT;
 import static CCDD.CcddConstants.INIT_WINDOW_WIDTH;
@@ -49,7 +51,6 @@ import static CCDD.CcddConstants.TABLE_STRINGS;
 import static CCDD.CcddConstants.USER;
 import static CCDD.CcddConstants.WEB_SERVER_PORT;
 import static CCDD.CcddConstants.setLaFAdjustments;
-
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
@@ -127,7 +128,8 @@ public class CcddMain
     private final CcddDbCommandHandler dbCommand;
     private final CcddDbControlHandler dbControl;
     private final CcddDbTableCommandHandler dbTable;
-    private CcddTableTreeHandler tableTreeHandler;
+    private CcddTableTreeHandler groupTableTreeHandler;
+    private CcddTableTreeHandler typeTableTreeHandler;
     private CcddDataTypeHandler dataTypeHandler;
     private CcddTableTypeHandler tableTypeHandler;
     private CcddTableTypeEditorDialog tableTypeEditorDialog;
@@ -449,7 +451,7 @@ public class CcddMain
             }
         }
 
-        tableTreeHandler = null;
+        groupTableTreeHandler = null;
     }
 
     /**********************************************************************************************
@@ -477,23 +479,6 @@ public class CcddMain
                 }
             }
         });
-    }
-
-    /**********************************************************************************************
-     * Build a table tree handler once a database has been opened successfully
-     *********************************************************************************************/
-    protected void buildTableTreeHandler()
-    {
-        tableTreeHandler = new CcddTableTreeHandler(this,
-                                                    new CcddGroupHandler(this,
-                                                                         null,
-                                                                         getMainFrame()),
-                                                    TableTreeType.TABLES,
-                                                    true,
-                                                    false,
-                                                    false,
-                                                    getMainFrame());
-        tableTreeHandler.updatePreLoadedGroupRoot();
     }
 
     /**********************************************************************************************
@@ -669,13 +654,23 @@ public class CcddMain
     }
 
     /**********************************************************************************************
-     * Get the table tree handler
+     * Get the group table tree handler
      *
-     * @return Database table tree handler
+     * @return Database group table tree handler
      *********************************************************************************************/
-    protected CcddTableTreeHandler getTableTreeHandler()
+    protected CcddTableTreeHandler getGroupTableTreeHandler()
     {
-        return tableTreeHandler;
+        return groupTableTreeHandler;
+    }
+
+    /**********************************************************************************************
+     * Get the type table tree handler
+     *
+     * @return Database type table tree handler
+     *********************************************************************************************/
+    protected CcddTableTreeHandler getTypeTableTreeHandler()
+    {
+        return typeTableTreeHandler;
     }
 
     /**********************************************************************************************
@@ -904,6 +899,9 @@ public class CcddMain
         // Create a command handler for the project database
         commandHandler = new CcddCommandHandler(CcddMain.this);
 
+        // Create a message ID handler for the project database
+        messageIDHandler = new CcddMessageIDHandler(CcddMain.this);
+
         // Now that the handlers exist, store its reference in the other persistent classes that
         // use them
         CcddClassesDataTable.setHandlers(CcddMain.this);
@@ -935,16 +933,13 @@ public class CcddMain
         // Build the variables list and determine the variable offsets (note that the variables
         // class must be fully instantiated and the macro handler updated with the variable handler
         // reference before calling the path and offset list build method)
-        variableHandler.buildPathAndOffsetLists();
+        variableHandler.buildPathAndOffsetLists(); // CAN THIS BE DONE IN BACKGROUND?
 
         // Build the command information list
         commandHandler.buildCommandList();
 
-        // Create a message ID handler for the project database
-        messageIDHandler = new CcddMessageIDHandler(CcddMain.this);
-
-        // Initialize the root structures
-        dbTable.initRootStructures();
+//        // Create a message ID handler for the project database
+//        messageIDHandler = new CcddMessageIDHandler(CcddMain.this);
 
         // Create the list for the message ID name and ID selection input type (note that the
         // message ID class must be fully instantiated before calling the name and ID list build
@@ -957,7 +952,7 @@ public class CcddMain
             // Start the web server
             getWebServer().startServer();
         }
-    }
+   }
 
     /**********************************************************************************************
      * Execute the command line commands that depend on a project database being open
@@ -1304,6 +1299,62 @@ public class CcddMain
     protected List<CcddTableEditorDialog> getTableEditorDialogs()
     {
         return tableEditorDialogs;
+    }
+
+    /**********************************************************************************************
+     * Build the group table tree handler once a database has been opened successfully. This tree
+     * is used to speed up displaying the table tree when filtered by group
+     *********************************************************************************************/
+    protected void buildGroupTableTreeHandler()
+    {
+        groupTableTreeHandler = new CcddTableTreeHandler(this,
+                                                         new CcddGroupHandler(this,
+                                                                              null,
+                                                                              getMainFrame()),
+                                                         TableTreeType.TABLES,
+                                                         true,
+                                                         true,
+                                                         true,
+                                                         true,
+                                                         false,
+                                                         null,
+                                                         null,
+                                                         null,
+                                                         false,
+                                                         DEFAULT_PROTOTYPE_NODE_NAME,
+                                                         DEFAULT_INSTANCE_NODE_NAME,
+                                                         false,
+                                                         true,
+                                                         false,
+                                                         getMainFrame());
+    }
+
+    /**********************************************************************************************
+     * Build the type table tree handler once a database has been opened successfully. This tree
+     * is used to speed up displaying the table tree when filtered by type
+     *********************************************************************************************/
+    protected void buildTypeTableTreeHandler()
+    {
+        typeTableTreeHandler = new CcddTableTreeHandler(this,
+                                                        new CcddGroupHandler(this,
+                                                                             null,
+                                                                             getMainFrame()),
+                                                        TableTreeType.TABLES,
+                                                        true,
+                                                        true,
+                                                        true,
+                                                        true,
+                                                        false,
+                                                        null,
+                                                        null,
+                                                        null,
+                                                        false,
+                                                        DEFAULT_PROTOTYPE_NODE_NAME,
+                                                        DEFAULT_INSTANCE_NODE_NAME,
+                                                        false,
+                                                        false,
+                                                        true,
+                                                        getMainFrame());
     }
 
     /**********************************************************************************************
@@ -1957,7 +2008,7 @@ public class CcddMain
         mntmImportEDS = createMenuItem(mnImport, "EDS", KeyEvent.VK_J, 1, "Import selected EDS data");
         mntmImportJSON = createMenuItem(mnImport, "JSON", KeyEvent.VK_J, 1, "Import selected JSON data");
         mntmImportXTCE = createMenuItem(mnImport, "XTCE", KeyEvent.VK_J, 1, "Import selected XTCE data");
-        mntmImportCHeader = createMenuItem(mnImport, "C_Header", KeyEvent.VK_J, 1, "Import selected C header files");
+        mntmImportCHeader = createMenuItem(mnImport, "C header", KeyEvent.VK_J, 1, "Import selected C header file structures");
         JMenu mnExport = createSubMenu(mnData, "Export data", KeyEvent.VK_X, 1, null);
         mntmExportCSV = createMenuItem(mnExport, "CSV", KeyEvent.VK_C, 1, "Export selected data in CSV format");
         mntmExportEDS = createMenuItem(mnExport, "EDS", KeyEvent.VK_E, 1, "Export selected data in EDS XML format");
@@ -2935,7 +2986,9 @@ public class CcddMain
                 if (isOkayToOpen)
                 {
                     // Get the list of script association definitions stored in the database
-                    String[][] associations = dbTable.retrieveInformationTable(InternalTable.ASSOCIATIONS, false, frameCCDD).toArray(new String[0][0]);
+                    String[][] associations = dbTable.retrieveInformationTable(InternalTable.ASSOCIATIONS,
+                                                                               false,
+                                                                               frameCCDD).toArray(new String[0][0]);
 
                     // Check that at least one script association definition exists
                     if (associations.length != 0)
@@ -3080,7 +3133,10 @@ public class CcddMain
                 // Display the application name, author, and version
                 new CcddDialogHandler().showMessageDialog(frameCCDD,
                                                           "<html><b>Core Flight System<br>Command and Data Dictionary</b><br>Author: "
-                                                          + CCDD_AUTHOR + "<br>Contributors: " + CCDD_CONTRIBUTORS + "<br>"
+                                                          + CCDD_AUTHOR
+                                                          + "<br>Contributors: "
+                                                          + CCDD_CONTRIBUTORS
+                                                          + "<br>"
                                                           + CcddUtilities.colorHTMLText("Version: ",
                                                                                         ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor())
                                                           + ccddVersion

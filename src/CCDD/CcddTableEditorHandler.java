@@ -3785,9 +3785,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 // Check to see if the data came from the clipboard
                 if (dataComingFromClipboard)
                 {
-                    // Determine the number of columns to copy. Subtract two to account for the
-                    // first two columns (key and index) that are not paste-able
-                    int numberOfColumnsToCopy = getColumnCount() - NUM_HIDDEN_COLUMNS;
+                    // Determine the number of columns to copy
+                    int numberOfColumnsToCopy = getColumnCount();
 
                     // Adjust the size of cell data so that it can hold all of the required data
                     cellData = new Object[tableData.size() * numberOfColumnsToCopy];

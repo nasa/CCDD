@@ -505,7 +505,9 @@ public class CcddMessageIDHandler
                                                                                .append(FieldsColumn.OWNER_NAME.getColumnName())
                                                                                .append(" !~ '")
                                                                                .append(TYPE_DATA_FIELD_IDENT)
-                                                                               .append("' ORDER BY OID;"),
+                                                                               .append("' ORDER BY ")
+                                                                               .append(FieldsColumn.ROW_NUM.getColumnName())
+                                                                               .append(";"),
                                                                                parent));
 
         // Step through each message name/ID belonging to a table cell or data field

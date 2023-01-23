@@ -270,9 +270,6 @@ public class CcddTableManagerDialog extends CcddDialogHandler
 
         // Update the script associations manager and executive dialogs
         ccddMain.updateScriptAssociationsDialogs();
-
-        // Update the table tree information
-        dbTable.updateTableTree();
     }
 
     /**********************************************************************************************
@@ -535,7 +532,6 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                     FileEnvVar[] filePath;
                     FileExtension fileExt = null;
                     boolean importing = false;
-                    boolean errorFlag = false;
 
                     // Display the dialog based on supplied dialog type
                     switch (dialogType)
@@ -549,18 +545,10 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                   true) == OK_BUTTON)
                             {
                                 // Create the table(s)
-                                errorFlag = dbTable.createTable(tableNames,
+                                dbTable.createTableInBackground(tableNames,
                                                                 descriptionFld.getText(),
                                                                 getRadioButtonSelected(),
-                                                                true,
-                                                                true,
                                                                 CcddTableManagerDialog.this);
-
-                                // Check if no error occurred creating the table
-                                if (!errorFlag)
-                                {
-                                    CcddTableManagerDialog.this.doTableOperationComplete();
-                                }
                             }
 
                             break;

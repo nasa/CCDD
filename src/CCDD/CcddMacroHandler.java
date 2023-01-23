@@ -895,8 +895,7 @@ public class CcddMacroHandler
 
     /**********************************************************************************************
      * Replace any macro names embedded in the supplied table information data with the associated
-     * macro
-     * values
+     * macro values
      *
      * @param data Table information reference
      *
@@ -1353,8 +1352,9 @@ public class CcddMacroHandler
                     // The referenced column value has the original macro names, and these may have
                     // been altered in the editor. In order to evaluate the updated macro value the
                     // macro names in the reference must be replaced by their updated names. The
-                    // macro's OID column value is used to get the new name from the old name. Step
-                    // through each macro referenced, using the original names, in the column value
+                    // macro's row number column value is used to get the new name from the old
+                    // name. Step through each macro referenced, using the original names, in the
+                    // column value
                     for (String oldName : getReferencedMacros(refContext[columnIndex]))
                     {
                         String newName = oldName;
@@ -1366,8 +1366,8 @@ public class CcddMacroHandler
                             // Check if the macro names match
                             if (oldName.equals(oldMacro[MacrosColumn.MACRO_NAME.ordinal()]))
                             {
-                                // Store the OID value for the macro and stop searching
-                                oid = oldMacro[MacrosColumn.OID.ordinal()];
+                                // Store the row number value for the macro and stop searching
+                                oid = oldMacro[MacrosColumn.ROW_NUM.ordinal()];
                                 break;
                             }
                         }
@@ -1375,11 +1375,11 @@ public class CcddMacroHandler
                         // Step through the updated macro definitions
                         for (String[] newMacro : newMacroHandler.getMacroData())
                         {
-                            // Check if the macro's OID value matches the target one
-                            if (oid.equals(newMacro[MacrosColumn.OID.ordinal()]))
+                            // Check if the macro's row number value matches the target one
+                            if (oid.equals(newMacro[MacrosColumn.ROW_NUM.ordinal()]))
                             {
-                                // Since the OIDs match these are the same macro. Store the macro's
-                                // new name (in case it changed) and stop searching
+                                // Since the row numbers match these are the same macro. Store the
+                                // macro's new name (in case it changed) and stop searching
                                 newName = newMacro[MacrosColumn.MACRO_NAME.ordinal()];
                                 break;
                             }

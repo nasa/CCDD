@@ -2386,6 +2386,11 @@ public class CcddDialogHandler extends JDialog
             // to this one's position when it's no longer visible
             setPreferredSize(getPreferredSize());
 
+            // TODO ISSUE: When scaling for a 4K monitor (using 'gsettings set org.gnome.desktop.interface scaling-factor 2'),
+            // setting the minimum dialog size (height is particular) is causing the dialog size to not include the lower
+            // portion of some dialogs (e.g., database Backup). If setMinimumSize not called then issue goes away... but the
+            // dialog can then be sized to nothing
+
             // Check if the dialog is resizable
             if (resizable)
             {

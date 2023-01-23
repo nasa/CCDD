@@ -26,10 +26,9 @@ package CCDD;
 
 import static CCDD.CcddConstants.ASSN_TABLE_SEPARATOR;
 import static CCDD.CcddConstants.CANCEL_BUTTON;
-import static CCDD.CcddConstants.CANCEL_ICON;
+import static CCDD.CcddConstants.CLOSE_ICON;
 import static CCDD.CcddConstants.GROUP_DATA_FIELD_IDENT;
 import static CCDD.CcddConstants.INTERNAL_TABLE_PREFIX;
-import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.OK_ICON;
 import static CCDD.CcddConstants.PRINT_ICON;
 import static CCDD.CcddConstants.TLM_SCH_SEPARATOR;
@@ -47,6 +46,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -143,6 +144,9 @@ public class CcddDbVerificationHandler
     // Counters used for tracking the total number of selected and selectable issues
     private int selectedColumnCount;
     private int allColumnCount;
+
+    // Component referenced from multiple methods
+    private JLabel correctLbl;
 
     /**********************************************************************************************
      * Table data storage class. An instance is created for each data table to contain its table
@@ -546,7 +550,7 @@ public class CcddDbVerificationHandler
                                              "Verification in progress",
                                              "verification",
                                              100,
-                                             9,
+                                             10,
                                              ccddMain.getMainFrame());
 
                 // Set flags indicating no changes are pending, no inconsistencies exist, and the
@@ -578,7 +582,8 @@ public class CcddDbVerificationHandler
                         if (!haltDlg.isHalted())
                         {
                             // Update the progress bar
-                            haltDlg.updateProgressBar("Verify internal tables", haltDlg.getNumDivisionPerStep() * 2);
+                            haltDlg.updateProgressBar("Verify internal tables",
+                                                      haltDlg.getNumDivisionPerStep() * 2);
 
                             // Check for inconsistencies in the internal tables
                             verifyInternalTables(tableResult);
@@ -631,11 +636,11 @@ public class CcddDbVerificationHandler
                                             if (!haltDlg.isHalted())
                                             {
                                                 // Update the progress bar
-                                                haltDlg.updateProgressBar("Verify data tables",
+                                                haltDlg.updateProgressBar("Verify custom values table",
                                                                           haltDlg.getNumDivisionPerStep() * 7);
 
-                                                // Check for inconsistencies within the data tables
-                                                verifyDataTables();
+                                                // Check for duplicate rows within the values table
+                                                verifyValuesTable();
 
                                                 // Check if verification isn't canceled
                                                 if (!haltDlg.isHalted())
@@ -644,9 +649,21 @@ public class CcddDbVerificationHandler
                                                     haltDlg.updateProgressBar("Verify data tables",
                                                                               haltDlg.getNumDivisionPerStep() * 8);
 
-                                                    // Check for inconsistencies within the Message
-                                                    // IDs
-                                                    verifyMessageIDs();
+                                                    // Check for inconsistencies within the data
+                                                    // tables
+                                                    verifyDataTables();
+
+                                                    // Check if verification isn't canceled
+                                                    if (!haltDlg.isHalted())
+                                                    {
+                                                        // Update the progress bar
+                                                        haltDlg.updateProgressBar("Verify message IDs",
+                                                                                  haltDlg.getNumDivisionPerStep() * 9);
+
+                                                        // Check for inconsistencies within the
+                                                        // message IDs
+                                                        verifyMessageIDs();
+                                                    }
                                                 }
                                             }
                                         }
@@ -835,6 +852,7 @@ public class CcddDbVerificationHandler
                                   + "<b>' consistency");
         }
     }
+
 
     /**********************************************************************************************
      * Check that the internal tables are consistent with their definitions. If any inconsistencies
@@ -1988,7 +2006,7 @@ public class CcddDbVerificationHandler
                     {
                         // Table type is unknown
                         issues.add(new TableIssue("Table '"
-                                                  + tableName
+                                                  + (tableName.isEmpty() ? dbTableName : tableName)
                                                   + "' is an unknown type ("
                                                   + comment[TableCommentIndex.TYPE.ordinal()]
                                                   + ")",
@@ -2022,6 +2040,108 @@ public class CcddDbVerificationHandler
         {
             // Display a dialog providing details on the unanticipated error
             CcddUtilities.displayException(e, ccddMain.getMainFrame());
+        }
+    }
+
+    /**********************************************************************************************
+     * Check if the custom value table has more than one entry for a table path and column name
+     * pair. If one or more duplicate rows is detected then get user approval to delete the
+     * duplicate row(s)
+     *********************************************************************************************/
+    private void verifyValuesTable()
+    {
+        try
+        {
+            // Build and execute the command to search for rows containing the same table path and
+            // column name. If a duplicate exists store the table path, column name, the number
+            // rows where the value also matches, and the number of rows where the table path and
+            // column name match. If the table name, column name, and value match for all of the
+            // duplicates then removing the extra rows will have no effect when reading the table
+            // values. However, if the values don't match only the row with the highest ctid is
+            // retained (which may not be the desired value)
+            StringBuilder command = new StringBuilder("SELECT ").append(ValuesColumn.TABLE_PATH.getColumnName())
+                                                                .append(", ")
+                                                                .append(ValuesColumn.COLUMN_NAME.getColumnName())
+                                                                .append(", COUNT(*) AS num_same_tbl_col, (SELECT COUNT(*) = 1 FROM (SELECT COUNT(*) FROM ")
+                                                                .append(InternalTable.VALUES.getTableName())
+                                                                .append(" WHERE ")
+                                                                .append(ValuesColumn.TABLE_PATH.getColumnName())
+                                                                .append(" = v1.")
+                                                                .append(ValuesColumn.TABLE_PATH.getColumnName())
+                                                                .append(" AND ")
+                                                                .append(ValuesColumn.COLUMN_NAME.getColumnName())
+                                                                .append(" = v1.")
+                                                                .append(ValuesColumn.COLUMN_NAME.getColumnName())
+                                                                .append(" GROUP BY ")
+                                                                .append(ValuesColumn.TABLE_PATH.getColumnName())
+                                                                .append(", ")
+                                                                .append(ValuesColumn.COLUMN_NAME.getColumnName())
+                                                                .append(", ")
+                                                                .append(ValuesColumn.VALUE.getColumnName())
+                                                                .append(" HAVING COUNT(*) > 1) AS counts) AS all_same_val FROM ")
+                                                                .append(InternalTable.VALUES.getTableName())
+                                                                .append(" v1 GROUP BY ")
+                                                                .append(ValuesColumn.TABLE_PATH.getColumnName())
+                                                                .append(", ")
+                                                                .append(ValuesColumn.COLUMN_NAME.getColumnName())
+                                                                .append(" HAVING COUNT(*) > 1;");
+            ResultSet result = dbCommand.executeDbQuery(command, ccddMain.getMainFrame());
+
+            List<String[]> duplicateRows = new ArrayList<String[]>();
+
+            // Step through each of the query results and store the table path and column name
+            // pairs, along with the number of rows where the value also matches, and the number of
+            // rows where the table path and column name match
+            while (result.next())
+            {
+                duplicateRows.add(new String[] {result.getString(ValuesColumn.TABLE_PATH.getColumnName()),
+                                                result.getString(ValuesColumn.COLUMN_NAME.getColumnName()),
+                                                result.getString("num_same_tbl_col"),
+                                                result.getString("all_same_val")});
+            }
+
+            result.close();
+
+            // Add an issue for the duplicate(s)
+            for (String[] duplicateRow : duplicateRows)
+            {
+                // Custom values table has duplicate entries
+                issues.add(new TableIssue("Internal table '"
+                                          + InternalTable.VALUES.getTableName()
+                                          + "' has duplicate table/column entries for table '"
+                                          + duplicateRow[ValuesColumn.TABLE_PATH.ordinal()]
+                                          + "', column '"
+                                          + duplicateRow[ValuesColumn.COLUMN_NAME.ordinal()]
+                                          + "'; values are "
+                                          + (duplicateRow[3].contentEquals("t") ? "the same"
+                                                                                : "different"),
+                                          "Delete duplicate entries",
+                                          "DELETE FROM "
+                                          + InternalTable.VALUES.getTableName()
+                                          + " v1 USING "
+                                          + InternalTable.VALUES.getTableName()
+                                          + " v2 WHERE v1.ctid < v2.ctid AND v1."
+                                          + ValuesColumn.TABLE_PATH.getColumnName()
+                                          + " = '"
+                                          + duplicateRow[ValuesColumn.TABLE_PATH.ordinal()]
+                                          + "' AND v1."
+                                          + ValuesColumn.COLUMN_NAME.getColumnName()
+                                          + " = '"
+                                          + duplicateRow[ValuesColumn.COLUMN_NAME.ordinal()]
+                                          + "'; "));
+            }
+        }
+        catch (SQLException se)
+        {
+            // Inform the user that obtaining the duplicate row data failed
+            eventLog.logFailEvent(ccddMain.getMainFrame(),
+                                  "Error obtaining duplicate row data from internal table '"
+                                  + InternalTable.VALUES.getTableName()
+                                  + "'; cause '"
+                                  + se.getMessage() + "'",
+                                  "<html><b>Error obtaining duplicate row data from internal table '</b>"
+                                  + InternalTable.VALUES.getTableName()
+                                  + "<b>'");
         }
     }
 
@@ -2762,18 +2882,36 @@ public class CcddDbVerificationHandler
         }
     }
 
-    /**********************************************************************************************
+   /**********************************************************************************************
      * Perform the corrections to the database authorized by the user
      *********************************************************************************************/
     @SuppressWarnings("serial")
     private void updateDatabase()
     {
-        // Initialize the event log status message
-        String message = "No project database inconsistencies detected";
-
-        // Check if any issues exist
-        if (!issues.isEmpty())
+        // Check if no issues exist
+        if (issues.isEmpty())
         {
+            eventLog.logEvent(STATUS_MSG,
+                              new StringBuilder("No project database inconsistencies detected"));
+        }
+        // The database has issues
+        else
+        {
+            int totalIssues = issues.size();
+
+            // Sort the issues by issue description
+            Collections.sort(issues, new Comparator<TableIssue>()
+            {
+                /**********************************************************************************
+                 * Compare the issue descriptions, ignoring case
+                 *********************************************************************************/
+                @Override
+                public int compare(TableIssue iss1, TableIssue iss2)
+                {
+                    return iss1.getIssue().compareToIgnoreCase(iss2.getIssue());
+                }
+            });
+
             // Set the initial layout manager characteristics
             GridBagConstraints gbc = new GridBagConstraints(0,
                                                             0,
@@ -2801,8 +2939,8 @@ public class CcddDbVerificationHandler
             dialogPnl.setBorder(emptyBorder);
 
             // Add the text label and issues table scroll pane to the dialog panel
-            JLabel correctLbl = new JLabel(issues.size()
-                                           + " issue(s) detected; select issue(s) to correct");
+            correctLbl = new JLabel(issues.size()
+                                    + " issue(s) detected; select issue(s) to correct");
             correctLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
             gbc.gridy++;
             dialogPnl.add(correctLbl, gbc);
@@ -2858,7 +2996,8 @@ public class CcddDbVerificationHandler
                     else
                     {
                         result = (column == VerificationColumnInfo.FIX.ordinal()
-                                  && (issues.get(row).getCommand() != null || issues.get(row).getRow() != -1));
+                                  && (issues.get(row).getCommand() != null
+                                      || issues.get(row).getRow() != -1));
                     }
 
                     return result;
@@ -3032,12 +3171,13 @@ public class CcddDbVerificationHandler
             JButton btnOk = CcddButtonPanelHandler.createButton("Okay",
                                                                 OK_ICON,
                                                                 KeyEvent.VK_O,
-                                                                "Correct the inconsistencies");
+                                                                "Correct the selected inconsistencies");
             btnOk.setEnabled(dbControl.isAccessAdmin());
 
             // Add a listener for the Okay button
             btnOk.addActionListener(new ActionListener()
             {
+                String updateCmd;
 
                 /**********************************************************************************
                  * Update the inconsistencies
@@ -3045,7 +3185,252 @@ public class CcddDbVerificationHandler
                 @Override
                 public void actionPerformed(ActionEvent ae)
                 {
-                    dialog.closeDialog(OK_BUTTON);
+                    try
+                    {
+                        int row = 0;
+                        updateCmd = "";
+
+                        // Step through each issue detected
+                        for (TableIssue issue : issues)
+                        {
+                            // Update the issue's flag indicating if it should be fixed
+                            issue.setFix(Boolean.valueOf(updateTable.getTableData(false)[row][VerificationColumnInfo.FIX.ordinal()].toString()));
+
+                            // Check if the issue is flagged to be fixed and the PostgreSQL
+                            // command has been assigned
+                             if (issue.isFix() && issue.getCommand() != null)
+                            {
+                                // Add the command to fix the issue to the command string
+                                updateCmd += issue.getCommand();
+                            }
+
+                            row++;
+                        }
+
+                        // Check if any updates are approved by the user
+                        if (!updateCmd.isEmpty())
+                        {
+                            // Create a save point in case an error occurs while modifying a table
+                            dbCommand.createSavePoint(ccddMain.getMainFrame());
+
+                            // Perform the updates in the background
+                            CcddBackgroundCommand.executeInBackground(ccddMain, dialog, new BackgroundCommand()
+                            {
+                                /******************************************************************
+                                 * Perform project database update(s)
+                                 *****************************************************************/
+                                @Override
+                                protected void execute()
+                                {
+                                    try
+                                    {
+                                        // Check if any updates are approved by the user
+                                        if (!updateCmd.isEmpty())
+                                        {
+                                            // Make the changes to the table(s) in the database
+                                            dbCommand.executeDbCommand(new StringBuilder(updateCmd),
+                                                                       ccddMain.getMainFrame());
+                                        }
+
+                                        // Row index adjustment. An adjustment of a row to be
+                                        // inserted/deleted must be made based on the user's
+                                        // selected issues to update
+                                        int rowAdjust = 0;
+
+                                        // Name of the previously updated table
+                                        String previousTable = "";
+
+                                        // Step through each issue detected
+                                        for (TableIssue issue : issues)
+                                        {
+                                            // Check if the issue is flagged to be fixed and that a
+                                            // row is set. This indicates that the change affects
+                                            // the data value(s) within a table
+                                            if (issue.isFix() && issue.getRow() != -1)
+                                            {
+                                                // Check if the name of the table to be updated
+                                                // differs from the previously updated table
+                                                if (!previousTable.equals(issue.getTableInformation().getProtoVariableName()))
+                                                {
+                                                    // Reset the row index adjustment
+                                                    rowAdjust = 0;
+                                                }
+
+                                                // Store the name of the table for the next loop
+                                                previousTable = issue.getTableInformation().getProtoVariableName();
+
+                                                // Check if a column is specified. This indicates a
+                                                // specific row and column value is changed
+                                                if (issue.getColumn() != -1)
+                                                {
+                                                    // Update the cell value
+                                                    issue.getTableInformation().getData().get(issue.getRow())[issue.getColumn()] = issue.getData();
+                                                }
+                                                // Check if the row data is specified. This
+                                                // indicates an entire row is added
+                                                else if (issue.getRowData() != null)
+                                                {
+                                                    // Insert the row into the existing table data
+                                                    List<Object[]> tableData = issue.getTableInformation().getData();
+                                                    tableData.add(issue.getRow() + rowAdjust, issue.getRowData());
+                                                    issue.getTableInformation().setData(tableData.toArray(new Object[0][0]));
+                                                    rowAdjust++;
+                                                }
+                                                // An entire row is deleted
+                                                else
+                                                {
+                                                    // Remove the row from the existing table data
+                                                    List<Object[]> tableData = issue.getTableInformation().getData();
+                                                    tableData.remove(issue.getRow() + rowAdjust);
+                                                    issue.getTableInformation().setData(tableData.toArray(new Object[0][0]));
+                                                    rowAdjust--;
+                                                }
+                                            }
+                                        }
+
+                                        // Initialize the storage for any table changes
+                                        tableChanges = new ArrayList<TableChange>();
+
+                                        // Step through each table's information
+                                        for (TableStorage tblStrg : tableStorage)
+                                        {
+                                            // Build the updates, if any, for the table and add the
+                                            // updates to the table changes list
+                                            buildUpdates(tblStrg);
+                                        }
+
+                                        boolean isErrors = false;
+
+                                        // Check if there are any changes
+                                        if (!tableChanges.isEmpty())
+                                        {
+                                            // Step through each table's changes
+                                            for (TableChange tableChange : tableChanges)
+                                            {
+                                                // Modify the table
+                                                if (dbTable.modifyTableData(tableChange.getTableInformation(),
+                                                                            tableChange.getAdditions(),
+                                                                            tableChange.getModifications(),
+                                                                            tableChange.getDeletions(),
+                                                                            true,
+                                                                            false,
+                                                                            false,
+                                                                            false,
+                                                                            false,
+                                                                            null,
+                                                                            true,
+                                                                            true,
+                                                                            false,
+                                                                            ccddMain.getMainFrame()))
+                                                {
+                                                    // Set the flag indicating an error occurred
+                                                    // updating one or more tables, and stop
+                                                    // modifying
+                                                    isErrors = true;
+                                                    break;
+                                                }
+                                            }
+                                        }
+
+                                        // Check if an errors occurred when making the updates
+                                        if (!isErrors)
+                                        {
+                                            // Release the save point. This must be done within a
+                                            // transaction block, so it must be done prior to the
+                                            // commit below
+                                            dbCommand.releaseSavePoint(ccddMain.getMainFrame());
+
+                                            // Commit the change(s) to the database
+                                            dbControl.getConnection().commit();
+
+                                            // Update the various handlers so that the updated
+                                            // internal tables will now be in use
+                                            ccddMain.setPreFunctionDbSpecificHandlers();
+                                            ccddMain.setPostFunctionDbSpecificHandlers();
+                                        }
+                                        // An error occurred
+                                        else
+                                        {
+                                            // Generate an exception so that the database is
+                                            // reverted to the condition prior to making any
+                                            // changes
+                                            throw new SQLException();
+                                        }
+                                    }
+                                    catch (SQLException se)
+                                    {
+                                        // Inform the user that checking the table consistency
+                                        // failed
+                                        eventLog.logFailEvent(ccddMain.getMainFrame(),
+                                                              "Error verifying project database '"
+                                                              + dbControl.getDatabaseName()
+                                                              + "' consistency; cause '"
+                                                              + se.getMessage()
+                                                              + "'",
+                                                              "<html><b>Error verifying project database '</b>"
+                                                              + dbControl.getDatabaseName()
+                                                              + "<b>' consistency");
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        // Display a dialog providing details on the unanticipated
+                                        // error
+                                        CcddUtilities.displayException(e, ccddMain.getMainFrame());
+                                    }
+                                }
+
+                                /******************************************************************
+                                 * Project database update command(s) complete
+                                 *****************************************************************/
+                                @Override
+                                protected void complete()
+                                {
+                                    // Remove issues from the list that were corrected
+                                    for (int index = issues.size() - 1; index >= 0; --index)
+                                    {
+                                        if (issues.get(index).isFix())
+                                        {
+                                            issues.remove(index);
+                                        }
+                                    }
+
+                                    // Check if any uncorrected issues remain
+                                    if (issues.size() != 0)
+                                    {
+                                        // Reload the dialog table to remove the corrected issues
+                                        updateTable.loadAndFormatData();
+
+                                        // Update the uncorrected issues counter
+                                        correctLbl.setText(issues.size()
+                                                           + " issue(s) detected; select issue(s) to correct");
+                                    }
+                                    // All issues have been corrected
+                                    else
+                                    {
+                                        // Log the consistency check completion message
+                                        eventLog.logEvent(STATUS_MSG,
+                                                          new StringBuilder("One or more project database inconsistencies were detected and corrected"));
+
+                                        // Close the dialog
+                                        dialog.closeDialog(CANCEL_BUTTON);
+                                    }
+                                }
+                            });
+                        }
+                    }
+                    catch (SQLException se)
+                    {
+                        // Inform the user that creating a save point failed
+                        eventLog.logFailEvent(ccddMain.getMainFrame(),
+                                              "Error verifying project database '"
+                                              + dbControl.getDatabaseName()
+                                              + "' consistency; cause '"
+                                              + se.getMessage()
+                                              + "'",
+                                              "<html><b>Error verifying project database '</b>"
+                                              + dbControl.getDatabaseName()
+                                              + "<b>' consistency");
+                    }
                 }
             });
 
@@ -3073,21 +3458,39 @@ public class CcddDbVerificationHandler
                 }
             });
 
-            // Cancel inconsistency update button
-            JButton btnCancel = CcddButtonPanelHandler.createButton("Cancel",
-                                                                    CANCEL_ICON,
+            // Close inconsistency corrections button
+            JButton btnCancel = CcddButtonPanelHandler.createButton("Close",
+                                                                    CLOSE_ICON,
                                                                     KeyEvent.VK_C,
-                                                                    "Cancel inconsistency corrections");
+                                                                    "Close inconsistency corrections");
 
-            // Add a listener for the Cancel button
+            // Add a listener for the Close button
             btnCancel.addActionListener(new ActionListener()
             {
                 /**********************************************************************************
-                 * Cancel updating the inconsistencies
+                 * Close updating the inconsistencies
                  *********************************************************************************/
                 @Override
                 public void actionPerformed(ActionEvent ae)
                 {
+                    String message;
+
+                    if (issues.size() == 0)
+                    {
+                        message = "One or more project database inconsistencies were detected and corrected";
+                    }
+                    else if (issues.size() == totalIssues)
+                    {
+                        message = "Project database inconsistencies were detected, but ignored";
+                    }
+                    else
+                    {
+                        message = "One or more project database inconsistencies were detected and corrected; some issues ignored";
+                    }
+
+                    // Log the consistency check completion message
+                    eventLog.logEvent(STATUS_MSG, new StringBuilder(message));
+
                     dialog.closeDialog(CANCEL_BUTTON);
                 }
             });
@@ -3099,228 +3502,12 @@ public class CcddDbVerificationHandler
             buttonPnl.add(btnPrint);
             buttonPnl.add(btnCancel);
 
-            boolean isAllIgnored = true;
-
-            // Check if any changes are queued and that the user confirms performing the updates
-            if (dialog.showOptionsDialog(ccddMain.getMainFrame(),
-                                         dialogPnl,
-                                         buttonPnl,
-                                         btnOk,
-                                         "Perform Corrections",
-                                         true) == OK_BUTTON)
-            {
-                try
-                {
-                    String command = "";
-                    int row = 0;
-                    boolean isSomeIgnored = false;
-
-                    // Create a save point in case an error occurs while modifying a table
-                    dbCommand.createSavePoint(ccddMain.getMainFrame());
-
-                    // Step through each issue detected
-                    for (TableIssue issue : issues)
-                    {
-                        // Update the issue's flag indicating if it should be fixed
-                        issue.setFix(Boolean.valueOf(updateTable.getTableData(false)[row][VerificationColumnInfo.FIX.ordinal()].toString()));
-
-                        // Check if the issue is not flagged to be fixed
-                        if (!issue.isFix())
-                        {
-                            isSomeIgnored = true;
-                        }
-                        // Check if the PostgreSQL command has been assigned
-                        else if (issue.getCommand() != null)
-                        {
-                            // Add the command to fix the issue to the command string
-                            command += issue.getCommand();
-                        }
-
-                        row++;
-                    }
-
-                    // Check if any updates are approved by the user
-                    if (!command.isEmpty())
-                    {
-                        isAllIgnored = false;
-
-                        // Make the changes to the table(s) in the database
-                        dbCommand.executeDbCommand(new StringBuilder(command), ccddMain.getMainFrame());
-                    }
-
-                    boolean isErrors = false;
-
-                    // Row index adjustment. An adjustment of a row to be inserted/deleted must be
-                    // made based on the user's selected issues to update
-                    int rowAdjust = 0;
-
-                    // Name of the previously updated table
-                    String previousTable = "";
-
-                    // Step through each issue detected
-                    for (TableIssue issue : issues)
-                    {
-                        // Check if the issue is flagged to be fixed and that a row is set. This
-                        // indicates that the change affects the data value(s) within a table
-                        if (issue.isFix() && issue.getRow() != -1)
-                        {
-                            // Check if the name of the table to be updated differs from the
-                            // previously updated table
-                            if (!previousTable.equals(issue.getTableInformation().getProtoVariableName()))
-                            {
-                                // Reset the row index adjustment
-                                rowAdjust = 0;
-                            }
-
-                            // Store the name of the table for the next loop
-                            previousTable = issue.getTableInformation().getProtoVariableName();
-
-                            // Check if a column is specified. This indicates a specific row and
-                            // column value is changed
-                            if (issue.getColumn() != -1)
-                            {
-                                // Update the cell value
-                                issue.getTableInformation().getData().get(issue.getRow())[issue.getColumn()] = issue.getData();
-                            }
-                            // Check if the row data is specified. This indicates an entire row is
-                            // added
-                            else if (issue.getRowData() != null)
-                            {
-                                // Insert the row into the existing table data
-                                List<Object[]> tableData = issue.getTableInformation().getData();
-                                tableData.add(issue.getRow() + rowAdjust, issue.getRowData());
-                                issue.getTableInformation().setData(tableData.toArray(new Object[0][0]));
-                                rowAdjust++;
-                            }
-                            // An entire row is deleted
-                            else
-                            {
-                                // Remove the row from the existing table data
-                                List<Object[]> tableData = issue.getTableInformation().getData();
-                                tableData.remove(issue.getRow() + rowAdjust);
-                                issue.getTableInformation().setData(tableData.toArray(new Object[0][0]));
-                                rowAdjust--;
-                            }
-                        }
-                    }
-
-                    // Initialize the storage for any table changes
-                    tableChanges = new ArrayList<TableChange>();
-
-                    // Step through each table's information
-                    for (TableStorage tblStrg : tableStorage)
-                    {
-                        // Build the updates, if any, for the table and add the updates to the
-                        // table changes list
-                        buildUpdates(tblStrg);
-                    }
-
-                    // Check if there are any changes
-                    if (!tableChanges.isEmpty())
-                    {
-                        isAllIgnored = false;
-
-                        // Step through each table's changes
-                        for (TableChange tableChange : tableChanges)
-                        {
-                            // Modify the table
-                            if (dbTable.modifyTableData(tableChange.getTableInformation(),
-                                                        tableChange.getAdditions(),
-                                                        tableChange.getModifications(),
-                                                        tableChange.getDeletions(),
-                                                        true,
-                                                        false,
-                                                        false,
-                                                        false,
-                                                        false,
-                                                        null,
-                                                        true,
-                                                        true,
-                                                        false,
-                                                        ccddMain.getMainFrame()))
-                            {
-                                // Set the flag indicating an error occurred updating one or more
-                                // tables, and stop modifying
-                                isErrors = true;
-                                break;
-                            }
-                        }
-                    }
-
-                    // Check if an errors occurred when making the updates
-                    if (!isErrors)
-                    {
-                        // Release the save point. This must be done within a transaction block, so
-                        // it must be done prior to the commit below
-                        dbCommand.releaseSavePoint(ccddMain.getMainFrame());
-
-                        // Commit the change(s) to the database
-                        dbControl.getConnection().commit();
-
-                        // Update the various handlers so that the updated internal tables will now
-                        // be in use
-                        ccddMain.setPreFunctionDbSpecificHandlers();
-                        ccddMain.setPostFunctionDbSpecificHandlers();
-
-                        // Log that the table update(s) succeeded
-                        message = "One or more project database inconsistencies were detected and corrected";
-
-                        if (isSomeIgnored)
-                        {
-                            message += "; some issues ignored";
-                        }
-                    }
-                    // An error occurred
-                    else
-                    {
-                        // Log that the table update(s) did not succeed
-                        message = "One or more project database inconsistencies were "
-                                  + "detected, but an error occurred while updating";
-
-                        if (isSomeIgnored)
-                        {
-                            message += "; some issues ignored";
-                        }
-
-                        // Generate an exception so that the database is reverted to the condition
-                        // prior to making any changes
-                        throw new SQLException(message);
-                    }
-                }
-                catch (SQLException se)
-                {
-                    // Inform the user that checking the table consistency failed
-                    eventLog.logFailEvent(ccddMain.getMainFrame(),
-                                          "Error verifying project database '"
-                                          + dbControl.getDatabaseName()
-                                          + "' consistency; cause '"
-                                          + se.getMessage()
-                                          + "'",
-                                          "<html><b>Error verifying project database '</b>"
-                                          + dbControl.getDatabaseName()
-                                          + "<b>' consistency");
-
-                    // Log that the table update(s) did not succeed
-                    message = "One or more project database inconsistencies were "
-                              + "detected, but an error occurred while updating";
-                }
-                catch (Exception e)
-                {
-                    // Display a dialog providing details on the unanticipated error
-                    CcddUtilities.displayException(e, ccddMain.getMainFrame());
-                }
-            }
-
-            // Unresolved inconsistencies exist
-            if (isAllIgnored)
-            {
-                // Create the log message indicating that inconsistencies were detected, but none
-                // were corrected
-                message = "Project database inconsistencies were detected, but ignored";
-            }
+            dialog.showOptionsDialog(ccddMain.getMainFrame(),
+                                     dialogPnl,
+                                     buttonPnl,
+                                     btnOk,
+                                     "Perform Corrections",
+                                     true);
         }
-
-        // Log the consistency check completion message
-        eventLog.logEvent(STATUS_MSG, new StringBuilder(message));
     }
 }

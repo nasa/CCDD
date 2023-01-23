@@ -1123,7 +1123,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
     private void performTelemetryMessageIDNameAssignment()
     {
         // Execute the commands to assign telemetry message IDs and/or names in the background
-        CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
+        CcddBackgroundCommand.executeInBackground(ccddMain, CcddAssignMessageIDDialog.this, new BackgroundCommand()
         {
             /**************************************************************************************
              * Assign telemetry message IDs and/or names command

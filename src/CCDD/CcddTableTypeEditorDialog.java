@@ -1360,18 +1360,17 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
             List<FieldInformation> fieldInfo = editor.getPanelFieldInformation();
             List<String[]> newDataFields = CcddFieldHandler.getFieldDefnsAsListOfStrings(fieldInfo);
 
-            dbTable.modifyTableType(editor.getTypeName(),
-                                    activeEditor.getPanelFieldInformation(),
-                                    getOverwriteFieldType(),
-                                    editor.getTypeAdditions(),
-                                    editor.getTypeModifications(),
-                                    editor.getTypeDeletions(),
-                                    editor.isColumnOrderChange(),
-                                    editor.getTypeDefinition(),
-                                    newDataFields,
-                                    CcddTableTypeEditorDialog.this,
-                                    activeEditor);
-
+            dbTable.modifyTableTypeInBackground(editor.getTypeName(),
+                                                activeEditor.getPanelFieldInformation(),
+                                                getOverwriteFieldType(),
+                                                editor.getTypeAdditions(),
+                                                editor.getTypeModifications(),
+                                                editor.getTypeDeletions(),
+                                                editor.isColumnOrderChange(),
+                                                editor.getTypeDefinition(),
+                                                newDataFields,
+                                                CcddTableTypeEditorDialog.this,
+                                                activeEditor);
         }
         catch (CCDDException ce)
         {

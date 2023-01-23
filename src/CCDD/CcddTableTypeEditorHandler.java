@@ -621,7 +621,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                                                                                   tableData.get(row)[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal()].toString(),
                                                                                   isStructure);
 
-                       // Compare this column name to the others in the table in order to avoid
+                        // Compare this column name to the others in the table in order to avoid
                         // creating a duplicate
                         for (int otherRow = 0; otherRow < getRowCount(); otherRow++)
                         {
@@ -839,8 +839,14 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                 // Check if the table type represents a structure
                 if (typeOfTableNew.equals(TYPE_STRUCTURE))
                 {
-                    // Show the command argument selection check box
-                    cmdArgStructureCbx.setVisible(true);
+                    // Check that this is not the default Structure table. Tables of type
+                    // 'Structure' can be command argument structures, but the actual 'Structure'
+                    // table type can not
+                    if (!tableTypeName.contentEquals(TYPE_STRUCTURE))
+                    {
+                        // Show the command argument selection check box
+                        cmdArgStructureCbx.setVisible(true);
+                    }
 
                     // Step through each row (column definition) in the table
                     for (int row = 0; row < table.getModel().getRowCount(); row++)

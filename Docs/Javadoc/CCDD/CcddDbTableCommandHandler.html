@@ -17,7 +17,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":9,"i32":10,"i33":10,"i34":10,"i35":10,"i36":10,"i37":10,"i38":10,"i39":10,"i40":10,"i41":10,"i42":10,"i43":10,"i44":10,"i45":10,"i46":10,"i47":10,"i48":10,"i49":10,"i50":10,"i51":10,"i52":10,"i53":10,"i54":10,"i55":10,"i56":10,"i57":10,"i58":10,"i59":10,"i60":10,"i61":10,"i62":10,"i63":10,"i64":10,"i65":10,"i66":10,"i67":10,"i68":10,"i69":10,"i70":10,"i71":10,"i72":10,"i73":10,"i74":10,"i75":10,"i76":10,"i77":10,"i78":10,"i79":10,"i80":10,"i81":10,"i82":10,"i83":10,"i84":10,"i85":10,"i86":10,"i87":10,"i88":10,"i89":10,"i90":10,"i91":10,"i92":10,"i93":10,"i94":10,"i95":10,"i96":10,"i97":10,"i98":10,"i99":10,"i100":10,"i101":10,"i102":10,"i103":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":9,"i31":10,"i32":10,"i33":10,"i34":10,"i35":10,"i36":10,"i37":10,"i38":10,"i39":10,"i40":10,"i41":10,"i42":10,"i43":10,"i44":10,"i45":10,"i46":10,"i47":10,"i48":10,"i49":10,"i50":10,"i51":10,"i52":10,"i53":10,"i54":10,"i55":10,"i56":10,"i57":10,"i58":10,"i59":10,"i60":10,"i61":10,"i62":10,"i63":10,"i64":10,"i65":10,"i66":10,"i67":10,"i68":10,"i69":10,"i70":10,"i71":10,"i72":10,"i73":10,"i74":10,"i75":10,"i76":10,"i77":10,"i78":10,"i79":10,"i80":10,"i81":10,"i82":10,"i83":10,"i84":10,"i85":10,"i86":10,"i87":10,"i88":10,"i89":10,"i90":10,"i91":10,"i92":10,"i93":10,"i94":10,"i95":10,"i96":10,"i97":10,"i98":10,"i99":10,"i100":10,"i101":10,"i102":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -214,10 +214,6 @@ extends java.lang.Object</pre>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#updateLinks">updateLinks</a></span></code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>private java.lang.String</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#updatingDefaultTableMembers">updatingDefaultTableMembers</a></span></code>&nbsp;</td>
-</tr>
-<tr class="altColor">
 <td class="colFirst"><code>private <a href="../CCDD/CcddVariableHandler.html" title="class in CCDD">CcddVariableHandler</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#variableHandler">variableHandler</a></span></code>&nbsp;</td>
 </tr>
@@ -342,7 +338,7 @@ extends java.lang.Object</pre>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#clearPreLoadedTableMembers--">clearPreLoadedTableMembers</a></span>()</code>
-<div class="block">Clear any pre-loaded table members</div>
+<div class="block">Clear the pre-loaded table members list</div>
 </td>
 </tr>
 <tr id="i10" class="altColor">
@@ -415,19 +411,13 @@ extends java.lang.Object</pre>
 </td>
 </tr>
 <tr id="i18" class="altColor">
-<td class="colFirst"><code>protected java.lang.String</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#defaultTableMembersUpdating--">defaultTableMembersUpdating</a></span>()</code>
-<div class="block">Are the pre-loaded table members currently being updated?</div>
-</td>
-</tr>
-<tr id="i19" class="rowColor">
 <td class="colFirst"><code>private java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#deleteAllLinkAndTlmRateRefs-java.lang.String-">deleteAllLinkAndTlmRateRefs</a></span>(java.lang.String&nbsp;rateColName)</code>
 <div class="block">Build the command to remove all references to the specified rate column name in the links
  and telemetry scheduler tables</div>
 </td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#deleteCommandReference-java.lang.String-CCDD.CcddInputTypeHandler.ReferenceCheckResults-java.lang.StringBuilder-java.lang.StringBuilder-">deleteCommandReference</a></span>(java.lang.String&nbsp;commandName,
                       <a href="../CCDD/CcddInputTypeHandler.ReferenceCheckResults.html" title="class in CCDD">CcddInputTypeHandler.ReferenceCheckResults</a>&nbsp;cmdRefChkResults,
@@ -437,7 +427,7 @@ extends java.lang.Object</pre>
  with a command reference input type</div>
 </td>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#deleteLinkAndTlmPathRef-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.StringBuilder-java.lang.StringBuilder-">deleteLinkAndTlmPathRef</a></span>(java.lang.String&nbsp;arraySize,
                        java.lang.String&nbsp;variableName,
@@ -449,7 +439,7 @@ extends java.lang.Object</pre>
  tables.</div>
 </td>
 </tr>
-<tr id="i22" class="altColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>private java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#deleteLinkAndTlmRateRef-java.lang.String-java.lang.StringBuilder-java.lang.StringBuilder-">deleteLinkAndTlmRateRef</a></span>(java.lang.String&nbsp;rateColName,
                        java.lang.StringBuilder&nbsp;linksCmd,
@@ -458,14 +448,14 @@ extends java.lang.Object</pre>
  the changed table type in the links and telemetry scheduler tables</div>
 </td>
 </tr>
-<tr id="i23" class="rowColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#deleteLinkPathRef-java.lang.String-java.lang.StringBuilder-">deleteLinkPathRef</a></span>(java.lang.String&nbsp;linksPath,
                  java.lang.StringBuilder&nbsp;linksCmd)</code>
 <div class="block">Build the command to delete the specified table/variable references from the links table</div>
 </td>
 </tr>
-<tr id="i24" class="altColor">
+<tr id="i23" class="rowColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#deleteTable-java.lang.String:A-boolean-java.awt.Component-">deleteTable</a></span>(java.lang.String[]&nbsp;tableNames,
            boolean&nbsp;isDataTable,
@@ -473,14 +463,14 @@ extends java.lang.Object</pre>
 <div class="block">Delete one or more prototype or script tables.</div>
 </td>
 </tr>
-<tr id="i25" class="rowColor">
+<tr id="i24" class="altColor">
 <td class="colFirst"><code>private java.lang.String</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#deleteTableCommand-java.lang.String:A-boolean-">deleteTableCommand</a></span>(java.lang.String[]&nbsp;tableNames,
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#deleteTableCommand-java.lang.String-boolean-">deleteTableCommand</a></span>(java.lang.String&nbsp;tableName,
                   boolean&nbsp;isDataTable)</code>
-<div class="block">Build the command to delete one or more prototype or script tables</div>
+<div class="block">Build the command to delete a prototype or script table</div>
 </td>
 </tr>
-<tr id="i26" class="altColor">
+<tr id="i25" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#deleteTableInBackground-java.lang.String:A-CCDD.CcddTableManagerDialog-java.awt.Component-">deleteTableInBackground</a></span>(java.lang.String[]&nbsp;tableNames,
                        <a href="../CCDD/CcddTableManagerDialog.html" title="class in CCDD">CcddTableManagerDialog</a>&nbsp;dialog,
@@ -488,7 +478,7 @@ extends java.lang.Object</pre>
 <div class="block">Delete one or more prototype or script tables.</div>
 </td>
 </tr>
-<tr id="i27" class="rowColor">
+<tr id="i26" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#deleteTableType-CCDD.CcddTableTypeHandler.TypeDefinition-CCDD.CcddTableTypeManagerDialog-java.awt.Component-">deleteTableType</a></span>(<a href="../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&nbsp;typeDefn,
                <a href="../CCDD/CcddTableTypeManagerDialog.html" title="class in CCDD">CcddTableTypeManagerDialog</a>&nbsp;typeDialog,
@@ -496,7 +486,7 @@ extends java.lang.Object</pre>
 <div class="block">Delete a table type and all tables of the deleted type.</div>
 </td>
 </tr>
-<tr id="i28" class="altColor">
+<tr id="i27" class="rowColor">
 <td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#deleteTlmPathRef-java.lang.String-java.lang.StringBuilder-">deleteTlmPathRef</a></span>(java.lang.String&nbsp;tlmPath,
                 java.lang.StringBuilder&nbsp;tlmCmd)</code>
@@ -504,14 +494,14 @@ extends java.lang.Object</pre>
  scheduler table</div>
 </td>
 </tr>
-<tr id="i29" class="rowColor">
+<tr id="i28" class="altColor">
 <td class="colFirst"><code>private java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#deleteTlmPathRefs-java.util.List-">deleteTlmPathRefs</a></span>(java.util.List&lt;java.lang.String&gt;&nbsp;variablePaths)</code>
 <div class="block">Build the command to delete the specified variable references from the telemetry scheduler
  table</div>
 </td>
 </tr>
-<tr id="i30" class="altColor">
+<tr id="i29" class="rowColor">
 <td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#deleteVariableReference-java.lang.String-java.lang.String-CCDD.CcddInputTypeHandler.ReferenceCheckResults-java.lang.StringBuilder-java.lang.StringBuilder-">deleteVariableReference</a></span>(java.lang.String&nbsp;protoTableName,
                        java.lang.String&nbsp;variableName,
@@ -522,22 +512,22 @@ extends java.lang.Object</pre>
  with a variable reference input type</div>
 </td>
 </tr>
-<tr id="i31" class="rowColor">
+<tr id="i30" class="altColor">
 <td class="colFirst"><code>protected static java.lang.Object</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#delimitText-java.lang.Object-">delimitText</a></span>(java.lang.Object&nbsp;object)</code>
 <div class="block">Enclose database text string objects with a delimiter.</div>
 </td>
 </tr>
-<tr id="i32" class="altColor">
+<tr id="i31" class="rowColor">
 <td class="colFirst"><code>protected java.util.List&lt;java.lang.String&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#getAllTablesOfType-java.lang.String-java.lang.String:A-boolean-java.awt.Component-">getAllTablesOfType</a></span>(java.lang.String&nbsp;typeName,
                   java.lang.String[]&nbsp;protoTableNames,
-                  boolean&nbsp;clearPreload,
+                  boolean&nbsp;clearPreLoad,
                   java.awt.Component&nbsp;parent)</code>
 <div class="block">Get a list containing all tables that are of the specified table type</div>
 </td>
 </tr>
-<tr id="i33" class="rowColor">
+<tr id="i32" class="altColor">
 <td class="colFirst"><code>protected java.util.List&lt;java.lang.String&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#getAllTablesOfType-java.lang.String-java.lang.String:A-java.awt.Component-">getAllTablesOfType</a></span>(java.lang.String&nbsp;typeName,
                   java.lang.String[]&nbsp;protoTableNames,
@@ -545,7 +535,7 @@ extends java.lang.Object</pre>
 <div class="block">Get a list containing all tables that are of the specified table type.</div>
 </td>
 </tr>
-<tr id="i34" class="altColor">
+<tr id="i33" class="rowColor">
 <td class="colFirst"><code>protected java.util.List&lt;java.lang.String[]&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#getCustomValues-java.lang.String-java.lang.String-java.awt.Component-">getCustomValues</a></span>(java.lang.String&nbsp;columnName,
                java.lang.String&nbsp;columnValue,
@@ -554,59 +544,59 @@ extends java.lang.Object</pre>
  specified column name and column value</div>
 </td>
 </tr>
-<tr id="i35" class="rowColor">
+<tr id="i34" class="altColor">
 <td class="colFirst"><code>protected java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.TableMembers.html" title="class in CCDD">CcddClassesDataTable.TableMembers</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#getPreLoadedTableMembers--">getPreLoadedTableMembers</a></span>()</code>
 <div class="block">Retrieve the pre-loaded table members</div>
 </td>
 </tr>
-<tr id="i36" class="altColor">
+<tr id="i35" class="rowColor">
 <td class="colFirst"><code>protected java.lang.String[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#getPrototypeTablesOfType-java.lang.String-">getPrototypeTablesOfType</a></span>(java.lang.String&nbsp;tableType)</code>
 <div class="block">Get an array containing all prototype tables that are of the specified table type (combining
  all structure and all command tables)</div>
 </td>
 </tr>
-<tr id="i37" class="rowColor">
+<tr id="i36" class="altColor">
 <td class="colFirst"><code>private java.util.List&lt;java.lang.String&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#getRootStructures-java.awt.Component-">getRootStructures</a></span>(java.awt.Component&nbsp;parent)</code>
 <div class="block">Get the list of root (top level) structure tables from the project database</div>
 </td>
 </tr>
-<tr id="i38" class="altColor">
+<tr id="i37" class="rowColor">
 <td class="colFirst"><code>protected java.util.List&lt;java.lang.String&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#getRootTables-boolean-java.awt.Component-">getRootTables</a></span>(boolean&nbsp;structuresOnly,
              java.awt.Component&nbsp;parent)</code>
 <div class="block">Get the list of root (top level) tables</div>
 </td>
 </tr>
-<tr id="i39" class="rowColor">
+<tr id="i38" class="altColor">
 <td class="colFirst"><code>protected java.lang.String[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#getTableComment-java.lang.String-java.lang.String:A:A-">getTableComment</a></span>(java.lang.String&nbsp;dbTableName,
                java.lang.String[][]&nbsp;comments)</code>
 <div class="block">Return an array of table comment components for the specified table</div>
 </td>
 </tr>
-<tr id="i40" class="altColor">
+<tr id="i39" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#initRootStructures--">initRootStructures</a></span>()</code>
-<div class="block">Init the root structures</div>
+<div class="block">Initialize the root structures</div>
 </td>
 </tr>
-<tr id="i41" class="rowColor">
+<tr id="i40" class="altColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#isRootStructure-java.lang.String-">isRootStructure</a></span>(java.lang.String&nbsp;tableName)</code>
 <div class="block">Check if the supplied table name is a root structure table</div>
 </td>
 </tr>
-<tr id="i42" class="altColor">
+<tr id="i41" class="rowColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#isTableExists-java.lang.String-java.awt.Component-">isTableExists</a></span>(java.lang.String&nbsp;tableName,
              java.awt.Component&nbsp;parent)</code>
 <div class="block">Check if a specified table exists in the database (case insensitive)</div>
 </td>
 </tr>
-<tr id="i43" class="rowColor">
+<tr id="i42" class="altColor">
 <td class="colFirst"><code>protected <a href="../CCDD/CcddClassesDataTable.TableInfo.html" title="class in CCDD">CcddClassesDataTable.TableInfo</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#loadTableData-java.lang.String-boolean-boolean-boolean-java.awt.Component-">loadTableData</a></span>(java.lang.String&nbsp;tablePath,
              boolean&nbsp;loadDescription,
@@ -616,21 +606,21 @@ extends java.lang.Object</pre>
 <div class="block">Perform the database query to load the contents of a database table.</div>
 </td>
 </tr>
-<tr id="i44" class="altColor">
+<tr id="i43" class="rowColor">
 <td class="colFirst"><code>protected javax.swing.SwingWorker&lt;?,?&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#loadTableDataInBackground-java.lang.String:A-CCDD.CcddTableEditorDialog-">loadTableDataInBackground</a></span>(java.lang.String[]&nbsp;tablePaths,
                          <a href="../CCDD/CcddTableEditorDialog.html" title="class in CCDD">CcddTableEditorDialog</a>&nbsp;callingEditorDlg)</code>
 <div class="block">Load the contents of an array of database tables and display the data in a table editor.</div>
 </td>
 </tr>
-<tr id="i45" class="rowColor">
+<tr id="i44" class="altColor">
 <td class="colFirst"><code>protected javax.swing.SwingWorker&lt;?,?&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#loadTableDataInBackground-java.lang.String-CCDD.CcddTableEditorDialog-">loadTableDataInBackground</a></span>(java.lang.String&nbsp;tablePath,
                          <a href="../CCDD/CcddTableEditorDialog.html" title="class in CCDD">CcddTableEditorDialog</a>&nbsp;currentEditorDlg)</code>
 <div class="block">Load the contents of a single database table and display the data in a table editor.</div>
 </td>
 </tr>
-<tr id="i46" class="altColor">
+<tr id="i45" class="rowColor">
 <td class="colFirst"><code>protected java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.TableMembers.html" title="class in CCDD">CcddClassesDataTable.TableMembers</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#loadTableMembers-CCDD.CcddConstants.TableMemberType-boolean-java.awt.Component-">loadTableMembers</a></span>(<a href="../CCDD/CcddConstants.TableMemberType.html" title="enum in CCDD">CcddConstants.TableMemberType</a>&nbsp;memberType,
                 boolean&nbsp;sortByName,
@@ -639,7 +629,7 @@ extends java.lang.Object</pre>
  and primitive variables (if specified).</div>
 </td>
 </tr>
-<tr id="i47" class="rowColor">
+<tr id="i46" class="altColor">
 <td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#modifyCommandReference-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-CCDD.CcddInputTypeHandler.ReferenceCheckResults-java.lang.StringBuilder-java.lang.StringBuilder-">modifyCommandReference</a></span>(java.lang.String&nbsp;tablePath,
                       java.lang.String&nbsp;oldCommandName,
@@ -655,7 +645,7 @@ extends java.lang.Object</pre>
  every table cell and data field with a command reference input type</div>
 </td>
 </tr>
-<tr id="i48" class="altColor">
+<tr id="i47" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#modifyDataFieldValues-java.util.List-java.util.List-CCDD.CcddFieldTableEditorDialog-">modifyDataFieldValues</a></span>(java.util.List&lt;java.lang.String[]&gt;&nbsp;modifications,
                      java.util.List&lt;java.lang.String[]&gt;&nbsp;deletions,
@@ -663,7 +653,7 @@ extends java.lang.Object</pre>
 <div class="block">Modify table data field values in the data fields table.</div>
 </td>
 </tr>
-<tr id="i49" class="rowColor">
+<tr id="i48" class="altColor">
 <td class="colFirst"><code>private java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#modifyFieldsCommand-java.lang.String-java.util.List-">modifyFieldsCommand</a></span>(java.lang.String&nbsp;ownerName,
                    java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;&nbsp;fieldInformation)</code>
@@ -671,14 +661,14 @@ extends java.lang.Object</pre>
  table, table type, group, or project</div>
 </td>
 </tr>
-<tr id="i50" class="altColor">
+<tr id="i49" class="rowColor">
 <td class="colFirst"><code>private java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#modifyInternalFieldsTable-java.util.List-">modifyInternalFieldsTable</a></span>(java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.TableModification.html" title="class in CCDD">CcddClassesDataTable.TableModification</a>&gt;&nbsp;additions)</code>
 <div class="block">Build the command for updating the internal fields table when a root table is modified to be
  the child of a new table</div>
 </td>
 </tr>
-<tr id="i51" class="rowColor">
+<tr id="i50" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#modifyProjectFields-java.lang.String-java.util.List-java.awt.Component-">modifyProjectFields</a></span>(java.lang.String&nbsp;description,
                    java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;&nbsp;fieldInformation,
@@ -686,7 +676,7 @@ extends java.lang.Object</pre>
 <div class="block">Update the project description and data fields in the database</div>
 </td>
 </tr>
-<tr id="i52" class="altColor">
+<tr id="i51" class="rowColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#modifyTableData-CCDD.CcddClassesDataTable.TableInfo-java.util.List-java.util.List-java.util.List-boolean-boolean-boolean-boolean-boolean-CCDD.CcddDataTypeHandler-boolean-boolean-boolean-java.awt.Component-">modifyTableData</a></span>(<a href="../CCDD/CcddClassesDataTable.TableInfo.html" title="class in CCDD">CcddClassesDataTable.TableInfo</a>&nbsp;tableInfo,
                java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.TableModification.html" title="class in CCDD">CcddClassesDataTable.TableModification</a>&gt;&nbsp;additions,
@@ -705,7 +695,7 @@ extends java.lang.Object</pre>
 <div class="block">Add, modify, and/or delete data in a table.</div>
 </td>
 </tr>
-<tr id="i53" class="rowColor">
+<tr id="i52" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#modifyTableDataInBackground-CCDD.CcddClassesDataTable.TableInfo-java.util.List-java.util.List-java.util.List-boolean-boolean-boolean-boolean-boolean-CCDD.CcddDataTypeHandler-java.awt.Component-">modifyTableDataInBackground</a></span>(<a href="../CCDD/CcddClassesDataTable.TableInfo.html" title="class in CCDD">CcddClassesDataTable.TableInfo</a>&nbsp;tableInfo,
                            java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.TableModification.html" title="class in CCDD">CcddClassesDataTable.TableModification</a>&gt;&nbsp;additions,
@@ -721,7 +711,7 @@ extends java.lang.Object</pre>
 <div class="block">Add, modify, and/or delete data in a table.</div>
 </td>
 </tr>
-<tr id="i54" class="altColor">
+<tr id="i53" class="rowColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#modifyTablesPerDataTypeOrMacroChanges-java.util.List-java.util.List-java.awt.Component-">modifyTablesPerDataTypeOrMacroChanges</a></span>(java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.TableModification.html" title="class in CCDD">CcddClassesDataTable.TableModification</a>&gt;&nbsp;modifications,
                                      java.util.List&lt;java.lang.String[]&gt;&nbsp;updates,
@@ -730,7 +720,7 @@ extends java.lang.Object</pre>
  and/or macro values</div>
 </td>
 </tr>
-<tr id="i55" class="rowColor">
+<tr id="i54" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#modifyTablesPerDataTypeOrMacroChangesInBackground-java.util.List-java.util.List-CCDD.CcddDialogHandler-">modifyTablesPerDataTypeOrMacroChangesInBackground</a></span>(java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.TableModification.html" title="class in CCDD">CcddClassesDataTable.TableModification</a>&gt;&nbsp;modifications,
                                                  java.util.List&lt;java.lang.String[]&gt;&nbsp;updates,
@@ -739,7 +729,7 @@ extends java.lang.Object</pre>
  and/or macro values.</div>
 </td>
 </tr>
-<tr id="i56" class="altColor">
+<tr id="i55" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#modifyTablesPerInputTypeChanges-java.util.List-java.lang.String:A:A-CCDD.CcddInputTypeEditorDialog-">modifyTablesPerInputTypeChanges</a></span>(java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.TableModification.html" title="class in CCDD">CcddClassesDataTable.TableModification</a>&gt;&nbsp;modifications,
                                java.lang.String[][]&nbsp;updates,
@@ -747,7 +737,7 @@ extends java.lang.Object</pre>
 <div class="block">Modify all tables affected by changes to the user-defined input types.</div>
 </td>
 </tr>
-<tr id="i57" class="rowColor">
+<tr id="i56" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#modifyTableType-java.lang.String-java.util.List-CCDD.CcddConstants.OverwriteFieldValueType-java.util.List-java.util.List-java.util.List-boolean-CCDD.CcddTableTypeHandler.TypeDefinition-java.util.List-CCDD.CcddTableTypeEditorDialog-CCDD.CcddTableTypeEditorHandler-">modifyTableType</a></span>(java.lang.String&nbsp;typeName,
                java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;&nbsp;fieldInformation,
@@ -764,9 +754,9 @@ extends java.lang.Object</pre>
  existing tables of the specified type</div>
 </td>
 </tr>
-<tr id="i58" class="altColor">
+<tr id="i57" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#modifyTableTypeInBackground-java.lang.String-java.util.List-CCDD.CcddConstants.OverwriteFieldValueType-java.util.List-java.util.List-java.util.List-boolean-CCDD.CcddTableTypeHandler.TypeDefinition-java.util.List-java.util.List-java.util.List-CCDD.CcddTableTypeEditorDialog-CCDD.CcddTableTypeEditorHandler-">modifyTableTypeInBackground</a></span>(java.lang.String&nbsp;tableType,
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#modifyTableTypeInBackground-java.lang.String-java.util.List-CCDD.CcddConstants.OverwriteFieldValueType-java.util.List-java.util.List-java.util.List-boolean-CCDD.CcddTableTypeHandler.TypeDefinition-java.util.List-CCDD.CcddTableTypeEditorDialog-CCDD.CcddTableTypeEditorHandler-">modifyTableTypeInBackground</a></span>(java.lang.String&nbsp;tableType,
                            java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;&nbsp;fieldInformation,
                            <a href="../CCDD/CcddConstants.OverwriteFieldValueType.html" title="enum in CCDD">CcddConstants.OverwriteFieldValueType</a>&nbsp;overwriteFields,
                            java.util.List&lt;java.lang.String[]&gt;&nbsp;typeAdditions,
@@ -774,16 +764,14 @@ extends java.lang.Object</pre>
                            java.util.List&lt;java.lang.String[]&gt;&nbsp;typeDeletions,
                            boolean&nbsp;columnOrderChange,
                            <a href="../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&nbsp;originalDefn,
-                           java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.TableModification.html" title="class in CCDD">CcddClassesDataTable.TableModification</a>&gt;&nbsp;fieldAdditions,
-                           java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.TableModification.html" title="class in CCDD">CcddClassesDataTable.TableModification</a>&gt;&nbsp;fieldModifications,
-                           java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.TableModification.html" title="class in CCDD">CcddClassesDataTable.TableModification</a>&gt;&nbsp;fieldDeletions,
+                           java.util.List&lt;java.lang.String[]&gt;&nbsp;newDataFields,
                            <a href="../CCDD/CcddTableTypeEditorDialog.html" title="class in CCDD">CcddTableTypeEditorDialog</a>&nbsp;editorDialog,
                            <a href="../CCDD/CcddTableTypeEditorHandler.html" title="class in CCDD">CcddTableTypeEditorHandler</a>&nbsp;editor)</code>
 <div class="block">Add, rename, or delete table type column names in the table definitions table and update the
  existing tables of the specified type.</div>
 </td>
 </tr>
-<tr id="i59" class="rowColor">
+<tr id="i58" class="altColor">
 <td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#modifyVariableReference-CCDD.CcddClassesDataTable.TableInfo-java.lang.String-java.lang.String-java.lang.String-java.lang.String-CCDD.CcddInputTypeHandler.ReferenceCheckResults-java.lang.StringBuilder-java.lang.StringBuilder-">modifyVariableReference</a></span>(<a href="../CCDD/CcddClassesDataTable.TableInfo.html" title="class in CCDD">CcddClassesDataTable.TableInfo</a>&nbsp;tableInfo,
                        java.lang.String&nbsp;oldVariableName,
@@ -797,7 +785,7 @@ extends java.lang.Object</pre>
  field with a variable reference input type</div>
 </td>
 </tr>
-<tr id="i60" class="altColor">
+<tr id="i59" class="rowColor">
 <td class="colFirst"><code>private java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#queryColumnOrder-java.lang.String-java.lang.String-java.awt.Component-">queryColumnOrder</a></span>(java.lang.String&nbsp;tablePath,
                 java.lang.String&nbsp;tableType,
@@ -805,27 +793,27 @@ extends java.lang.Object</pre>
 <div class="block">Retrieve the column order for the specified table and the current user</div>
 </td>
 </tr>
-<tr id="i61" class="rowColor">
+<tr id="i60" class="altColor">
 <td class="colFirst"><code>protected java.util.List&lt;java.lang.String[]&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#queryDatabase-java.lang.StringBuilder-java.awt.Component-">queryDatabase</a></span>(java.lang.StringBuilder&nbsp;sqlCommand,
              java.awt.Component&nbsp;parent)</code>
 <div class="block">Perform a query on the currently open database</div>
 </td>
 </tr>
-<tr id="i62" class="altColor">
+<tr id="i61" class="rowColor">
 <td class="colFirst"><code>protected java.lang.String[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#queryDataTableComment-java.lang.String-java.awt.Component-">queryDataTableComment</a></span>(java.lang.String&nbsp;tableName,
                      java.awt.Component&nbsp;parent)</code>
 <div class="block">Retrieve the comment for the specified data table.</div>
 </td>
 </tr>
-<tr id="i63" class="rowColor">
+<tr id="i62" class="altColor">
 <td class="colFirst"><code>protected java.lang.String[][]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#queryDataTableComments-java.awt.Component-">queryDataTableComments</a></span>(java.awt.Component&nbsp;parent)</code>
 <div class="block">Retrieve a list of comments for all data tables in the database.</div>
 </td>
 </tr>
-<tr id="i64" class="altColor">
+<tr id="i63" class="rowColor">
 <td class="colFirst"><code>protected java.lang.String[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#queryDataTypeAndVariablesTypeList-java.lang.String-java.awt.Component-">queryDataTypeAndVariablesTypeList</a></span>(java.lang.String&nbsp;tableTypes,
                                  java.awt.Component&nbsp;parent)</code>
@@ -833,19 +821,19 @@ extends java.lang.Object</pre>
  structure table types in the format tableName&lt;,dataType.variableName&gt;</div>
 </td>
 </tr>
-<tr id="i65" class="rowColor">
+<tr id="i64" class="altColor">
 <td class="colFirst"><code>protected java.lang.String[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#queryScriptTables-java.awt.Component-">queryScriptTables</a></span>(java.awt.Component&nbsp;parent)</code>
 <div class="block">Retrieve a list of all tables that represent script files</div>
 </td>
 </tr>
-<tr id="i66" class="altColor">
+<tr id="i65" class="rowColor">
 <td class="colFirst"><code>protected java.util.List&lt;java.lang.String[]&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#queryTableAndTypeList-java.awt.Component-">queryTableAndTypeList</a></span>(java.awt.Component&nbsp;parent)</code>
 <div class="block">Retrieve a list of all data tables in the database along with the table's type.</div>
 </td>
 </tr>
-<tr id="i67" class="rowColor">
+<tr id="i66" class="altColor">
 <td class="colFirst"><code>protected java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#queryTableCellValue-java.lang.String-java.lang.String-java.lang.String-java.awt.Component-">queryTableCellValue</a></span>(java.lang.String&nbsp;tableName,
                    java.lang.String&nbsp;primaryKey,
@@ -854,7 +842,7 @@ extends java.lang.Object</pre>
 <div class="block">Retrieve the specified cell's value from the specified table</div>
 </td>
 </tr>
-<tr id="i68" class="altColor">
+<tr id="i67" class="rowColor">
 <td class="colFirst"><code>protected java.lang.String[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#queryTableComment-java.lang.String-int-java.awt.Component-">queryTableComment</a></span>(java.lang.String&nbsp;tableName,
                  int&nbsp;numParts,
@@ -862,52 +850,52 @@ extends java.lang.Object</pre>
 <div class="block">Retrieve the comment for the specified table</div>
 </td>
 </tr>
-<tr id="i69" class="rowColor">
+<tr id="i68" class="altColor">
 <td class="colFirst"><code>protected java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#queryTableDescription-java.lang.String-java.awt.Component-">queryTableDescription</a></span>(java.lang.String&nbsp;tablePath,
                      java.awt.Component&nbsp;parent)</code>
 <div class="block">Retrieve the description for the specified table</div>
 </td>
 </tr>
-<tr id="i70" class="altColor">
+<tr id="i69" class="rowColor">
 <td class="colFirst"><code>protected java.lang.String[][]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#queryTableDescriptions-java.awt.Component-">queryTableDescriptions</a></span>(java.awt.Component&nbsp;parent)</code>
 <div class="block">Retrieve a list of all data table descriptions in the database.</div>
 </td>
 </tr>
-<tr id="i71" class="rowColor">
+<tr id="i70" class="altColor">
 <td class="colFirst"><code>protected java.lang.String[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#queryTableList-java.awt.Component-">queryTableList</a></span>(java.awt.Component&nbsp;parent)</code>
 <div class="block">Retrieve a list of all data tables in the database with the names in the user-viewable form.</div>
 </td>
 </tr>
-<tr id="i72" class="altColor">
+<tr id="i71" class="rowColor">
 <td class="colFirst"><code>protected java.lang.String[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#queryTablesOfTypeList-java.lang.String-java.awt.Component-">queryTablesOfTypeList</a></span>(java.lang.String&nbsp;tableType,
                      java.awt.Component&nbsp;parent)</code>
 <div class="block">Retrieve a list of all tables of a specific type in the database.</div>
 </td>
 </tr>
-<tr id="i73" class="rowColor">
+<tr id="i72" class="altColor">
 <td class="colFirst"><code>protected java.lang.String[][]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#queryTableTypeDataList-java.lang.String-java.awt.Component-">queryTableTypeDataList</a></span>(java.lang.String&nbsp;typeName,
                       java.awt.Component&nbsp;parent)</code>
 <div class="block">Retrieve a list of table type data from the database.</div>
 </td>
 </tr>
-<tr id="i74" class="altColor">
+<tr id="i73" class="rowColor">
 <td class="colFirst"><code>protected java.lang.String[][]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#queryTableTypeNamesAndDescriptions-java.awt.Component-">queryTableTypeNamesAndDescriptions</a></span>(java.awt.Component&nbsp;parent)</code>
 <div class="block">Retrieve a list of all table types names and their descriptions</div>
 </td>
 </tr>
-<tr id="i75" class="rowColor">
+<tr id="i74" class="altColor">
 <td class="colFirst"><code>protected java.lang.String[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#queryTableTypesList-java.awt.Component-">queryTableTypesList</a></span>(java.awt.Component&nbsp;parent)</code>
 <div class="block">Retrieve a list of all table types in the database.</div>
 </td>
 </tr>
-<tr id="i76" class="altColor">
+<tr id="i75" class="rowColor">
 <td class="colFirst"><code>private java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#renameInfoTableCommand-CCDD.CcddConstants.InternalTable-java.lang.String-java.lang.String-java.lang.String-">renameInfoTableCommand</a></span>(<a href="../CCDD/CcddConstants.InternalTable.html" title="enum in CCDD">CcddConstants.InternalTable</a>&nbsp;intType,
                       java.lang.String&nbsp;idColumnName,
@@ -916,7 +904,7 @@ extends java.lang.Object</pre>
 <div class="block">Create the command to rename a table reference in an internal table</div>
 </td>
 </tr>
-<tr id="i77" class="rowColor">
+<tr id="i76" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#renameTable-java.lang.String-java.lang.String-java.lang.String-CCDD.CcddTableManagerDialog-">renameTable</a></span>(java.lang.String&nbsp;tableName,
            java.lang.String&nbsp;newName,
@@ -925,7 +913,7 @@ extends java.lang.Object</pre>
 <div class="block">Change the name of a table.</div>
 </td>
 </tr>
-<tr id="i78" class="altColor">
+<tr id="i77" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#renameTableType-java.lang.String-java.lang.String-CCDD.CcddTableTypeManagerDialog-">renameTableType</a></span>(java.lang.String&nbsp;typeName,
                java.lang.String&nbsp;newName,
@@ -933,31 +921,31 @@ extends java.lang.Object</pre>
 <div class="block">Change the name of a table type and update the existing tables of the specified type.</div>
 </td>
 </tr>
-<tr id="i79" class="rowColor">
+<tr id="i78" class="altColor">
 <td class="colFirst"><code>protected java.util.List&lt;java.lang.String[]&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#retrieveInformationTable-CCDD.CcddConstants.InternalTable-boolean-java.awt.Component-">retrieveInformationTable</a></span>(<a href="../CCDD/CcddConstants.InternalTable.html" title="enum in CCDD">CcddConstants.InternalTable</a>&nbsp;intTable,
-                        boolean&nbsp;includeOID,
+                        boolean&nbsp;isIncludeRowNum,
                         java.awt.Component&nbsp;parent)</code>
 <div class="block">Retrieve a list of internal table data from the database, ignoring script file information
  tables</div>
 </td>
 </tr>
-<tr id="i80" class="altColor">
+<tr id="i79" class="rowColor">
 <td class="colFirst"><code>protected java.util.List&lt;java.lang.String[]&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#retrieveInformationTable-CCDD.CcddConstants.InternalTable-boolean-java.lang.String-java.awt.Component-">retrieveInformationTable</a></span>(<a href="../CCDD/CcddConstants.InternalTable.html" title="enum in CCDD">CcddConstants.InternalTable</a>&nbsp;intTable,
-                        boolean&nbsp;includeOID,
+                        boolean&nbsp;isIncludeRowNum,
                         java.lang.String&nbsp;scriptName,
                         java.awt.Component&nbsp;parent)</code>
 <div class="block">Retrieve a list of internal table data from the database</div>
 </td>
 </tr>
-<tr id="i81" class="rowColor">
+<tr id="i80" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#setHandlers--">setHandlers</a></span>()</code>
 <div class="block">Set the references to the table type, macro, data type, and rate handler classes</div>
 </td>
 </tr>
-<tr id="i82" class="altColor">
+<tr id="i81" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#setTableComment-java.lang.String-java.lang.String-java.awt.Component-">setTableComment</a></span>(java.lang.String&nbsp;tableName,
                java.lang.String&nbsp;comment,
@@ -965,13 +953,13 @@ extends java.lang.Object</pre>
 <div class="block">Set the comment for the specified table</div>
 </td>
 </tr>
-<tr id="i83" class="rowColor">
+<tr id="i82" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#setTableTypeHandler--">setTableTypeHandler</a></span>()</code>
 <div class="block">Set the table type handler</div>
 </td>
 </tr>
-<tr id="i84" class="altColor">
+<tr id="i83" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#storeInformationTable-CCDD.CcddConstants.InternalTable-java.util.List-java.util.List-java.util.List-java.util.List-java.lang.String-java.awt.Component-">storeInformationTable</a></span>(<a href="../CCDD/CcddConstants.InternalTable.html" title="enum in CCDD">CcddConstants.InternalTable</a>&nbsp;intTable,
                      java.util.List&lt;java.lang.String[]&gt;&nbsp;tableData,
@@ -983,7 +971,7 @@ extends java.lang.Object</pre>
 <div class="block">Store the internal table into the database</div>
 </td>
 </tr>
-<tr id="i85" class="rowColor">
+<tr id="i84" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#storeInformationTable-CCDD.CcddConstants.InternalTable-java.util.List-java.lang.String-java.awt.Component-">storeInformationTable</a></span>(<a href="../CCDD/CcddConstants.InternalTable.html" title="enum in CCDD">CcddConstants.InternalTable</a>&nbsp;intTable,
                      java.util.List&lt;java.lang.String[]&gt;&nbsp;tableData,
@@ -992,7 +980,7 @@ extends java.lang.Object</pre>
 <div class="block">Store the internal table into the database</div>
 </td>
 </tr>
-<tr id="i86" class="altColor">
+<tr id="i85" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#storeInformationTableInBackground-CCDD.CcddConstants.InternalTable-java.util.List-java.util.List-java.util.List-java.util.List-java.lang.String-java.awt.Component-">storeInformationTableInBackground</a></span>(<a href="../CCDD/CcddConstants.InternalTable.html" title="enum in CCDD">CcddConstants.InternalTable</a>&nbsp;intTable,
                                  java.util.List&lt;java.lang.String[]&gt;&nbsp;tableData,
@@ -1004,7 +992,7 @@ extends java.lang.Object</pre>
 <div class="block">Store the internal table into the database.</div>
 </td>
 </tr>
-<tr id="i87" class="rowColor">
+<tr id="i86" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#storeInformationTableInBackground-CCDD.CcddConstants.InternalTable-java.util.List-java.lang.String-java.awt.Component-">storeInformationTableInBackground</a></span>(<a href="../CCDD/CcddConstants.InternalTable.html" title="enum in CCDD">CcddConstants.InternalTable</a>&nbsp;intTable,
                                  java.util.List&lt;java.lang.String[]&gt;&nbsp;tableData,
@@ -1013,7 +1001,7 @@ extends java.lang.Object</pre>
 <div class="block">Store the internal table into the database.</div>
 </td>
 </tr>
-<tr id="i88" class="altColor">
+<tr id="i87" class="rowColor">
 <td class="colFirst"><code>(package private) boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#storeNonTableTypesInfoTable-CCDD.CcddConstants.InternalTable-java.util.List-java.lang.String-java.awt.Component-">storeNonTableTypesInfoTable</a></span>(<a href="../CCDD/CcddConstants.InternalTable.html" title="enum in CCDD">CcddConstants.InternalTable</a>&nbsp;intTable,
                            java.util.List&lt;java.lang.String[]&gt;&nbsp;tableData,
@@ -1023,26 +1011,26 @@ extends java.lang.Object</pre>
  fields, or scripts</div>
 </td>
 </tr>
-<tr id="i89" class="rowColor">
+<tr id="i88" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#storeRateParameters-java.awt.Component-">storeRateParameters</a></span>(java.awt.Component&nbsp;parent)</code>
 <div class="block">Store the rate parameters in the project database and update the database structure-related
  functions</div>
 </td>
 </tr>
-<tr id="i90" class="altColor">
+<tr id="i89" class="rowColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#storeTableTypesInfoTable-java.awt.Component-">storeTableTypesInfoTable</a></span>(java.awt.Component&nbsp;parent)</code>
 <div class="block">Build and send the command for storing the table type definitions table</div>
 </td>
 </tr>
-<tr id="i91" class="rowColor">
+<tr id="i90" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#updateDataTypeColumns-java.awt.Component-">updateDataTypeColumns</a></span>(java.awt.Component&nbsp;parent)</code>
 <div class="block">Update the data type columns in the open table editors</div>
 </td>
 </tr>
-<tr id="i92" class="altColor">
+<tr id="i91" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#updateGroupsTable-java.util.List-java.util.List-java.awt.Component-">updateGroupsTable</a></span>(java.util.List&lt;java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.FieldInformation.html" title="class in CCDD">CcddClassesDataTable.FieldInformation</a>&gt;&gt;&nbsp;fieldInformationList,
                  java.util.List&lt;java.lang.String&gt;&nbsp;deletedGroups,
@@ -1050,14 +1038,14 @@ extends java.lang.Object</pre>
 <div class="block">Store the internal groups table into the database</div>
 </td>
 </tr>
-<tr id="i93" class="rowColor">
+<tr id="i92" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#updateInputTypeColumns-java.util.List-java.awt.Component-">updateInputTypeColumns</a></span>(java.util.List&lt;java.lang.String[]&gt;&nbsp;inputTypeNames,
                       java.awt.Component&nbsp;parent)</code>
 <div class="block">Update the input type columns in the open table editors</div>
 </td>
 </tr>
-<tr id="i94" class="altColor">
+<tr id="i93" class="rowColor">
 <td class="colFirst"><code>private java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#updateLinksAndTlmForPackingChange-CCDD.CcddClassesComponent.ToolTipTreeNode-java.awt.Component-">updateLinksAndTlmForPackingChange</a></span>(<a href="../CCDD/CcddClassesComponent.ToolTipTreeNode.html" title="class in CCDD">CcddClassesComponent.ToolTipTreeNode</a>&nbsp;orgTableNode,
                                  java.awt.Component&nbsp;parent)</code>
@@ -1065,7 +1053,7 @@ extends java.lang.Object</pre>
  that are no longer valid due to changes in bit-packing</div>
 </td>
 </tr>
-<tr id="i95" class="rowColor">
+<tr id="i94" class="altColor">
 <td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#updateLinksForStringMemberAddition-java.lang.String-java.lang.String-java.lang.String-">updateLinksForStringMemberAddition</a></span>(java.lang.String&nbsp;protoTable,
                                   java.lang.String&nbsp;dataType,
@@ -1074,14 +1062,14 @@ extends java.lang.Object</pre>
  is added to the array)</div>
 </td>
 </tr>
-<tr id="i96" class="altColor">
+<tr id="i95" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#updateListsAndReferences-java.awt.Component-">updateListsAndReferences</a></span>(java.awt.Component&nbsp;parent)</code>
 <div class="block">Update the root structure table, variable path and offset, and command lists, and the
  variable, command, and message ID references.</div>
 </td>
 </tr>
-<tr id="i97" class="rowColor">
+<tr id="i96" class="altColor">
 <td class="colFirst"><code>private boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#updateMessageNameAndIDReference-CCDD.CcddClassesDataTable.TableInfo-CCDD.CcddTableTypeHandler.TypeDefinition-java.util.List-java.util.List-CCDD.CcddInputTypeHandler.ReferenceCheckResults-java.awt.Component-">updateMessageNameAndIDReference</a></span>(<a href="../CCDD/CcddClassesDataTable.TableInfo.html" title="class in CCDD">CcddClassesDataTable.TableInfo</a>&nbsp;tableInfo,
                                <a href="../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&nbsp;typeDefn,
@@ -1094,13 +1082,13 @@ extends java.lang.Object</pre>
  type</div>
 </td>
 </tr>
-<tr id="i98" class="altColor">
+<tr id="i97" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#updatePreLoadedTableMembers--">updatePreLoadedTableMembers</a></span>()</code>
-<div class="block">Update the pre-loaded table members in the background</div>
+<div class="block">Update the pre-loaded table members</div>
 </td>
 </tr>
-<tr id="i99" class="rowColor">
+<tr id="i98" class="altColor">
 <td class="colFirst"><code>private java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#UpdateSubTableDataFields-java.lang.String-java.lang.String-CCDD.CcddClassesDataTable.TableModification-boolean-java.awt.Component-">UpdateSubTableDataFields</a></span>(java.lang.String&nbsp;structDataType,
                         java.lang.String&nbsp;variablePath,
@@ -1110,7 +1098,7 @@ extends java.lang.Object</pre>
 <div class="block">Update the data fields of any sub-tables that were altered due to the modified tables</div>
 </td>
 </tr>
-<tr id="i100" class="altColor">
+<tr id="i99" class="rowColor">
 <td class="colFirst"><code>private java.lang.StringBuilder</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#updateTableFields-java.lang.String-java.lang.String-java.lang.String-java.awt.Component-java.lang.StringBuilder-">updateTableFields</a></span>(java.lang.String&nbsp;dataType,
                  java.lang.String&nbsp;parentPath,
@@ -1120,20 +1108,20 @@ extends java.lang.Object</pre>
 <div class="block">Update the data fields of the new root table or members of a root table</div>
 </td>
 </tr>
-<tr id="i101" class="rowColor">
+<tr id="i100" class="altColor">
 <td class="colFirst"><code>private boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#updateTablesRecentlyConvertedToRoot-java.util.List-java.awt.Component-">updateTablesRecentlyConvertedToRoot</a></span>(java.util.List&lt;java.lang.String&gt;&nbsp;updatedDataTypes,
                                    java.awt.Component&nbsp;parent)</code>
 <div class="block">Update the data fields of a table that is being converted from a non-root to a root</div>
 </td>
 </tr>
-<tr id="i102" class="altColor">
-<td class="colFirst"><code>protected void</code></td>
+<tr id="i101" class="rowColor">
+<td class="colFirst"><code>private void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#updateTableTree--">updateTableTree</a></span>()</code>
-<div class="block">Update the table tree information including the pre-loaded information</div>
+<div class="block">Update the table tree information, including the pre-loaded table member information</div>
 </td>
 </tr>
-<tr id="i103" class="rowColor">
+<tr id="i102" class="altColor">
 <td class="colFirst"><code>private java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddDbTableCommandHandler.html#updateVarNameAndDataType-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-boolean-">updateVarNameAndDataType</a></span>(java.lang.String&nbsp;orgVariablePath,
                         java.lang.String&nbsp;newVariablePath,
@@ -1347,15 +1335,6 @@ extends java.lang.Object</pre>
 <pre>private&nbsp;java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.TableMembers.html" title="class in CCDD">CcddClassesDataTable.TableMembers</a>&gt; preLoadedTableMembers</pre>
 </li>
 </ul>
-<a name="updatingDefaultTableMembers">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>updatingDefaultTableMembers</h4>
-<pre>private&nbsp;java.lang.String updatingDefaultTableMembers</pre>
-</li>
-</ul>
 <a name="tableTree">
 <!--   -->
 </a>
@@ -1428,16 +1407,6 @@ extends java.lang.Object</pre>
 <div class="block">Set the table type handler</div>
 </li>
 </ul>
-<a name="initRootStructures--">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>initRootStructures</h4>
-<pre>protected&nbsp;void&nbsp;initRootStructures()</pre>
-<div class="block">Init the root structures</div>
-</li>
-</ul>
 <a name="delimitText-java.lang.Object-">
 <!--   -->
 </a>
@@ -1488,6 +1457,16 @@ extends java.lang.Object</pre>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>true if the supplied table name is a root structure</dd>
 </dl>
+</li>
+</ul>
+<a name="initRootStructures--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>initRootStructures</h4>
+<pre>protected&nbsp;void&nbsp;initRootStructures()</pre>
+<div class="block">Initialize the root structures</div>
 </li>
 </ul>
 <a name="getRootStructures-java.awt.Component-">
@@ -2031,7 +2010,7 @@ extends java.lang.Object</pre>
 <dd><code>tableType</code> - Type of table to create (e.g., Structure or Command)</dd>
 <dd><code>defaultFields</code> - Copy the default fields for the new table's type to the new
                             table?</dd>
-<dd><code>updatePreloadedInfo</code> - true if the preloaded table tree information should be updated</dd>
+<dd><code>updatePreloadedInfo</code> - true if the pre-loaded table tree information should be updated</dd>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>true if an error occurred when creating a table</dd>
@@ -2179,18 +2158,18 @@ extends java.lang.Object</pre>
 </dl>
 </li>
 </ul>
-<a name="deleteTableCommand-java.lang.String:A-boolean-">
+<a name="deleteTableCommand-java.lang.String-boolean-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>deleteTableCommand</h4>
-<pre>private&nbsp;java.lang.String&nbsp;deleteTableCommand(java.lang.String[]&nbsp;tableNames,
+<pre>private&nbsp;java.lang.String&nbsp;deleteTableCommand(java.lang.String&nbsp;tableName,
                                             boolean&nbsp;isDataTable)</pre>
-<div class="block">Build the command to delete one or more prototype or script tables</div>
+<div class="block">Build the command to delete a prototype or script table</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>tableNames</code> - Array of names of the tables to delete</dd>
+<dd><code>tableName</code> - Name of the table to delete</dd>
 <dd><code>isDataTable</code> - true if the table(s) to be deleted are data tables; false if the tables
                     are scripts or internal tables</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -2329,30 +2308,6 @@ extends java.lang.Object</pre>
 </dl>
 </li>
 </ul>
-<a name="updatePreLoadedTableMembers--">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>updatePreLoadedTableMembers</h4>
-<pre>protected&nbsp;void&nbsp;updatePreLoadedTableMembers()</pre>
-<div class="block">Update the pre-loaded table members in the background</div>
-</li>
-</ul>
-<a name="defaultTableMembersUpdating--">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>defaultTableMembersUpdating</h4>
-<pre>protected&nbsp;java.lang.String&nbsp;defaultTableMembersUpdating()</pre>
-<div class="block">Are the pre-loaded table members currently being updated?</div>
-<dl>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>String representing if the table members are being updated</dd>
-</dl>
-</li>
-</ul>
 <a name="clearPreLoadedTableMembers--">
 <!--   -->
 </a>
@@ -2360,7 +2315,17 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>clearPreLoadedTableMembers</h4>
 <pre>protected&nbsp;void&nbsp;clearPreLoadedTableMembers()</pre>
-<div class="block">Clear any pre-loaded table members</div>
+<div class="block">Clear the pre-loaded table members list</div>
+</li>
+</ul>
+<a name="updatePreLoadedTableMembers--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>updatePreLoadedTableMembers</h4>
+<pre>protected&nbsp;void&nbsp;updatePreLoadedTableMembers()</pre>
+<div class="block">Update the pre-loaded table members</div>
 </li>
 </ul>
 <a name="getPreLoadedTableMembers--">
@@ -3060,15 +3025,15 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>retrieveInformationTable</h4>
 <pre>protected&nbsp;java.util.List&lt;java.lang.String[]&gt;&nbsp;retrieveInformationTable(<a href="../CCDD/CcddConstants.InternalTable.html" title="enum in CCDD">CcddConstants.InternalTable</a>&nbsp;intTable,
-                                                                      boolean&nbsp;includeOID,
+                                                                      boolean&nbsp;isIncludeRowNum,
                                                                       java.awt.Component&nbsp;parent)</pre>
 <div class="block">Retrieve a list of internal table data from the database, ignoring script file information
  tables</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>intTable</code> - Type of internal table to retrieve</dd>
-<dd><code>includeOID</code> - True to read in the OID column in addition to the information table
-                   columns</dd>
+<dd><code>isIncludeRowNum</code> - True to read in the row number column in addition to the information
+                        table columns</dd>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>List of the items in the internal table. An empty list is returned if the specified
@@ -3083,15 +3048,15 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>retrieveInformationTable</h4>
 <pre>protected&nbsp;java.util.List&lt;java.lang.String[]&gt;&nbsp;retrieveInformationTable(<a href="../CCDD/CcddConstants.InternalTable.html" title="enum in CCDD">CcddConstants.InternalTable</a>&nbsp;intTable,
-                                                                      boolean&nbsp;includeOID,
+                                                                      boolean&nbsp;isIncludeRowNum,
                                                                       java.lang.String&nbsp;scriptName,
                                                                       java.awt.Component&nbsp;parent)</pre>
 <div class="block">Retrieve a list of internal table data from the database</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>intTable</code> - Type of internal table to retrieve</dd>
-<dd><code>includeOID</code> - True to read in the OID column in addition to the information table
-                   columns</dd>
+<dd><code>isIncludeRowNum</code> - True to read in the row number column in addition to the information
+                        table columns</dd>
 <dd><code>scriptName</code> - Script file name; ignored for non-script file information tables</dd>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -3404,7 +3369,7 @@ extends java.lang.Object</pre>
 </dl>
 </li>
 </ul>
-<a name="modifyTableTypeInBackground-java.lang.String-java.util.List-CCDD.CcddConstants.OverwriteFieldValueType-java.util.List-java.util.List-java.util.List-boolean-CCDD.CcddTableTypeHandler.TypeDefinition-java.util.List-java.util.List-java.util.List-CCDD.CcddTableTypeEditorDialog-CCDD.CcddTableTypeEditorHandler-">
+<a name="modifyTableTypeInBackground-java.lang.String-java.util.List-CCDD.CcddConstants.OverwriteFieldValueType-java.util.List-java.util.List-java.util.List-boolean-CCDD.CcddTableTypeHandler.TypeDefinition-java.util.List-CCDD.CcddTableTypeEditorDialog-CCDD.CcddTableTypeEditorHandler-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -3418,9 +3383,7 @@ extends java.lang.Object</pre>
                                            java.util.List&lt;java.lang.String[]&gt;&nbsp;typeDeletions,
                                            boolean&nbsp;columnOrderChange,
                                            <a href="../CCDD/CcddTableTypeHandler.TypeDefinition.html" title="class in CCDD">CcddTableTypeHandler.TypeDefinition</a>&nbsp;originalDefn,
-                                           java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.TableModification.html" title="class in CCDD">CcddClassesDataTable.TableModification</a>&gt;&nbsp;fieldAdditions,
-                                           java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.TableModification.html" title="class in CCDD">CcddClassesDataTable.TableModification</a>&gt;&nbsp;fieldModifications,
-                                           java.util.List&lt;<a href="../CCDD/CcddClassesDataTable.TableModification.html" title="class in CCDD">CcddClassesDataTable.TableModification</a>&gt;&nbsp;fieldDeletions,
+                                           java.util.List&lt;java.lang.String[]&gt;&nbsp;newDataFields,
                                            <a href="../CCDD/CcddTableTypeEditorDialog.html" title="class in CCDD">CcddTableTypeEditorDialog</a>&nbsp;editorDialog,
                                            <a href="../CCDD/CcddTableTypeEditorHandler.html" title="class in CCDD">CcddTableTypeEditorHandler</a>&nbsp;editor)</pre>
 <div class="block">Add, rename, or delete table type column names in the table definitions table and update the
@@ -3445,9 +3408,8 @@ extends java.lang.Object</pre>
                            array containing: [0] column name (user), [1] column input type</dd>
 <dd><code>columnOrderChange</code> - True if the table type's column order changed</dd>
 <dd><code>originalDefn</code> - Reference to the table type definition prior to making any changes</dd>
-<dd><code>fieldAdditions</code> - List of new fields to add to tables of this type</dd>
-<dd><code>fieldModifications</code> - List of changes to existing fields in tables of this type</dd>
-<dd><code>fieldDeletions</code> - List of fields to remove from tables of this type</dd>
+<dd><code>newDataFields</code> - Reference to the new data fields. This is only needed when no
+                           editor is provided</dd>
 <dd><code>editorDialog</code> - Reference to the table type editor dialog</dd>
 <dd><code>editor</code> - Reference to the table type editor where the change(s) occurred</dd>
 </dl>
@@ -3688,7 +3650,7 @@ extends java.lang.Object</pre>
 <h4>getAllTablesOfType</h4>
 <pre>protected&nbsp;java.util.List&lt;java.lang.String&gt;&nbsp;getAllTablesOfType(java.lang.String&nbsp;typeName,
                                                               java.lang.String[]&nbsp;protoTableNames,
-                                                              boolean&nbsp;clearPreload,
+                                                              boolean&nbsp;clearPreLoad,
                                                               java.awt.Component&nbsp;parent)</pre>
 <div class="block">Get a list containing all tables that are of the specified table type</div>
 <dl>
@@ -3696,7 +3658,7 @@ extends java.lang.Object</pre>
 <dd><code>typeName</code> - Table type name</dd>
 <dd><code>protoTableNames</code> - Names of the prototype tables of the specified table type; null to
                         load the list</dd>
-<dd><code>clearPreload</code> - true to clear the preloaded table members</dd>
+<dd><code>clearPreLoad</code> - true to clear the preloaded table members</dd>
 <dd><code>parent</code> - GUI component over which to center any error dialog</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>List containing all tables that are of the specified table type. Returns an empty
@@ -3710,8 +3672,8 @@ extends java.lang.Object</pre>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>updateTableTree</h4>
-<pre>protected&nbsp;void&nbsp;updateTableTree()</pre>
-<div class="block">Update the table tree information including the pre-loaded information</div>
+<pre>private&nbsp;void&nbsp;updateTableTree()</pre>
+<div class="block">Update the table tree information, including the pre-loaded table member information</div>
 </li>
 </ul>
 </li>

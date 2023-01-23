@@ -48,10 +48,11 @@ import static CCDD.CcddConstants.ConnectionType.TO_DATABASE;
 import static CCDD.CcddConstants.ConnectionType.TO_SERVER_ONLY;
 import static CCDD.CcddConstants.EventLogMessageType.COMMAND_MSG;
 import static CCDD.CcddConstants.EventLogMessageType.SUCCESS_MSG;
-import static CCDD.CcddConstants.NAME;
-import static CCDD.CcddConstants.LOCK;
-import static CCDD.CcddConstants.ADMINS;
-import static CCDD.CcddConstants.DESC;
+import static CCDD.CcddConstants.DB_PLACEHOLDER_NAME;
+import static CCDD.CcddConstants.DB_PLACEHOLDER_LOCK;
+import static CCDD.CcddConstants.DB_PLACEHOLDER_ADMINS;
+import static CCDD.CcddConstants.DB_PLACEHOLDER_DESC;
+import static CCDD.CcddConstants.USER_PLACEHOLDER_ADMIN_USER;
 
 import java.awt.Component;
 import java.io.BufferedReader;
@@ -1297,7 +1298,7 @@ public class CcddDbControlHandler
                                   + "'",
                                   "<html><b>Cannot change project '</b>"
                                   + projectName
-                                  + "<b>' ownership)");
+                                  + "<b>' ownership");
         }
         finally
         {
@@ -1374,62 +1375,23 @@ public class CcddDbControlHandler
                                                                        boolean lockStatus,
                                                                        String description)
     {
-
         if (activeOwner != "")
         {
             // Update the internal table
-            try
-            {
-                StringBuilder command = new StringBuilder("TRUNCATE ").append(InternalTable.DBU_INFO.getTableName())
-                                                                      .append(";");
+            List<String[]> tableData = new ArrayList<String[]>();
+            tableData.add(new String[] {(CCDD_PROJECT_IDENTIFIER + (lockStatus ? "1" : "0"))
+                                        + ","
+                                        + getQuotedName(convertProjectNameToDatabase(projectName))
+                                        +","
+                                        + administrator
+                                        + ","
+                                        + description});
 
-                // Delete the current contents of the __dbu_info_ internal table
-                dbCommand.executeDbCommand(command, ccddMain.getMainFrame());
+            ccddMain.getDbTableCommandHandler().storeInformationTable(InternalTable.DBU_INFO,
+                                  tableData,
+                                  null,
+                                  ccddMain.getMainFrame());
 
-                command.append("INSERT INTO ")
-                       .append(InternalTable.DBU_INFO.getTableName())
-                       .append(" VALUES ('")
-                       .append((CCDD_PROJECT_IDENTIFIER + (lockStatus ? "1" : "0")))
-                       .append("', '")
-                       .append(getQuotedName(convertProjectNameToDatabase(projectName)))
-                       .append("', '")
-                       .append(administrator)
-                       .append("', '")
-                       .append(description)
-                       .append("');");
-
-                // Update the __dbu_info_ internal table
-                dbCommand.executeDbCommand(command, ccddMain.getMainFrame());
-            }
-            catch (SQLException sqle)
-            {
-                try
-                {
-                    String command = buildInformationTableCommand(InternalTable.DBU_INFO);
-
-                    command = command.replace(LOCK, (CCDD_PROJECT_IDENTIFIER + (lockStatus ? "1" : "0")))
-                                     .replace(NAME, getQuotedName(convertProjectNameToDatabase(projectName)));
-                    command = command.replace(ADMINS, administrator).replace(DESC, description);
-
-                    // Create the default internal table
-                    dbCommand.executeDbCommand(new StringBuilder(command), ccddMain.getMainFrame());
-                }
-                catch (SQLException se)
-                {
-                    // Inform the user that creating the database functions failed
-                    eventLog.logFailEvent(ccddMain.getMainFrame(),
-                                          "Cannot create tables and functions in project database '"
-                                          + activeDatabase
-                                          + "' as user '"
-                                          + activeUser
-                                          + "'; cause '"
-                                          + se.getMessage()
-                                          + "'",
-                                          "<html><b>Cannot create tables and functions in project database '</b>"
-                                          + activeDatabase
-                                          + "<b>'");
-                }
-            }
         }
 
         // Return the command
@@ -1685,11 +1647,11 @@ public class CcddDbControlHandler
                             command.setLength(0);
                             String[] comment = getDatabaseComment(activeDatabase);
 
-                            command.append((buildInformationTableCommand(intTable).replace(LOCK,
+                            command.append((buildInformationTableCommand(intTable).replace(DB_PLACEHOLDER_LOCK,
                                                                                            CCDD_PROJECT_IDENTIFIER + comment[0])
-                                                                                  .replace(NAME,
-                                                                                           comment[1])).replace(ADMINS,
-                                                                                                                comment[2]).replace(DESC,
+                                                                                  .replace(DB_PLACEHOLDER_NAME,
+                                                                                           comment[1])).replace(DB_PLACEHOLDER_ADMINS,
+                                                                                                                comment[2]).replace(DB_PLACEHOLDER_DESC,
                                                                                                                                     comment[3]));
 
                             // Create the default internal table
@@ -1900,6 +1862,7 @@ public class CcddDbControlHandler
                 String dbDataType = DefaultColumn.DATA_TYPE.getDbName();
                 String dbArraySize = DefaultColumn.ARRAY_SIZE.getDbName();
                 String dbBitLength = DefaultColumn.BIT_LENGTH.getDbName();
+                String dbIndex = DefaultColumn.ROW_INDEX.getDbName();
 
                 // Create a string containing the partial command for determining if the columns
                 // that are necessary to define a structure table are present in a table
@@ -1947,7 +1910,18 @@ public class CcddDbControlHandler
                                                                                                    .append(")) AS alias1 WHERE count = '")
                                                                                                    .append(DefaultColumn.getTypeRequiredColumnCount(TYPE_STRUCTURE))
                                                                                                    .append("') THEN RETURN QUERY EXECUTE E'SELECT ''' || ")
-                                                                                                   .append("row.temp_result || '''::text, * FROM get_def_columns_by_")
+                                                                                                   .append("row.temp_result || '''::text, ")
+                                                                                                   .append(dbDataType)
+                                                                                                   .append(", ")
+                                                                                                   .append(dbVariableName)
+                                                                                                   .append(", ")
+                                                                                                   .append(dbBitLength)
+                                                                                                   .append(", ")
+                                                                                                   .append(DefaultColumn.RATE.getDbName())
+                                                                                                   .append(", ")
+                                                                                                   .append(DefaultColumn.ENUMERATION.getDbName())
+                                                                                                   .append(" ")
+                                                                                                   .append("FROM get_def_columns_by_")
                                                                                                    .append(functionParm[0])
                                                                                                    .append("(''' || row.temp_result || ''')'; END IF; ")
                                                                                                    .append("END LOOP; END; END; $$ LANGUAGE plpgsql; ")
@@ -1972,7 +1946,7 @@ public class CcddDbControlHandler
                         String rateColNameQuoted = ccddMain.getTableTypeHandler()
                                                            .convertVisibleToDatabase(rateInfo.getRateName(),
                                                                                      DefaultInputType.RATE.getInputName(),
-                                                          true);
+                                                                                     true);
                         String rateColName = rateColNameQuoted.replaceAll("\"", "");
 
                         // Add detection for the rate column. If the column doesn't exist in the
@@ -2055,51 +2029,81 @@ public class CcddDbControlHandler
                 // alphabetically by name or numerically by row index
                 for (String[] functionParm : functionParameters)
                 {
-                    // Create function to get the data type and variable name column data for the
-                    // specified table, sorted by variable name. For arrays, only the members are
-                    // retrieved; the array definitions are ignored
-                    dbCommand.executeDbCommand(new StringBuilder(deleteFunction("get_def_columns_by_"
-                                                                                + functionParm[0])).append("CREATE FUNCTION get_def_columns_by_")
-                                                                                                   .append(functionParm[0])
-                                                                                                   .append("(name text) RETURNS TABLE(data_type ")
-                                                                                                   .append("text, variable_name text, bit_length text, ")
-                                                                                                   .append("rate text, enumeration text) AS $$ BEGIN RETURN QUERY EXECUTE 'SELECT ")
-                                                                                                   .append(dbDataType)
-                                                                                                   .append(", ")
-                                                                                                   .append(dbVariableName)
-                                                                                                   .append(", ")
-                                                                                                   .append(dbBitLength)
-                                                                                                   .append(", ")
-                                                                                                   .append(rateCol)
-                                                                                                   .append(", ")
-                                                                                                   .append(enumCol)
-                                                                                                   .append(" FROM \"' || name || '\"")
-                                                                                                   .append(rateJoin)
-                                                                                                   .append(enumJoin)
-                                                                                                   .append(" WHERE ")
-                                                                                                   .append(dbArraySize)
-                                                                                                   .append(" = E'''' OR (array_size ~ E''^")
-                                                                                                   .append(MACRO_IDENTIFIER)
-                                                                                                   .append("'' AND (SELECT EXISTS (SELECT ")
-                                                                                                   .append(MacrosColumn.VALUE.getColumnName())
-                                                                                                   .append(" FROM ")
-                                                                                                   .append(InternalTable.MACROS.getTableName())
-                                                                                                   .append(" WHERE ")
-                                                                                                   .append(MacrosColumn.MACRO_NAME.getColumnName())
-                                                                                                   .append(" = replace('''' || array_size || '''', ''")
-                                                                                                   .append(MACRO_IDENTIFIER)
-                                                                                                   .append("'', '''') AND ")
-                                                                                                   .append(MacrosColumn.VALUE.getColumnName())
-                                                                                                   .append(" = ''''))) OR ")
-                                                                                                   .append(dbVariableName)
-                                                                                                   .append(" ~ E''^.+]'' ORDER BY ")
-                                                                                                   .append(functionParm[1])
-                                                                                                   .append(" ASC'; END $$ LANGUAGE plpgsql; ")
-                                                                                                   .append(buildOwnerCommand(DatabaseObject.FUNCTION,
-                                                                                                                             "get_def_columns_by_"
-                                                                                                                             + functionParm[0]
-                                                                                                                             + "(name text)")),
-                                                                                                   ccddMain.getMainFrame());
+                    // Create function to get the data type, variable name, bit length, rate, and
+                    // enumeration column data for the specified table. For arrays, only the
+                    // members are retrieved; the array definitions are ignored. When sorting by
+                    // variable name the array members are kept in order based on the numeric
+                    // value of the array index by using the table's index column
+                    StringBuilder cmd = new StringBuilder(deleteFunction("get_def_columns_by_"
+                                                                         + functionParm[0])).append("CREATE FUNCTION get_def_columns_by_")
+                                                                                            .append(functionParm[0])
+                                                                                            .append("(name text) RETURNS TABLE(_index_ int, ");
+
+                    if (functionParm[1].contentEquals(dbVariableName))
+                    {
+                        cmd.append("sort_name text, ");
+                    }
+
+                    cmd.append("data_type ")
+                       .append("text, variable_name text, bit_length text, ")
+                       .append("rate text, enumeration text) AS $$ BEGIN RETURN QUERY EXECUTE 'SELECT ")
+                       .append(dbIndex)
+                       .append(", ");
+
+                    if (functionParm[1].contentEquals(dbVariableName))
+                    {
+                        cmd.append("regexp_replace(")
+                           .append(dbVariableName)
+                           .append(", E''\\\\[\\\\d+\\\\]'', '''', ''g'') AS sort_name, ");
+                    }
+
+                    cmd.append(dbDataType)
+                       .append(", ")
+                       .append(dbVariableName)
+                       .append(", ")
+                       .append(dbBitLength)
+                       .append(", ")
+                       .append(rateCol)
+                       .append(", ")
+                       .append(enumCol)
+                       .append(" FROM \"' || name || '\"")
+                       .append(rateJoin)
+                       .append(enumJoin)
+                       .append(" WHERE ")
+                       .append(dbArraySize)
+                       .append(" = E'''' OR (array_size ~ E''^")
+                       .append(MACRO_IDENTIFIER)
+                       .append("'' AND (SELECT EXISTS (SELECT ")
+                       .append(MacrosColumn.VALUE.getColumnName())
+                       .append(" FROM ")
+                       .append(InternalTable.MACROS.getTableName())
+                       .append(" WHERE ")
+                       .append(MacrosColumn.MACRO_NAME.getColumnName())
+                       .append(" = replace('''' || array_size || '''', ''")
+                       .append(MACRO_IDENTIFIER)
+                       .append("'', '''') AND ")
+                       .append(MacrosColumn.VALUE.getColumnName())
+                       .append(" = ''''))) OR ")
+                       .append(dbVariableName)
+                       .append(" ~ E''^.+]'' ORDER BY ");
+
+                    if (functionParm[1].contentEquals(dbVariableName))
+                    {
+                        cmd.append("sort_name ASC, ")
+                           .append(dbIndex);
+
+                    }
+                    else
+                    {
+                        cmd.append(functionParm[1]);
+                    }
+
+                    cmd.append(" ASC'; END $$ LANGUAGE plpgsql; ")
+                       .append(buildOwnerCommand(DatabaseObject.FUNCTION,
+                                                 "get_def_columns_by_"
+                                                 + functionParm[0]
+                                                 + "(name text)"));
+                    dbCommand.executeDbCommand(cmd, ccddMain.getMainFrame());
                 }
 
                 // Create the function to get the data type and variable name from tables of the
@@ -2193,7 +2197,7 @@ public class CcddDbControlHandler
             if (creator != null)
             {
                 // Update the column build command with the creator name
-                columnCommand = columnCommand.replaceFirst("_admin_user_", creator);
+                columnCommand = columnCommand.replaceFirst(USER_PLACEHOLDER_ADMIN_USER, creator);
             }
         }
 
@@ -2637,12 +2641,14 @@ public class CcddDbControlHandler
                                 dbTableCommand = ccddMain.getDbTableCommandHandler();
                             }
 
-                            // Build the table tree and update the pre-loaded table members. This
+                            // Update the pre-loaded table members and build the table tree. This
                             // is done in the background as soon as a database is opened so that
                             // when a user performs an action that loads the table tree they do not
-                            // have to wait for it to be built
-                            ccddMain.buildTableTreeHandler();
+                            // have to wait for it to be built. Building the table tree is done
+                            // after pre-loading so that the pre-loaded data is used
                             dbTableCommand.updatePreLoadedTableMembers();
+                            ccddMain.buildGroupTableTreeHandler();
+                            ccddMain.buildTypeTableTreeHandler();
 
                             // Update the recently opened projects list and store it in the program
                             // preferences, then update the command menu items
@@ -2653,6 +2659,10 @@ public class CcddDbControlHandler
                                                         CcddUtilities.getRememberedItemListAsString(ccddMain.getRecentProjectNames()));
                             ccddMain.updateRecentProjectsMenu();
                         }
+
+                        // Initialize the root structures. THis is done here so that the pre-loaded
+                        // default table tree can be used
+                        dbTableCommand.initRootStructures();
                     }
                 }
                 catch (CCDDException ce)
@@ -3399,11 +3409,10 @@ public class CcddDbControlHandler
         // Convert the project name to its database equivalent
         String databaseName = convertProjectNameToDatabase(projectName);
 
-        // Build the command to backup the database. Options: -w: no password, -o: dump OIDs, -O do
-        // not set ownership
+        // Build the command to backup the database
         String command = "pg_dump "
                          + getUserHostAndPort()
-                         + "--no-password --oids --no-owner --file ";
+                         + "--no-password --no-owner --file ";
 
         // Get the number of command line arguments. Since the backup file name may have spaces the
         // argument count must be made prior to appending it. The argument count is adjusted for

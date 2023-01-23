@@ -707,7 +707,6 @@ public class CcddVariableDialog extends CcddDialogHandler
                              null,
                              true,
                              false);
-
             }
         });
     }

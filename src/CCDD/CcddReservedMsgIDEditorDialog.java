@@ -343,7 +343,7 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
                             // Store the updated reserved message IDs table
                             dbTable.storeInformationTableInBackground(InternalTable.RESERVED_MSG_IDS,
                                                                       CcddUtilities.removeArrayListColumn(getUpdatedData(),
-                                                                                                          ReservedMsgIDsColumn.OID.ordinal()),
+                                                                                                          ReservedMsgIDsColumn.ROW_NUM.ordinal()),
                                                                       null,
                                                                       CcddReservedMsgIDEditorDialog.this);
                         }
@@ -425,7 +425,7 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
             @Override
             protected boolean isColumnHidden(int column)
             {
-                return column == ReservedMsgIDEditorColumnInfo.OID.ordinal();
+                return column == ReservedMsgIDEditorColumnInfo.ROW_NUM.ordinal();
             }
 
             /**************************************************************************************

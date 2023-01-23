@@ -44,7 +44,6 @@ import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
 
 import CCDD.CcddClassesDataTable.CCDDException;
-import CCDD.CcddClassesDataTable.TableModification;
 import CCDD.CcddConstants.DefaultColumn;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.ManagerDialogType;
@@ -272,9 +271,7 @@ public class CcddTableTypeManagerDialog extends CcddDialogHandler
                                                         new ArrayList<String[]>(0),
                                                         false,
                                                         null,
-                                                        new ArrayList<TableModification>(0),
-                                                        new ArrayList<TableModification>(0),
-                                                        new ArrayList<TableModification>(0),
+                                                        null,
                                                         editorDialog,
                                                         null);
 

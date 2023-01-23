@@ -106,8 +106,8 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
     // repeated searches for a the same data type
     private List<DataTypeReference> loadedReferences;
 
-    // Temporary OID
-    private int tempOID;
+    // Temporary row number
+    private long tempRowNum;
 
     // Dialog title
     private static final String DIALOG_TITLE = "Data Type Editor";
@@ -184,9 +184,10 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
         // Check that no error occurred performing the database commands
         if (!commandError)
         {
-            // Assign temporary OIDs to the added rows so that these can be matched when building
-            // updates
-            tempOID = dataTypeTable.assignOIDsToNewRows(tempOID, DataTypesColumn.OID.ordinal());
+            // Assign temporary row numbers to the added rows so that these can be matched when
+            // building updates
+            tempRowNum = dataTypeTable.assignTemporaryRowNumbersToNewRows(tempRowNum,
+                                                                          DataTypesColumn.ROW_NUM.ordinal());
 
             // Update the data type handler with the changes
             dataTypeHandler.setDataTypeData(getUpdatedData());
@@ -232,8 +233,8 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                 modifications = new ArrayList<TableModification>();
                 loadedReferences = new ArrayList<DataTypeReference>();
 
-                // Initialize the temporary OID
-                tempOID = -1;
+                // Initialize the temporary row number
+                tempRowNum = -1;
 
                 // Set the initial layout manager characteristics
                 GridBagConstraints gbc = new GridBagConstraints(0,
@@ -628,7 +629,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
             @Override
             protected boolean isColumnHidden(int column)
             {
-                return column == DataTypeEditorColumnInfo.OID.ordinal();
+                return column == DataTypeEditorColumnInfo.ROW_NUM.ordinal();
             }
 
             /**************************************************************************************
@@ -878,13 +879,13 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                                          || newValueS.equals(BaseDataTypeInfo.UNSIGNED_INT.getName())))))
                         {
                             // Get the data type's index
-                            String index = tableData.get(row)[DataTypeEditorColumnInfo.OID.ordinal()].toString();
+                            String index = tableData.get(row)[DataTypeEditorColumnInfo.ROW_NUM.ordinal()].toString();
 
                             // Step through the committed data types
                             for (int commRow = 0; commRow < committedData.length; commRow++)
                             {
                                 // Check if the index matches that for the committed data type
-                                if (index.equals(committedData[commRow][DataTypeEditorColumnInfo.OID.ordinal()]))
+                                if (index.equals(committedData[commRow][DataTypeEditorColumnInfo.ROW_NUM.ordinal()]))
                                 {
                                     List<String> tableNames = new ArrayList<String>();
 
@@ -1287,8 +1288,8 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
         // Step through each row in the data type table
         for (int tblRow = 0; tblRow < tableData.length; tblRow++)
         {
-            // Check if the OID isn't blank
-            if (!tableData[tblRow][DataTypesColumn.OID.ordinal()].toString().isEmpty())
+            // Check if the row number isn't blank
+            if (!tableData[tblRow][DataTypesColumn.ROW_NUM.ordinal()].toString().isEmpty())
             {
                 boolean matchFound = false;
 
@@ -1296,7 +1297,7 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                 for (int comRow = 0; comRow < numCommitted && !matchFound; comRow++)
                 {
                     // Check if the index values match for these rows
-                    if (tableData[tblRow][DataTypesColumn.OID.ordinal()].equals(committedData[comRow][DataTypesColumn.OID.ordinal()]))
+                    if (tableData[tblRow][DataTypesColumn.ROW_NUM.ordinal()].equals(committedData[comRow][DataTypesColumn.ROW_NUM.ordinal()]))
                     {
                         // Set the flags indicating this row has a match
                         matchFound = true;

@@ -481,10 +481,10 @@ extends javax.swing.JTable</pre>
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code>protected int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#assignOIDsToNewRows-int-int-">assignOIDsToNewRows</a></span>(int&nbsp;tempOID,
-                   int&nbsp;oidColumn)</code>
-<div class="block">Assign OIDs to newly added table rows.</div>
+<td class="colFirst"><code>protected long</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#assignTemporaryRowNumbersToNewRows-long-int-">assignTemporaryRowNumbersToNewRows</a></span>(long&nbsp;tempRowNum,
+                                  int&nbsp;rowNumColumn)</code>
+<div class="block">Assign row numbers to newly added table rows.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
@@ -1693,27 +1693,28 @@ extends javax.swing.JTable</pre>
 </dl>
 </li>
 </ul>
-<a name="assignOIDsToNewRows-int-int-">
+<a name="assignTemporaryRowNumbersToNewRows-long-int-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>assignOIDsToNewRows</h4>
-<pre>protected&nbsp;int&nbsp;assignOIDsToNewRows(int&nbsp;tempOID,
-                                  int&nbsp;oidColumn)</pre>
-<div class="block">Assign OIDs to newly added table rows. Some tables use OIDs, when building the table updates
- used to generate the SQL commands to adjust the database, to match up a row that has had one
- or more column values or its position in the table changed with the same row prior to the
- change(s). New rows are initialized with a blank OID (the OID is assigned when the table is
- written to the database). If a subsequent table store operation is performed then rows with
- blank OIDs can't be matched, so assigning a temporary OID allows matching.</div>
+<h4>assignTemporaryRowNumbersToNewRows</h4>
+<pre>protected&nbsp;long&nbsp;assignTemporaryRowNumbersToNewRows(long&nbsp;tempRowNum,
+                                                  int&nbsp;rowNumColumn)</pre>
+<div class="block">Assign row numbers to newly added table rows. Some tables use row numbers, when building the
+ table updates used to generate the SQL commands to adjust the database, to match up a row
+ that has had one or more column values or its position in the table changed with the same
+ row prior to the change(s). New rows are initialized with a blank row number (the row number
+ is assigned when the table is written to the database). If a subsequent table store
+ operation is performed then rows with blank row numbers can't be matched, so assigning a
+ temporary row number allows matching.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>tempOID</code> - Starting number for the temporary OID. This should be negative so as not to
-                  duplicate an actual OIDs in another table row</dd>
-<dd><code>oidColumn</code> - Table column containing the OID, model coordinates</dd>
+<dd><code>tempRowNum</code> - Starting number for the temporary row number. This should be negative so
+                     as not to duplicate an actual row numbers in another table row</dd>
+<dd><code>rowNumColumn</code> - Table column containing the row number, model coordinates</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The updated temporary OID value</dd>
+<dd>The updated temporary row number value</dd>
 </dl>
 </li>
 </ul>

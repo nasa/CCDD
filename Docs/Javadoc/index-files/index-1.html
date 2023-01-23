@@ -158,7 +158,7 @@
 <dd>
 <div class="block">Add a list of items to the list</div>
 </dd>
-<dt><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#addAllTablesGroup-java.awt.Component-">addAllTablesGroup(Component)</a></span> - Method in class CCDD.<a href="../CCDD/CcddTableTreeHandler.html" title="class in CCDD">CcddTableTreeHandler</a></dt>
+<dt><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#addAllTablesGroupNode-java.awt.Component-">addAllTablesGroupNode(Component)</a></span> - Method in class CCDD.<a href="../CCDD/CcddTableTreeHandler.html" title="class in CCDD">CcddTableTreeHandler</a></dt>
 <dd>
 <div class="block">Add the pseudo-group containing all tables to the specified prototype and instance nodes</div>
 </dd>
@@ -372,6 +372,10 @@
 <dt><span class="memberNameLink"><a href="../CCDD/CcddServerPropertyDialog.html#addLoginPanel-javax.swing.JPanel-java.awt.GridBagConstraints-javax.swing.border.Border-">addLoginPanel(JPanel, GridBagConstraints, Border)</a></span> - Method in class CCDD.<a href="../CCDD/CcddServerPropertyDialog.html" title="class in CCDD">CcddServerPropertyDialog</a></dt>
 <dd>
 <div class="block">Add the user and password fields to the specified panel</div>
+</dd>
+<dt><span class="memberNameLink"><a href="../CCDD/CcddConvertCStructureToCSV.html#addMacro-java.lang.String-java.lang.String-">addMacro(String, String)</a></span> - Method in class CCDD.<a href="../CCDD/CcddConvertCStructureToCSV.html" title="class in CCDD">CcddConvertCStructureToCSV</a></dt>
+<dd>
+<div class="block">Add the macro if it's not already defined</div>
 </dd>
 <dt><span class="memberNameLink"><a href="../CCDD/CcddAssignMessageIDDialog.html#addMessageIDTab-CCDD.CcddAssignMessageIDDialog.MsgTabInfo-boolean-">addMessageIDTab(CcddAssignMessageIDDialog.MsgTabInfo, boolean)</a></span> - Method in class CCDD.<a href="../CCDD/CcddAssignMessageIDDialog.html" title="class in CCDD">CcddAssignMessageIDDialog</a></dt>
 <dd>
@@ -634,8 +638,6 @@
 </dd>
 <dt><span class="memberNameLink"><a href="../CCDD/CcddDbManagerDialog.html#ADMIN_LIST">ADMIN_LIST</a></span> - Variable in class CCDD.<a href="../CCDD/CcddDbManagerDialog.html" title="class in CCDD">CcddDbManagerDialog</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="../CCDD/CcddConstants.html#ADMINS">ADMINS</a></span> - Static variable in class CCDD.<a href="../CCDD/CcddConstants.html" title="class in CCDD">CcddConstants</a></dt>
-<dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="../CCDD/CcddConstants.html#ALL_TABLES_GROUP_NODE_NAME">ALL_TABLES_GROUP_NODE_NAME</a></span> - Static variable in class CCDD.<a href="../CCDD/CcddConstants.html" title="class in CCDD">CcddConstants</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="../CCDD/CcddDbVerificationHandler.html#allColumnCount">allColumnCount</a></span> - Variable in class CCDD.<a href="../CCDD/CcddDbVerificationHandler.html" title="class in CCDD">CcddDbVerificationHandler</a></dt>
@@ -660,7 +662,7 @@
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="../CCDD/CcddTableEditorHandler.html#allPrototypeStructureTables">allPrototypeStructureTables</a></span> - Variable in class CCDD.<a href="../CCDD/CcddTableEditorHandler.html" title="class in CCDD">CcddTableEditorHandler</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#allTablesNodeIndex">allTablesNodeIndex</a></span> - Variable in class CCDD.<a href="../CCDD/CcddTableTreeHandler.html" title="class in CCDD">CcddTableTreeHandler</a></dt>
+<dt><span class="memberNameLink"><a href="../CCDD/CcddTableTreeHandler.html#allTablesGroupNode">allTablesGroupNode</a></span> - Variable in class CCDD.<a href="../CCDD/CcddTableTreeHandler.html" title="class in CCDD">CcddTableTreeHandler</a></dt>
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="../CCDD/CcddVariableHandler.html#allVariableNames">allVariableNames</a></span> - Variable in class CCDD.<a href="../CCDD/CcddVariableHandler.html" title="class in CCDD">CcddVariableHandler</a></dt>
 <dd>&nbsp;</dd>
@@ -830,10 +832,6 @@
 <dd>&nbsp;</dd>
 <dt><span class="memberNameLink"><a href="../CCDD/CcddSchedulerEditorHandler.html#assignmentTree">assignmentTree</a></span> - Variable in class CCDD.<a href="../CCDD/CcddSchedulerEditorHandler.html" title="class in CCDD">CcddSchedulerEditorHandler</a></dt>
 <dd>&nbsp;</dd>
-<dt><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#assignOIDsToNewRows-int-int-">assignOIDsToNewRows(int, int)</a></span> - Method in class CCDD.<a href="../CCDD/CcddJTableHandler.html" title="class in CCDD">CcddJTableHandler</a></dt>
-<dd>
-<div class="block">Assign OIDs to newly added table rows.</div>
-</dd>
 <dt><span class="memberNameLink"><a href="../CCDD/CcddAssignMessageIDDialog.html#assignTableMessageIDs-CCDD.CcddAssignMessageIDDialog.MsgTabInfo-java.util.List-java.util.List-">assignTableMessageIDs(CcddAssignMessageIDDialog.MsgTabInfo, List&lt;String&gt;, List&lt;CcddClassesDataTable.FieldInformation&gt;)</a></span> - Method in class CCDD.<a href="../CCDD/CcddAssignMessageIDDialog.html" title="class in CCDD">CcddAssignMessageIDDialog</a></dt>
 <dd>
 <div class="block">Assign message ID values to the structure, command, or other table type message ID columns
@@ -846,6 +844,10 @@
 <dt><span class="memberNameLink"><a href="../CCDD/CcddAssignMessageIDDialog.html#assignTelemetryMessageNames-CCDD.CcddAssignMessageIDDialog.MsgTabInfo-">assignTelemetryMessageNames(CcddAssignMessageIDDialog.MsgTabInfo)</a></span> - Method in class CCDD.<a href="../CCDD/CcddAssignMessageIDDialog.html" title="class in CCDD">CcddAssignMessageIDDialog</a></dt>
 <dd>
 <div class="block">Assign the telemetry message names</div>
+</dd>
+<dt><span class="memberNameLink"><a href="../CCDD/CcddJTableHandler.html#assignTemporaryRowNumbersToNewRows-long-int-">assignTemporaryRowNumbersToNewRows(long, int)</a></span> - Method in class CCDD.<a href="../CCDD/CcddJTableHandler.html" title="class in CCDD">CcddJTableHandler</a></dt>
+<dd>
+<div class="block">Assign row numbers to newly added table rows.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="../CCDD/CcddConstants.html#ASSN_TABLE_SEPARATOR">ASSN_TABLE_SEPARATOR</a></span> - Static variable in class CCDD.<a href="../CCDD/CcddConstants.html" title="class in CCDD">CcddConstants</a></dt>
 <dd>&nbsp;</dd>

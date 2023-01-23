@@ -568,37 +568,104 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                         TableTypeDefns[i] = TableTypeDefns[i].split(CSVTags.TABLE_TYPE_DATA_FIELD.getTag())[0];
                     }
 
-                    // Each definition will have multiple rows of data
-                    String[] Rows = TableTypeDefns[i].split(Chars.NEW_LINE.getValue());
+                    // Replace any double end line characters
+                    TableTypeDefns[i] = TableTypeDefns[i].replace(Chars.DOUBLE_NEW_LINE.getValue(), Chars.NEW_LINE.getValue());
 
-                    // Extract the name and description of the table
-                    String TableTypeName = Rows[0].split(Chars.COMMA.getValue())[0].replace(Chars.DOUBLE_QUOTE.getValue(),
-                                                                                            Chars.EMPTY_STRING.getValue());
-                    String TableTypeDescription = Chars.EMPTY_STRING.getValue()
-                                                  + Rows[0].split(Chars.COMMA.getValue())[1].replace(Chars.DOUBLE_QUOTE.getValue(),
-                                                                                                     Chars.EMPTY_STRING.getValue());
+                    // There can be new line characters within the table type description. In order
+                    // to guard against this we split only on new line characters that are directly
+                    // after a double quote
+                    String[] Rows = TableTypeDefns[i].split(Chars.QUOTE_NEW_LINE.getValue());
 
-                    boolean representsCmdArgument = Boolean.parseBoolean(Rows[0].split(Chars.COMMA.getValue())[2].replace(Chars.DOUBLE_QUOTE.getValue(),
-                                                                                                                          Chars.EMPTY_STRING.getValue()));
+                    // Separate the first row into the name, description, and command argument
+                    // flags
+                    String[] defnRow = Rows[0].split(Chars.COMMA_BETWEEN_QUOTES.getValue());
 
-                    // If this table type represents a command argument then append a 1 to the
-                    // description. If not append a 0
-                    if (representsCmdArgument)
+                    // Check that the name, description, and whether or not the table
+                    // represents a command are all defined
+                    if (defnRow.length == 3)
                     {
-                        TableTypeDescription = "1" + TableTypeDescription;
-                    }
-                    else
-                    {
-                        TableTypeDescription = "0" + TableTypeDescription;
-                    }
+                        // Extract the table name, description, and command argument flag
+                        String TableTypeName = defnRow[0].replace(Chars.DOUBLE_QUOTE.getValue(),
+                                                                  Chars.EMPTY_STRING.getValue());
+                        String TableTypeDescription = Chars.EMPTY_STRING.getValue()
+                                                      + defnRow[1].replace(Chars.DOUBLE_QUOTE.getValue(),
+                                                                           Chars.EMPTY_STRING.getValue());
+                        boolean representsCmdArgument = Boolean.parseBoolean(defnRow[2].replace(Chars.DOUBLE_QUOTE.getValue(),
+                                                                                                Chars.EMPTY_STRING.getValue()));
 
-                    // Check that both the name, description and whether or not the table
-                    // represents a command is all defined
-                    if (Rows[0].split(Chars.COMMA.getValue()).length == 3)
-                    {
+                        // If this table type represents a command argument then append a 1 to the
+                        // description. If not append a 0
+                        if (representsCmdArgument)
+                        {
+                            TableTypeDescription = "1" + TableTypeDescription;
+                        }
+                        else
+                        {
+                            TableTypeDescription = "0" + TableTypeDescription;
+                        }
+
                         // Create a new table type definition
                         TableTypeDefn = new TableTypeDefinition(TableTypeName, TableTypeDescription);
+
+                        // Reset the column counter for each entry
+                        ColumnNumber = 0;
+
+                        // Add the table type column definition, checking for (and if possible,
+                        // correcting) errors
+                        for (int y = 1; y < Rows.length; y++)
+                        {
+                            // Split on each comma, but make sure it is one that has a double quote
+                            // before and after it as a comma can be in a text string as well
+                            String[] Columns = Rows[y].split(Chars.COMMA_BETWEEN_QUOTES.getValue());
+
+                            // Strip all double quotes
+                            for (int x = 0; x < Columns.length; x++)
+                            {
+                                Columns[x] = Columns[x].replace(Chars.DOUBLE_QUOTE.getValue(),
+                                                                Chars.EMPTY_STRING.getValue());
+                            }
+
+                            // Check if the expected number of inputs is present
+                            if (Columns.length == (TableTypeEditorColumnInfo.values().length - 1))
+                            {
+                                // Add/Update the table type definition columns
+                                ignoreErrors = addImportedTableTypeColumnDefinition(ignoreErrors,
+                                                                                    TableTypeDefn,
+                                                                                    new String[] {Integer.toString(ColumnNumber),
+                                                                                                  Columns[TableTypeEditorColumnInfo.NAME.ordinal() - 1],
+                                                                                                  Columns[TableTypeEditorColumnInfo.DESCRIPTION.ordinal() - 1],
+                                                                                                  Columns[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal() - 1],
+                                                                                                  Columns[TableTypeEditorColumnInfo.UNIQUE.ordinal() - 1],
+                                                                                                  Columns[TableTypeEditorColumnInfo.REQUIRED.ordinal() - 1],
+                                                                                                  Columns[TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal() - 1],
+                                                                                                  Columns[TableTypeEditorColumnInfo.POINTER_ALLOWED.ordinal() - 1]},
+                                                                                    importFile.getAbsolutePath(),
+                                                                                    inputTypeHandler,
+                                                                                    parent);
+
+                                // Increment the column number counter as each column is added
+                                ColumnNumber++;
+                            }
+                            else
+                            {
+                                // The number of inputs is incorrect Check if the error should be
+                                // ignored or the import canceled
+                                ignoreErrors = getErrorResponse(ignoreErrors,
+                                                                "<html><b>Table type '</b>"
+                                                                + TableTypeDefn.getTypeName()
+                                                                + "<b>' definition has missing or extra "
+                                                                + "input(s) in import file '</b>"
+                                                                + importFile.getAbsolutePath()
+                                                                + "<b>'; continue?",
+                                                                "Table Type Error",
+                                                                "Ignore this table type",
+                                                                "Ignore this and any remaining invalid table types",
+                                                                "Stop importing",
+                                                                parent);
+                            }
+                        }
                     }
+                    // Incorrect number of items in the definition
                     else
                     {
                         // The number of inputs is incorrect. Check if the error should be ignored
@@ -614,69 +681,12 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                                         parent);
                     }
 
-                    // Reset the column counter for each entry
-                    ColumnNumber = 0;
-
-                    // Add the table type column definition, checking for (and if possible,
-                    // correcting) errors
-                    for (int y = 1; y < Rows.length; y++)
-                    {
-                        // Split on each comma, but make sure it is one that has a double quote
-                        // before and after it as a comma can be in a text string as well
-                        String[] Columns = Rows[y].split(Chars.COMMA_BETWEEN_QUOTES.getValue());
-
-                        // Strip all double quotes
-                        for (int x = 0; x < Columns.length; x++)
-                        {
-                            Columns[x] = Columns[x].replace(Chars.DOUBLE_QUOTE.getValue(),
-                                                            Chars.EMPTY_STRING.getValue());
-                        }
-
-                        // Check if the expected number of inputs is present
-                        if (Columns.length == (TableTypeEditorColumnInfo.values().length - 1))
-                        {
-                            // Add/Update the table type definition columns
-                            ignoreErrors = addImportedTableTypeColumnDefinition(ignoreErrors,
-                                                                                TableTypeDefn,
-                                                                                new String[] {Integer.toString(ColumnNumber),
-                                                                                              Columns[TableTypeEditorColumnInfo.NAME.ordinal() - 1],
-                                                                                              Columns[TableTypeEditorColumnInfo.DESCRIPTION.ordinal() - 1],
-                                                                                              Columns[TableTypeEditorColumnInfo.INPUT_TYPE.ordinal() - 1],
-                                                                                              Columns[TableTypeEditorColumnInfo.UNIQUE.ordinal() - 1],
-                                                                                              Columns[TableTypeEditorColumnInfo.REQUIRED.ordinal() - 1],
-                                                                                              Columns[TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal() - 1],
-                                                                                              Columns[TableTypeEditorColumnInfo.POINTER_ALLOWED.ordinal() - 1]},
-                                                                                importFile.getAbsolutePath(),
-                                                                                inputTypeHandler,
-                                                                                parent);
-
-                            // Increment the column number counter as each column is added
-                            ColumnNumber++;
-                        }
-                        else
-                        {
-                            // The number of inputs is incorrect Check if the error should be
-                            // ignored or the import canceled
-                            ignoreErrors = getErrorResponse(ignoreErrors,
-                                                            "<html><b>Table type '</b>"
-                                                            + TableTypeDefn.getTypeName()
-                                                            + "<b>' definition has missing or extra "
-                                                            + "input(s) in import file '</b>"
-                                                            + importFile.getAbsolutePath()
-                                                            + "<b>'; continue?",
-                                                            "Table Type Error",
-                                                            "Ignore this table type",
-                                                            "Ignore this and any remaining invalid table types",
-                                                            "Stop importing",
-                                                            parent);
-                        }
-                    }
-
                     /********************* TABLE TYPE DATA FIELDS *********************/
                     if (DataFields != Chars.EMPTY_STRING.getValue())
                     {
                         // Split the data into each individual data field definition
                         String[] Fields = DataFields.split(Chars.NEW_LINE.getValue());
+
                         for (int x = 1; x < Fields.length; x++)
                         {
                             // Split on each comma, but make sure it is one that has a double quote
@@ -753,7 +763,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
 
                         if (importMacro)
                         {
-                            // Add the macro definition (add a blank to represent the OID)
+                            // Add the macro definition (add a blank to represent the row number)
                             NewMacroDefns.add(macroDefn);
                         }
                     }
@@ -827,6 +837,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
         }
         catch (Exception pe)
         {
+
             // Inform the user that the file cannot be parsed
             throw new CCDDException("Parsing error; cause '</b>" + pe.getMessage() + "<b>'");
         }
@@ -876,6 +887,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
 
                 // Replace any double end line characters
                 data = data.replace(Chars.DOUBLE_NEW_LINE.getValue(), Chars.NEW_LINE.getValue());
+
                 // There are often new line characters within the text fields of the input types.
                 // In order to guard against these we split only on new line characters that are
                 // directly after a double quote
@@ -905,7 +917,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                                                                         Columns[InputTypesColumn.FORMAT.ordinal()],
                                                                                         ""});
 
-                        // Add the input type definition (add a blank to represent the OID)
+                        // Add the input type definition (add a blank to represent the row number)
                         newInputTypeDefns.add(inputTypeDefn);
                     }
                     else
@@ -969,7 +981,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                         // Check if the data type definition is valid
                         checkDataTypeDefinition(dataTypeDefn);
 
-                        // Add the data type definition (add a blank to represent the OID)
+                        // Add the data type definition (add a blank to represent the row number)
                         newDataTypeDefns.add(dataTypeDefn);
                     }
                     else

@@ -844,7 +844,8 @@ public class CcddFieldHandler
                                                       String value,
                                                       boolean isInherited)
     {
-        String[] fieldDefn = new String[FieldsColumn.values().length];
+        // Subtract one so that the row number column is skipped
+        String[] fieldDefn = new String[FieldsColumn.values().length - 1];
 
         // Store the field definition in the proper order
         fieldDefn[FieldsColumn.OWNER_NAME.ordinal()] = ownerName;

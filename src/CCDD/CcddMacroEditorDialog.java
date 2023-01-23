@@ -97,8 +97,8 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
     // so that the original cell contents can be restored
     private String[][] originalCellData;
 
-    // Temporary OID
-    private int tempOID;
+    // Temporary row number
+    private long tempRowNum;
 
     // Dialog title
     private static final String DIALOG_TITLE = "Macro Editor";
@@ -131,9 +131,10 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
         // Check that no error occurred performing the database commands
         if (!commandError)
         {
-            // Assign temporary OIDs to the added rows so that these can be matched when building
-            // updates
-            tempOID = macroTable.assignOIDsToNewRows(tempOID, MacrosColumn.OID.ordinal());
+            // Assign temporary row numbers to the added rows so that these can be matched when
+            // building updates
+            tempRowNum = macroTable.assignTemporaryRowNumbersToNewRows(tempRowNum,
+                                                                       MacrosColumn.ROW_NUM.ordinal());
 
             // Update the macro handler with the changes
             macroHandler.setMacroData(getUpdatedData());
@@ -203,8 +204,8 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
             {
                 modifications = new ArrayList<TableModification>();
 
-                // Initialize the temporary OID
-                tempOID = -1;
+                // Initialize the temporary row number
+                tempRowNum = -1;
 
                 // Initialize the list of macro references already loaded
                 macroHandler.initializeReferences();
@@ -564,7 +565,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
             @Override
             protected boolean isColumnHidden(int column)
             {
-                return column == MacroEditorColumnInfo.OID.ordinal();
+                return column == MacroEditorColumnInfo.ROW_NUM.ordinal();
             }
 
             /**************************************************************************************
@@ -663,7 +664,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                                                         ccddMain.getDataTypeHandler());
 
                             // Get the macro's index and name
-                            String index = tableData.get(row)[MacroEditorColumnInfo.OID.ordinal()].toString();
+                            String index = tableData.get(row)[MacroEditorColumnInfo.ROW_NUM.ordinal()].toString();
                             String macroName = tableData.get(row)[MacroEditorColumnInfo.NAME.ordinal()].toString();
 
                             // Check if the macro has a name and if the macro value is valid
@@ -678,7 +679,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                             for (int commRow = 0; commRow < committedData.length; commRow++)
                             {
                                 // Check if the index matches that for the committed macro
-                                if (index.equals(committedData[commRow][MacroEditorColumnInfo.OID.ordinal()]))
+                                if (index.equals(committedData[commRow][MacroEditorColumnInfo.ROW_NUM.ordinal()]))
                                 {
                                     // Validate the macro usage. Use the committed name (in place
                                     // of the current name in the editor, in case it's been
@@ -965,8 +966,8 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
         // Step through each row in the macro table
         for (int tblRow = 0; tblRow < tableData.length; tblRow++)
         {
-            // Check if the OID isn't blank
-            if (!tableData[tblRow][MacrosColumn.OID.ordinal()].toString().isEmpty())
+            // Check if the row number isn't blank
+            if (!tableData[tblRow][MacrosColumn.ROW_NUM.ordinal()].toString().isEmpty())
             {
                 boolean matchFound = false;
 
@@ -974,7 +975,7 @@ public class CcddMacroEditorDialog extends CcddDialogHandler
                 for (int comRow = 0; comRow < numCommitted && !matchFound; comRow++)
                 {
                     // Check if the index values match for these rows
-                    if (tableData[tblRow][MacrosColumn.OID.ordinal()].equals(committedData[comRow][MacrosColumn.OID.ordinal()]))
+                    if (tableData[tblRow][MacrosColumn.ROW_NUM.ordinal()].equals(committedData[comRow][MacrosColumn.ROW_NUM.ordinal()]))
                     {
                         // Set the flags indicating this row has a match
                         matchFound = true;

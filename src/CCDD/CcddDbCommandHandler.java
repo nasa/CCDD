@@ -605,6 +605,7 @@ public class CcddDbCommandHandler
             {
                 command.append(typeName).append("';");
             }
+
             ResultSet resultSet = executeDbQuery(command, parent);
 
             // Check if the query failed

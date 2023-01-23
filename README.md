@@ -19,15 +19,33 @@ _Note:_ **CCDD version 1** _is no longer being updated; use _ **CCDD version 2**
 
 ## CCDD version 2 (CCDD-2 branch)
 
-*** Version 2.0.38 is now released (see below for details) **
+*** Version 2.1.0 is now released (see below for details) **
 
-*** CCDD version 2 works with Java 7-13 **
+* Beginning with CCDD version 2.1 PostgreSQL versions 12 and later are supported
 
-*** CCDD version 2 has changed the way that the json import/export works. You can now import and export entire databases. Check CCDDv2 users guide for more details **
+* CCDD version 2 works with Java 7-13
+
+* CCDD version 2 has changed the way that the json import/export works. You can now import and export entire databases. Check CCDDv2 users guide for more details
 
 Version 2 redefines the behavior of command tables.  Command arguments are no longer defined as columns within a command table.  Instead, the command table has a column that is a reference to a structure table; this structure defines the command argument(s).  The version 2 user's guide is updated to provide further details.
 
 When version 2 attempts to open a version 1.x.x version project database then a dialog appears asking to convert the project.  Unlike previous patches, this patch alters user-defined tables and table definitions, and creates new ones.  The argument columns in any command tables are replaced with the argument structure reference column, and the argument structure is created and populated using the original argument information.  Many of the command table script data access methods no longer exist, so existing scripts may need to be updated. Before this patch is applied to the version 1.x.x database a backup will be performed to ensure no data loss on the chance that something does not work as anticipated. 
+
+*** Version 2.1.0 has been released **
+
+Below is a brief description of what has changed in version 2.1.0
+* Where applicable, assign the 'owner' dialog when performing a background operation so that the dialog's controls are disabled
+* Simplified pre-loading table members and default table tree creation handling (pre-loading and the default tree can speed opening dialogs containing a tree and filtering the tree)
+* Added pre-building of a table type filtered default tree
+* Where applicable, moved background completion steps to the execution method so that the GUI is released when the pointer indicates the operation is complete
+* Updated the SQL function for loading table members so that array members are sorted. This prevents needing to perform the sort in the Java code, which is much slower
+* Broke up lengthy SQL commands into multiple, shorter commands (a continuation of updates made in version 2.0.32)
+* Added a check in the database verification for duplicate custom values entries (entries having the same table path and column; there should never be more than one)
+* Changed the database verification dialog so that it remains visible after an issue (or issues) is fixed so that other, unselected issues can be selected to fix without having to rerun the verification
+* Updated the data table editor to prevent unexpected scrolling when one or more table rows is added/deleted
+* Eliminated the use of the built-in OID (object identifiers) support. Built-in OID support was removed beginning with PostgreSQL 12.  This update allows the use of PostgreSQL 8 and above with CCDD. In place of the built-in OID column support are added to the internal database tables that behave in the same manner as the built-in columns.  A database created using an earlier version can be modified to this version when the project is opened (_the conversion is not reversible_).
+* Corrected parsing of data values when pasting into a table from the clipboard. Tab characters (\t) were inadvertently changed to spaces in an earlier version. Also corrected handling of pasting data that extends outside a non-data table's column boundaries (excess data is simply ignored).
+* Updated the C header to structure conversion and import. More complex macros are allowed as array sizes.
 
 *** Version 2.0.38 has been released **
 

@@ -835,7 +835,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                             // Check if the macro definition is valid
                             checkMacroDefinition(macroDefn);
 
-                            // Add the macro definition (add a blank to represent the OID)
+                            // Add the macro definition (add a blank to represent the row number)
                             macroDefns.add(macroDefn);
                         }
                         else
@@ -1002,7 +1002,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                                                                                         items,
                                                                                         format, ""});
 
-                        // Add the input type definition (add a blank to represent the OID)
+                        // Add the input type definition (add a blank to represent the row number)
                         inputTypeDefns.add(inputTypeDefn);
                     }
                     else
@@ -1058,7 +1058,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                             // Check if the data type definition is valid
                             checkDataTypeDefinition(dataTypeDefn);
 
-                            // Add the data type definition (add a blank to represent the OID)
+                            // Add the data type definition (add a blank to represent the row number)
                             dataTypeDefns.add(dataTypeDefn);
                         }
                         else
@@ -1199,7 +1199,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                             && reservedMsgIDJO.keySet().size() < ReservedMsgIDEditorColumnInfo.values().length)
                         {
                             // Add the reserved message ID definition (add a blank to represent the
-                            // OID)
+                            // row number)
                             reservedMsgIDDefns.add(new String[] {name, value, ""});
                         }
                         else

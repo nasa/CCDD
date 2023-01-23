@@ -111,7 +111,8 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
         {
             case STORE:
                 // Allow the user to select the script file path(s) + name(s)
-                scriptFile = new CcddDialogHandler().choosePathFile(ccddMain, ccddMain.getMainFrame(),
+                scriptFile = new CcddDialogHandler().choosePathFile(ccddMain,
+                                                                    ccddMain.getMainFrame(),
                                                                     null,
                                                                     "script",
                                                                     scriptHandler.getExtensions(),
