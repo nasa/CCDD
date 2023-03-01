@@ -9,27 +9,38 @@ See the CCDD installation guide for details on set up.  See the developer's and 
 
 _Note: The master branch contains_ **CCDD version 1**_, which is superseded by_ **CCDD version 2** _located in branch CCDD-2;_ **CCDD version 1** _is no longer being updated_
 
-## CCDD version 1 (master branch)
-
-_Note:_ **CCDD version 1** _is no longer being updated; use _ **CCDD version 2**
-
-*** CCDD Version 1.5.37 **
-
-*** CCDD works with JAVA 7-13 **
-
 ## CCDD version 2 (CCDD-2 branch)
-
-*** Version 2.1.0 is now released (see below for details) **
 
 * Beginning with CCDD version 2.1 PostgreSQL versions 12 and later are supported
 
 * CCDD version 2 works with Java 7-13
 
-* CCDD version 2 has changed the way that the json import/export works. You can now import and export entire databases. Check CCDDv2 users guide for more details
+*** Version 2.1.1 has been released **
 
-Version 2 redefines the behavior of command tables.  Command arguments are no longer defined as columns within a command table.  Instead, the command table has a column that is a reference to a structure table; this structure defines the command argument(s).  The version 2 user's guide is updated to provide further details.
-
-When version 2 attempts to open a version 1.x.x version project database then a dialog appears asking to convert the project.  Unlike previous patches, this patch alters user-defined tables and table definitions, and creates new ones.  The argument columns in any command tables are replaced with the argument structure reference column, and the argument structure is created and populated using the original argument information.  Many of the command table script data access methods no longer exist, so existing scripts may need to be updated. Before this patch is applied to the version 1.x.x database a backup will be performed to ensure no data loss on the chance that something does not work as anticipated. 
+Below is a brief description of what has changed in version 2.1.1
+* The CCDD 1 -> CCDD 2 conversion patch is removed. Github now shows CCDD 2 as the default branch. CCDD 1 (the master branch) is retained for archival purposes
+* Added SQL network (database response) and query timeouts. The default is 5 seconds; the value can be altered in the Preferences dialog
+* Updated the embedded JDBC driver to 42.5.2 (supports Java 8 and above)
+* Added missing database roll-back commands if an error occurs making a verification fix or when modifying tables due to input type changes
+* Added save point and roll-back commands when creating, renaming, copying, and modifying tables
+* Corrected SQL error when copying the currently open project
+* Changed the rename project command to allow renaming the currently open project
+* Corrected an out of index error if pasting into a non-data table (e.g., macro editor) and insufficient rows exist for the pasted data
+* Changed the behavior when pasting structure table data. Pasted data is handled as with other tables where each cell is evaluated just as if the user is typing the cell value in one at a time in sequence (left to right, top to bottom). If the structure contains an array and the array members are hidden then when pasting data the array member rows are treated as if they aren't there (i.e., the array member rows are skipped and pasting continues on the next row). If the array members are visible (expanded) then the pasted data does not skip the array member cells, but treats them like all other cells
+* Deleted a duplicate call to update open table editors if a table type is altered
+* Added an update to the fixed column's row sorter when a data table is displaying the fixed column
+* Removed call to fireTableDataChanged in loadDataArrayIntoTable to prevent the table from scrolling unexpectedly after inserting a row, then altering a cell in the new row
+* Removed call to addChangeListener in FixedColumnHandler to allow scrolling to the bottom of a table when a row is inserted
+* Changed getTableTreePathList to use a HashSet so that duplicate variables are automatically excluded
+* Simplified the verification of the custom values table
+* Corrected JSON and CSV export bug introduced in version 2.1.0
+* Changed table row insertion so that the row is inserted at the row selected (instead of below it)
+* Corrected error when performing table deletions where changes were not committed to the database
+* Corrected bug when deleting custom value entries for tables with square brackets ([ or ]) in the name (i.e., structure arrays). This led to duplicate entries for a table's columns in the custom values table
+* Corrected bug when importing a CSV or JSON file into an open table editor
+* Adjusted error handling in the CSV handler
+* Corrected formatting of the snapshot2 JSON data output to prevent false file difference indications
+* Increased the default values for "PostgreSQL connection timeout" (was 5 seconds, now 10) and "PostgreSQL database timeout" (was 5 seconds, now 60), and increased the maximum values from 60 to 600 seconds. Queries for large databases can take longer then the old default value of 5 seconds ("PostgreSQL database timeout")
 
 *** Version 2.1.0 has been released **
 
@@ -43,9 +54,9 @@ Below is a brief description of what has changed in version 2.1.0
 * Added a check in the database verification for duplicate custom values entries (entries having the same table path and column; there should never be more than one)
 * Changed the database verification dialog so that it remains visible after an issue (or issues) is fixed so that other, unselected issues can be selected to fix without having to rerun the verification
 * Updated the data table editor to prevent unexpected scrolling when one or more table rows is added/deleted
-* Eliminated the use of the built-in OID (object identifiers) support. Built-in OID support was removed beginning with PostgreSQL 12.  This update allows the use of PostgreSQL 8 and above with CCDD. In place of the built-in OID column support are added to the internal database tables that behave in the same manner as the built-in columns.  A database created using an earlier version can be modified to this version when the project is opened (_the conversion is not reversible_).
-* Corrected parsing of data values when pasting into a table from the clipboard. Tab characters (\t) were inadvertently changed to spaces in an earlier version. Also corrected handling of pasting data that extends outside a non-data table's column boundaries (excess data is simply ignored).
-* Updated the C header to structure conversion and import. More complex macros are allowed as array sizes.
+* Eliminated the use of the built-in OID (object identifiers) support. Built-in OID support was removed beginning with PostgreSQL 12.  This update allows the use of PostgreSQL 8 and above with CCDD. In place of the built-in OID column support are added to the internal database tables that behave in the same manner as the built-in columns.  A database created using an earlier version can be modified to this version when the project is opened (_the conversion is not reversible_)
+* Corrected parsing of data values when pasting into a table from the clipboard. Tab characters (\t) were inadvertently changed to spaces in an earlier version. Also corrected handling of pasting data that extends outside a non-data table's column boundaries (excess data is simply ignored)
+* Updated the C header to structure conversion and import. More complex macros are allowed as array sizes
 
 *** Version 2.0.38 has been released **
 
@@ -201,3 +212,7 @@ Below is a brief description of what has changed from version 2.0.20 to 2.0.21.
 * Restored EDS and XTCE import/export functionality to CCDDv2. Works just as it did in v1.
 * CSV import/export functionality has been updated to match the new JSON import/export functionality. You can now export entire databases, including internal tables, to JSON or CSV files. The data can be placed in separate files, every table in the database will get its own file, or one large file. This is useful for tracking changes to the database as these files can be easily checked into git. This also allows the user to make small changes to these files then perform an import which will update the database as needed.
 * When files are compared for differences during an import and EOL characters will not be ignored.
+
+## CCDD version 1 (master branch)
+
+_Note:_ **CCDD version 1** _is no longer being updated; use _ **CCDD version 2**
