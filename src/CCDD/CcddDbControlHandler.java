@@ -113,7 +113,6 @@ public class CcddDbControlHandler
     // Class references
     private final CcddMain ccddMain;
     private final CcddDbCommandHandler dbCommand;
-    private CcddDbTableCommandHandler dbTableCommand;
     private CcddEventLogDialog eventLog;
 
     // SQL server type and host
@@ -247,7 +246,6 @@ public class CcddDbControlHandler
 
         // Create reference to shorten subsequent calls
         dbCommand = ccddMain.getDbCommandHandler();
-        dbTableCommand = ccddMain.getDbTableCommandHandler();
 
         // Initialize the database connection parameters
         connectionStatus = NO_CONNECTION;
@@ -1619,9 +1617,6 @@ public class CcddDbControlHandler
             dbCommand.executeDbCommand(command, ccddMain.getMainFrame());
             command.setLength(0);
 
-            // Create a temporary table for storing the results returned by the database functions
-            createTemporaryTable();
-
             // Step through each internal table type
             for (InternalTable intTable : InternalTable.values())
             {
@@ -1761,8 +1756,7 @@ public class CcddDbControlHandler
                    .append(ValuesColumn.VALUE.getColumnName())
                    .append(" FROM ")
                    .append(InternalTable.VALUES.getTableName())
-                   .append(" WHERE column_name = ''' ")
-                   .append("|| column_name_user || E''')) AS name_and_value ORDER BY owner_name;'; END; $$ LANGUAGE plpgsql; ")
+                   .append(" WHERE column_name = ''' || column_name_user || E''')) AS name_and_value ORDER BY owner_name;'; END; $$ LANGUAGE plpgsql; ")
                    .append(buildOwnerCommand(DatabaseObject.FUNCTION,
                                              "find_columns_by_name(column_name_user text, column_name_db text, table_types text[])"));
             dbCommand.executeDbCommand(command, ccddMain.getMainFrame());
@@ -2291,7 +2285,7 @@ public class CcddDbControlHandler
             connectionStatus = NO_CONNECTION;
 
             // Set the time allowed for the connection to occur
-            // DriverManager.setLoginTimeout(ModifiableSizeInfo.POSTGRESQL_CONNECTION_TIMEOUT.getSize());
+            DriverManager.setLoginTimeout(ModifiableSizeInfo.POSTGRESQL_CONNECTION_TIMEOUT.getSize());
             Properties properties = new Properties();
             properties.put("connectTimeout",
                            String.valueOf(ModifiableSizeInfo.POSTGRESQL_CONNECTION_TIMEOUT.getSize() * 1000));
@@ -2320,6 +2314,9 @@ public class CcddDbControlHandler
 
             // Store the database connection in the database command handler
             dbCommand.setConnection(connection);
+
+            // Set the query and network timeouts
+            dbCommand.setNetworkAndQueryTimeouts(ccddMain.getMainFrame());
 
             // Save the name of the newly connected database
             setDatabaseName(databaseName);
@@ -2591,6 +2588,10 @@ public class CcddDbControlHandler
                     // (default database)
                     if (isDatabaseConnected())
                     {
+                        // Create a temporary table for storing the results returned by the
+                        // database functions
+                        createTemporaryTable();
+
                         // Check if the database functions should be created; if so create the
                         // internal tables and database functions, and check if an error occurs
                         // creating them
@@ -2636,17 +2637,12 @@ public class CcddDbControlHandler
                             // project database is left unlocked
                             setDatabaseLockStatus(activeProject, true);
 
-                            if (dbTableCommand == null)
-                            {
-                                dbTableCommand = ccddMain.getDbTableCommandHandler();
-                            }
-
                             // Update the pre-loaded table members and build the table tree. This
                             // is done in the background as soon as a database is opened so that
                             // when a user performs an action that loads the table tree they do not
                             // have to wait for it to be built. Building the table tree is done
                             // after pre-loading so that the pre-loaded data is used
-                            dbTableCommand.updatePreLoadedTableMembers();
+                            ccddMain.getDbTableCommandHandler().updatePreLoadedTableMembers();
                             ccddMain.buildGroupTableTreeHandler();
                             ccddMain.buildTypeTableTreeHandler();
 
@@ -2660,9 +2656,9 @@ public class CcddDbControlHandler
                             ccddMain.updateRecentProjectsMenu();
                         }
 
-                        // Initialize the root structures. THis is done here so that the pre-loaded
+                        // Initialize the root structures. This is done here so that the pre-loaded
                         // default table tree can be used
-                        dbTableCommand.initRootStructures();
+                        ccddMain.getDbTableCommandHandler().initRootStructures();
                     }
                 }
                 catch (CCDDException ce)
@@ -2847,7 +2843,7 @@ public class CcddDbControlHandler
     }
 
     /**********************************************************************************************
-     * Rename a project and/or add/update the database description.
+     * Rename a project and/or add/update the database description
      *
      * @param oldProject  Current name of the project
      *

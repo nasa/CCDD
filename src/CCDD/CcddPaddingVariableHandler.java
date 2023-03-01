@@ -502,7 +502,7 @@ public class CcddPaddingVariableHandler
                 }
 
                 // Insert the padding variable row into the table
-                tableEditor.getTable().insertRowData(row - 1, rowData);
+                tableEditor.getTable().insertRowData(row, rowData);
 
                 // Check if multiple padding variables are to be added
                 if (padSize > 1)
@@ -552,7 +552,7 @@ public class CcddPaddingVariableHandler
             tableEditor.buildUpdates();
 
             // Check if any updates were made (padding variables added or deleted)
-            if (!tableEditor.getAdditions().isEmpty() || !tableEditor.getDeletions().isEmpty())
+            if (!(tableEditor.getAdditions().isEmpty() && tableEditor.getDeletions().isEmpty()))
             {
                 // Update the table in the database
                 dbTable.modifyTableData(tableInfo,
@@ -755,7 +755,8 @@ public class CcddPaddingVariableHandler
                         if (selectedProtoStructTables.contains(paddingInfo.structureName))
                         {
                             // Update the progress bar text
-                            haltDlg.updateProgressBar(paddingInfo.structureName, -1);
+                            haltDlg.updateProgressBar
+                            (paddingInfo.structureName, -1);
 
                             // Update the table in the project database
                             paddingInfo.updateTable();

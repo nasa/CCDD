@@ -2018,7 +2018,7 @@ public class CcddUndoHandler
          * @param values   Array containing the column information for the row to insert into the
          *                 table
          *
-         * @param undoable True if the row deletion can be undone
+         * @param undoable True if the row insertion can be undone
          *****************************************************************************************/
         protected void insertRow(int row, Object values[], boolean undoable)
         {
@@ -2218,6 +2218,56 @@ public class CcddUndoHandler
                     }
                 }
             }
+        }
+
+        /******************************************************************************************
+         * Override the default method with a method that includes a flag to store the row data
+         * added in the undo stack
+         *****************************************************************************************/
+        @Override
+        public void addRow(Object[] rowData)
+        {
+            addRow(rowData, true);
+        }
+
+        /******************************************************************************************
+         * Add a row to the table model
+         *
+         * @param rowData  Array containing the column information for the row to insert into the
+         *                 table
+         *
+         * @param undoable True if the row data addition can be undone
+         *****************************************************************************************/
+        protected void addRow(Object[] rowData, boolean undoable)
+        {
+            // Check if this row movement is undoable
+            if (isAllowUndo && undoable)
+            {
+                // Get the listeners for this event
+                UndoableEditListener listeners[] = getListeners(UndoableEditListener.class);
+
+                // Check if there is an edit listener registered
+                if (listeners.length != 0)
+                {
+                    // Create the edit event to be passed to the listeners
+                    UndoableEditEvent editEvent = new UndoableEditEvent(this,
+                                                                        new RowEdit(this,
+                                                                                    rowData,
+                                                                                    getRowCount(),
+                                                                                    0,
+                                                                                    0,
+                                                                                    TableEditType.INSERT));
+
+                    // Step through the registered listeners
+                    for (UndoableEditListener listener : listeners)
+                    {
+                        // Inform the listener that an update occurred
+                        listener.undoableEditHappened(editEvent);
+                    }
+                }
+            }
+
+            super.addRow(rowData);
         }
     }
 

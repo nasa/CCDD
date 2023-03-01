@@ -1111,7 +1111,8 @@ public class CcddEventLogDialog extends CcddFrameHandler
                                            user,
                                            getDateTimeStampLog(timestamp),
                                            type.getTypeMsg(),
-                                           truncateLogMessage(logMessage.toString())});
+                                           truncateLogMessage(logMessage.toString())},
+                             false);
 
         // Update the log entry counter
         indexNum++;

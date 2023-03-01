@@ -240,6 +240,9 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      * @param buildGroupTree    True to build the group tree used by the TableTreeHandler
      *                          instantiated by CcddMain
      *
+     * @param buildTypeTree     True to build the type tree used by the TableTreeHandler
+     *                          instantiated by CcddMain
+     *
      * @param parent            GUI component over which to center any error dialog
      *********************************************************************************************/
     CcddTableTreeHandler(CcddMain ccddMain,
@@ -757,6 +760,8 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      *
      * @param isByGroupChanged true if isByGroup changed
      *
+     * @param isByTypeChanged  true if isByType changed
+     *
      * @param parent           Component building this table tree
      *********************************************************************************************/
     protected void buildTableTree(Boolean isExpanded,
@@ -1061,6 +1066,8 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
 
     /**********************************************************************************************
      * Get the pseudo-group containing all tables
+     *
+     * @return Reference to the all tables group node
      *********************************************************************************************/
     protected ToolTipTreeNode getAllTablesGroupNode()
     {
@@ -1373,11 +1380,9 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             tableDescriptions = dbTable.queryTableDescriptions(parent);
         }
 
-        // if (otherMember.getDataTypes().contains(member.getTableName()) &&
-        // !member.equals(otherMember))
         HashMap<TableMembers, HashSet<String>> tableMap = new HashMap<>();
-
         boolean isOptEngaged = true;
+
         if (isOptEngaged)
         {
             // Put the data type of each member into the hash table
@@ -1456,6 +1461,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                                 if (!member.equals(otherMember))
                                 {
                                     HashSet<String> memberDatatypes = tableMap.get(otherMember);
+
                                     if (memberDatatypes != null)
                                     {
                                         if (memberDatatypes.contains(member.getTableName()))
@@ -1772,36 +1778,25 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         // Get the paths from the tree matching the search criteria
         tablePathList = getTableTreePathArray(searchName, startNode, maxLevel);
 
-        List<String> variablePaths = new ArrayList<String>();
+        HashSet<String> variablePaths = new HashSet<String>();
 
-        // Step through each path. If more than 1000 then do not even check if the current path is
-        // already in the list Kills performance. TODO: Maybe turn this into a hashMap to avoid
-        // this issue?
-        if (tablePathList.size() > 1000)
+        // Step through each path
+        for (Object[] path : tablePathList)
         {
-            for (Object[] path : tablePathList)
+            // Check that the path isn't empty
+            if (path.length > getHeaderNodeLevel())
             {
-                // Convert the path array to a string, stripping off the nodes names prior to the
-                // start index and the HTML tags
-                variablePaths.add(removeExtraText(createNameFromPath(path, getHeaderNodeLevel())));
-            }
-        }
-        else
-        {
-            for (Object[] path : tablePathList)
-            {
+                // Convert the path array to a string, stripping off the nodes names prior to
+                // the start index and the HTML tags
                 String variable = removeExtraText(createNameFromPath(path, getHeaderNodeLevel()));
 
-                // Check if the path is not already in the list and that the path isn't blank
-                if (!variablePaths.contains(variable) && !variable.isEmpty())
-                {
-                    // Add the path to the list
-                    variablePaths.add(variable);
-                }
+                // Add the path to the list. DSince this is a hash set duplicate variable paths are
+                // automatically excluded
+                variablePaths.add(variable);
             }
         }
 
-        return variablePaths;
+        return new ArrayList<>(variablePaths);
     }
 
     /**********************************************************************************************

@@ -136,8 +136,9 @@ public class CcddDbManagerDialog extends CcddDialogHandler
     private final int DB_PRJNAME = 0;
     private final int DB_INFO = 1;
 
-    // Text to automatically append to the end of a project name when copying
+    // Text to automatically append to the end of a project name when copying or renaming
     private final String COPY_APPEND = "_copy";
+    private final String RENAME_APPEND = "_rename";
 
     private final String DIALOG_TITLE = "Manage User Access Level";
 
@@ -272,7 +273,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                                                 gbc))
                             {
                                 // Create the rename project name and description labels and fields
-                                addDatabaseInputFields("New project name", selectPnl, false, gbc);
+                                addDatabaseInputFields("New project name", selectPnl, gbc);
                             }
                             // No project exists to choose
                             else
@@ -298,7 +299,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                                                 gbc))
                             {
                                 // Create the copy project name and description labels and fields
-                                addDatabaseInputFields("Project copy name", selectPnl, false, gbc);
+                                addDatabaseInputFields("Project copy name", selectPnl, gbc);
 
                                 // Create a date and time stamp check box
                                 stampChkBx = new JCheckBox("Append date and time to project name");
@@ -688,7 +689,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                     {
                         case CREATE:
                             // Create the project name and description labels and fields
-                            addDatabaseInputFields("New project name", selectPnl, true, gbc);
+                            addDatabaseInputFields("New project name", selectPnl, gbc);
 
                             // Display the project creation dialog
                             if (showOptionsDialog(ccddMain.getMainFrame(),
@@ -728,56 +729,25 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                             break;
 
                         case RENAME:
-                            // Display the rename project dialog. Only the description can be
-                            // altered for the currently open project. The description and names
-                            // can be altered for all other projects
-                            int chosenButton = showOptionsDialog(ccddMain.getMainFrame(),
-                                                                 selectPnl,
-                                                                 "Rename Project",
-                                                                 DialogOption.RENAME_UPDATE_OPTIONS,
-                                                                 true);
-
-                            String selectedProject = getRadioButtonSelected();
-
-                            // Ensure that there is a project selected otherwise exit
-                            if (selectedProject == null)
-                                break;
-
-                            boolean isDifferentDataBaseSelected = !selectedProject.equals(dbControl.getDatabaseName());
-                            boolean isIgnoringUncommittedChanges = ccddMain.ignoreUncommittedChanges("Rename Project",
-                                                                                                     "Discard changes?",
-                                                                                                     true,
-                                                                                                     null,
-                                                                                                     CcddDbManagerDialog.this);
-
-                            String dbCurrentName = selectedProject;
-                            String dbNewName = "";
-
-                            boolean updateDb = false;
-                            // The OK button was chosen so rename the database and update the
-                            // description
-                            if (chosenButton == CcddConstants.OK_BUTTON
-                                && (isDifferentDataBaseSelected || isIgnoringUncommittedChanges))
+                            // Display the rename project dialog. If the currently open database is
+                            // being renamed and there are uncommitted changes then confirm
+                            // discarding the changes before proceeding
+                            if (showOptionsDialog(ccddMain.getMainFrame(),
+                                                  selectPnl,
+                                                  "Rename Project",
+                                                  DialogOption.RENAME_OPTION,
+                                                  true) == OK_BUTTON
+                                && (!getRadioButtonSelected().equals(dbControl.getDatabaseName())
+                                    || (getRadioButtonSelected().equals(dbControl.getDatabaseName())
+                                        && ccddMain.ignoreUncommittedChanges("Rename Project",
+                                                                             "Discard changes?",
+                                                                             true,
+                                                                             null,
+                                                                             CcddDbManagerDialog.this))))
                             {
                                 // Rename the project
-                                dbNewName = nameFld.getText();
-                                updateDb = true;
-                            }
-
-                            // The UPDATE button was chosen so just update the description and keep
-                            // the name the same
-                            if (chosenButton == CcddConstants.UPDATE_BUTTON
-                                && (isDifferentDataBaseSelected || isIgnoringUncommittedChanges))
-                            {
-                                dbNewName = dbCurrentName;
-                                updateDb = true;
-                            }
-
-                            if (updateDb)
-                            {
-                                // Update the Description
-                                dbControl.renameDatabaseInBackground(dbCurrentName,
-                                                                     dbNewName,
+                                dbControl.renameDatabaseInBackground(getRadioButtonSelected(),
+                                                                     nameFld.getText(),
                                                                      descriptionFld.getText());
                             }
 
@@ -902,13 +872,10 @@ public class CcddDbManagerDialog extends CcddDialogHandler
      *
      * @param dialogPnl Panel to which to add the labels and fields
      *
-     * @param enabled   True if the fields are initially enabled, false if disabled
-     *
      * @param dialogGbc Dialog panel GridBagLayout layout constraints
      *********************************************************************************************/
     private void addDatabaseInputFields(String nameText,
                                         JPanel dialogPnl,
-                                        boolean enabled,
                                         GridBagConstraints dialogGbc)
     {
         // Create a border for the fields
@@ -940,10 +907,9 @@ public class CcddDbManagerDialog extends CcddDialogHandler
         nameLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         nameFld = new JTextField("", 20);
         nameFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
-        nameFld.setBackground(enabled ? ModifiableColorInfo.INPUT_BACK.getColor()
-                                      : ModifiableColorInfo.INPUT_DISABLE_BACK.getColor());
+        nameFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
         nameFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
-        nameFld.setEditable(enabled);
+        nameFld.setEditable(true);
         nameFld.setBorder(border);
 
         // Create the description label and field
@@ -951,17 +917,15 @@ public class CcddDbManagerDialog extends CcddDialogHandler
         descriptionLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         descriptionFld = new JTextArea("", 3, 20);
         descriptionFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
-        descriptionFld.setBackground(enabled ? ModifiableColorInfo.INPUT_BACK.getColor()
-                                             : ModifiableColorInfo.INPUT_DISABLE_BACK.getColor());
+        descriptionFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
         descriptionFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
-        descriptionFld.setEditable(enabled);
+        descriptionFld.setEditable(true);
         descriptionFld.setLineWrap(true);
         descriptionFld.setBorder(BorderFactory.createEmptyBorder());
         descriptionFld.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, null);
         descriptionFld.setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, null);
         descScrollPane = new JScrollPane(descriptionFld);
-        descScrollPane.setBackground(enabled ? ModifiableColorInfo.INPUT_BACK.getColor()
-                                             : ModifiableColorInfo.INPUT_DISABLE_BACK.getColor());
+        descScrollPane.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
         descScrollPane.setBorder(border);
 
         // Add the name and description labels and fields to a panel
@@ -1000,7 +964,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                 // Check if the event indicates a radio button selection change
                 if (pce.getPropertyName().equals(RADIO_BUTTON_CHANGE_EVENT))
                 {
-                    // Check if this is a rename or copy type dialog
+                    // Check if this is a rename or copy project dialog
                     if (dialogType == DbManagerDialogType.RENAME
                         || dialogType == DbManagerDialogType.COPY)
                     {
@@ -1025,42 +989,26 @@ public class CcddDbManagerDialog extends CcddDialogHandler
                             }
                         }
 
-                        // Check if this is a copy type dialog
+                        // Check if this is a copy project dialog
                         if (dialogType == DbManagerDialogType.COPY)
                         {
                             // Append text to the name to differentiate the copy from the original
                             name += COPY_APPEND;
                         }
+                        // Rename project dialog
+                        else
+                        {
+                             // Append text to the name to differentiate the renamed project from
+                             // the original
+                            name += RENAME_APPEND;
+                        }
 
-                        // Place the type name in the name field and the description in the
+                        // Place the project name in the name field and the description in the
                         // description field
                         nameFld.setText(name);
                         descriptionFld.setText(desc);
 
-                        // Set a flag that indicates if the name field can be changed (the name
-                        // can't be changed in the rename dialog)
-                        boolean isAlterable = dialogType != DbManagerDialogType.RENAME
-                                              || !name.equals(dbControl.getProjectName());
-
-                        // Set the enable state for the input fields
-                        nameFld.setEditable(isAlterable);
-                        nameFld.setBackground(isAlterable ? ModifiableColorInfo.INPUT_BACK.getColor()
-                                                          : ModifiableColorInfo.INPUT_DISABLE_BACK.getColor());
-
-                        // If needed inform the user that an open project cannot be renamed. 16 is
-                        // the length of "New project name"
-                        if (nameLbl.getText().substring(0, 16).equals("New project name"))
-                        {
-                            nameLbl.setText(isAlterable ? "New project name"
-                                                        : "New project name (Note: Please close this "
-                                                          + "project if you wish to rename it)");
-                        }
-
-                        descriptionFld.setEditable(true);
-                        descriptionFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
-                        descScrollPane.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
-
-                        // Check if this is a copy type dialog
+                        // Check if this is a copy project dialog
                         if (dialogType == DbManagerDialogType.COPY)
                         {
                             // Enable the date and time stamp check box
@@ -1430,8 +1378,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
 
                 // Check if the cell isn't already selected (selection highlighting overrides the
                 // invalid highlighting, if applicable)
-                if (!(isFocusOwner() && isRowSelected(row)
-                      && (isColumnSelected(column) || !getColumnSelectionAllowed())))
+                if (!(isRowSelected(row) && (isColumnSelected(column) || !getColumnSelectionAllowed())))
                 {
                     // Check if the cell is required and is empty
                     if (AccessLevelEditorColumnInfo.values()[accessTable.convertColumnIndexToModel(column)].isRequired()

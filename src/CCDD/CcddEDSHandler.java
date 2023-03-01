@@ -547,11 +547,6 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
             // Inform the user that the file cannot be parsed
             throw new CCDDException("Parsing error; cause '</b>" + je.getMessage() + "<b>'");
         }
-        catch (Exception e)
-        {
-            // Display a dialog providing details on the unanticipated error
-            CcddUtilities.displayException(e, ccddMain.getMainFrame());
-        }
     }
 
     /**********************************************************************************************

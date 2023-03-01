@@ -1072,7 +1072,7 @@ public class CcddMacroHandler
     {
         List<String> matches = new ArrayList<String>();
 
-        if (skipSearchingReferences == false)
+        if (!skipSearchingReferences)
         {
             // Get the references in the prototype tables that match the specified macro name
             allMacroReferences = new ArrayList<String>(Arrays.asList(ccddMain.getDbCommandHandler().getList(DatabaseListCommand.SEARCH,

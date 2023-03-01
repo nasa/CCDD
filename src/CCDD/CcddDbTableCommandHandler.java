@@ -1200,6 +1200,9 @@ public class CcddDbTableCommandHandler
         {
             StringBuilder command = new StringBuilder();
 
+            // Create a save point in case an error occurs while creating a table
+            dbCommand.createSavePoint(parent);
+
             // Step through each new table name
             for (String tableName : tableNames)
             {
@@ -1224,6 +1227,13 @@ public class CcddDbTableCommandHandler
                 // Execute the database update
                 dbCommand.executeDbUpdate(command, parent);
             }
+
+            // Release the save point. This must be done within a transaction block, so it must
+            // be done prior to the commit below
+            dbCommand.releaseSavePoint(parent);
+
+            // Commit the change(s) to the database
+            dbControl.getConnection().commit();
 
             // Inform the user that the update succeeded
             eventLog.logEvent(SUCCESS_MSG,
@@ -1268,6 +1278,25 @@ public class CcddDbTableCommandHandler
             // Display a dialog providing details on the unanticipated error
             CcddUtilities.displayException(e, parent);
             errorFlag = true;
+        }
+
+        // An error occurred while creating the table(s)
+        if (errorFlag)
+        {
+            try
+            {
+                // Revert any changes made to the database
+                dbCommand.rollbackToSavePoint(parent);
+            }
+            catch (SQLException se)
+            {
+                // Inform the user that rolling back the changes failed
+                eventLog.logFailEvent(parent,
+                                      "Cannot revert changes to project; cause '"
+                                      + se.getMessage()
+                                      + "'",
+                                      "<html><b>Cannot revert changes to project");
+            }
         }
 
         return errorFlag;
@@ -1394,6 +1423,9 @@ public class CcddDbTableCommandHandler
 
                     // Get the table's comment so that it can be rebuilt with the new table name
                     String[] comment = getTableComment(tableName.toLowerCase(), comments);
+
+                    // Create a save point in case an error occurs while renaming a table
+                    dbCommand.createSavePoint(tableDialog);
 
                     // Step through each root table
                     for (String rootTable : getRootTables(false, tableDialog))
@@ -1528,6 +1560,13 @@ public class CcddDbTableCommandHandler
                     // comment
                     dbCommand.executeDbCommand(command, tableDialog);
 
+                    // Release the save point. This must be done within a transaction block, so it must
+                    // be done prior to the commit below
+                    dbCommand.releaseSavePoint(tableDialog);
+
+                    // Commit the change(s) to the database
+                    dbControl.getConnection().commit();
+
                     // Log that renaming the table succeeded
                     eventLog.logEvent(SUCCESS_MSG,
                                       new StringBuilder("Table '"
@@ -1564,6 +1603,24 @@ public class CcddDbTableCommandHandler
                 if (!errorFlag)
                 {
                     tableDialog.doTableOperationComplete();
+                }
+                // An error occurred while renaming the table
+                else
+                {
+                    try
+                    {
+                        // Revert any changes made to the database
+                        dbCommand.rollbackToSavePoint(tableDialog);
+                    }
+                    catch (SQLException se)
+                    {
+                        // Inform the user that rolling back the changes failed
+                        eventLog.logFailEvent(tableDialog,
+                                              "Cannot revert changes to project; cause '"
+                                              + se.getMessage()
+                                              + "'",
+                                              "<html><b>Cannot revert changes to project");
+                    }
                 }
             }
         });
@@ -1705,9 +1762,19 @@ public class CcddDbTableCommandHandler
                     // Copy the table's data field entries for the new table
                     command.append(copyDataFieldCommand(tableName, newName, tableDialog));
 
+                    // Create a save point in case an error occurs while copying the table
+                    dbCommand.createSavePoint(tableDialog);
+
                     // Execute the command to copy the table, including the table's original name
                     // (before conversion to all lower case) that's stored as a comment
                     dbCommand.executeDbCommand(command, tableDialog);
+
+                    // Release the save point. This must be done within a transaction block, so it
+                    // must be done prior to the commit below
+                    dbCommand.releaseSavePoint(tableDialog);
+
+                    // Commit the change(s) to the database
+                    dbControl.getConnection().commit();
 
                     // Log that renaming the table succeeded
                     eventLog.logEvent(SUCCESS_MSG,
@@ -1745,6 +1812,24 @@ public class CcddDbTableCommandHandler
                 if (!errorFlag)
                 {
                     tableDialog.doTableOperationComplete();
+                }
+                // An error occurred while copying the table
+                else
+                {
+                    try
+                    {
+                        // Revert any changes made to the database
+                        dbCommand.rollbackToSavePoint(tableDialog);
+                    }
+                    catch (SQLException se)
+                    {
+                        // Inform the user that rolling back the changes failed
+                        eventLog.logFailEvent(tableDialog,
+                                              "Cannot revert changes to project; cause '"
+                                              + se.getMessage()
+                                              + "'",
+                                              "<html><b>Cannot revert changes to project");
+                    }
                 }
             }
         });
@@ -1795,11 +1880,10 @@ public class CcddDbTableCommandHandler
                 protected void execute()
                 {
                     // Delete the table(s)
-                    boolean errorFlag = deleteTable(tableNames, dialog != null, parent);
+                    deleteTable(tableNames, dialog != null, parent);
 
-                    // Check if no error occurred deleting the table and if the table manager
-                    // called this method
-                    if (!errorFlag && dialog != null)
+                    // Check if the table manager called this method
+                    if (dialog != null)
                     {
                         dialog.doTableOperationComplete();
                     }
@@ -1811,7 +1895,8 @@ public class CcddDbTableCommandHandler
     /**********************************************************************************************
      * Delete one or more prototype or script tables. The selected tables(s) are deleted from the
      * database, all references to the table are deleted from the custom values table, and any open
-     * editors for tables of this prototype are closed
+     * editors for tables of this prototype are closed. If an error occurs, one or more tables may
+     * have been deleted; a list of the undeleted tables is displayed and logged
      *
      * @param tableNames  Array of names of the tables to delete
      *
@@ -1819,28 +1904,29 @@ public class CcddDbTableCommandHandler
      *                    are scripts or internal tables
      *
      * @param parent      GUI component over which to center any error dialog
-     *
-     * @return true if an error occurred when deleting a table
      *********************************************************************************************/
-    protected boolean deleteTable(String[] tableNames, boolean isDataTable, Component parent)
+    protected void deleteTable(String[] tableNames, boolean isDataTable, Component parent)
     {
-        boolean errorFlag = false;
+        String latestTable = null;
 
         // Convert the array of names into a single string
         String names = CcddUtilities.convertArrayToStringTruncate(tableNames);
 
+        String tableText = tableNames.length == 1 ? "Table" : "Tables";
+
         try
         {
-            String tableText = tableNames.length == 1 ? "Table" : "Tables";
-
             // Step through the array of table names
             for (String name : tableNames)
             {
+                latestTable = name;
+
                 // Build the command and delete the table
-                dbCommand.executeDbUpdate(new StringBuilder(deleteTableCommand(name,
-                                                                               isDataTable)),
+                dbCommand.executeDbUpdate(new StringBuilder(deleteTableCommand(name, isDataTable)),
                                           parent);
             }
+
+            latestTable = null;
 
             // Check if the deletion is for a data table
             if (isDataTable)
@@ -1853,25 +1939,51 @@ public class CcddDbTableCommandHandler
             // Log that the table deletion succeeded
             eventLog.logEvent(SUCCESS_MSG,
                               new StringBuilder(tableText + " '" + names + "' deleted"));
-
-            // Update the table tree information
-            updateTableTree();
         }
         catch (SQLException se)
         {
-            // We do not report any sql errors related to deleting tables as we are using the
-            // CASCADE method. This means that CCDD will often report an error related to deleting
-            // a table that does not exist because it was already deleted. These errors can be
-            // ignored
+            // Check if the error occurred when attempting to delete a table
+            if (latestTable != null)
+            {
+                // Check if the table that failed to delete is not the first in the list
+                if (!latestTable.equals(tableNames[0]))
+                {
+                    // Get the names of the tables that failed to be deleted
+                    List<String> tables = Arrays.asList(tableNames);
+                    int index = tables.indexOf(latestTable);
+                    tables.subList(0, index).clear();
+                    names = CcddUtilities.convertArrayToStringTruncate(tables.toArray(new String[0]));
+                }
+
+                // Inform the user that deleting the table(s) failed
+                eventLog.logFailEvent(parent,
+                                      "Cannot delete "
+                                      + tableText.toLowerCase()
+                                      + " '"
+                                      + names
+                                      + "'"
+                                      + "; cause '"
+                                      + se.getMessage()
+                                      + "'",
+                                      "<html><b>Cannot delete "
+                                      + tableText.toLowerCase()
+                                      + " '</b>"
+                                      + names
+                                      + "<b>'");
+            }
         }
         catch (Exception e)
         {
             // Display a dialog providing details on the unanticipated error
             CcddUtilities.displayException(e, parent);
-            errorFlag = true;
         }
 
-        return errorFlag;
+        // Check if any table was deleted
+        if (latestTable == null || !latestTable.equals(tableNames[0]))
+        {
+            // Update the table tree information
+            updateTableTree();
+        }
     }
 
     /**********************************************************************************************
@@ -2580,7 +2692,7 @@ public class CcddDbTableCommandHandler
      *
      * @return List containing the table member information. For structure tables the member tables
      *         are included, along with primitive variables (if specified), sorted by variable name
-     *         or row index as specified
+     *         or row index as specified. If an error occurs the null is returned
      *********************************************************************************************/
     protected List<TableMembers> loadTableMembers(TableMemberType memberType,
                                                   boolean sortByName,
@@ -2713,6 +2825,12 @@ public class CcddDbTableCommandHandler
                                                         false,
                                                         parent);
 
+                    // CHek if the table data cannot be loaded
+                    if (tableInfo == null)
+                    {
+                        throw new CCDDException("table " + tableName + " data not found");
+                    }
+
                     // Check if this table is of type ENUM
                     if (tableInfo.getType().equals(TYPE_ENUM) && memberType == TableMemberType.INCLUDE_PRIMITIVES)
                     {
@@ -2784,7 +2902,7 @@ public class CcddDbTableCommandHandler
                 }
             });
         }
-        catch (SQLException se)
+        catch (SQLException | CCDDException se)
         {
             // Inform the user that loading the table members failed
             eventLog.logFailEvent(parent,
@@ -3071,6 +3189,9 @@ public class CcddDbTableCommandHandler
             // changes to the fields table
             boolean commandExecuted = false;
 
+            // Create a save point in case an error occurs while modifying a table
+            dbCommand.createSavePoint(parent);
+
             StringBuilder command = new StringBuilder((updateFieldInfo ? modifyFieldsCommand(tableInfo.getTablePath(),
                                                                                              tableInfo.getFieldInformation())
                                                                        : "")
@@ -3186,6 +3307,13 @@ public class CcddDbTableCommandHandler
                     dbCommand.executeDbQuery(new StringBuilder("SELECT reset_link_rate();"), parent);
                 }
 
+                // Release the save point. This must be done within a transaction block, so it must
+                // be done prior to the commit below
+                dbCommand.releaseSavePoint(parent);
+
+                // Commit the change(s) to the database
+                dbControl.getConnection().commit();
+
                 // Check if the table type is a structure
                 if (isStructure)
                 {
@@ -3248,7 +3376,7 @@ public class CcddDbTableCommandHandler
         // Update the field information based on what is stored in the database
         fieldHandler.buildFieldInformation(parent);
 
-        // Check that no error occurred
+        // Check that no error occurred while applying the modifications
         if (!errorFlag)
         {
             // Check if the table's data fields were updated
@@ -3272,6 +3400,24 @@ public class CcddDbTableCommandHandler
             {
                 // Update the show variables dialog
                 ccddMain.updateShowVariablesDialog();
+            }
+        }
+        // An error occurred while applying the modifications
+        else
+        {
+            try
+            {
+                // Revert any changes made to the database
+                dbCommand.rollbackToSavePoint(ccddMain.getMainFrame());
+            }
+            catch (SQLException se)
+            {
+                // Inform the user that rolling back the changes failed
+                eventLog.logFailEvent(ccddMain.getMainFrame(),
+                                      "Cannot revert changes to project; cause '"
+                                      + se.getMessage()
+                                      + "'",
+                                      "<html><b>Cannot revert changes to project");
             }
         }
 
@@ -3598,7 +3744,7 @@ public class CcddDbTableCommandHandler
     }
 
     /**********************************************************************************************
-     * Build the command to add table rows. Only prototype tables can have a row added
+     * Build and execute the commands to add table rows. Only prototype tables can have a row added
      *
      * @param tableInfo          Table information
      *
@@ -3616,7 +3762,7 @@ public class CcddDbTableCommandHandler
      *
      * @param parent             GUI component over which to center any error dialog
      *
-     * @return Table row addition command
+     * @return True if no errors are encountered building and executing the addition commands
      *********************************************************************************************/
     private boolean buildAndExecuteAdditionCommand(TableInfo tableInfo,
                                                    List<TableModification> additions,
@@ -3973,7 +4119,7 @@ public class CcddDbTableCommandHandler
     }
 
     /**********************************************************************************************
-     * Build the commands to modify the table
+     * Build and execute the commands to modify the table
      *
      * @param tableInfo          Table information
      *
@@ -3999,7 +4145,7 @@ public class CcddDbTableCommandHandler
      *
      * @param parent             GUI component over which to center any error dialog
      *
-     * @return Table row modification command
+     * @return True if no errors are encountered building and executing the modification commands
      *********************************************************************************************/
     private boolean buildAndExecuteModificationCommand(TableInfo tableInfo,
                                                        List<TableModification> modifications,
@@ -4044,6 +4190,11 @@ public class CcddDbTableCommandHandler
                                + ") VALUES ";
             valInsCmd.add(new StringBuilder(insertCmd));
 
+            // Place double back slashes before each square brace character in an array index so
+            // that the brackets are interpreted correctly in the query's regular expression
+            // comparisons
+            String tablePath = CcddUtilities.escapePostgreSQLReservedChars(tableInfo.getTablePath());
+
             // Count the number of rows in the custom values table for the table being modified
             // (skipping the table description row, if present). If no entries are present then the
             // commands to delete existing entries can be skipped
@@ -4054,7 +4205,7 @@ public class CcddDbTableCommandHandler
                                                                                + " WHERE "
                                                                                + ValuesColumn.TABLE_PATH.getColumnName()
                                                                                + " ~ E'^"
-                                                                               + tableInfo.getTablePath()
+                                                                               + tablePath
                                                                                +"' AND "
                                                                                + ValuesColumn.COLUMN_NAME.getColumnName()
                                                                                +" != '';"),
@@ -4187,7 +4338,8 @@ public class CcddDbTableCommandHandler
 
                             // Check if the data type has been changed, the new data type is a
                             // structure, and this structure is a root table
-                            if (dataTypeChanged && !newDataTypeHandler.isPrimitive(newDataType)
+                            if (dataTypeChanged
+                                && !newDataTypeHandler.isPrimitive(newDataType)
                                 && rootStructures.contains(newDataType))
                             {
                                 // If the structure chosen as the variable's data type is a root
@@ -4422,7 +4574,7 @@ public class CcddDbTableCommandHandler
                                     boolean isDelLinksAndTlm = false;
 
                                     // Get the variable name path from the table tree
-                                    String tablePath = tableTree.getFullVariablePath(path);
+                                    tablePath = tableTree.getFullVariablePath(path);
 
                                     // Append the original/new data type and/or name of the
                                     // variable that's being changed to the variable path. Escape
@@ -4436,9 +4588,12 @@ public class CcddDbTableCommandHandler
                                     // changed from one primitive to another primitive. In either
                                     // case, check that the array status (is or isn't) remains
                                     // unchanged
-                                    if ((variableChanged || (dataTypeChanged && dataTypeHandler.isPrimitive(oldDataType)
-                                                             && newDataTypeHandler.isPrimitive(newDataType)))
-                                        && !(arraySizeChanged && (oldArraySize.isEmpty() || newArraySize.isEmpty())))
+                                    if ((variableChanged ||
+                                         (dataTypeChanged
+                                          && dataTypeHandler.isPrimitive(oldDataType)
+                                          && newDataTypeHandler.isPrimitive(newDataType)))
+                                        && !(arraySizeChanged
+                                             && (oldArraySize.isEmpty() || newArraySize.isEmpty())))
                                     {
                                         // Create the commands to update the internal tables for
                                         // instances of non-array member variables of the prototype
@@ -5291,13 +5446,13 @@ public class CcddDbTableCommandHandler
                 dbCommand.executeDbUpdate(tlmDelCmd, parent);
             }
 
-            result = true;
-
             // Check to see if this is a child table that is being converted to a root table
             if (changedDataTypes.size() != 0)
             {
                 result = updateTablesRecentlyConvertedToRoot(changedDataTypes, parent);
             }
+
+            result = true;
         }
         catch (SQLException se)
         {
@@ -5464,7 +5619,8 @@ public class CcddDbTableCommandHandler
     }
 
     /**********************************************************************************************
-     * Build the command to delete a table row. Only prototype tables can have a row deleted
+     * Build and execute the commands to delete a table row. Only prototype tables can have a row
+     * deleted
      *
      * @param tableInfo          Table information
      *
@@ -5484,7 +5640,7 @@ public class CcddDbTableCommandHandler
      *
      * @param parent             GUI component over which to center any error dialog
      *
-     * @return Table row deletion command
+     * @return True if no errors are encountered building and executing the deletion commands
      *********************************************************************************************/
     private boolean buildAndExecuteDeletionCommand(TableInfo tableInfo,
                                                    List<TableModification> deletions,
@@ -5806,6 +5962,8 @@ public class CcddDbTableCommandHandler
             {
                 dbCommand.executeDbUpdate(tlmDelCmd, parent);
             }
+
+            result = true;
         }
         catch (SQLException se)
         {
@@ -6122,15 +6280,15 @@ public class CcddDbTableCommandHandler
      * Update the link definitions when a string variable's size is increased (i.e., a new member
      * is added to the array)
      *
-     * @param protoTable   Prototype table name to which the string variable belongs
+     * @param protoTable            Prototype table name to which the string variable belongs
      *
-     * @param dataType     String variable's data type name
+     * @param dataType              String variable's data type name
      *
-     * @param variableName String variable's name
+     * @param variableNameWithIndex String variable's name, including array index
      *********************************************************************************************/
     private void updateLinksForStringMemberAddition(String protoTable,
                                                     String dataType,
-                                                    String variableName)
+                                                    String variableNameWithIndex)
     {
         // Check if no link handler is already created
         if (addLinkHandler == null)
@@ -6143,12 +6301,12 @@ public class CcddDbTableCommandHandler
         List<String[]> linkDefns = addLinkHandler.getLinkDefinitions();
 
         // Get the variable name without the string dimension (leaving any other array dimensions)
-        String stringVarNameDefn = ArrayVariable.removeStringSize(variableName);
+        String stringVariableName = ArrayVariable.removeStringSize(variableNameWithIndex);
 
         // Extract the string dimension value from the variable name, then decrement it by one -
         // this is used to find the existing string array member immediately preceding the new
         // member
-        int[] stringArrayDim = ArrayVariable.getArrayIndexFromSize(ArrayVariable.getVariableArrayIndex(variableName));
+        int[] stringArrayDim = ArrayVariable.getArrayIndexFromSize(ArrayVariable.getVariableArrayIndex(variableNameWithIndex));
         int stringIndex = stringArrayDim[stringArrayDim.length - 1] - 1;
 
         // Step through each link definition
@@ -6158,8 +6316,13 @@ public class CcddDbTableCommandHandler
             String linkMember = linkDefns.get(index)[LinksColumn.MEMBER.ordinal()];
 
             // Check if the link member contains a reference to the string array
-            if (linkMember.matches(protoTable + "(?:,|\\.[^,]+,)" + dataType + "\\." + stringVarNameDefn + "\\["
-                                   + stringIndex + "\\]"))
+            if (linkMember.matches(protoTable
+                                   + "(?:,|\\.[^,]+,)"
+                                   + dataType + "\\."
+                                   + stringVariableName
+                                   + "\\["
+                                   + stringIndex
+                                   + "\\]"))
             {
                 // Insert the new string array member into the link definitions list immediately
                 // after the preceding member
@@ -6171,7 +6334,7 @@ public class CcddDbTableCommandHandler
                                                                                               + "(?:,|\\.[^,]+,)"
                                                                                               + dataType
                                                                                               + "\\."
-                                                                                              + stringVarNameDefn
+                                                                                              + stringVariableName
                                                                                               + "\\[)"
                                                                                               + stringIndex
                                                                                               + "(\\])",
@@ -7258,165 +7421,6 @@ public class CcddDbTableCommandHandler
     }
 
     /**********************************************************************************************
-     * Store the internal groups table into the database
-     *
-     * @param fieldInformationList List containing the list of data field information for each
-     *                             group with a data field update (only applicable to the groups
-     *                             table); null if none
-     *
-     * @param deletedGroups        List containing the names of groups that have been deleted
-     *
-     * @param parent               GUI component over which to center any error dialog
-     *********************************************************************************************/
-    protected void updateGroupsTable(List<List<FieldInformation>> fieldInformationList,
-                                     List<String> deletedGroups,
-                                     Component parent)
-    {
-        try
-        {
-            StringBuilder command = new StringBuilder();
-
-            // Check if a list of group data fields is provided
-            if (fieldInformationList != null)
-            {
-                // Step through each group's data field information list
-                for (List<FieldInformation> fieldInformation : fieldInformationList)
-                {
-                    // Build the command to modify the data fields for the group
-                    command.append(modifyFieldsCommand(fieldInformation.get(0).getOwnerName(),
-                                                       fieldInformation));
-
-                    // Check if the length of the command string has reached the limit
-                    if (command.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
-                    {
-                        dbCommand.executeDbUpdate(command, parent);
-                        command = new StringBuilder("");
-                    }
-                }
-            }
-
-            // Check if a list of deleted groups is provided
-            if (deletedGroups != null)
-            {
-                // Step through each deleted group
-                for (String groupName : deletedGroups)
-                {
-                    // Build the command to delete the group's data fields
-                    command.append(modifyFieldsCommand(CcddFieldHandler.getFieldGroupName(groupName),
-                                                       null));
-
-                    // Check if the length of the command string has reached the limit
-                    if (command.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
-                    {
-                        dbCommand.executeDbUpdate(command, parent);
-                        command = new StringBuilder("");
-                    }
-                }
-            }
-
-            // Send any remaining commands
-            if (command.length() != 0)
-            {
-                dbCommand.executeDbUpdate(command, parent);
-            }
-
-            // Inform the user that the update succeeded
-            eventLog.logEvent(SUCCESS_MSG, new StringBuilder(InternalTable.GROUPS.getTableName()).append(" stored"));
-
-            // Update the table tree information
-            updateTableTree();
-        }
-        catch (SQLException se)
-        {
-            // Inform the user that the database command failed
-            eventLog.logFailEvent(parent,
-                                  "Cannot store internal table '"
-                                  + InternalTable.GROUPS.getTableName()
-                                  + "'; cause '"
-                                  + se.getMessage()
-                                  + "'",
-                                  "<html><b>Cannot store internal table '</b>"
-                                  + InternalTable.GROUPS.getTableName()
-                                  + "<b>'");
-        }
-    }
-
-    /**********************************************************************************************
-     * Remove unused entries from the internal groups table
-     *
-     * @param parent GUI component over which to center any error dialog
-     *********************************************************************************************/
-    protected void cleanGroupsTable(Component parent)
-    {
-        // Get the list of table and variable paths and names, retaining any macros and bit lengths
-        try
-        {
-            List<String> allTableAndVariableList = (new CcddTableTreeHandler(ccddMain,
-                                                                             TableTreeType.TABLES_WITH_PRIMITIVES,
-                                                                             ccddMain.getMainFrame())).getTableTreePathList(null);
-
-            // Get all members of the internal groups table
-            List<String[]> members = queryDatabase(new StringBuilder("SELECT ").append(GroupsColumn.MEMBERS.getColumnName())
-                                                                               .append(" FROM ")
-                                                                               .append(InternalTable.GROUPS.getTableName())
-                                                                               .append(";"),
-                                                   ccddMain.getMainFrame());
-
-            // Initialize the command that will be used to update the internal groups table
-            StringBuilder command = new StringBuilder();
-
-            for (String[] member : members)
-            {
-                // Check if the table isn't in the list of valid names, but do not delete any
-                // members of the groups table that start with a '0' or a '1' as these are rows
-                // within the internal groups table that contain the description of the group and
-                // rather or not the group represents a CFS application. Groups that represent a
-                // CFS application will have this row start with a 0, and those that do not will
-                // have this row start with a 1
-                if (!allTableAndVariableList.contains(member[0])
-                    && !member[0].substring(0, 2).contentEquals("0,")
-                    && !member[0].substring(0, 2).contentEquals("1,"))
-                {
-                    // Group table member reference is invalid
-                    command.append("DELETE FROM ")
-                           .append(InternalTable.GROUPS.getTableName())
-                           .append(" WHERE ")
-                           .append(GroupsColumn.MEMBERS.getColumnName())
-                           .append(" = ")
-                           .append(CcddDbTableCommandHandler.delimitText(member[0]))
-                           .append("; ");
-
-                    // Check if the length of the command string has reached the limit
-                    if (command.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
-                    {
-                        dbCommand.executeDbCommand(command, parent);
-                        command = new StringBuilder("");
-                    }
-                }
-            }
-
-            if (command.length() != 0)
-            {
-                // Execute the command
-                dbCommand.executeDbCommand(command, parent);
-            }
-        }
-        catch (SQLException se)
-        {
-            // Inform the user that the database command failed
-            eventLog.logFailEvent(parent,
-                                  "Cannot store internal table '"
-                                  + InternalTable.GROUPS.getTableName()
-                                  + "'; cause '"
-                                  + se.getMessage()
-                                  + "'",
-                                  "<html><b>Cannot store internal table '</b>"
-                                  + InternalTable.GROUPS.getTableName()
-                                  + "<b>'");
-        }
-    }
-
-    /**********************************************************************************************
      * Store the internal table into the database
      *
      * @param intTable             Type of internal table to store
@@ -7851,17 +7855,15 @@ public class CcddDbTableCommandHandler
                 // Check if the length of the command string has reached the limit
                 if (command.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                 {
-                    // Replace the trailing comma and space with a semicolon
+                    // Terminate the command, send it, and start a new one
                     command = CcddUtilities.removeTrailer(command, ", ").append(";");
-
-                    // Terminate the command string and send it, then start a new one
                     dbCommand.executeDbUpdate(command, parent);
                     command = new StringBuilder("INSERT INTO ").append(InternalTable.TABLE_TYPES.getTableName())
                                                                .append(" VALUES ");
                 }
             }
 
-            // Replace the trailing comma with a semicolon
+            // Terminate the command, add the table owner command, then send it
             command = CcddUtilities.removeTrailer(command, ", ").append("; ")
                                                                 .append(dbControl.buildOwnerCommand(DatabaseObject.TABLE,
                                                                                                     InternalTable.TABLE_TYPES.getTableName()));
@@ -7883,6 +7885,165 @@ public class CcddDbTableCommandHandler
         }
 
         return errorFlag;
+    }
+
+    /**********************************************************************************************
+     * Store the internal groups table into the database
+     *
+     * @param fieldInformationList List containing the list of data field information for each
+     *                             group with a data field update (only applicable to the groups
+     *                             table); null if none
+     *
+     * @param deletedGroups        List containing the names of groups that have been deleted
+     *
+     * @param parent               GUI component over which to center any error dialog
+     *********************************************************************************************/
+    protected void updateGroupsTable(List<List<FieldInformation>> fieldInformationList,
+                                     List<String> deletedGroups,
+                                     Component parent)
+    {
+        try
+        {
+            StringBuilder command = new StringBuilder();
+
+            // Check if a list of group data fields is provided
+            if (fieldInformationList != null)
+            {
+                // Step through each group's data field information list
+                for (List<FieldInformation> fieldInformation : fieldInformationList)
+                {
+                    // Build the command to modify the data fields for the group
+                    command.append(modifyFieldsCommand(fieldInformation.get(0).getOwnerName(),
+                                                       fieldInformation));
+
+                    // Check if the length of the command string has reached the limit
+                    if (command.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
+                    {
+                        dbCommand.executeDbUpdate(command, parent);
+                        command = new StringBuilder("");
+                    }
+                }
+            }
+
+            // Check if a list of deleted groups is provided
+            if (deletedGroups != null)
+            {
+                // Step through each deleted group
+                for (String groupName : deletedGroups)
+                {
+                    // Build the command to delete the group's data fields
+                    command.append(modifyFieldsCommand(CcddFieldHandler.getFieldGroupName(groupName),
+                                                       null));
+
+                    // Check if the length of the command string has reached the limit
+                    if (command.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
+                    {
+                        dbCommand.executeDbUpdate(command, parent);
+                        command = new StringBuilder("");
+                    }
+                }
+            }
+
+            // Send any remaining commands
+            if (command.length() != 0)
+            {
+                dbCommand.executeDbUpdate(command, parent);
+            }
+
+            // Inform the user that the update succeeded
+            eventLog.logEvent(SUCCESS_MSG, new StringBuilder(InternalTable.GROUPS.getTableName()).append(" stored"));
+
+            // Update the table tree information
+            updateTableTree();
+        }
+        catch (SQLException se)
+        {
+            // Inform the user that the database command failed
+            eventLog.logFailEvent(parent,
+                                  "Cannot store internal table '"
+                                  + InternalTable.GROUPS.getTableName()
+                                  + "'; cause '"
+                                  + se.getMessage()
+                                  + "'",
+                                  "<html><b>Cannot store internal table '</b>"
+                                  + InternalTable.GROUPS.getTableName()
+                                  + "<b>'");
+        }
+    }
+
+    /**********************************************************************************************
+     * Remove unused entries from the internal groups table
+     *
+     * @param parent GUI component over which to center any error dialog
+     *********************************************************************************************/
+    protected void cleanGroupsTable(Component parent)
+    {
+        // Get the list of table and variable paths and names, retaining any macros and bit lengths
+        try
+        {
+            List<String> allTableAndVariableList = (new CcddTableTreeHandler(ccddMain,
+                                                                             TableTreeType.TABLES_WITH_PRIMITIVES,
+                                                                             ccddMain.getMainFrame())).getTableTreePathList(null);
+
+            // Get all members of the internal groups table
+            List<String[]> members = queryDatabase(new StringBuilder("SELECT ").append(GroupsColumn.MEMBERS.getColumnName())
+                                                                               .append(" FROM ")
+                                                                               .append(InternalTable.GROUPS.getTableName())
+                                                                               .append(";"),
+                                                   ccddMain.getMainFrame());
+
+            // Initialize the command that will be used to update the internal groups table
+            StringBuilder command = new StringBuilder();
+
+            for (String[] member : members)
+            {
+                // Check if the table isn't in the list of valid names, but do not delete any
+                // members of the groups table that start with a '0' or a '1' as these are rows
+                // within the internal groups table that contain the description of the group and
+                // rather or not the group represents a CFS application. Groups that represent a
+                // CFS application will have this row start with a 0, and those that do not will
+                // have this row start with a 1
+                if (!allTableAndVariableList.contains(member[0])
+                    && !member[0].substring(0, 2).contentEquals("0,")
+                    && !member[0].substring(0, 2).contentEquals("1,"))
+                {
+                    // Group table member reference is invalid
+                    command.append("DELETE FROM ")
+                           .append(InternalTable.GROUPS.getTableName())
+                           .append(" WHERE ")
+                           .append(GroupsColumn.MEMBERS.getColumnName())
+                           .append(" = ")
+                           .append(CcddDbTableCommandHandler.delimitText(member[0]))
+                           .append("; ");
+
+                    // Check if the length of the command string has reached the limit
+                    if (command.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
+                    {
+                        dbCommand.executeDbCommand(command, parent);
+                        command = new StringBuilder("");
+                    }
+                }
+            }
+
+            if (command.length() != 0)
+            {
+                // Execute the command
+                dbCommand.executeDbCommand(command, parent);
+            }
+        }
+        catch (SQLException se)
+        {
+            // Inform the user that the database command failed
+            eventLog.logFailEvent(parent,
+                                  "Cannot store internal table '"
+                                  + InternalTable.GROUPS.getTableName()
+                                  + "'; cause '"
+                                  + se.getMessage()
+                                  + "'",
+                                  "<html><b>Cannot store internal table '</b>"
+                                  + InternalTable.GROUPS.getTableName()
+                                  + "<b>'");
+        }
     }
 
     /**********************************************************************************************
@@ -10376,7 +10537,6 @@ public class CcddDbTableCommandHandler
                                   + "'",
                                   "<html><b>Cannot update "
                                   + changeName.toLowerCase());
-
             errorFlag = true;
         }
         catch (Exception e)
@@ -10778,17 +10938,39 @@ public class CcddDbTableCommandHandler
                                           + se.getMessage()
                                           + "'",
                                           "<html><b>Cannot update input types");
-
                     errorFlag = true;
                 }
                 catch (Exception e)
                 {
                     // Display a dialog providing details on the unanticipated error
                     CcddUtilities.displayException(e, dialog);
+                    errorFlag = true;
                 }
 
-                // Perform the input types command completion steps
-                dialog.doInputTypeUpdatesComplete(errorFlag, inputTypeNames);
+                // Check if no error occurred when making the update(s)
+                if (!errorFlag)
+                {
+                    // Perform the input types command completion steps
+                    dialog.doInputTypeUpdatesComplete(errorFlag, inputTypeNames);
+                }
+                // An  error occurred when making the update(s)
+                else
+                {
+                    try
+                    {
+                        // Revert any changes made to the database
+                        dbCommand.rollbackToSavePoint(ccddMain.getMainFrame());
+                    }
+                    catch (SQLException se)
+                    {
+                        // Inform the user that rolling back the changes failed
+                        eventLog.logFailEvent(ccddMain.getMainFrame(),
+                                              "Cannot revert changes to project; cause '"
+                                              + se.getMessage()
+                                              + "'",
+                                              "<html><b>Cannot revert changes to project");
+                    }
+                }
             }
         });
     }

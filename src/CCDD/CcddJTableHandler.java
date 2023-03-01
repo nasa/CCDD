@@ -282,7 +282,8 @@ public abstract class CcddJTableHandler extends JTable
     }
 
     /**********************************************************************************************
-     * Custom Swing table handler constructor
+     * Custom Swing table handler constructor with the number of viewable rows set to the
+     * preferences value. Inserted rows are highlighted
      *********************************************************************************************/
     CcddJTableHandler()
     {
@@ -1453,12 +1454,6 @@ public abstract class CcddJTableHandler extends JTable
         // Set the flag indicating that a model data update is in progress
         isReloadData = true;
 
-        // Place the data into the table model along with the column names
-        tableModel.setDataVector(tableData, columnNames, undoable);
-
-        // Reset the model update in progress flag
-        isReloadData = false;
-
         // Check if the number of table rows or columns changed
         if (tableData.length != tableModel.getRowCount()
             || (tableData.length != 0 && tableData[0].length != tableModel.getColumnCount()))
@@ -1467,6 +1462,12 @@ public abstract class CcddJTableHandler extends JTable
             // empty and to remove the effects of any row filtering
             setRowSorter(null);
         }
+
+        // Place the data into the table model along with the column names
+        tableModel.setDataVector(tableData, columnNames, undoable);
+
+        // Reset the model update in progress flag
+        isReloadData = false;
 
         // Enable/disable table sort capability based on if any rows exist
         setTableSortable();
@@ -1486,14 +1487,12 @@ public abstract class CcddJTableHandler extends JTable
         SwingUtilities.invokeLater(new Runnable()
         {
             /**************************************************************************************
-             * Execute after all pending Swing events are finished. This allows the number of
-             * viewable columns to catch up with the column model when a column is removed
+             * Execute after all pending Swing events are finished
              *************************************************************************************/
             @Override
             public void run()
             {
-                // Issue data and structural change events to ensure the table is redrawn correctly
-                tableModel.fireTableDataChanged();
+                // Issue structural change event to ensure the table is redrawn correctly
                 tableModel.fireTableStructureChanged();
             }
         });
@@ -2649,7 +2648,7 @@ public abstract class CcddJTableHandler extends JTable
     }
 
     /**********************************************************************************************
-     * Insert an empty row into the table at the selection point
+     * Insert an empty row into the table at the selection point and highlight the inserted row
      *
      * @param endEdit True to end the editing sequence at the end of the insert for undo/redo
      *                purposes
@@ -2660,19 +2659,42 @@ public abstract class CcddJTableHandler extends JTable
     }
 
     /**********************************************************************************************
-     * Insert a row of data into the table at the selection point
+     * Insert a row of data into the table at the selection point and highlight the inserted row
      *
-     * @param endEdit        True to end the editing sequence at the end of the insert for
-     *                       undo/redo purposes
+     * @param endEdit              True to end the editing sequence at the end of the insert for
+     *                             undo/redo purposes
      *
-     * @param insertionPoint START to insert the data as the new first row in the table; END to
-     *                       force insertion of the new data at the end of the table; SELECTION to
-     *                       insert the data below the currently selected row(s)
+     * @param insertionPoint       START to insert the data as the new first row in the table; END
+     *                             to force insertion of the new data at the end of the table;
+     *                             SELECTION to insert the data below the currently selected row(s)
      *
-     * @param data           Data with which to populate the inserted row; null to insert an empty
-     *                       row
+     * @param data                 Data with which to populate the inserted row; null to insert an
+     *                             empty row
      *********************************************************************************************/
     protected void insertRow(boolean endEdit, TableInsertionPoint insertionPoint, Object[] data)
+    {
+        insertRow(endEdit, insertionPoint, data, true);
+    }
+
+    /**********************************************************************************************
+     * Insert a row of data into the table at the selection point
+     *
+     * @param endEdit              True to end the editing sequence at the end of the insert for
+     *                             undo/redo purposes
+     *
+     * @param insertionPoint       START to insert the data as the new first row in the table; END
+     *                             to force insertion of the new data at the end of the table;
+     *                             SELECTION to insert the data at the topmost selected row
+     *
+     * @param data                 Data with which to populate the inserted row; null to insert an
+     *                             empty row
+     *
+     * @param highlightInsertedRow true to select (highlight0 the inserted row
+     *********************************************************************************************/
+    protected void insertRow(boolean endEdit,
+                             TableInsertionPoint insertionPoint,
+                             Object[] data,
+                             boolean highlightInsertedRow)
     {
         int modelRow;
 
@@ -2683,20 +2705,20 @@ public abstract class CcddJTableHandler extends JTable
             undoManager.endEditSequence();
         }
 
-        // Set the row index to the last row selected by the user (if any)
-        int viewRow = getSelectedRow() + getSelectedRowCount() - 1;
+        // Set the row index to the first row selected by the user (if any)
+        int viewRow = getSelectedRow();
 
         // Check if the new row is to be inserted at the start of the table
-        if (insertionPoint == TableInsertionPoint.START)
+        if ((insertionPoint == TableInsertionPoint.START) || (viewRow == 0))
         {
             // Insert the new row at the start of the table
-            modelRow = -1;
+            modelRow = 0;
         }
         // Check if no row is selected or if the flag is set to add the row at the end of the table
-        else if (viewRow < 0 || insertionPoint == TableInsertionPoint.END)
+        else if ((viewRow < 0) || (insertionPoint == TableInsertionPoint.END))
         {
             // Insert the new row at the end of the table
-            modelRow = tableModel.getRowCount() - 1;
+            modelRow = tableModel.getRowCount();
         }
         // One or more rows is selected
         else
@@ -2705,12 +2727,13 @@ public abstract class CcddJTableHandler extends JTable
             modelRow = convertRowIndexToModel(viewRow);
 
             // Deselect the originally selected row(s)
-            removeRowSelectionInterval(getSelectedRow(), viewRow);
+            removeRowSelectionInterval(getSelectedRow(),
+                                       getSelectedRow() + getSelectedRowCount() - 1);
         }
 
-        // Insert the data into a new row below the selected row, and select and scroll to the
+        // Insert the data into a new row at the selected row, and select and scroll to the
         // inserted row
-        setSelectedRow(insertRowData(modelRow, data));
+        setSelectedRow(insertRowData(modelRow, data), highlightInsertedRow);
 
         // Check if the end of the edit sequence should be flagged
         if (endEdit)
@@ -2723,21 +2746,43 @@ public abstract class CcddJTableHandler extends JTable
     /**********************************************************************************************
      * Select the specified row and scroll the table so that it is visible
      *
-     * @param viewRow Row index to select and scroll to, view coordinates
+     * @param viewRow              Row index to select and scroll to, view coordinates
+     *
+     * @param highlightInsertedRow True to highlight the inserted row
      *********************************************************************************************/
-    protected void setSelectedRow(int viewRow)
+    protected void setSelectedRow(int viewRow, boolean highlightInsertedRow)
     {
         // Check if the new row is visible (row filters can make the row invisible)
         if (viewRow != -1 && viewRow < getRowCount())
         {
-            // Select the new row
-            setRowSelectionInterval(viewRow, viewRow);
-
             // Adjust the cell focus to the row
             setFocusCell(viewRow, focusColumn);
 
             // Scroll the window to keep the inserted row visible
             scrollToRow(viewRow);
+
+            // Check if highlighting of the inserted row is allowed
+            if (highlightInsertedRow)
+            {
+                // Create a runnable object to be executed
+                SwingUtilities.invokeLater(new Runnable()
+                {
+                    /**********************************************************************************
+                     * Execute after all pending Swing events are finished
+                     *********************************************************************************/
+                    @Override
+                    public void run()
+                    {
+                        // Select the new row
+                        setRowSelectionInterval(viewRow, viewRow);
+                        setColumnSelectionInterval(0, getColumnCount() - 1);
+                        setSelectedCells(viewRow,
+                                         viewRow,
+                                         0,
+                                         getColumnCount() - 1);
+                    }
+                });
+            }
         }
 
         // Set the table sort capability in case this is the table's only row
@@ -2792,15 +2837,6 @@ public abstract class CcddJTableHandler extends JTable
 
         final int offset = pixelOffset;
 
-        // Apply the offset so that the cell isn't shifted up or down when scrolling below
-        rectBefore.y += offset;
-
-        // Scroll the window to keep the specified cell visible. This is called twice; immediately
-        // and then in the invokeLater() call below. If only performed once the specified cell may
-        // not be visible since the rectangle returned by getCellRect() can differ; the second call
-        // ensures the cell is visible
-        scrollRectToVisible(rectBefore);
-
         // Create a runnable object to be executed
         SwingUtilities.invokeLater(new Runnable()
         {
@@ -2824,7 +2860,7 @@ public abstract class CcddJTableHandler extends JTable
     /**********************************************************************************************
      * Insert data into a new row inserted below the specified row
      *
-     * @param targetRow Index of the row in model coordinates below which to insert the new row
+     * @param targetRow Index of the row in model coordinates at which to insert the new row
      *
      * @param data      Data to place in the inserted row; null to insert an empty row
      *
@@ -2833,9 +2869,6 @@ public abstract class CcddJTableHandler extends JTable
      *********************************************************************************************/
     protected int insertRowData(int targetRow, Object[] data)
     {
-        // Adjust the row index to the next row
-        targetRow++;
-
         // Insert the new row at the indicated index. If data is provided for the new row then put
         // the data in the new row's columns it; otherwise fill the new row's columns with the
         // default row contents
@@ -2872,8 +2905,13 @@ public abstract class CcddJTableHandler extends JTable
                 undoManager.endEditSequence();
             }
 
-            // Remove the selected rows
+            int topRow = rowAtPoint(scrollPane.getViewport().getViewPosition());
+
+            // Remove the selected row(s)
             removeRows(getSelectedRows());
+
+            // Scroll so that the position in the table remains unchanged
+            scrollToCell(topRow, 0, false);
 
             // Check if the end of the edit sequence should be flagged
             if (endEdit)
@@ -3151,7 +3189,7 @@ public abstract class CcddJTableHandler extends JTable
                               false,
                               true,
                               true,
-                              true,
+                              false,
                               false);
                 }
                 catch (Exception e)
@@ -3180,31 +3218,33 @@ public abstract class CcddJTableHandler extends JTable
      * column determines the column alignment for the pasted data. Pasted column data beyond the
      * table boundaries are discarded
      *
-     * @param cellData                Array of cell values to be inserted
+     * @param cellData                 Array of cell values to be inserted
      *
-     * @param numColumns              Number of columns represented by the cell data array
+     * @param numColumns               Number of columns represented by the cell data array
      *
-     * @param isInsert                True to add new rows to contain the pasted data; false to
-     *                                overwrite existing cells in the paste range and only add rows
-     *                                if needed
+     * @param isInsert                 True to add new rows to contain the pasted data; false to
+     *                                 overwrite existing cells in the paste range and only add
+     *                                 rows if needed
      *
-     * @param isAddIfNeeded           True to add new rows if the pasted data doesn't fit; false to
-     *                                discard excess rows
+     * @param isAddIfNeeded            True to add new rows if the pasted data doesn't fit; false
+     *                                 to discard excess rows
      *
-     * @param startFirstColumn        True if pasting of the data begins in the first column; false
-     *                                to begin pasting at the currently cell with the focus
+     * @param isStartFirstColumn       True if pasting of the data begins in the first column;
+     *                                 false to begin pasting at the currently cell with the focus
      *
-     * @param combineAsSingleEdit     True to combine the pasted data as a single edit; false to
-     *                                not alter the undo manager's handling of the edit sequence
-     *                                (this allows handling externally so that other edits may be
-     *                                grouped with the paste operation)
+     * @param isCombineAsSingleEdit    True to combine the pasted data as a single edit; false to
+     *                                 not alter the undo manager's handling of the edit sequence
+     *                                 (this allows handling externally so that other edits may be
+     *                                 grouped with the paste operation)
      *
-     * @param highlightPastedData     True to highlight the cells containing the pasted data
+     * @param isHighlightPastedData    True to highlight the cells containing the pasted data
      *
-     * @param dataComingFromClipboard True if the data comes from the clipboard
+     * @param isNumHiddenRowsCanChange True if the number of rows can change based on the pasted
+     *                                 data (e.g., when pasting an array definition into a
+     *                                 structure table)
      *
-     * @param forceOverwrite          True to overwrite cells, even if considered unalterable. This
-     *                                is only used when importing tables
+     * @param isForceOverwrite         True to overwrite cells, even if considered unalterable.
+     *                                 This is only used when importing tables
      *
      * @return true if the user elected to cancel pasting the data following a cell validation
      *         error
@@ -3213,17 +3253,18 @@ public abstract class CcddJTableHandler extends JTable
                                 int numColumns,
                                 boolean isInsert,
                                 boolean isAddIfNeeded,
-                                boolean startFirstColumn,
-                                boolean combineAsSingleEdit,
-                                boolean highlightPastedData,
-                                boolean dataComingFromClipboard,
-                                boolean forceOverwrite)
+                                boolean isStartFirstColumn,
+                                boolean isCombineAsSingleEdit,
+                                boolean isHighlightPastedData,
+                                boolean isNumHiddenRowsCanChange,
+                                boolean isForceOverwrite)
     {
         Boolean showMessage = true;
         int modelRow = 0;
+        int skipRowAddCount = 0;
 
         // Check if the pasted data should be combined into a single edit operation
-        if (combineAsSingleEdit)
+        if (isCombineAsSingleEdit)
         {
             // End any active edit sequence, then disable auto-ending so that the paste operation
             // can be handled as a single edit for undo/redo purposes
@@ -3248,11 +3289,11 @@ public abstract class CcddJTableHandler extends JTable
         // Determine the starting column and ending column for pasting the data. If no column is
         // selected then default to the first column. Data pasted outside of the column range is
         // ignored
-        int startColumn = startFirstColumn ? 0
-                                           : Math.max(Math.max(getSelectedColumn(), 0),
-                                                      getSelectedColumn() + getSelectedColumnCount() - 1);
+        final int startColumn = isStartFirstColumn ? 0
+                                                 : Math.max(Math.max(getSelectedColumn(), 0),
+                                                            getSelectedColumn() + getSelectedColumnCount() - 1);
         int endColumn = startColumn + numColumns - 1;
-        int endColumnSelect = Math.min(endColumn, getColumnCount() - 1);
+        final int endColumnSelect = Math.min(endColumn, getColumnCount() - 1);
 
         // Determine the starting row for pasting the data. If no row is selected then default to
         // the first row
@@ -3272,22 +3313,13 @@ public abstract class CcddJTableHandler extends JTable
             modelRow = convertRowIndexToModel(startRow);
         }
 
-        // Check if the data is to be inserted versus overwriting existing cells
-        if (isInsert)
-        {
-            // Adjust the starting row index to the one after the selected row
-            startRow = startRow + 1;
-            modelRow++;
-        }
-
         // Determine the ending row for pasting the data
         int endRow = startRow + numRows;
 
         // Clear the cell selection
         clearSelection();
 
-        // Calculate the difference between the row's view and model coordinates
-        int rowModelDelta = modelRow - startRow;
+        int startNumVisibleRows = getRowCount();
 
         // Step through each new row
         for (int index = 0, row = startRow; row < endRow && showMessage != null; row++, modelRow++)
@@ -3300,14 +3332,24 @@ public abstract class CcddJTableHandler extends JTable
             }
 
             // Check if a row needs to be inserted to contain the cell data
-            if (isInsert || (isAddIfNeeded && modelRow == tableData.size()))
+            if ((isInsert && skipRowAddCount == 0)
+                || (isAddIfNeeded && (modelRow == tableData.size())))
             {
                 // Insert a row at the selection point
                 tableData.add(modelRow, getEmptyRow());
+                tableModel.addRow(getEmptyRow());
             }
 
-            // Store the index into the array of data to be pasted
+            // Decrement the row skip counter if it's active
+            if (skipRowAddCount > 0)
+            {
+                --skipRowAddCount;
+            }
+
+            // Store the index into the array of data to be pasted, and the number of table model
+            // rows
             int indexSave = index;
+            int modelRowSave = modelRow;
 
             // If pasting values over existing ones it's possible that the check for a cell being
             // alterable will return false due to other cells in the row that haven't yet been
@@ -3320,8 +3362,9 @@ public abstract class CcddJTableHandler extends JTable
                 if (pass == 2)
                 {
                     // Reset the index into the array of data to be pasted so that the non-blank
-                    // cells can be processed
+                    // cells can be processed, and reset the number of table model rows
                     index = indexSave;
+                    modelRow = modelRowSave;
                 }
 
                 // Step through the columns, beginning at the one with the focus
@@ -3375,11 +3418,10 @@ public abstract class CcddJTableHandler extends JTable
                             && ((pass == 1 && newValue.toString().isEmpty())
                                 || (pass == 2 && !newValue.toString().isEmpty()))
                             && modelColumn < tableModel.getColumnCount()
-                            && isDataAlterable(tableData.get(modelRow), modelRow, modelColumn))
+                            && (isForceOverwrite || isDataAlterable(tableData.get(modelRow), modelRow, modelColumn)))
                         {
-                            // Check if the value has changed and, if this values are being
-                            // inserted, that the value isn't blank
-                            if (!oldValue.equals(newValue) && !(isInsert && newValue.toString().isEmpty()))
+                            // Check if the value has changed
+                            if (!oldValue.equals(newValue))
                             {
                                 // Insert the value into the cell
                                 tableData.get(modelRow)[modelColumn] = newValue;
@@ -3399,6 +3441,30 @@ public abstract class CcddJTableHandler extends JTable
                                 {
                                     // Stop pasting data
                                     continue;
+                                }
+
+                                // Check that skipping insertion of rows is not active
+                                if (skipRowAddCount == 0)
+                                {
+                                    // Get the number of rows added (if any)  by the last pasted
+                                    // value
+                                    int count = getNumOfRowsAdded(newValue.toString(), modelColumn);
+
+                                    // Check if the paste operation allows the number of hidden
+                                    // rows to change
+                                    if (isNumHiddenRowsCanChange)
+                                    {
+                                        // Skip the hidden rows that were added (if any)
+                                        modelRow += count;
+                                    }
+                                    // The number of hidden rows cannot change
+                                    else
+                                    {
+                                        // Set the counter for skipping inserting empty rows since
+                                        // the additional rows were already inserted during cell
+                                        // validation
+                                        skipRowAddCount = count;
+                                    }
                                 }
                             }
                         }
@@ -3424,19 +3490,46 @@ public abstract class CcddJTableHandler extends JTable
             }
 
             // Check if the pasted data should be highlighted
-            if (highlightPastedData)
+            if (isHighlightPastedData)
             {
-                // Select all of the rows and columns into which the data was pasted
-                setRowSelectionInterval(startRow + rowModelDelta, endRow - 1 + rowModelDelta);
-                setColumnSelectionInterval(startColumn, endColumnSelect);
+                // Check if the pasted data was inserted (versus pasting over the existing data)
+                if (isInsert)
+                {
+                    // Calculate the ending row: the start row plus the number of rows added to
+                    // the table
+                    endRow = startRow + getRowCount() - startNumVisibleRows;
+                }
+                // The data was pasted (possibly over existing data)
+                else
+                {
+                    // Adjust the end of the highlighted rows by the number of hidden array members
+                    // in the paste data
+                    endRow -= getNumOfHiddenRowsAdded(cellData, tableData, startRow, startColumn, numColumns);
+                }
 
-                // Select the pasted cells and force the table to be redrawn so that the changes
-                // are displayed
-                setSelectedCells(startRow + rowModelDelta,
-                                 endRow - 1 + rowModelDelta,
-                                 startColumn,
-                                 endColumnSelect);
+                final int startRowSelect = startRow;
+                final int endRowSelect = endRow - 1;
+                setRowSelectionInterval(startRow, endRowSelect);
+                setColumnSelectionInterval(startColumn, endColumnSelect);
                 repaint();
+
+                // Create a runnable object to be executed
+                SwingUtilities.invokeLater(new Runnable()
+                {
+                    /******************************************************************************
+                     * Execute after all pending Swing events are finished
+                     *****************************************************************************/
+                    @Override
+                    public void run()
+                    {
+                        // Select the pasted cells and force the table to be redrawn so that the
+                        // changes are displayed
+                        setSelectedCells(startRowSelect,
+                                         endRowSelect,
+                                         startColumn,
+                                         endColumnSelect);
+                    }
+                });
             }
         }
 
@@ -3444,15 +3537,64 @@ public abstract class CcddJTableHandler extends JTable
         setLastCellValid(true);
 
         // Check if the pasted data should be combined into a single edit operation
-        if (combineAsSingleEdit)
+        if (isCombineAsSingleEdit)
         {
-            // Re-enable auto-ending of the edit sequence and end the sequence. The pasted data can
-            // be removed with a single undo if desired
+            // Re-enable auto-ending of the edit sequence and end the sequence. The pasted
+            // data can be removed with a single undo if desired
             undoHandler.setAutoEndEditSequence(true);
             undoManager.endEditSequence();
         }
 
+        // Check if the user selected the Cancel button following an invalid input
+        if (showMessage == null)
+        {
+            // Undo any changes. This primarily removes rows inserted during the aborted
+            // paste operation
+            undoManager.undo();
+        }
+
         return showMessage == null;
+    }
+
+    /**************************************************************************************
+     * Determine the number of hidden rows added to the table when pasting data. This
+     * method acts as a placeholder for tables that can have hidden rows
+     *
+     * @param cellData    Array of cell values to be inserted
+     *
+     * @param tableData   List of the updated table's cell values
+     *
+     * @param startRow    Row number (view coordinates) where the pasted data starts
+     *
+     * @param startColumn Column number (view coordinates) where the pasted data starts
+     *
+     * @param numColumns  Number of columns represented by the cell data array
+     *
+     * @return The number of rows added to the table that are not visible
+     *************************************************************************************/
+    protected int getNumOfHiddenRowsAdded(Object[] cellData,
+                                          List<Object[]> tableData,
+                                          int startRow,
+                                          int startColumn,
+                                          int numColumns)
+    {
+        return 0;
+    }
+
+    /**************************************************************************************
+     * Determine the number of rows added to the table when pasting a cell value. This
+     * method acts as a placeholder for tables that can have rows automatically added based
+     * on the pasted data
+     *
+     * @param cellValue   Cell value to be pasted
+     *
+     * @param modelColumn Column number (model coordinates) where the cell value is pasted
+     *
+     * @return The number of rows added to the table due to the pasted value
+     *************************************************************************************/
+    protected int getNumOfRowsAdded(String cellValue, int modelColumn)
+    {
+        return 0;
     }
 
     /**********************************************************************************************
@@ -3850,6 +3992,7 @@ public abstract class CcddJTableHandler extends JTable
                         // Set the last row to the table's visible row count
                         lastRow = getRowCount();
                     }
+
                 }
             }
             // A specific row or rows changed
@@ -4461,7 +4604,6 @@ public abstract class CcddJTableHandler extends JTable
                     book.add(fldPrintable, pageFormat);
                 }
 
-                System.out.print(book.getNumberOfPages());
                 if (printerJob.printDialog())
                 {
                     try

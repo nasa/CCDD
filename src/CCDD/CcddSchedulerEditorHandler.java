@@ -1425,7 +1425,7 @@ public class CcddSchedulerEditorHandler
     {
         schedulerTable.setColumnSelectionInterval(SchedulerColumn.NAME.ordinal(),
                                                   SchedulerColumn.NAME.ordinal());
-        schedulerTable.setSelectedRow(schedulerTable.convertRowIndexToView(row));
+        schedulerTable.setSelectedRow(schedulerTable.convertRowIndexToView(row), true);
     }
 
     /**********************************************************************************************

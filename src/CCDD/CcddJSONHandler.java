@@ -706,6 +706,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                     if (!typeName.isEmpty() && typeColumn != null && typeColumn instanceof JSONArray)
                     {
                         int columnNumber = 0;
+
                         // Create a new table type definition
                         TableTypeDefinition tableTypeDefn = new TableTypeDefinition(typeName, typeDesc);
 
@@ -1440,7 +1441,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                     Object dataFieldsJA = getObject(tableJO, JSONTags.TABLE_FIELD.getTag());
 
                     // Check if the expected inputs are present
-                    if (!tableName.isEmpty() && (tableDataJA == null || tableDataJA instanceof JSONArray)
+                    if (!tableName.isEmpty()
+                        && (tableDataJA == null || tableDataJA instanceof JSONArray)
                         && (dataFieldsJA == null || dataFieldsJA instanceof JSONArray))
                     {
                         // Create a new table type definition
@@ -1814,8 +1816,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                                                           DialogOption.OK_OPTION);
             }
         }
-        catch (
-                IOException | ScriptException ioe)
+        catch (IOException | ScriptException ioe)
         {
             // Check if the PrintWriter was opened
             if (pw != null)

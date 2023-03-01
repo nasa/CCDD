@@ -197,6 +197,9 @@ public class CcddPreferencesDialog extends CcddDialogHandler
                             index++;
                         }
 
+                        // Update the SQL network and query timeouts in case the value was changed
+                        ccddMain.getDbCommandHandler().setNetworkAndQueryTimeouts(CcddPreferencesDialog.this);
+
                         break;
 
                     case SPACING:

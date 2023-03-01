@@ -1056,7 +1056,8 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
 
             // Insert the new script association at the end of the associations table, then select
             // it and scroll to it
-            assnsTable.insertRow(true, insertPoint,
+            assnsTable.insertRow(true,
+                                 insertPoint,
                                  new Object[] {nameFld.getText(),
                                                descriptionFld.getText(),
                                                scriptFile.getAbsolutePathWithEnvVars(),
@@ -1105,7 +1106,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                 // Remove the selected association and set the selection to the newly added
                 // association
                 assnsTable.removeRows(new int[] {selectedRow});
-                assnsTable.setSelectedRow(selectedRow);
+                assnsTable.setSelectedRow(selectedRow, true);
             }
         }
     }

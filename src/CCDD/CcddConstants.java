@@ -1468,7 +1468,8 @@ public class CcddConstants
         MAX_GRID_WIDTH("Maximum radio button/check box grid width", "Maximum number of radio buttons or check boxes to display in a column in a dialog", "MaximumGridWidth", 5, 1, 20),
         MAX_STORED_CONVERSIONS("Maximum number of stored variable name conversion lists", "Maximum number of variable name conversion lists to maintain in memory", "MaximumConversionLists", 10, 1, 100),
         TAB_MOVE_LOCATION_INDICATOR_WIDTH("Tab move location indicator width", "Tabbed pane tab move location indicator width in pixels", "TabMoveLocationIndicatorWidth", 3, 1, 15),
-        POSTGRESQL_CONNECTION_TIMEOUT("PostgreSQL Server Timeout", "Number of seconds allowed to validate the PostgreSQL server connection", "MaximumServerTimeout", 5, 1, 60);
+        POSTGRESQL_CONNECTION_TIMEOUT("PostgreSQL connection timeout", "Number of seconds allowed to validate the PostgreSQL server connection (0 for no limit)", "MaximumServerTimeout", 10, 0, 600),
+        POSTGRESQL_DATABASE_TIMEOUT("PostgreSQL database timeout", "Number of seconds allowed for the PostgreSQL database to repond and for a query to complete (0 for no limit)", "MaximumDatabaseTimeout", 60, 0, 600);
 
         private final String name;
         private final String description;
@@ -2879,6 +2880,7 @@ public class CcddConstants
 
         COMMAND_ARGUMENT(TYPE_COMMAND, "Command Argument", "Command argument variable reference", DefaultInputType.COMMAND_ARGUMENT, true, false, true, false, false, true),
 
+        // ENUM table type
         ENUM_NAME(TYPE_ENUM, "ENUM Name", "ENUM name", DefaultInputType.VARIABLE, true, true, true, false, true, true),
 
         DESCRIPTION_ENUM(TYPE_ENUM, COL_DESCRIPTION, "ENUM description", DefaultInputType.DESCRIPTION, false, false, false, true, true, true),

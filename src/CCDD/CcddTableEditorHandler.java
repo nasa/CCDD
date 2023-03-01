@@ -66,6 +66,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JViewport;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
+import javax.swing.RowSorter;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -218,9 +219,6 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     // Pattern for matching the replace indicator
     private final Pattern replacePattern;
 
-    // Used during file import to check if a row encountered an error
-    private boolean errorWithRow;
-
     /**********************************************************************************************
      * Table editor handler class constructor
      *
@@ -284,9 +282,6 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
 
         // Set the flag to indicate that editing of the table is allowed
         isEditEnabled = true;
-
-        // Initialize the import row error flag
-        errorWithRow = false;
 
         // Create the replace match pattern
         replacePattern = Pattern.compile("^" + Pattern.quote(REPLACE_INDICATOR));
@@ -1096,7 +1091,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         for (Integer row : emptyRows)
         {
             // Insert an empty row at the index
-            table.insertRowData(row - 1, emptyRow);
+            table.insertRowData(row, emptyRow);
         }
     }
 
@@ -1837,7 +1832,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                             // Step through each row in the table
                             for (int otherRow = 0; otherRow < tableData.size(); otherRow++)
                             {
-                                // Check if this isn't the row being/ edited, and if the cell value
+                                // Check if this isn't the row being edited, and if the cell value
                                 // matches the one being added (case insensitive)
                                 if (otherRow != row
                                     && newValueS.equalsIgnoreCase(getExpandedValueAt(tableData, otherRow, column)))
@@ -2160,10 +2155,6 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 }
                 catch (CCDDException ce)
                 {
-                    // If an error is encountered then set the errorWithRow variable to true to
-                    // indicate this
-                    errorWithRow = true;
-
                     // Set the flag that indicates the last edited cell's content is invalid
                     setLastCellValid(false);
 
@@ -2678,6 +2669,21 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             }
 
             /**************************************************************************************
+             * Handle a row sorter update and include updating the fixed column, if visible
+             *************************************************************************************/
+            @Override
+            public void setRowSorter(RowSorter<? extends TableModel> sorter)
+            {
+                super.setRowSorter(sorter);
+
+                // Update the fixed column's row sorter to match the main table
+                if (showFixedColumn)
+                {
+                    fixedColumnHndlr.fixed.setRowSorter(table.getRowSorter());
+                }
+            }
+
+            /**************************************************************************************
              * Move the selected row(s) in the specified direction if possible. Account for if the
              * selection or target is an array definition or member
              *
@@ -2852,7 +2858,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
              * the specified row in order to adjust the insertion index based on the presence of
              * array members
              *
-             * @param targetRow Index of the row in model coordinates below which to insert the new
+             * @param targetRow Index of the row in model coordinates at which to insert the new
              *                  row
              *
              * @param data      Data to place in the inserted row
@@ -2864,7 +2870,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             protected int insertRowData(int targetRow, Object[] data)
             {
                 // Check if table has rows, and has variable name and array size columns
-                if (targetRow > -1 && isCanHaveArrays())
+                if (targetRow > 0 && targetRow < getRowCount() - 1 && isCanHaveArrays())
                 {
                     // Get the array size value
                     String arraySize = getExpandedValueAt(targetRow, arraySizeIndex);
@@ -2875,26 +2881,16 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                         && !ArrayVariable.isArrayMember(getExpandedValueAt(targetRow, variableNameIndex)))
                     {
                         // Adjust the row index past the array definition and member rows
-                        targetRow += ArrayVariable.getNumMembersFromArraySize(arraySize);
+                        targetRow--;
                     }
                     // Check if the array members are set to be displayed
                     else if (isShowArrayMembers)
                     {
-                        boolean isIndex = false;
-
                         // While the selection row is on an array member
-                        while (targetRow < tableModel.getRowCount()
+                        while (targetRow > 0
                                && ArrayVariable.isArrayMember(getExpandedValueAt(targetRow, variableNameIndex)))
                         {
                             // Skip the array member row
-                            targetRow++;
-                            isIndex = true;
-                        }
-
-                        // Check if an array member was skipped
-                        if (isIndex)
-                        {
-                            // Decrement the row index
                             targetRow--;
                         }
                     }
@@ -3017,6 +3013,45 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             }
 
             /**************************************************************************************
+             * Override the CcddJTableHandler method for scrolling the table so that the specified
+             * cell is visible so that any hidden array members can be expanded first. If the array
+             * members were hidden prior to scrolling, then they are re-hidden after scrolling
+             *
+             * @param row          Row index to which to scroll, view coordinates
+             *
+             * @param column       Column index to which to scroll, view coordinates
+             *
+             * @param retainOffset Affects scrolling if a portion of the target row is outside the
+             *                     viewport boundaries. If set to true scrolling doesn't take place
+             *                     (the row remains partially visible); if set to false the
+             *                     viewport is scrolled to make as much of the row visible as
+             *                     possible
+             *************************************************************************************/
+            @Override
+            protected void scrollToCell(final int row, final int column, boolean retainOffset)
+            {
+                boolean isExpand = false;
+
+                // Check if the table is allowed to contain arrays, and the arrays are not expanded (the
+                // members are hidden)
+                if (isCanHaveArrays() && !isShowArrayMembers)
+                {
+                    isExpand = true;
+
+                    // Expand any arrays
+                    showHideArrayMembers();
+                }
+
+                super.scrollToCell(row, column, retainOffset);
+
+                // Re-hide the arrays if previously hidden
+                if (isExpand)
+                {
+                    showHideArrayMembers();
+                }
+            }
+
+            /**************************************************************************************
              * Override the CcddJTableHandler method for deleting a cell. Set the special character
              * flag to false if the table is a prototype - prototypes can't have an entry in the
              * custom values table so no special handling is needed for this case
@@ -3032,794 +3067,176 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             }
 
             /**************************************************************************************
-             * Override the paste method so that hidden rows (array members) are displayed prior to
-             * pasting in new data. If an array member variable is pasted into a structure table
-             * then the array definition is automatically generated under certain conditions
+             * Override the CcddJTableHandler paste method so that array member cell values are
+             * handled based on whether or not they are visible (expanded). If an array definition
+             * is pasted into a structure table then the array definition is automatically
+             * generated
+             *
+             * @param cellData                 Array of cell values to be inserted
+             *
+             * @param numColumns               Number of columns represented by the cell data array
+             *
+             * @param isInsert                 True to add new rows to contain the pasted data;
+             *                                 false to overwrite existing cells in the paste range
+             *                                 and only add rows if needed
+             *
+             * @param isAddIfNeeded            True to add new rows if the pasted data doesn't fit;
+             *                                 false to discard excess rows
+             *
+             * @param isStartFirstColumn       True if pasting of the data begins in the first
+             *                                 column; false to begin pasting at the currently cell
+             *                                 with the focus
+             *
+             * @param isCombineAsSingleEdit    True to combine the pasted data as a single edit;
+             *                                 false to not alter the undo manager's handling of
+             *                                 the edit sequence (this allows handling externally
+             *                                 so that other edits may be grouped with the paste
+             *                                 operation)
+             *
+             * @param isHighlightPastedData    True to highlight the cells containing the pasted
+             *                                 data
+             *
+             * @param isNumHiddenRowsCanChange True if the number of rows can change based on the
+             *                                 pasted data (e.g., when pasting an array definition
+             *                                 into a structure table)
+             *
+             * @param isForceOverwrite         True to overwrite cells, even if considered
+             *                                 unalterable. This is only used when importing tables
+             *
+             * @return true if the user elected to cancel pasting the data following a cell
+             *         validation error
              *************************************************************************************/
             @Override
             protected boolean pasteData(Object[] cellData,
                                         int numColumns,
                                         boolean isInsert,
                                         boolean isAddIfNeeded,
-                                        boolean startFirstColumn,
-                                        boolean combineAsSingleEdit,
-                                        boolean highlightPastedData,
-                                        boolean dataComingFromClipboard,
-                                        boolean forceOverwrite)
+                                        boolean isStartFirstColumn,
+                                        boolean isCombineAsSingleEdit,
+                                        boolean isHighlightPastedData,
+                                        boolean isNumHiddenRowsCanChange,
+                                        boolean isForceOverwrite)
             {
-                // Initialize local variables
-                Boolean showMessage = true;
-                int skippedRows = 0;
-                int endColumn = numColumns - 1;
-                int startRow = 0;
-                int startColumn = 0;
-                List<Object[]> tableData;
-                int variableNameColumn = -1;
-                int arraySizeColumn = -1;
-                int numOfArrayMembersVerified = 0;
-                List<Object[]> oldData = getTableDataList(false);
-
-                // Step though cell data and ensure that there are no blanks. If so set them to
-                // null
-                for (int index = 0; index < cellData.length; index++)
+                // Check if the paste operation expects the array members to be visible, the table
+                // is allowed to contain arrays, and the arrays are not expanded (the members are
+                // hidden). This is used when restoring a table from a JSON or CSV file, or when
+                // importing a table from a JSON, CSV, XTCE, or EDS file
+                if (isNumHiddenRowsCanChange && isCanHaveArrays() && !isShowArrayMembers)
                 {
-                    if ((cellData[index] != null) && (cellData[index].toString().equals("")))
-                    {
-                        cellData[index] = null;
-                    }
-                }
-
-                // Get the column index of the variable name column
-                if (variableNameIndex != -1)
-                {
-                    variableNameColumn = convertColumnIndexToView(variableNameIndex);
-                }
-
-                // Get the column index that represents this row's array size, if it has one
-                if (arraySizeIndex != -1)
-                {
-                    arraySizeColumn = convertColumnIndexToView(arraySizeIndex);
-                }
-
-                // Calculate the number of rows to be pasted in the open table
-                int endRow = cellData.length / numColumns;
-
-                // Here is where the new ArrayList of objects, tableData, that represents what the
-                // new table will look like is created. Each index in the list represents a single
-                // row of data that will be inserted into the table
-                if (!startFirstColumn)
-                {
-                    // We are appending data to the end of the table so we need to first grab the
-                    // data that already exists
-                    tableData = oldData;
-
-                    // This data is not coming from the clipboard
-                    if (!dataComingFromClipboard)
-                    {
-                        // Adjust the endRow variable to account for the rows that already exist +
-                        // the ones that will be appended. So endRow = (current number of rows) +
-                        // (number of rows to be appended)
-                        endRow = endRow + tableData.size();
-
-                        // The starting row should be right after the last row of currently
-                        // existing data in the table. This means we will start processing at the
-                        // first row of imported data and leave the rest as is
-                        startRow = tableData.size();
-                    }
-                    // This data is coming from the clipboard, meaning it was copied and pasted
-                    else
-                    {
-                        // Check if no row is selected
-                        if (getSelectedRow() != -1)
-                        {
-                            // Determine the starting row for pasting the data based on the
-                            // selected row
-                            startRow = convertRowIndexToModel(getSelectedRow()) + getSelectedRowCount() - 1;
-                        }
-
-                        // Determine the ending row for pasting the data
-                        endRow = startRow + endRow;
-
-                        // Determine the starting column and ending column for pasting the data. If
-                        // no column is selected then default to the first column. Data pasted
-                        // outside of the column range is ignored
-                        startColumn = Math.max(Math.max(getSelectedColumn(), 0),
-                                               getSelectedColumn() + getSelectedColumnCount() - 1);
-                        endColumn = endColumn + startColumn;
-                    }
-                }
-                else
-                {
-                    // We are overwriting the data in the table so we start with an empty ArrayList
-                    // as we do not care what data currently exists within the table (except for
-                    // building the modification commands to the database)
-                    tableData = new ArrayList<Object[]>(cellData.length / numColumns);
-
-                    // The starting row should be the first row as we are replacing all of the data
-                    startRow = 0;
-                }
-
-                // Increase the size of tableData as needed
-                for (int row = tableData.size(); row < endRow; row++)
-                {
-                    tableData.add(getEmptyRow());
-                }
-
-                // Pasted data should be combined into a single edit operation. End any active edit
-                // sequence, then disable auto-ending so that the paste operation can be handled as
-                // a single edit for undo/redo purposes
-                getUndoManager().endEditSequence();
-                getUndoHandler().setAutoEndEditSequence(false);
-
-                // Check if this table contains arrays and if so display them
-                if (isCanHaveArrays() && !isShowArrayMembers)
-                {
+                    // Expand any arrays
                     showHideArrayMembers();
                 }
 
-                // Step through the data within cellData. The number of rows is dependent on
-                // cellData length divided by the number of columns
-                for (int index = 0, row = startRow; row < endRow && showMessage != null; row++)
-                {
-                    // If an issue is encountered this flag will be set to true and this row will
-                    // be skipped
-                    boolean skipRow = false;
-
-                    // Check to see if a variable name was included. If numOfArrayMembersVerified
-                    // is greater than 0 then that means that this is an array member, but it has
-                    // already been verified that the definition and all members exist
-                    if ((variableNameColumn != -1)
-                        && (numOfArrayMembersVerified == 0)
-                        && (!dataComingFromClipboard))
-                    {
-                        // Get the index within the cell data that represents this row's variable
-                        // name
-                        int varIndex = index + variableNameColumn;
-                        String varName = "";
-
-                        if (cellData[varIndex] != null)
-                        {
-                            varName = cellData[varIndex].toString();
-                        }
-
-                        // Get the index within the cell data that represents this row's array size
-                        int arrayIndex = index + arraySizeColumn;
-
-                        // Check that the arrayIndex is not -1
-                        if (arrayIndex != -1)
-                        {
-                            // Make sure the index is not out of bounds and that it is not null or
-                            // empty
-                            boolean isValidIndex = (arrayIndex < cellData.length) && (cellData[arrayIndex] != null);
-                            boolean isValidAtIndex = (isValidIndex) && (!cellData[arrayIndex].toString().isEmpty());
-
-                            // Check to see if this row represents an array definition or member.
-                            // If it is an array definition then we need to check if all members
-                            // are included. If none are included they will be added. If only part
-                            // of the members are included it will be skipped. If this is an array
-                            // member then a definition was not included. Check to see if only the
-                            // definition is missing. If so add it, but if the array is missing a
-                            // definition and a few members then skip this row. If it is neither
-                            // then the row is a non-array variable
-                            if ((varName != null) && (!varName.isEmpty()) && (arraySizeColumn != -1)
-                                && (isValidAtIndex))
-                            {
-                                // Determine if this is the definition of an array. If not it is a
-                                // member
-                                boolean isDefinition = !ArrayVariable.isArrayMember(varName);
-
-                                // Check if this is a 1d, 2d or 3d array and get its size. The
-                                // function below return an int[] with 4 indexes. The first
-                                // represents if the array is a 1d, 2d or 3d array. The second
-                                // represents the number of indexes in the internal 1d arrays. The
-                                // third represents the total number of 1d arrays. The fourth
-                                // represents the number of 2d arrays
-                                int[] arrayInfo = ArrayVariable.getArraySizeAndDimensions(newMacroHandler,
-                                                                                          cellData[index + arraySizeColumn].toString());
-
-                                // Get the total number of indexes
-                                int totalNumIndexes = 0;
-
-                                if (arrayInfo[0] == 1)
-                                {
-                                    // This is a 1d array
-                                    totalNumIndexes = arrayInfo[1];
-                                }
-                                else if (arrayInfo[0] == 2)
-                                {
-                                    // This is a 2d array
-                                    totalNumIndexes = arrayInfo[1] * arrayInfo[2];
-                                }
-                                else if (arrayInfo[0] == 3)
-                                {
-                                    // This is a 3d array
-                                    totalNumIndexes = arrayInfo[1] * arrayInfo[2] * arrayInfo[3];
-                                }
-
-                                // This variable is only used if this is a 2d array to keep up with
-                                // what index of the 2d array we are on
-                                int twoDimArrayIndex = 0;
-
-                                // This variable is only used if this is a 3d array to keep up with
-                                // what index of the 3d array we are on
-                                int threeDimArrayIndex = 0;
-
-                                // If this is a definition then we need to get the size
-                                if (isDefinition)
-                                {
-                                    boolean noMembers = false;
-                                    int offset = (index + variableNameColumn);
-
-                                    // Check to see if the expected number of array members exist
-                                    for (int oneDimArrayIndex = 0, x = 0; x < totalNumIndexes; oneDimArrayIndex++, x++)
-                                    {
-                                        // Increment the twoDimArrayIndex each time
-                                        // oneDimArrayIndex equals the size of the 1d arrays
-                                        if ((oneDimArrayIndex != 0) && (oneDimArrayIndex % arrayInfo[1] == 0))
-                                        {
-                                            oneDimArrayIndex = 0;
-                                            twoDimArrayIndex++;
-
-                                            // Increment the threeDimArrayIndex each time
-                                            // twoDimArrayIndex equals the size of the 2d arrays
-                                            if ((twoDimArrayIndex != 0) && (twoDimArrayIndex % arrayInfo[2] == 0))
-                                            {
-                                                twoDimArrayIndex = 0;
-                                                threeDimArrayIndex++;
-                                            }
-                                        }
-
-                                        offset = offset + numColumns;
-
-                                        // Get the name of the next member
-                                        String memberName = "";
-
-                                        // Check to see if the end of the cell data has been
-                                        // reached. If it has then there is no member name to
-                                        // retrieve and memberName will be left blank
-                                        if (cellData.length > offset)
-                                        {
-                                            memberName = cellData[offset].toString();
-                                        }
-
-                                        // Is the next row a member?
-                                        if (varName.equals(ArrayVariable.removeArrayIndex(memberName)))
-                                        {
-                                            // The next row is a member, but is it the correct
-                                            // member? For example, are we expecting the first
-                                            // index of the array, but found the 2nd index meaning
-                                            // it is out of order? This is to prevent users adding
-                                            // out of bound indexes or duplicate indexes
-                                            String expectedIndexes = "";
-                                            String[] indexes = {Integer.toString(oneDimArrayIndex),
-                                                                Integer.toString(twoDimArrayIndex),
-                                                                Integer.toString(threeDimArrayIndex)};
-
-                                            for (int arrayInfoIndex = 0; arrayInfoIndex < arrayInfo[0]; arrayInfoIndex++)
-                                            {
-                                                expectedIndexes = "[" + indexes[arrayInfoIndex] + "]" + expectedIndexes;
-                                            }
-
-                                            if (expectedIndexes.equals(ArrayVariable.getVariableArrayIndex(memberName)))
-                                            {
-                                                numOfArrayMembersVerified++;
-                                            }
-                                            else
-                                            {
-                                                numOfArrayMembersVerified = 0;
-                                                skipRow = true;
-                                            }
-
-                                        }
-                                        else if (oneDimArrayIndex == 0)
-                                        {
-                                            // The next row was not a member of the array meaning
-                                            // no members were provided. Set the noMembers flag to
-                                            // true so that they will be created
-                                            noMembers = true;
-                                            break;
-                                        }
-                                        else
-                                        {
-                                            // Only partial members were provided. Report this to
-                                            // the user so that it can be corrected. This code will
-                                            // only add a definition if it is not provided or
-                                            // members if none are provided. It will not create
-                                            // partial members or re-order the indexes for the
-                                            // user
-                                            numOfArrayMembersVerified = 0;
-                                            skipRow = true;
-                                            break;
-                                        }
-                                    }
-
-                                    if (noMembers)
-                                    {
-                                        threeDimArrayIndex = 0;
-                                        twoDimArrayIndex = 0;
-
-                                        // Create the array members
-                                        for (int oneDimArrayIndex = 0, i = 0; i < totalNumIndexes; i++, oneDimArrayIndex++)
-                                        {
-                                            // Increment the twoDimArrayIndex each time
-                                            // oneDimArrayIndex equals the size of the 1d arrays
-                                            if ((oneDimArrayIndex != 0) && (oneDimArrayIndex % arrayInfo[1] == 0))
-                                            {
-                                                oneDimArrayIndex = 0;
-                                                twoDimArrayIndex++;
-
-                                                // Increment the threeDimArrayIndex each time
-                                                // twoDimArrayIndex equals the size of the 2d
-                                                // arrays
-                                                if ((twoDimArrayIndex != 0) && (twoDimArrayIndex % arrayInfo[2] == 0))
-                                                {
-                                                    twoDimArrayIndex = 0;
-                                                    threeDimArrayIndex++;
-                                                }
-                                            }
-
-                                            numOfArrayMembersVerified++;
-
-                                            // Copy the definition row and append an index to the
-                                            // name
-                                            Object[] arrayDefn = Arrays.copyOfRange(cellData,
-                                                                                    index,
-                                                                                    index + numColumns);
-
-                                            // Check to see if we are working with a 1d or 2d array
-                                            if (arrayInfo[0] == 1)
-                                            {
-                                                // We are working with a 1d array
-                                                arrayDefn[variableNameColumn] = varName
-                                                                                + "["
-                                                                                + Integer.toString(oneDimArrayIndex)
-                                                                                + "]";
-                                            }
-                                            else if (arrayInfo[0] == 2)
-                                            {
-                                                // We are working with a 2d array
-                                                arrayDefn[variableNameColumn] = varName
-                                                                                + "["
-                                                                                + Integer.toString(twoDimArrayIndex)
-                                                                                + "]["
-                                                                                + Integer.toString(oneDimArrayIndex)
-                                                                                + "]";
-                                            }
-                                            else if (arrayInfo[0] == 3)
-                                            {
-                                                // We are working with a 3d array
-                                                arrayDefn[variableNameColumn] = varName
-                                                                                + "["
-                                                                                + Integer.toString(threeDimArrayIndex)
-                                                                                + "]["
-                                                                                + Integer.toString(twoDimArrayIndex)
-                                                                                + "]["
-                                                                                + Integer.toString(oneDimArrayIndex)
-                                                                                + "]";
-                                            }
-
-                                            // Make sure that none of the columns contain a null by
-                                            // replacing each null with an empty string
-                                            for (int x = 0; x < arrayDefn.length; x++)
-                                            {
-                                                if (arrayDefn[x] == null)
-                                                {
-                                                    arrayDefn[x] = "";
-                                                }
-                                            }
-
-                                            // Insert the new array definition row within the
-                                            // pasted cell data array
-                                            cellData = CcddUtilities.concatenateArrays(CcddUtilities.concatenateArrays(Arrays.copyOfRange(cellData,
-                                                                                                                                          0,
-                                                                                                                                          index
-                                                                                                                                          + (numColumns
-                                                                                                                                             * (i + 1))),
-                                                                                                                                          arrayDefn),
-                                                                                       Arrays.copyOfRange(cellData,
-                                                                                                          index
-                                                                                                          + (numColumns
-                                                                                                             * (i + 1)),
-                                                                                                          cellData.length));
-
-                                            endRow++;
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    threeDimArrayIndex = 0;
-                                    twoDimArrayIndex = 0;
-
-                                    // This is an array member and no definition exists. Check to
-                                    // see if all members are present and only the definition is
-                                    // missing. If so add the definition. If any members are
-                                    // missing the row will be skipped and the issue should be
-                                    // reported to the user
-                                    for (int oneDimArrayIndex = 0, x = 0; x < totalNumIndexes; x++, oneDimArrayIndex++)
-                                    {
-                                        // Increment the twoDimArrayIndex each time
-                                        // oneDimArrayIndex equals the size of the 1d arrays
-                                        if ((oneDimArrayIndex != 0) && (oneDimArrayIndex % arrayInfo[1] == 0))
-                                        {
-                                            oneDimArrayIndex = 0;
-                                            twoDimArrayIndex++;
-
-                                            // Increment the threeDimArrayIndex each time
-                                            // twoDimArrayIndex equals the size of the 2d arrays
-                                            if ((twoDimArrayIndex != 0) && (twoDimArrayIndex % arrayInfo[2] == 0))
-                                            {
-                                                twoDimArrayIndex = 0;
-                                                threeDimArrayIndex++;
-                                            }
-                                        }
-
-                                        String memberName = "";
-                                        int offset = (index + variableNameColumn) + (numColumns * x);
-
-                                        // If this is the end of the file and only part of the
-                                        // array members were provided it is possible that we could
-                                        // reach beyond the bounds of the cellData array so check
-                                        // first
-                                        if (offset < cellData.length)
-                                        {
-                                            memberName = cellData[offset].toString();
-                                        }
-                                        else
-                                        {
-                                            skipRow = true;
-                                            break;
-                                        }
-
-                                        // The next row is a member, but is it the correct member?
-                                        // For example, are we expecting the first index of the
-                                        // array, but found the 2nd index meaning it is out of
-                                        // order? This is to prevent users adding out of bound
-                                        // indexes or duplicate indexes
-                                        if (arrayInfo[0] == 1)
-                                        {
-                                            // This is a 1d array
-                                            if (ArrayVariable.getVariableArrayIndexAsInt(memberName) != x)
-                                            {
-                                                skipRow = true;
-                                                break;
-                                            }
-                                        }
-                                        else if (arrayInfo[0] == 2)
-                                        {
-                                            // This is a 2d array
-                                            String expectedIndexes = "["
-                                                                     + Integer.toString(twoDimArrayIndex)
-                                                                     + "]["
-                                                                     + Integer.toString(oneDimArrayIndex)
-                                                                     + "]";
-
-                                            if (!expectedIndexes.equals(ArrayVariable.getVariableArrayIndex(memberName)))
-                                            {
-                                                skipRow = true;
-                                                break;
-                                            }
-                                        }
-                                        else if (arrayInfo[0] == 3)
-                                        {
-                                            // This is a 3d array
-                                            String expectedIndexes = "["
-                                                                     + Integer.toString(threeDimArrayIndex)
-                                                                     + "]["
-                                                                     + Integer.toString(twoDimArrayIndex)
-                                                                     + "]["
-                                                                     + Integer.toString(oneDimArrayIndex)
-                                                                     + "]";
-
-                                            if (!expectedIndexes.equals(ArrayVariable.getVariableArrayIndex(memberName)))
-                                            {
-                                                skipRow = true;
-                                                break;
-                                            }
-                                        }
-                                    }
-
-                                    if (!skipRow)
-                                    {
-                                        // All members are present so create the definition. Copy
-                                        // the current row and remove the index from the name
-                                        Object[] arrayDefn = Arrays.copyOfRange(cellData, index, index + numColumns);
-                                        arrayDefn[variableNameColumn] = ArrayVariable.removeArrayIndex(varName);
-
-                                        // Make sure that none of the columns contain a null by
-                                        // replacing each null with an empty string
-                                        for (int x = 0; x < arrayDefn.length; x++)
-                                        {
-                                            if (arrayDefn[x] == null)
-                                            {
-                                                arrayDefn[x] = "";
-                                            }
-                                        }
-
-                                        // Insert the new array definition row within the pasted
-                                        // cell data array
-                                        cellData = CcddUtilities.concatenateArrays(CcddUtilities.concatenateArrays(Arrays.copyOfRange(cellData,
-                                                                                                                                      0,
-                                                                                                                                      (index)),
-                                                                                                                   arrayDefn),
-                                                                                   Arrays.copyOfRange(cellData,
-                                                                                                      index,
-                                                                                                      cellData.length));
-                                        endRow++;
-                                        row--;
-                                        continue;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    else if (numOfArrayMembersVerified > 0)
-                    {
-                        numOfArrayMembersVerified--;
-                    }
-
-                    // Check if the value of endRow changed after verifying the arrays above
-                    for (int currRow = tableData.size(); currRow < endRow; currRow++)
-                    {
-                        tableData.add(getEmptyRow());
-                    }
-
-                    // Check if this row is to be ignored
-                    if (skipRow)
-                    {
-                        // Increment the skipped row counter
-                        skippedRows++;
-
-                        // Update the cell data index so that this row is skipped
-                        index += numColumns;
-                    }
-                    else
-                    {
-                        // Store the index into the array of data to be pasted
-                        int indexSave = index;
-
-                        // If pasting values over existing ones it's possible that the check for a
-                        // cell being alterable will return false due to other cells in the row
-                        // that haven't yet been pasted over (e.g., a bit length in a subsequent
-                        // column prevents pasting in the array size). To overcome this two passes
-                        // for each row are made; first cells containing blanks in the pasted data
-                        // are pasted, then the cells that are not empty are pasted
-                        for (int pass = 1; pass <= 2; pass++)
-                        {
-                            // Check if this is the second pass through the row's columns
-                            if (pass == 2)
-                            {
-                                // Reset the index into the array of data to be pasted so that the
-                                // non-blank cells can be processed
-                                index = indexSave;
-                            }
-
-                            // Step through the columns, beginning at the one with the focus
-                            for (int column = startColumn; column <= endColumn && showMessage != null; column++)
-                            {
-                                // Check that the column falls within the bounds of the table. If
-                                // outside the bounds or protected then discard the value
-                                if (column < getColumnCount())
-                                {
-                                    // Convert the column coordinate from view to model
-                                    int columnModel = convertColumnIndexToModel(column);
-
-                                    // Get the value to be pasted into the cell, cleaning up the
-                                    // value if needed. If the number of cells to be filled exceeds
-                                    // the stored values then insert a blank. A null paste value
-                                    // indicates that the current cell's value won't be overwritten
-                                    Object newValue;
-
-                                    if (index < cellData.length)
-                                    {
-                                        if (cellData[index] != null)
-                                        {
-                                            newValue = cleanUpCellValue(cellData[index], row, columnModel);
-                                        }
-                                        else
-                                        {
-                                            if (isInsert || startFirstColumn)
-                                            {
-                                                newValue = "";
-                                            }
-                                            else
-                                            {
-                                                newValue = null;
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        newValue = "";
-                                    }
-
-                                    // Check if the paste value isn't null (a null value indicates
-                                    // that the current cell's value won't be overwritten). For the
-                                    // first pass through this row's column process only blank
-                                    // cells; for the second pass process only non-blank cells
-                                    if ((newValue != null)
-                                        && ((pass == 1 && newValue.toString().isEmpty())
-                                            || (pass == 2 && !newValue.toString().isEmpty())))
-                                    {
-                                        // Check if the cell value should be replaced regardless of
-                                        // its unalterable status (i.e., when importing a table, so
-                                        // the entire contents is to be replaced); otherwise check
-                                        // that the cell is alterable
-                                        if (forceOverwrite || isDataAlterable(tableData.get(row), row, columnModel))
-                                        {
-                                            // Get the original cell value
-                                            Object oldValue = oldData.size() > row ? oldData.get(row)[columnModel] : "";
-
-                                            // Check to see if we are working with a boolean as it
-                                            // needs special handling
-                                            if (isColumnBoolean(columnModel) && !(newValue instanceof Boolean))
-                                            {
-                                                newValue = Boolean.parseBoolean((String) newValue);
-                                            }
-
-                                            // Check if the value has changed and, if this value
-                                            // is being inserted, that the value isn't blank
-                                            if (!oldValue.equals(newValue)
-                                                && !(isInsert && newValue.toString().isEmpty()))
-                                            {
-                                                // Insert the value into the cell
-                                                tableData.get(row)[columnModel] = newValue;
-
-                                                // Check if the values in this column must not be
-                                                // duplicated
-                                                if (typeDefn.isRowValueUnique()[columnModel])
-                                                {
-                                                    // Step through each row in the table
-                                                    for (int otherRow = 0; otherRow < tableData.size(); otherRow++)
-                                                    {
-                                                        // Check if this isn't the row being/
-                                                        // edited, and if the cell value
-                                                        // matches the one being added (case
-                                                        // insensitive)
-                                                        String test = getExpandedValueAt(tableData,
-                                                                                         otherRow,
-                                                                                         columnModel);
-
-                                                        if (otherRow != row
-                                                            && newValue.toString().equalsIgnoreCase(test))
-                                                        {
-                                                            new CcddDialogHandler().showMessageDialog(parent,
-                                                                                                      "<html><b>"
-                                                                                                      + "Invalid input value in table '</b>"
-                                                                                                      + currentTableInfo.getTablePath()
-                                                                                                      + "<b>' for column '</b>"
-                                                                                                      + typeDefn.getColumnNamesUser()[columnModel]
-                                                                                                      + "<b>'; value must be unique: '"
-                                                                                                      + newValue
-                                                                                                      + "'",
-                                                                                                      "Invalid Input",
-                                                                                                      JOptionPane.WARNING_MESSAGE,
-                                                                                                      DialogOption.OK_OPTION);
-
-                                                            // Insert a blank into the cell
-                                                            tableData.get(row)[columnModel] = "";
-
-                                                            break;
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                            else
-                                            {
-                                                // Retain the old value
-                                                tableData.get(row)[columnModel] = oldValue;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            // The column is not alterable so set it equal to the
-                                            // old value
-                                            if ((oldData != null)
-                                                && !oldData.isEmpty()
-                                                && (oldData.size() - 1 >= row))
-                                            {
-                                                tableData.get(row)[columnModel] = oldData.get(row)[columnModel];
-                                            }
-                                            else
-                                            {
-                                                // If oldData is empty then that means that this
-                                                // table does not exist. In that case set the index
-                                                // equal to the new value as there is no old value
-                                                tableData.get(row)[columnModel] = newValue;
-                                            }
-                                        }
-                                    }
-                                }
-
-                                // Increment the index to the next value to paste
-                                index++;
-                            }
-                        }
-                    }
-
-                    // At the beginning of each row check and see if there was an error. If so drop
-                    // the row
-                    if (errorWithRow || skipRow)
-                    {
-                        tableData.remove(tableData.size() - 1);
-                        errorWithRow = false;
-                        endRow--;
-                        row--;
-                    }
-                }
-
-                // Check if the user hasn't selected the Cancel button following an invalid input
-                if (showMessage != null)
-                {
-                    // Load the array of data into the table
-                    loadDataArrayIntoTable(tableData.toArray(new Object[0][0]), true);
-
-                    // Check if automatic edit sequence ending is in effect
-                    if (getUndoHandler().isAutoEndEditSequence())
-                    {
-                        // Flag the end of the editing sequence for undo/redo purposes
-                        getUndoManager().endEditSequence();
-                    }
-
-                    // Check if any rows were ignored
-                    if (skippedRows > 0)
-                    {
-                        // Inform the user how many rows were skipped
-                        new CcddDialogHandler().showMessageDialog(parent,
-                                                                  "<html><b>"
-                                                                  + skippedRows
-                                                                  + " array member row(s) in table '</b>"
-                                                                  + currentTableInfo.getTablePath()
-                                                                  + "<b>' ignored due "
-                                                                  + "to missing or out of order array definition(s)",
-                                                                  "Rows Ignored",
-                                                                  JOptionPane.WARNING_MESSAGE,
-                                                                  DialogOption.OK_OPTION);
-                    }
-                }
-
-                // Set the flag that indicates the last edited cell's content is valid (if an
-                // invalid input set the flag to false then it can prevent closing the editor)
-                setLastCellValid(true);
-
-                // Check to see if the data came from the clipboard
-                if (dataComingFromClipboard)
-                {
-                    // Determine the number of columns to copy
-                    int numberOfColumnsToCopy = getColumnCount();
-
-                    // Adjust the size of cell data so that it can hold all of the required data
-                    cellData = new Object[tableData.size() * numberOfColumnsToCopy];
-
-                    // Step through all of the data in tableData and copy it to cellData. The
-                    // column indices must be converted to the model coordinates in case the
-                    // visible column order has been changed by the user
-                    for (int row = 0; row < tableData.size(); row++)
-                    {
-                        int rowOffset = row * numberOfColumnsToCopy;
-
-                        for (int column = 0; column < numberOfColumnsToCopy; column++)
-                        {
-                            cellData[rowOffset + column] = tableData.get(row)[convertColumnIndexToModel(column)];
-                        }
-                    }
-
-                    // Call pasteData again with the new cellData. The first call allowed the
-                    // function to place the pasted data in the correct locations of tableData.
-                    // This next call makes any needed changes to the table like expanding arrays
-                    // if an array size was changed
-                    pasteData(cellData,
-                              numberOfColumnsToCopy,
-                              isInsert,
-                              isAddIfNeeded,
-                              true,
-                              combineAsSingleEdit,
-                              highlightPastedData,
-                              false,
-                              false);
-                }
+                // Paste the table data. If this is a structure table then it will have an array
+                // size column. When an array size is pasted the behavior depends on if the array
+                // members are visible (expanded) or not. If expanded, the data is pasted as is;
+                // array member data must be included if the pasted data contains any array member
+                // cell values. If not expanded then the pasted data is treated as if no array
+                // member cell values are present; instead, the array member rows are skipped
+                Boolean showMessage = super.pasteData(cellData,
+                                                      numColumns,
+                                                      isInsert,
+                                                      isAddIfNeeded,
+                                                      isStartFirstColumn,
+                                                      isCombineAsSingleEdit,
+                                                      isHighlightPastedData,
+                                                      !isShowArrayMembers,
+                                                      isForceOverwrite);
 
                 return showMessage == null;
+            }
+
+            /**************************************************************************************
+             * Override the CcddJTableHandler method for determining the number of hidden rows
+             * added to the table when pasting data. This occurs if the pasted data contains
+             * arrays, the array members are not visible, and the data is pasted (not inserted)
+             *
+             * @param cellData    Array of cell values to be inserted
+             *
+             * @param tableData   List of the updated table's cell values
+             *
+             * @param startRow    Row number (view coordinates) where the pasted data starts
+             *
+             * @param startColumn Column number (view coordinates) where the pasted data starts
+             *
+             * @param numColumns  Number of columns represented by the cell data array
+             *
+             * @return The number of rows added to the table that are not visible
+             *************************************************************************************/
+            @Override
+            protected int getNumOfHiddenRowsAdded(Object[] cellData,
+                                                  List<Object[]> tableData,
+                                                  int startRow,
+                                                  int startColumn,
+                                                  int numColumns)
+            {
+                int rowAdjust = 0;
+
+                // Check if the table can have arrays and, if so, that the array members are hidden
+                if (isCanHaveArrays() && !isShowArrayMembers)
+                {
+                    // Get the pasted data start and end columns in model coordinates
+                    startColumn = convertColumnIndexToModel(startColumn);
+                    int endColumn = convertColumnIndexToModel(startColumn + numColumns);
+
+                    // Check if the variable name is in the paste data
+                    if (variableNameIndex >= startColumn && variableNameIndex <= endColumn)
+                    {
+                        // Step through each variable name
+                        for (int index = variableNameIndex - startColumn; index < cellData.length; index += numColumns)
+                        {
+                            // Check if the row represents an array member
+                            if (ArrayVariable.isArrayMember(cellData[index]))
+                            {
+                                // This row is hidden; increment the hidden row counter
+                                ++rowAdjust;
+                            }
+                        }
+                    }
+                    // Check if the array size is in the paste data
+                    else if (arraySizeIndex >= startColumn && arraySizeIndex <= endColumn)
+                    {
+                        // Step through each array size
+                        for (int index = arraySizeIndex - startColumn; index < cellData.length; index += numColumns, startRow++)
+                        {
+                            //Check if the row represents an array member
+                            if (ArrayVariable.isArrayMember(tableData.get(startRow)[variableNameIndex]))
+                            {
+                                // This row is hidden; increment the hidden row counter
+                                ++rowAdjust;
+                            }
+                        }
+                    }
+                }
+
+                return rowAdjust;
+            }
+
+            /**************************************************************************************
+             * Override the CcddJTableHandler method for determining the number of rows added to
+             * the table when pasting a cell value. This is to determine the number of array
+             * members when an array definition is added or altered
+             *
+             * @param cellValue   Cell value to be pasted
+             *
+             * @param modelColumn Column number (model coordinates) where the cell value is pasted
+             *
+             * @return The number of rows added to the table due to the pasted value
+             *************************************************************************************/
+            @Override
+            protected int getNumOfRowsAdded(String cellValue, int modelColumn)
+            {
+                int numRowsAdded = 0;
+
+                // Check if this is an array size value. Only the array definition row should be
+                // checked with this method
+                if (isCanHaveArrays() && modelColumn == arraySizeIndex)
+                {
+                    // Get the number of array member rows associated with this array definition
+                    numRowsAdded = ArrayVariable.getNumMembersFromArraySize(macroHandler.getMacroExpansion(cellValue));
+                }
+
+                return numRowsAdded;
             }
 
             /**************************************************************************************
@@ -4973,12 +4390,12 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
      *********************************************************************************************/
     private void setUpArraySizeColumn()
     {
+        // Set the flag to initially display only the array definition for each array
+        isShowArrayMembers = false;
+
         // Check if the variable name and array size columns are present
         if (isCanHaveArrays())
         {
-            // Set the flag to initially display each array as a single group
-            isShowArrayMembers = false;
-
             // Create a row filter for displaying the arrays
             rowFilter = new RowFilter<TableModel, Object>()
             {
@@ -5127,8 +4544,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 // Step through each row in the original array
                 for (int arrayRow = 0; arrayRow < arrayData.size(); arrayRow++)
                 {
-                    // Check if the new array variable member name matches the original array
-                    // variable member name
+                    // Check if the array indices in the old variable name match the array indices
+                    // in the new variable name
                     if (ArrayVariable.getVariableArrayIndex(getExpandedValueAt(tableData,
                                                                                tableRow,
                                                                                variableNameIndex))
@@ -5140,8 +4557,11 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                         for (int column = 0; column < arrayData.get(arrayRow).length; column++)
                         {
                             // Check that this isn't a column that should be skipped
-                            if (column != columnChanged && column != variableNameIndex && column != dataTypeIndex
-                                && column != arraySizeIndex && column != variablePathIndex)
+                            if (column != columnChanged
+                                && column != variableNameIndex
+                                && column != dataTypeIndex
+                                && column != arraySizeIndex
+                                && column != variablePathIndex)
                             {
                                 // Copy the column value from the original row to the updated row
                                 tableData.get(tableRow)[column] = arrayData.get(arrayRow)[column];
@@ -5986,9 +5406,6 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             fixed.setPreferredScrollableViewportSize(fixed.getPreferredSize());
             scrollPane.setRowHeaderView(fixed);
             scrollPane.setCorner(JScrollPane.UPPER_LEFT_CORNER, fixed.getTableHeader());
-
-            // Synchronize scrolling of the row header with the main table
-            scrollPane.getRowHeader().addChangeListener(this);
         }
 
         /******************************************************************************************

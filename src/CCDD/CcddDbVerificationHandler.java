@@ -49,6 +49,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -1489,84 +1490,38 @@ public class CcddDbVerificationHandler
 
                     // List to contain the variables without bit lengths and to include array
                     // definitions. A separate list is created to speed the comparisons
-                    List<String> cleanName = new ArrayList<String>();
+                    HashSet<String> cleanName = new HashSet<String>();
 
-                    // Step through each variable in the list TODO: Currently we add all variables
-                    // without trimming anything if there are more than 750k due to massive
-                    // performance hits. This code needs to be visited again at a later time so
-                    // that this band-aid can be removed and a proper fix added
-                    if (allTableAndVariableList.size() < 750000)
+                    // Step through each variable in the list
+                    for (String variablePath : allTableAndVariableList)
                     {
-                        for (String variablePath : allTableAndVariableList)
+                        // Check if the path represents an array member
+                        if (ArrayVariable.isArrayMember(variablePath))
                         {
-                            // Remove the bit length, if present, and store the variable in the new
-                            // list
-                            String path = "";
+                            // Pull the array dimensions out of the path
+                            String arraySize = ArrayVariable.getVariableArrayIndex(variablePath);
 
-                            if (variablePath.contains(":"))
+                            if (ArrayVariable.getNumMembersFromArraySize(arraySize) == 0)
                             {
-                                path = variablePath.replaceFirst("\\:\\d+$", "");
-                            }
-                            else
-                            {
-                                path = variablePath;
-                            }
-
-                            cleanName.add(path);
-
-                            // Check if the path represents an array member
-                            if (path.endsWith("]"))
-                            {
-                                // Pull the array dimensions out of the path
-                                String arraySize = CcddClassesDataTable.ArrayVariable.getVariableArrayIndex(path);
-                                int[] arrayDims = CcddClassesDataTable.ArrayVariable.getArrayIndexFromSize(arraySize);
-                                boolean isFirst = true;
-
-                                // If this is a 2 dimensional array ensure that this path
-                                // represents the first index
-                                for (int dim = 0; dim < arrayDims.length; dim++)
-                                {
-                                    if (arrayDims[dim] != 0)
-                                    {
-                                        isFirst = false;
-                                        break;
-                                    }
-                                }
-
-                                if (isFirst)
-                                {
-                                    // Add the path with no indexes
-                                    cleanName.add(CcddClassesDataTable.ArrayVariable.removeArrayIndex(path));
-                                }
-
-                                if (arrayDims.length >= 2)
-                                {
-                                    // Add the path with one/two indexes. The path with both
-                                    // indexes was already added above at the start of this for
-                                    // loop. Ensure that it is only added once
-                                    String modifiedPath = path.substring(0, path.lastIndexOf("["));
-
-                                    if (!cleanName.contains(modifiedPath))
-                                    {
-                                        cleanName.add(modifiedPath);
-                                    }
-
-                                    if (arrayDims.length == 3)
-                                    {
-                                        // Add the path with one index. Ensure that it is only
-                                        // added once
-                                        if (!cleanName.contains(modifiedPath.substring(0, modifiedPath.lastIndexOf("["))))
-                                        {
-                                            cleanName.add(modifiedPath.substring(0, modifiedPath.lastIndexOf("[")));
-                                        }
-                                    }
-                                }
+                                // Add the path with no indexes
+                                cleanName.add(ArrayVariable.removeArrayIndex(variablePath));
                             }
                         }
-                    }
-                    else
-                    {
-                        cleanName.addAll(allTableAndVariableList);
+                        // Variable is not an array member
+                        else
+                        {
+                            // Check if the variable name contains a bit length
+                            int index = variablePath.indexOf(":");
+
+                            if (index != -1)
+                            {
+                                // Remove the bit length from the variable name
+                                variablePath = variablePath.substring(0, index);
+                            }
+                        }
+
+                        // Add the variable name to the list
+                        cleanName.add(variablePath);
                     }
 
                     // Check if the user hasn't canceled verification
@@ -3216,6 +3171,8 @@ public class CcddDbVerificationHandler
                             // Perform the updates in the background
                             CcddBackgroundCommand.executeInBackground(ccddMain, dialog, new BackgroundCommand()
                             {
+                                boolean errorFlag = false;
+
                                 /******************************************************************
                                  * Perform project database update(s)
                                  *****************************************************************/
@@ -3370,12 +3327,14 @@ public class CcddDbVerificationHandler
                                                               "<html><b>Error verifying project database '</b>"
                                                               + dbControl.getDatabaseName()
                                                               + "<b>' consistency");
+                                        errorFlag = true;
                                     }
                                     catch (Exception e)
                                     {
                                         // Display a dialog providing details on the unanticipated
                                         // error
                                         CcddUtilities.displayException(e, ccddMain.getMainFrame());
+                                        errorFlag = true;
                                     }
                                 }
 
@@ -3385,34 +3344,56 @@ public class CcddDbVerificationHandler
                                 @Override
                                 protected void complete()
                                 {
-                                    // Remove issues from the list that were corrected
-                                    for (int index = issues.size() - 1; index >= 0; --index)
+                                    // No errors occurred when applying the fix(es)
+                                    if (!errorFlag)
                                     {
-                                        if (issues.get(index).isFix())
+                                        // Remove issues from the list that were corrected
+                                        for (int index = issues.size() - 1; index >= 0; --index)
                                         {
-                                            issues.remove(index);
+                                            if (issues.get(index).isFix())
+                                            {
+                                                issues.remove(index);
+                                            }
+                                        }
+
+                                        // Check if any uncorrected issues remain
+                                        if (issues.size() != 0)
+                                        {
+                                            // Reload the dialog table to remove the corrected issues
+                                            updateTable.loadAndFormatData();
+
+                                            // Update the uncorrected issues counter
+                                            correctLbl.setText(issues.size()
+                                                               + " issue(s) detected; select issue(s) to correct");
+                                        }
+                                        // All issues have been corrected
+                                        else
+                                        {
+                                            // Log the consistency check completion message
+                                            eventLog.logEvent(STATUS_MSG,
+                                                              new StringBuilder("One or more project database inconsistencies were detected and corrected"));
+
+                                            // Close the dialog
+                                            dialog.closeDialog(CANCEL_BUTTON);
                                         }
                                     }
-
-                                    // Check if any uncorrected issues remain
-                                    if (issues.size() != 0)
-                                    {
-                                        // Reload the dialog table to remove the corrected issues
-                                        updateTable.loadAndFormatData();
-
-                                        // Update the uncorrected issues counter
-                                        correctLbl.setText(issues.size()
-                                                           + " issue(s) detected; select issue(s) to correct");
-                                    }
-                                    // All issues have been corrected
+                                    // An error occurred while applying the fix(es)
                                     else
                                     {
-                                        // Log the consistency check completion message
-                                        eventLog.logEvent(STATUS_MSG,
-                                                          new StringBuilder("One or more project database inconsistencies were detected and corrected"));
-
-                                        // Close the dialog
-                                        dialog.closeDialog(CANCEL_BUTTON);
+                                        try
+                                        {
+                                            // Revert any changes made to the database
+                                            dbCommand.rollbackToSavePoint(ccddMain.getMainFrame());
+                                        }
+                                        catch (SQLException se)
+                                        {
+                                            // Inform the user that rolling back the changes failed
+                                            eventLog.logFailEvent(ccddMain.getMainFrame(),
+                                                                  "Cannot revert changes to project; cause '"
+                                                                  + se.getMessage()
+                                                                  + "'",
+                                                                  "<html><b>Cannot revert changes to project");
+                                        }
                                     }
                                 }
                             });

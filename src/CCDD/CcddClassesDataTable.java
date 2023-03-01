@@ -33,8 +33,6 @@ import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Pattern;
-
 import javax.swing.JOptionPane;
 
 import org.apache.commons.lang3.StringUtils;
@@ -2484,168 +2482,35 @@ public class CcddClassesDataTable
         }
 
         /******************************************************************************************
-         * Get the array variable index, if present, from the supplied variable name
+         * Get the array variable index, if present, from the supplied variable name. If the
+         * variable name includes a path then remove it prior to extracting the array index
          *
          * @param variableName Variable name
          *
-         * @return The array index, with the variable name removed
+         * @return The array index, with the variable name removed, or the variable name if no
+         *         index is present
          *****************************************************************************************/
         protected static String getVariableArrayIndex(String variableName)
         {
-            // Get the index of the array index
-            int index = variableName.indexOf('[');
+            // Check if the variable name includes a path
+            int index = variableName.lastIndexOf(".");
 
-            // Check if an array index exists
             if (index != -1)
             {
-                // Get the index portion of the array variable name
-                variableName = variableName.substring(index);
+                // Remove the path
+                variableName = variableName.substring(index + 1);
+            }
 
-                // Check if two indexes are included
-                if (StringUtils.countMatches(variableName, "[") >= 2)
-                {
-                    // Check if any letter of the alphabet is included
-                    if (Pattern.compile("[a-zA-Z]").matcher(variableName).find())
-                    {
-                        index = variableName.lastIndexOf("[");
-                        // Get the last index portion of the array variable name
-                        variableName = variableName.substring(index);
-                    }
-                }
+            // Check if the variable name includes an array index
+            index = variableName.indexOf('[');
+
+            if (index != -1)
+            {
+                // Remove the variable name
+                variableName = variableName.substring(index);
             }
 
             return variableName;
-        }
-
-        /******************************************************************************************
-         * Get the array variable index, if present, from the supplied variable name
-         *
-         * @param variableName Variable name
-         *
-         * @return The array index, with the variable name removed
-         *****************************************************************************************/
-        protected static int getVariableArrayIndexAsInt(String variableName)
-        {
-            int result = -1;
-            // Get the index of the array index
-            int index = variableName.indexOf('[') + 1;
-            int index2 = variableName.indexOf(']');
-
-            // Check if an array index exists
-            if ((index != -1) && (index2 != -1))
-            {
-                // Get the index portion of the array variable name
-                variableName = variableName.substring(index, index2);
-                result = Integer.parseInt(variableName);
-            }
-
-            return result;
-        }
-
-        /******************************************************************************************
-         * Get the array size of 1d, 2d or 3d arrays
-         *
-         * @param newMacroHandler Macro handler
-         *
-         * @param arrayInfo String representing the dimensions of the array. Example = "4" or "2,2"
-         *
-         * @return An array with 4 indexes. The first represents if the array is a 1d, 2d or 3d
-         *         array. The second represents the number of indexes in the internal 1d arrays.
-         *         The third represents the total number of 1d arrays. The fourth represents the
-         *         number of 2d arrays.
-         *
-         *         Examples: If we have a single array with size 6 this function will return [1, 6,
-         *         -1, -1]
-         *
-         *         If we have a 2d array of size 3 with each 1d array having a size of 6 the
-         *         function will return [2, 6, 3, -1]
-         *
-         *         If we have a 3d array of size 2 with each index having a 2d array of size 3 with
-         *         each 1d array having a size of 6 then the function will return [3, 6, 3, 2]
-         *****************************************************************************************/
-        protected static int[] getArraySizeAndDimensions(CcddMacroHandler newMacroHandler,
-                                                         String arrayInfo)
-        {
-            int[] result = {-1, -1, -1, -1};
-
-            // If a macro is being used then retrieve the value
-            if (arrayInfo.contains("##"))
-            {
-                arrayInfo = newMacroHandler.getMacroExpansion(arrayInfo, new ArrayList<String>());
-            }
-
-            // Get rid of any whitespace
-            arrayInfo = arrayInfo.replaceAll(" ", "");
-
-            // Check that the String is not null or empty
-            if (arrayInfo != null && !arrayInfo.isEmpty())
-            {
-                // First check to see if this is a 1d or 2d array. We do not support 3d or above
-                int count = StringUtils.countMatches(arrayInfo, ",");
-
-                if (count == 0)
-                {
-                    // This is a 1d array
-                    result[0] = 1;
-
-                    // Get the size. If this is a macro it will need to be expanded
-                    result[1] = Integer.parseInt(newMacroHandler.getMacroExpansion(arrayInfo,
-                                                                                   new ArrayList<String>()));
-                }
-                else if (count == 1)
-                {
-                    // This is a 2d array
-                    String info[] = arrayInfo.split(",");
-
-                    if ((info[0] != null && !info[0].isEmpty()) && (info[1] != null && !info[1].isEmpty()))
-                    {
-                        result[0] = 2;
-
-                        // Get the size of each internal array ,If this is a macro it will need to
-                        // be expanded
-                        result[1] = Integer.parseInt(newMacroHandler.getMacroExpansion(info[1],
-                                                                                       new ArrayList<String>()));
-
-                        // Get the total number of 2d arrays. If this is a macro it will need to be
-                        // expanded
-                        result[2] = Integer.parseInt(newMacroHandler.getMacroExpansion(info[0],
-                                                                                       new ArrayList<String>()));
-                    }
-                }
-                else if (count == 2)
-                {
-                    // This is a 3d array
-                    String info[] = arrayInfo.split(",");
-
-                    if ((info[0] != null && !info[0].isEmpty())
-                        && (info[1] != null && !info[1].isEmpty())
-                        && (info[2] != null && !info[2].isEmpty()))
-                    {
-                        result[0] = 3;
-
-                        // Get the size of each internal array. If this is a macro it will need to
-                        // be expanded
-                        result[1] = Integer.parseInt(newMacroHandler.getMacroExpansion(info[2],
-                                                                                       new ArrayList<String>()));
-
-                        // Get the total number of 2d arrays. If this is a macro it will need to be
-                        // expanded
-                        result[2] = Integer.parseInt(newMacroHandler.getMacroExpansion(info[1],
-                                                                                       new ArrayList<String>()));
-
-                        // Get the total number of 3d arrays. If this is a macro it will need to be
-                        // expanded
-                        result[3] = Integer.parseInt(newMacroHandler.getMacroExpansion(info[0],
-                                                                                       new ArrayList<String>()));
-
-                    }
-                }
-
-                // If it did not fall into the if or the else statement then the input was invalid
-                // and [-1,-1,-1] will be returned
-            }
-
-            return result;
         }
 
         /******************************************************************************************
@@ -2688,7 +2553,7 @@ public class CcddClassesDataTable
          *                    {@literal [#]<[#]<...>> or #<,#<,...>>}
          *
          * @return Array of integers representing each array index. An empty array is returned if
-         *         the array size cell is blank
+         *         the array string is blank
          *****************************************************************************************/
         protected static int[] getArrayIndexFromSize(String arrayString)
         {

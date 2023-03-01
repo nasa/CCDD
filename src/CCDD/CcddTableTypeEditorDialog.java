@@ -1045,18 +1045,6 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
                         {
                             // Store the changes for the currently displayed editor in the database
                             storeChanges(activeEditor);
-
-                            // Step through the open editor dialogs
-                            for (CcddTableEditorDialog editorDialog : ccddMain.getTableEditorDialogs())
-                            {
-                                // Step through each individual editor
-                                for (CcddTableEditorHandler editor : editorDialog.getTableEditors())
-                                {
-                                    String[] names = {editor.getOwnerName()};
-
-                                    doTypeModificationComplete(false, activeEditor, names);
-                                }
-                            }
                         }
                     }
 

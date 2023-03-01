@@ -60,7 +60,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URLDecoder;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -236,398 +235,6 @@ public class CcddFileIOHandler
                 }
             }
         });
-    }
-
-    /**********************************************************************************************
-     * Compare the contents of two files. If the comparison lines contain an optionally supplied
-     * string then these lines are not compared
-     *
-     * @param path1            Path to the first file to compare
-     *
-     * @param path2            Path to the second file to compare
-     *
-     * @param ignoreIfContains Text that, if contained in both of the lines being compared, causes
-     *                         the lines to be skipped
-     *
-     *@throws IOException Error occurred reading file(s)
-     *
-     * @return true if the files match, false otherwise
-     *********************************************************************************************/
-    public static boolean compareFiles(Path path1,
-                                       Path path2,
-                                       String ignoreIfContains) throws IOException
-    {
-        try (BufferedReader bf1 = Files.newBufferedReader(path1); BufferedReader bf2 = Files.newBufferedReader(path2))
-        {
-
-            boolean isSame = true;
-            String line1 = "";
-            String line2 = "";
-
-            // Continue to read lines from the first file until the end is reached
-            while ((line1 = bf1.readLine()) != null)
-            {
-                // Read in the line from the second file
-                line2 = bf2.readLine();
-
-                // Check if the second file has fewer lines than the first file or if the lines
-                // don't match. If an ignore string is supplied then do not test for a match if the
-                // lines contain the string
-                if (line2 == null || (!line1.equals(line2)
-                                      && (ignoreIfContains.isEmpty()
-                                          || !(line1.contains(ignoreIfContains)
-                                               && line2.contains(ignoreIfContains)))))
-                {
-                    isSame = false;
-                    break;
-                }
-            }
-
-            // Check if the second file has more lines than the first file
-            if (isSame && bf2.readLine() != null)
-            {
-                isSame = false;
-            }
-
-            bf1.close();
-            bf2.close();
-            return isSame;
-        }
-    }
-
-    /**********************************************************************************************
-     * This function will accept a file or files with JSON/CSV format. It will look thorough the
-     * files and determine if they contain data that is not currently in the database. If so it
-     * will call an import function on this data. If the files to be imported are in agreement with
-     * the current state of the database this will be reported and nothing will be imported
-     *
-     * @param dataFiles                   The files being imported
-     *
-     * @param importingEntireDatabase     Is an entire database being imported?
-     *
-     * @param backupFirst                 True to create a backup of the database before importing
-     *                                    tables
-     *
-     * @param replaceExistingTables       True to replace a table that already exists in the
-     *                                    database
-     *
-     * @param appendExistingFields        True to append the existing data fields for a table (if
-     *                                    any) to the imported ones (if any). Only valid when
-     *                                    replaceExisting is true
-     *
-     * @param useExistingFields           True to use an existing data field in place of the
-     *                                    imported ones if the field names match. Only valid when
-     *                                    replaceExisting and appendExistingFields are true
-     *
-     * @param openEditor                  True to open a table editor for each imported table
-     *
-     * @param ignoreErrors                True to ignore all errors in the import file
-     *
-     * @param replaceExistingMacros       True to replace the values for existing macros
-     *
-     * @param replaceExistingAssociations True to overwrite internal associations with those from
-     *                                    the import file
-     *
-     * @param replaceExistingGroups       True to replace the values for existing groups
-     *
-     * @param replaceExistingDataTypes    True to replace existing data types that share a name
-     *                                    with an imported data type
-     *
-     * @param deleteNonExistingTables     True to delete any tables from the database that were not
-     *                                    part of the import
-     *
-     * @param importFileType              The extension for the file type being imported
-     *
-     * @param dialogType                  What type of file is being imported
-     *
-     * @param parent                      GUI component over which to center any error dialog
-     *
-     * @return true if an error occurred importing
-     *********************************************************************************************/
-    protected boolean prepareJSONOrCSVImport(FileEnvVar[] dataFiles,
-                                             final boolean importingEntireDatabase,
-                                             final boolean backupFirst,
-                                             final boolean replaceExistingTables,
-                                             final boolean appendExistingFields,
-                                             final boolean useExistingFields,
-                                             final boolean openEditor,
-                                             final boolean ignoreErrors,
-                                             final boolean replaceExistingMacros,
-                                             final boolean replaceExistingAssociations,
-                                             final boolean replaceExistingGroups,
-                                             final boolean replaceExistingDataTypes,
-                                             final boolean deleteNonExistingTables,
-                                             FileExtension importFileType,
-                                             ManagerDialogType dialogType,
-                                             final Component parent)
-    {
-        // Add event to log indicating that JSON/CSV import preparation has begun
-        eventLog.logEvent(EventLogMessageType.STATUS_MSG,
-                          new StringBuilder("Preparing "
-                                            + importFileType.getExtension()
-                                            + " table(s) for import"));
-
-        // Select all current tables in the database and prepare them for export. This will be used
-        // later to resolve which import files are new/modified
-        CcddTableTreeHandler tableTree = new CcddTableTreeHandler(ccddMain,
-                                                                  TableTreeType.TABLES,
-                                                                  null);
-        tableTree.setSelectionInterval(0, tableTree.getRowCount());
-        List<String> tablePaths = tableTree.getSelectedTablesWithChildren();
-        boolean errorFlag = false;
-
-        // Create a FileEnvVar array for all files in the user-supplied directory
-        List<FileEnvVar> importFiles = new ArrayList<>();
-
-        // Indicates if any changes were made to the database
-        boolean dataWasChanged = false;
-
-        // If this is a bunch of C header files then they need to be converted
-        if (importFileType == FileExtension.C_HEADER)
-        {
-            CcddConvertCStructureToCSV conversionHandler = new CcddConvertCStructureToCSV();
-            dataFiles = conversionHandler.convertFile(dataFiles, ccddMain);
-            dialogType = ManagerDialogType.IMPORT_CSV;
-            importFileType = FileExtension.CSV;
-        }
-
-        try
-        {
-            // Check that data files are selected for import. If a C header import is selected, but
-            // an error occurs, the data file list is cleared
-            if (dataFiles.length != 0)
-            {
-                // Are we importing a single large file that represents the whole database?
-                if (importingEntireDatabase && (dataFiles.length == 1))
-                {
-                    if (dialogType == ManagerDialogType.IMPORT_JSON)
-                    {
-                        dataFiles = processSingleJSONFileRepresentingDatabase(dataFiles[0],
-                                                                              dialogType,
-                                                                              parent);
-                    }
-                    else if (dialogType == ManagerDialogType.IMPORT_CSV)
-                    {
-                        dataFiles = processSingleCSVFileRepresentingDatabase(dataFiles[0], parent);
-                    }
-                }
-                else if (!importingEntireDatabase
-                         && (dataFiles.length == 1)
-                         && (dialogType == ManagerDialogType.IMPORT_CSV))
-                {
-                    // Create a buffered reader to read the file
-                    BufferedReader br = new BufferedReader(new FileReader(dataFiles[0]));
-
-                    // Read first line in file
-                    String line = br.readLine();
-
-                    // Check to see if this is a conversion file
-                    if (line.contains(C_STRUCT_TO_C_CONVERSION))
-                    {
-                        // Process the converted file into individual files that can be imported
-                        dataFiles = processCSVConversionFile(dataFiles[0], parent);
-                    }
-
-                    br.close();
-                }
-
-                // If there is only 1 file then that means that we are looking at a super file that
-                // contains the information of an entire database or the user is only importing a
-                // single file. Regardless there is no need for the snapshot directory or checking
-                // to see what files were deleted and such
-                if (dataFiles.length == 1)
-                {
-                    // Only import files that end with the correct file extension
-                    if (dataFiles[0].getName().endsWith(importFileType.getExtension()))
-                    {
-                        importFiles.add(new FileEnvVar(dataFiles[0].getPath()));
-                    }
-                }
-                // There are multiple data files to be imported
-                else
-                {
-                    List<File> snapshotFiles = compareToSnapshotDirectory(tablePaths.toArray(new String[0]),
-                                                                          true,
-                                                                          importFileType,
-                                                                          false,
-                                                                          parent);
-
-                    for (FileEnvVar dataFile : dataFiles)
-                    {
-                        // Only import files that end with the correct file extension
-                        if (dataFile.getName().endsWith(importFileType.getExtension()))
-                        {
-                            importFiles.add(dataFile);
-                        }
-                    }
-
-                    List<File> deletedFiles = new ArrayList<>(snapshotFiles);
-
-                    // Ignore any line in a JSON files that contains the build information. This
-                    // information contains the file's build time stamp, so every file would show a
-                    // change even though the remaining content is identical
-                    String ignoreIfContains = dialogType == ManagerDialogType.IMPORT_JSON ? "\""
-                                                                                            + JSONTags.FILE_DESCRIPTION.getTag()
-                                                                                            + "\":"
-                                                                                          : "";
-
-                    // Step through each file in the deleted files array
-                    for (int index = 0; index < deletedFiles.size(); index++)
-                    {
-                        for (int index2 = 0; index2 < importFiles.size(); index2++)
-                        {
-                            // Do the filenames equal each other? Or, is the deletedFile element in
-                            // question not of the correct extension?
-                            if (deletedFiles.get(index).getName().equals(importFiles.get(index2).getName()))
-                            {
-                                // Compare the two files
-                                if (compareFiles(importFiles.get(index2).toPath(),
-                                                 deletedFiles.get(index).toPath(),
-                                                 ignoreIfContains))
-                                {
-                                    // The files are the same so nothing will be done with this
-                                    // file. Remove it from the importFiles list
-                                    importFiles.remove(index2);
-                                }
-
-                                // The file exists so remove it from the deletedFiles list and
-                                // adjust the index since the list is now shorter
-                                deletedFiles.remove(index);
-                                index--;
-
-                                break;
-                            }
-                        }
-                    }
-
-                    // Check to see if the files that are going to be deleted are the reserved
-                    // message IDs and project fields. If so then ignore them
-                    for (int index = 0; index < deletedFiles.size(); index++)
-                    {
-                        if (deletedFiles.get(index).getPath().endsWith(FileNames.PROJECT_DATA_FIELD.JSON())
-                            || deletedFiles.get(index).getPath().endsWith(FileNames.RESERVED_MSG_ID.JSON())
-                            || deletedFiles.get(index).getPath().endsWith(FileNames.PROJECT_DATA_FIELD.CSV())
-                            || deletedFiles.get(index).getPath().endsWith(FileNames.RESERVED_MSG_ID.CSV()))
-                        {
-                            // Remove it from the deletedFiles list
-                            deletedFiles.remove(index);
-                            index--;
-                        }
-                    }
-                    // End of checking for deleted files
-
-                    // Check if non-existing tables are to be deleted
-                    if (deleteNonExistingTables == true)
-                    {
-                        // Is there anything to delete?
-                        if (deletedFiles.size() != 0)
-                        {
-                            // Inform the user that there are tables scheduled to be deleted
-                            new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                                      "<html><b>Some tables are going to be deleted</b>",
-                                                                      "Deletion Warning",
-                                                                      JOptionPane.WARNING_MESSAGE,
-                                                                      DialogOption.OK_OPTION);
-
-                            // Here, deal with the differing formats in how the filenames are
-                            // stored vs. how table paths are stored
-                            List<String> pathList = tableTree.getTableTreePathList(null);
-                            List<String> deletePathList = new ArrayList<String>();
-
-                            // Check if there are paths in the table tree that correspond to the
-                            // deleted filenames. Add them to a list
-                            for (String dir : pathList)
-                            {
-                                String pathReplace = dir.replaceAll("\\,", "_").replaceAll("\\.", "_");
-
-                                for (File fileToDelete : deletedFiles)
-                                {
-                                    if ((fileToDelete.getName().replace(importFileType.getExtension(), "")).equals(pathReplace))
-                                    {
-                                        deletePathList.add(dir);
-                                    }
-                                }
-                            }
-
-                            // Now that we have a list of the table paths for the deleted tables, turn
-                            // it into an array and delete them
-                            String[] deleteTableNames = deletePathList.toArray(new String[deletePathList.size()]);
-                            dbTable.deleteTable(deleteTableNames, true, null);
-
-                            // If tables were deleted then that means the database has been altered
-                            dataWasChanged = true;
-                        }
-                    }
-                }
-
-                // Do any files remain after trimming the duplicate files? Import them here
-                if (importFiles.size() > 0)
-                {
-                    // Import file into database
-                    importFiles(importFiles,
-                                backupFirst,
-                                importingEntireDatabase,
-                                replaceExistingTables,
-                                appendExistingFields,
-                                useExistingFields,
-                                openEditor,
-                                ignoreErrors,
-                                replaceExistingMacros,
-                                replaceExistingAssociations,
-                                replaceExistingGroups,
-                                replaceExistingDataTypes,
-                                dialogType,
-                                parent);
-
-                    dataWasChanged = true;
-                }
-
-                // If we reach here, that means there's nothing to add and nothing to delete
-                if (dataWasChanged == false)
-                {
-                    // Inform the user that there are no perceptible changes to the files relative to
-                    // current database state
-                    new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                              "<html><b>The selected folder/file does "
-                                                              + "not contain any updates</b>",
-                                                              "No Changes Made",
-                                                              JOptionPane.INFORMATION_MESSAGE,
-                                                              DialogOption.OK_OPTION);
-                }
-            }
-        }
-        catch (NullPointerException | IOException npe)
-        {
-            // Inform the user that file import preparation failed
-            new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                      "<html><b>Error preparing "
-                                                      + importFileType.getExtension()
-                                                      + " table(s) for import",
-                                                      "File Error",
-                                                      JOptionPane.ERROR_MESSAGE,
-                                                      DialogOption.OK_OPTION);
-            errorFlag = true;
-        }
-        catch (Exception e)
-        {
-            CcddUtilities.displayException(e, parent);
-            errorFlag = true;
-        }
-        finally
-        {
-            // If the snapshot directory exists than delete it
-            if (Files.isDirectory(Paths.get(SNAP_SHOT_FILE_PATH)))
-            {
-                // Step through each file in the extant .snapshot directory
-                for (File file : new File(SNAP_SHOT_FILE_PATH).listFiles())
-                {
-                    // Delete each file
-                    file.delete();
-                }
-            }
-        }
-
-        return errorFlag;
     }
 
     /**********************************************************************************************
@@ -1673,96 +1280,102 @@ public class CcddFileIOHandler
                             projectName = createName;
                         }
 
+                        boolean createSuccess = false;
+
                         // Create a new project
                         if (createOwner == null)
                         {
-                            dbControl.createDatabase(projectName,
-                                                     dbControl.getUser(),
-                                                     dbControl.getUser(),
-                                                     projectDescription);
+                            createSuccess = dbControl.createDatabase(projectName,
+                                                                     dbControl.getUser(),
+                                                                     dbControl.getUser(),
+                                                                     projectDescription);
                         }
                         else
                         {
-                            dbControl.createDatabase(projectName,
-                                                     createOwner,
-                                                     createOwner,
-                                                     projectDescription);
+                            createSuccess = dbControl.createDatabase(projectName,
+                                                                     createOwner,
+                                                                     createOwner,
+                                                                     projectDescription);
                         }
 
-                        dbControl.openDatabase(projectName, true, false);
-
-                        // Since the database is being restored, none of the existing data types,
-                        // if any, are retained
-                        dataTypeHandler.setDataTypeData(new ArrayList<String[]>());
-
-                        // Import data
-                        if (createRestore == null)
+                        // Check if the database was successfully created
+                        if (createSuccess)
                         {
-                            importFileInBackground(dataFile,
-                                                   true,
-                                                   false,
-                                                   true,
-                                                   false,
-                                                   false,
-                                                   false,
-                                                   true,
-                                                   true,
-                                                   true,
-                                                   true,
-                                                   false,
-                                                   true,
-                                                   fileExtension,
-                                                   restoreFileType,
-                                                   usersAndAccessLevel,
-                                                   ccddMain.getMainFrame());
-                        }
-                        else
-                        {
-                            createSnapshotDirectory(ccddMain.getMainFrame());
+                            dbControl.openDatabase(projectName, true, false);
 
-                            // Step through the array of files and ensure that all files starting
-                            // with '_' are placed at the start of the list. The order of the other
-                            // files does not matter
-                            int numOfModifications = 0;
+                            // Since the database is being restored, none of the existing data
+                            // types, if any, are retained
+                            dataTypeHandler.setDataTypeData(new ArrayList<String[]>());
 
-                            for (int index = 0; index < dataFile.length; index++)
+                            // Import data
+                            if (createRestore == null)
                             {
-                                if (dataFile[index].getName().startsWith("_") && index != 0)
+                                importFileInBackground(dataFile,
+                                                       true,
+                                                       false,
+                                                       true,
+                                                       false,
+                                                       false,
+                                                       false,
+                                                       true,
+                                                       true,
+                                                       true,
+                                                       true,
+                                                       false,
+                                                       true,
+                                                       fileExtension,
+                                                       restoreFileType,
+                                                       usersAndAccessLevel,
+                                                       ccddMain.getMainFrame());
+                            }
+                            else
+                            {
+                                createSnapshotDirectory(ccddMain.getMainFrame());
+
+                                // Step through the array of files and ensure that all files
+                                // starting with '_' are placed at the start of the list. The order
+                                // of the other files does not matter
+                                int numOfModifications = 0;
+
+                                for (int index = 0; index < dataFile.length; index++)
                                 {
-                                    FileEnvVar tempFile = dataFile[numOfModifications];
-                                    dataFile[numOfModifications] = dataFile[index];
-                                    dataFile[index] = tempFile;
-                                    numOfModifications++;
+                                    if (dataFile[index].getName().startsWith("_") && index != 0)
+                                    {
+                                        FileEnvVar tempFile = dataFile[numOfModifications];
+                                        dataFile[numOfModifications] = dataFile[index];
+                                        dataFile[index] = tempFile;
+                                        numOfModifications++;
+                                    }
                                 }
+
+                                errorFlag = prepareJSONOrCSVImport(dataFile,
+                                                                   true,
+                                                                   false,
+                                                                   true,
+                                                                   false,
+                                                                   false,
+                                                                   false,
+                                                                   true,
+                                                                   true,
+                                                                   true,
+                                                                   true,
+                                                                   true,
+                                                                   false,
+                                                                   fileExtension,
+                                                                   restoreFileType,
+                                                                   ccddMain.getMainFrame());
+
+                                if (usersAndAccessLevel != null && usersAndAccessLevel.size() > 0)
+                                {
+                                    // Execute the database update for users and access levels
+                                    dbTable.storeNonTableTypesInfoTable(InternalTable.USERS,
+                                                                        usersAndAccessLevel,
+                                                                        null,
+                                                                        ccddMain.getMainFrame());
+                                }
+
+                                deleteSnapshotDirectories(ccddMain.getMainFrame());
                             }
-
-                            errorFlag = prepareJSONOrCSVImport(dataFile,
-                                                               true,
-                                                               false,
-                                                               true,
-                                                               false,
-                                                               false,
-                                                               false,
-                                                               true,
-                                                               true,
-                                                               true,
-                                                               true,
-                                                               true,
-                                                               false,
-                                                               fileExtension,
-                                                               restoreFileType,
-                                                               ccddMain.getMainFrame());
-
-                            if (usersAndAccessLevel != null && usersAndAccessLevel.size() > 0)
-                            {
-                                // Execute the database update for users and access levels
-                                dbTable.storeNonTableTypesInfoTable(InternalTable.USERS,
-                                                                    usersAndAccessLevel,
-                                                                    null,
-                                                                    ccddMain.getMainFrame());
-                            }
-
-                            deleteSnapshotDirectories(ccddMain.getMainFrame());
                         }
                     }
                 }
@@ -2653,7 +2266,6 @@ public class CcddFileIOHandler
         List<String> skippedTables = new ArrayList<String>();
         int numTablesProcessed = 0;
 
-
         // Store the current group information
         ccddMain.getDbTableCommandHandler().storeInformationTable(InternalTable.GROUPS,
                                                                   groupHandler.getGroupDefnsFromInfo(),
@@ -3194,7 +2806,7 @@ public class CcddFileIOHandler
                                                  true,
                                                  true,
                                                  false,
-                                                 false,
+                                                 true,
                                                  tableInfo.isPrototype())) // It's okay to overwrite existing 'unalterable'
                                                                            // cells if it's a proto/root (or not a structure)
             {
@@ -3318,7 +2930,7 @@ public class CcddFileIOHandler
 
                 // Place the table name in an array so that it can be easily passed to the
                 // compareToSnapshotDirectory function
-                String[] tableName = {dataFile[0].getName().split("\\.")[0]};
+                String[] tableName = {tableHandler.getTableInformation().getTablePath()};
 
                 // Current data field information belonging to the active table editor
                 List<FieldInformation> currentDataFieldInfo = fieldHandler.getFieldInformationByOwner(tableName[0]);
@@ -3451,7 +3063,7 @@ public class CcddFileIOHandler
                                                                overwriteChkBxSelected,
                                                                false,
                                                                true,
-                                                               false,
+                                                               true,
                                                                false))
                         {
                             // Let the user know how many rows were added
@@ -4924,7 +4536,7 @@ public class CcddFileIOHandler
 
     /**********************************************************************************************
      * Create the snapshot2 directory which can be used as a temporary export location for files
-     * that are spawned when a single file that represents an entire database is imported.
+     * that are spawned when a single file that represents an entire database is imported
      *
      * @param parent CCDD component that called this function
      *********************************************************************************************/
@@ -5000,8 +4612,400 @@ public class CcddFileIOHandler
     }
 
     /**********************************************************************************************
+     * Compare the contents of two files. If the comparison lines contain an optionally supplied
+     * string then these lines are not compared
+     *
+     * @param file1            First file to compare
+     *
+     * @param file2            Second file to compare
+     *
+     * @param ignoreIfContains Text that, if contained in both of the lines being compared, causes
+     *                         the lines to be skipped
+     *
+     *@throws IOException Error occurred reading file(s)
+     *
+     * @return true if the files match, false otherwise
+     *********************************************************************************************/
+    public static boolean compareFiles(File file1,
+                                       File file2,
+                                       String ignoreIfContains) throws IOException
+    {
+        BufferedReader bf1 = new BufferedReader(new FileReader(file1));
+        BufferedReader bf2 = new BufferedReader(new FileReader(file2));
+
+        boolean isSame = true;
+        String line1 = "";
+        String line2 = "";
+
+        // Continue to read lines from the first file until the end is reached
+        while ((line1 = bf1.readLine()) != null)
+        {
+            // Read in the line from the second file
+            line2 = bf2.readLine();
+
+            // Check if the second file has fewer lines than the first file or if the lines
+            // don't match. If an ignore string is supplied then do not test for a match if the
+            // lines contain the string
+            if (line2 == null ||
+                (!line1.equals(line2)
+                 && (ignoreIfContains.isEmpty()
+                     || !(line1.contains(ignoreIfContains)
+                          && line2.contains(ignoreIfContains)))))
+            {
+                isSame = false;
+                break;
+            }
+        }
+
+        // Check if the second file has more lines than the first file
+        if (isSame && bf2.readLine() != null)
+        {
+            isSame = false;
+        }
+
+        bf1.close();
+        bf2.close();
+        return isSame;
+    }
+
+    /**********************************************************************************************
+     * This function will accept a file or files with JSON/CSV format. It will look thorough the
+     * files and determine if they contain data that is not currently in the database. If so it
+     * will call an import function on this data. If the files to be imported are in agreement with
+     * the current state of the database this will be reported and nothing will be imported
+     *
+     * @param dataFiles                   The files being imported
+     *
+     * @param importingEntireDatabase     Is an entire database being imported?
+     *
+     * @param backupFirst                 True to create a backup of the database before importing
+     *                                    tables
+     *
+     * @param replaceExistingTables       True to replace a table that already exists in the
+     *                                    database
+     *
+     * @param appendExistingFields        True to append the existing data fields for a table (if
+     *                                    any) to the imported ones (if any). Only valid when
+     *                                    replaceExisting is true
+     *
+     * @param useExistingFields           True to use an existing data field in place of the
+     *                                    imported ones if the field names match. Only valid when
+     *                                    replaceExisting and appendExistingFields are true
+     *
+     * @param openEditor                  True to open a table editor for each imported table
+     *
+     * @param ignoreErrors                True to ignore all errors in the import file
+     *
+     * @param replaceExistingMacros       True to replace the values for existing macros
+     *
+     * @param replaceExistingAssociations True to overwrite internal associations with those from
+     *                                    the import file
+     *
+     * @param replaceExistingGroups       True to replace the values for existing groups
+     *
+     * @param replaceExistingDataTypes    True to replace existing data types that share a name
+     *                                    with an imported data type
+     *
+     * @param deleteNonExistingTables     True to delete any tables from the database that were not
+     *                                    part of the import
+     *
+     * @param importFileType              The extension for the file type being imported
+     *
+     * @param dialogType                  What type of file is being imported
+     *
+     * @param parent                      GUI component over which to center any error dialog
+     *
+     * @return true if an error occurred importing
+     *********************************************************************************************/
+    protected boolean prepareJSONOrCSVImport(FileEnvVar[] dataFiles,
+                                             final boolean importingEntireDatabase,
+                                             final boolean backupFirst,
+                                             final boolean replaceExistingTables,
+                                             final boolean appendExistingFields,
+                                             final boolean useExistingFields,
+                                             final boolean openEditor,
+                                             final boolean ignoreErrors,
+                                             final boolean replaceExistingMacros,
+                                             final boolean replaceExistingAssociations,
+                                             final boolean replaceExistingGroups,
+                                             final boolean replaceExistingDataTypes,
+                                             final boolean deleteNonExistingTables,
+                                             FileExtension importFileType,
+                                             ManagerDialogType dialogType,
+                                             final Component parent)
+    {
+        // Add event to log indicating that JSON/CSV import preparation has begun
+        eventLog.logEvent(EventLogMessageType.STATUS_MSG,
+                          new StringBuilder("Preparing "
+                                            + importFileType.getExtension()
+                                            + " table(s) for import"));
+
+        // Select all current tables in the database and prepare them for export. This will be used
+        // later to resolve which import files are new/modified
+        CcddTableTreeHandler tableTree = new CcddTableTreeHandler(ccddMain,
+                                                                  TableTreeType.TABLES,
+                                                                  null);
+        tableTree.setSelectionInterval(0, tableTree.getRowCount());
+        List<String> tablePaths = tableTree.getSelectedTablesWithChildren();
+        boolean errorFlag = false;
+
+        // Create a FileEnvVar array for all files in the user-supplied directory
+        List<FileEnvVar> importFiles = new ArrayList<>();
+
+        // Indicates if any changes were made to the database
+        boolean dataWasChanged = false;
+
+        // If this is a bunch of C header files then they need to be converted
+        if (importFileType == FileExtension.C_HEADER)
+        {
+            CcddConvertCStructureToCSV conversionHandler = new CcddConvertCStructureToCSV();
+            dataFiles = conversionHandler.convertFile(dataFiles, ccddMain);
+            dialogType = ManagerDialogType.IMPORT_CSV;
+            importFileType = FileExtension.CSV;
+        }
+
+        try
+        {
+            // Check that data files are selected for import. If a C header import is selected, but
+            // an error occurs, the data file list is cleared
+            if (dataFiles.length != 0)
+            {
+                // Are we importing a single large file that represents the whole database?
+                if (importingEntireDatabase && (dataFiles.length == 1))
+                {
+                    if (dialogType == ManagerDialogType.IMPORT_JSON)
+                    {
+                        dataFiles = processSingleJSONFileRepresentingDatabase(dataFiles[0],
+                                                                              dialogType,
+                                                                              parent);
+                    }
+                    else if (dialogType == ManagerDialogType.IMPORT_CSV)
+                    {
+                        dataFiles = processSingleCSVFileRepresentingDatabase(dataFiles[0], parent);
+                    }
+                }
+                else if (!importingEntireDatabase
+                         && (dataFiles.length == 1)
+                         && (dialogType == ManagerDialogType.IMPORT_CSV))
+                {
+                    // Create a buffered reader to read the file
+                    BufferedReader br = new BufferedReader(new FileReader(dataFiles[0]));
+
+                    // Read first line in file
+                    String line = br.readLine();
+
+                    // Check to see if this is a conversion file
+                    if (line.contains(C_STRUCT_TO_C_CONVERSION))
+                    {
+                        // Process the converted file into individual files that can be imported
+                        dataFiles = processCSVConversionFile(dataFiles[0], parent);
+                    }
+
+                    br.close();
+                }
+
+                // If there is only 1 file then that means that we are looking at a super file that
+                // contains the information of an entire database or the user is only importing a
+                // single file. Regardless there is no need for the snapshot directory or checking
+                // to see what files were deleted and such
+                if (dataFiles.length == 1)
+                {
+                    // Only import files that end with the correct file extension
+                    if (dataFiles[0].getName().endsWith(importFileType.getExtension()))
+                    {
+                        importFiles.add(new FileEnvVar(dataFiles[0].getPath()));
+                    }
+                }
+                // There are multiple data files to be imported
+                else
+                {
+                    List<File> snapshotFiles = compareToSnapshotDirectory(tablePaths.toArray(new String[0]),
+                                                                          true,
+                                                                          importFileType,
+                                                                          false,
+                                                                          parent);
+
+                    for (FileEnvVar dataFile : dataFiles)
+                    {
+                        // Only import files that end with the correct file extension
+                        if (dataFile.getName().endsWith(importFileType.getExtension()))
+                        {
+                            importFiles.add(dataFile);
+                        }
+                    }
+
+                    List<File> deletedFiles = new ArrayList<>(snapshotFiles);
+
+                    // Ignore any line in a JSON files that contains the build information. This
+                    // information contains the file's build time stamp, so every file would show a
+                    // change even though the remaining content is identical
+                    String ignoreIfContains = dialogType == ManagerDialogType.IMPORT_JSON ? "\""
+                                                                                            + JSONTags.FILE_DESCRIPTION.getTag()
+                                                                                            + "\":"
+                                                                                          : "";
+
+                    // Step through each file in the deleted files array
+                    for (int index = 0; index < deletedFiles.size(); index++)
+                    {
+                        for (int index2 = 0; index2 < importFiles.size(); index2++)
+                        {
+                            // Do the filenames equal each other? Or, is the deletedFile element in
+                            // question not of the correct extension?
+                            if (deletedFiles.get(index).getName().equals(importFiles.get(index2).getName()))
+                            {
+                                // Compare the two files
+                                if (compareFiles(importFiles.get(index2),
+                                                 deletedFiles.get(index),
+                                                 ignoreIfContains))
+                                {
+                                    // The files are the same so nothing will be done with this
+                                    // file. Remove it from the importFiles list
+                                    importFiles.remove(index2);
+                                }
+
+                                // The file exists so remove it from the deletedFiles list and
+                                // adjust the index since the list is now shorter
+                                deletedFiles.remove(index);
+                                index--;
+
+                                break;
+                            }
+                        }
+                    }
+
+                    // Check to see if the files that are going to be deleted are the reserved
+                    // message IDs and project fields. If so then ignore them
+                    for (int index = 0; index < deletedFiles.size(); index++)
+                    {
+                        if (deletedFiles.get(index).getPath().endsWith(FileNames.PROJECT_DATA_FIELD.JSON())
+                            || deletedFiles.get(index).getPath().endsWith(FileNames.RESERVED_MSG_ID.JSON())
+                            || deletedFiles.get(index).getPath().endsWith(FileNames.PROJECT_DATA_FIELD.CSV())
+                            || deletedFiles.get(index).getPath().endsWith(FileNames.RESERVED_MSG_ID.CSV()))
+                        {
+                            // Remove it from the deletedFiles list
+                            deletedFiles.remove(index);
+                            index--;
+                        }
+                    }
+                    // End of checking for deleted files
+
+                    // Check if non-existing tables are to be deleted
+                    if (deleteNonExistingTables == true)
+                    {
+                        // Is there anything to delete?
+                        if (deletedFiles.size() != 0)
+                        {
+                            // Inform the user that there are tables scheduled to be deleted
+                            new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                                      "<html><b>Some tables are going to be deleted</b>",
+                                                                      "Deletion Warning",
+                                                                      JOptionPane.WARNING_MESSAGE,
+                                                                      DialogOption.OK_OPTION);
+
+                            // Here, deal with the differing formats in how the filenames are
+                            // stored versus how table paths are stored
+                            List<String> pathList = tableTree.getTableTreePathList(null);
+                            List<String> deletePathList = new ArrayList<String>();
+
+                            // Check if there are paths in the table tree that correspond to the
+                            // deleted filenames. Add them to a list
+                            for (String dir : pathList)
+                            {
+                                String pathReplace = dir.replaceAll("\\,", "_").replaceAll("\\.", "_");
+
+                                for (File fileToDelete : deletedFiles)
+                                {
+                                    if ((fileToDelete.getName().replace(importFileType.getExtension(), "")).equals(pathReplace))
+                                    {
+                                        deletePathList.add(dir);
+                                    }
+                                }
+                            }
+
+                            // Now that we have a list of the table paths for the deleted tables, turn
+                            // it into an array and delete them
+                            String[] deleteTableNames = deletePathList.toArray(new String[deletePathList.size()]);
+                            dbTable.deleteTable(deleteTableNames, true, null);
+
+                            // If tables were deleted then that means the database has been altered
+                            dataWasChanged = true;
+                        }
+                    }
+                }
+
+                // Do any files remain after trimming the duplicate files? Import them here
+                if (importFiles.size() > 0)
+                {
+                    // Import file into database
+                    importFiles(importFiles,
+                                backupFirst,
+                                importingEntireDatabase,
+                                replaceExistingTables,
+                                appendExistingFields,
+                                useExistingFields,
+                                openEditor,
+                                ignoreErrors,
+                                replaceExistingMacros,
+                                replaceExistingAssociations,
+                                replaceExistingGroups,
+                                replaceExistingDataTypes,
+                                dialogType,
+                                parent);
+
+                    dataWasChanged = true;
+                }
+
+                // If we reach here, that means there's nothing to add and nothing to delete
+                if (dataWasChanged == false)
+                {
+                    // Inform the user that there are no perceptible changes to the files relative to
+                    // current database state
+                    new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                              "<html><b>The selected folder/file does "
+                                                              + "not contain any updates</b>",
+                                                              "No Changes Made",
+                                                              JOptionPane.INFORMATION_MESSAGE,
+                                                              DialogOption.OK_OPTION);
+                }
+            }
+        }
+        catch (NullPointerException | IOException npe)
+        {
+            // Inform the user that file import preparation failed
+            new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                      "<html><b>Error preparing "
+                                                      + importFileType.getExtension()
+                                                      + " table(s) for import",
+                                                      "File Error",
+                                                      JOptionPane.ERROR_MESSAGE,
+                                                      DialogOption.OK_OPTION);
+            errorFlag = true;
+        }
+        catch (Exception e)
+        {
+            CcddUtilities.displayException(e, parent);
+            errorFlag = true;
+        }
+        finally
+        {
+            // If the snapshot directory exists than delete it
+            if (Files.isDirectory(Paths.get(SNAP_SHOT_FILE_PATH)))
+            {
+                // Step through each file in the extant .snapshot directory
+                for (File file : new File(SNAP_SHOT_FILE_PATH).listFiles())
+                {
+                    // Delete each file
+                    file.delete();
+                }
+            }
+        }
+
+        return errorFlag;
+    }
+
+    /**********************************************************************************************
      * Process the single file, which represents an entire database, that is being imported and
-     * output the data to multiple files.
+     * output the data to multiple files
      *
      * @param dataFile   Path to the file being imported
      *
@@ -5032,12 +5036,12 @@ public class CcddFileIOHandler
             // Read the file
             StringBuilder content = new StringBuilder(new String((Files.readAllBytes(Paths.get(dataFile.getPath())))));
 
-            /*************** INPUT TYPES, TABLE TYPES AND DATA TYPES ***************/
+            //*************** INPUT TYPES, TABLE TYPES AND DATA TYPES ***************
             String tagData = jsonHandler.retrieveJSONData(JSONTags.INPUT_TYPE_DEFN.getTag(), content).toString();
 
             if (!tagData.isEmpty())
             {
-                outputData = tagData + "\n]";
+                outputData = tagData + "\n  ]";
             }
 
             tagData = jsonHandler.retrieveJSONData(JSONTags.TABLE_TYPE_DEFN.getTag(), content).toString();
@@ -5046,10 +5050,10 @@ public class CcddFileIOHandler
             {
                 if (!outputData.isEmpty())
                 {
-                    outputData += ",\n";
+                    outputData += ",\n  ";
                 }
 
-                outputData += tagData + "\n]";
+                outputData += tagData + "\n  ]";
             }
 
             tagData = jsonHandler.retrieveJSONData(JSONTags.DATA_TYPE_DEFN.getTag(), content).toString();
@@ -5058,10 +5062,10 @@ public class CcddFileIOHandler
             {
                 if (!outputData.isEmpty())
                 {
-                    outputData += ",\n";
+                    outputData += ",\n  ";
                 }
 
-                outputData += tagData + "\n]";
+                outputData += tagData + "\n  ]";
             }
 
             if (!outputData.isEmpty())
@@ -5072,103 +5076,103 @@ public class CcddFileIOHandler
                 writeToJSONFile("{\n  " + outputData + "\n}\n", filePath);
             }
 
-            /*************** MACROS ***************/
+            //*************** MACROS ***************
             tagData = jsonHandler.retrieveJSONData(JSONTags.MACRO_DEFN.getTag(), content).toString();
 
             if (!tagData.isEmpty())
             {
-                outputData = "{\n  " + tagData + "]\n}\n";
+                outputData = "{\n  " + tagData + "\n  ]\n}\n";
                 filePath = SNAP_SHOT_FILE_PATH_2 + File.separator + FileNames.MACROS.JSON();
                 file = new FileEnvVar(filePath);
                 dataFiles.add(file);
                 writeToJSONFile(outputData, filePath);
             }
 
-            /*************** GROUPS ***************/
+            //*************** GROUPS ***************
             tagData = jsonHandler.retrieveJSONData(JSONTags.GROUP.getTag(), content).toString();
 
             if (!tagData.isEmpty())
             {
-                outputData = "{\n  " + tagData + "]\n}\n";
+                outputData = "{\n  " + tagData + "\n  ]\n}\n";
                 filePath = SNAP_SHOT_FILE_PATH_2 + File.separator + FileNames.GROUPS.JSON();
                 file = new FileEnvVar(filePath);
                 dataFiles.add(file);
                 writeToJSONFile(outputData, filePath);
             }
 
-            /*************** SCRIPT ASSOCIATIONS ***************/
+            //*************** SCRIPT ASSOCIATIONS ***************
             tagData = jsonHandler.retrieveJSONData(JSONTags.SCRIPT_ASSOCIATION.getTag(), content).toString();
 
             if (!tagData.isEmpty())
             {
-                outputData = "{\n  " + tagData + "]\n}\n";
+                outputData = "{\n  " + tagData + "\n  ]\n}\n";
                 filePath = SNAP_SHOT_FILE_PATH_2 + File.separator + FileNames.SCRIPT_ASSOCIATION.JSON();
                 file = new FileEnvVar(filePath);
                 dataFiles.add(file);
                 writeToJSONFile(outputData, filePath);
             }
 
-            /*************** TLM SCHEDULER ***************/
+            //*************** TLM SCHEDULER ***************
             tagData = jsonHandler.retrieveJSONData(JSONTags.TLM_SCHEDULER_COMMENT.getTag(), content).toString();
 
             if (!tagData.isEmpty())
             {
-                outputData = "{\n  " + tagData + "]\n}\n";
+                outputData = "{\n  " + tagData + "\n  ]\n}\n";
                 filePath = SNAP_SHOT_FILE_PATH_2 + File.separator + FileNames.TELEM_SCHEDULER.JSON();
                 file = new FileEnvVar(filePath);
                 dataFiles.add(file);
                 writeToJSONFile(outputData, filePath);
             }
 
-            /*************** APP SCHEDULER ***************/
+            //*************** APP SCHEDULER ***************
             tagData = jsonHandler.retrieveJSONData(JSONTags.APP_SCHEDULER_COMMENT.getTag(), content).toString();
 
             if (!tagData.isEmpty())
             {
-                outputData = "{\n  " + tagData + "]\n}\n";
+                outputData = "{\n  " + tagData + "\n  ]\n}\n";
                 filePath = SNAP_SHOT_FILE_PATH_2 + File.separator + FileNames.APP_SCHEDULER.JSON();
                 file = new FileEnvVar(filePath);
                 dataFiles.add(file);
                 writeToJSONFile(outputData, filePath);
             }
 
-            /*************** RESERVED MESSAGE IDS ***************/
+            //*************** RESERVED MESSAGE IDS ***************
             tagData = jsonHandler.retrieveJSONData(JSONTags.RESERVED_MSG_ID_DEFN.getTag(), content).toString();
 
             if (!tagData.isEmpty())
             {
-                outputData = "{\n  " + tagData + "]\n}\n";
+                outputData = "{\n  " + tagData + "\n  ]\n}\n";
                 filePath = SNAP_SHOT_FILE_PATH_2 + File.separator + FileNames.RESERVED_MSG_ID.JSON();
                 file = new FileEnvVar(filePath);
                 dataFiles.add(file);
                 writeToJSONFile(outputData, filePath);
             }
 
-            /*************** PROJECT FIELDS ***************/
+            //*************** PROJECT FIELDS ***************
             tagData = jsonHandler.retrieveJSONData(JSONTags.PROJECT_FIELD.getTag(), content).toString();
 
             if (!tagData.isEmpty())
             {
-                outputData = "{\n  " + tagData + "]\n}\n";
+                outputData = "{\n  " + tagData + "\n  ]\n}\n";
                 filePath = SNAP_SHOT_FILE_PATH_2 + File.separator + FileNames.PROJECT_DATA_FIELD.JSON();
                 file = new FileEnvVar(filePath);
                 dataFiles.add(file);
                 writeToJSONFile(outputData, filePath);
             }
 
-            /*************** DATABASE INFORMATION ***************/
+            //*************** DATABASE INFORMATION ***************
             tagData = jsonHandler.retrieveJSONData(JSONTags.DBU_INFO.getTag(), content).toString();
 
             if (!tagData.isEmpty())
             {
-                outputData = "{\n  " + tagData + "]\n}\n";
+                outputData = "{\n  " + tagData + "\n  ]\n}\n";
                 filePath = SNAP_SHOT_FILE_PATH_2 + File.separator + FileNames.DBU_INFO.JSON();
                 file = new FileEnvVar(filePath);
                 dataFiles.add(file);
                 writeToJSONFile(outputData, filePath);
             }
 
-            /*************** TABLE DEFINITIONS ***************/
+            //*************** TABLE DEFINITIONS ***************
             tagData = jsonHandler.retrieveJSONData(JSONTags.TABLE_DEFN.getTag(), content).toString();
 
             String[] data = tagData.split("]\n    },\n");
@@ -5179,7 +5183,7 @@ public class CcddFileIOHandler
 
                 if (i == 0)
                 {
-                    // Check if this line contains the file description. Will change how data is
+                    // Check if this line contains the file description. This changes how data is
                     // parsed
                     if (nameType.contains(JSONTags.FILE_DESCRIPTION.getTag()))
                     {
@@ -5220,7 +5224,7 @@ public class CcddFileIOHandler
                                 + JSONTags.TABLE_DEFN.getTag()
                                 + "\": [\n"
                                 + data[i]
-                                + "  ]\n}\n",
+                                + "\n  ]\n}\n",
                                 filePath);
                 }
                 else
@@ -5269,7 +5273,7 @@ public class CcddFileIOHandler
             // Read the file
             StringBuilder content = new StringBuilder(new String((Files.readAllBytes(Paths.get(dataFile.getPath())))));
 
-            /*************** TABLE DEFINITIONS ***************/
+            //*************** TABLE DEFINITIONS ***************
             String tagData = csvHandler.retrieveCSVData(CSVTags.INPUT_TYPE.getTag(),
                                                         content).toString();
 
@@ -5310,7 +5314,7 @@ public class CcddFileIOHandler
                 writeToJSONFile(outputData, filePath);
             }
 
-            /*************** MACROS ***************/
+            //*************** MACROS ***************
             outputData = "\n" + csvHandler.retrieveCSVData(CSVTags.MACRO.getTag(), content).toString();
 
             filePath = SNAP_SHOT_FILE_PATH_2 + File.separator + FileNames.MACROS.CSV();
@@ -5318,7 +5322,7 @@ public class CcddFileIOHandler
             dataFiles.add(file);
             writeToJSONFile(outputData, filePath);
 
-            /*************** TABLE DEFINITIONS ***************/
+            //*************** TABLE DEFINITIONS ***************
             outputData = csvHandler.retrieveCSVData(CSVTags.NAME_TYPE.getTag(), content).toString();
 
             // Divide the data up into the individual definitions
@@ -5381,7 +5385,7 @@ public class CcddFileIOHandler
             FileEnvVar file;
             String filePath = "";
 
-            /*************** INPUT TYPES, TABLE TYPES AND DATA TYPES ***************/
+            //*************** INPUT TYPES, TABLE TYPES AND DATA TYPES ***************
             String tagData = csvHandler.retrieveCSVData(CSVTags.INPUT_TYPE.getTag(), content).toString();
 
             if (!tagData.isEmpty())
@@ -5421,7 +5425,7 @@ public class CcddFileIOHandler
                 writeToJSONFile(outputData, filePath);
             }
 
-            /*************** MACROS ***************/
+            //*************** MACROS ***************
             outputData = "\n" + csvHandler.retrieveCSVData(CSVTags.MACRO.getTag(), content).toString();
 
             filePath = SNAP_SHOT_FILE_PATH_2 + File.separator + FileNames.MACROS.CSV();
@@ -5430,7 +5434,7 @@ public class CcddFileIOHandler
 
             writeToJSONFile(outputData + "\n", filePath);
 
-            /*************** GROUPS ***************/
+            //*************** GROUPS ***************
             outputData = "\n" + csvHandler.retrieveCSVData(CSVTags.GROUP.getTag(), content).toString();
 
             filePath = SNAP_SHOT_FILE_PATH_2 + File.separator + FileNames.GROUPS.CSV();
@@ -5439,7 +5443,7 @@ public class CcddFileIOHandler
 
             writeToJSONFile(outputData + "\n", filePath);
 
-            /*************** SCRIPT ASSOCIATIONS ***************/
+            //*************** SCRIPT ASSOCIATIONS ***************
             outputData = "\n" + csvHandler.retrieveCSVData(CSVTags.SCRIPT_ASSOCIATION.getTag(),
                                                            content).toString();
 
@@ -5449,7 +5453,7 @@ public class CcddFileIOHandler
 
             writeToJSONFile(outputData + "\n", filePath);
 
-            /*************** TLM SCHEDULER ***************/
+            //*************** TLM SCHEDULER ***************
             if (outputData.contains(CSVTags.TELEM_SCHEDULER_OLD.getTag()))
             {
                 outputData = "\n"
@@ -5468,7 +5472,7 @@ public class CcddFileIOHandler
 
             writeToJSONFile(outputData + "\n", filePath);
 
-            /*************** APP SCHEDULER ***************/
+            //*************** APP SCHEDULER ***************
             if (outputData.contains(CSVTags.APP_SCHEDULER_OLD.getTag()))
             {
                 outputData = "\n" + csvHandler.retrieveCSVData(CSVTags.APP_SCHEDULER_OLD.getTag(),
@@ -5487,7 +5491,7 @@ public class CcddFileIOHandler
 
             writeToJSONFile(outputData + "\n", filePath);
 
-            /*************** RESERVED MESSAGE IDS ***************/
+            //*************** RESERVED MESSAGE IDS ***************
             outputData = csvHandler.retrieveCSVData(CSVTags.RESERVED_MSG_IDS.getTag(),
                                                     content).toString();
 
@@ -5502,7 +5506,7 @@ public class CcddFileIOHandler
                 writeToJSONFile(outputData + "\n", filePath);
             }
 
-            /*************** PROJECT FIELDS ***************/
+            //*************** PROJECT FIELDS ***************
             outputData = csvHandler.retrieveCSVData(CSVTags.PROJECT_DATA_FIELD.getTag(),
                                                     content).toString();
 
@@ -5517,7 +5521,7 @@ public class CcddFileIOHandler
                 writeToJSONFile(outputData + "\n", filePath);
             }
 
-            /*************** TABLE DEFINITIONS ***************/
+            //*************** TABLE DEFINITIONS ***************
             outputData = csvHandler.retrieveCSVData(CSVTags.NAME_TYPE.getTag(), content).toString();
             String[] data = outputData.split(CSVTags.NAME_TYPE.getTag() + "\n");
 
@@ -5548,7 +5552,7 @@ public class CcddFileIOHandler
                 }
             }
 
-            /*************** DATABASE INFORMATION ***************/
+            //*************** DATABASE INFORMATION ***************
             outputData = csvHandler.retrieveCSVData(CSVTags.DBU_INFO.getTag(), content).toString();
 
             if (!outputData.isEmpty())
@@ -5741,7 +5745,6 @@ public class CcddFileIOHandler
                                                   String[] separators,
                                                   Component parent) throws CCDDException, Exception
     {
-
         // Add the prototype of each supplied table name (if not already in the array of supplied
         // table names)
         List<String> tableNamesWithProtos = new ArrayList<String>();
@@ -5946,9 +5949,8 @@ public class CcddFileIOHandler
                                          new String[] {ProtoTypeMap.get(tableInfos[index].getPrototypeName())[0],
                                                        tableInfos[index].getType(), ""});
                         TypeDefinition typeDefn = ccddMain.getTableTypeHandler().getTypeDefinition(tableInfos[index].getType());
+                        ProtoTypeColumnsMap.put(tableNamesWithProtos.get(index), typeDefn.getColumnNamesUser());
                         String[] columnNames = typeDefn.getColumnNamesDatabase();
-
-                        ProtoTypeColumnsMap.put(tableNamesWithProtos.get(index), columnNames);
 
                         // Create a command that grabs the data of each column in the correct order
                         if (columnNames.length > 0)
@@ -6042,6 +6044,8 @@ public class CcddFileIOHandler
                             tableData.add(currRowData);
                         }
 
+                        rs.close();
+
                         // Create a new tableData Object that will contain all the information for
                         // this table
                         TableInfo tableInfo = new TableInfo(tableNamesWithProtos.get(index),
@@ -6058,7 +6062,8 @@ public class CcddFileIOHandler
 
                         // Update the correct entry
                         ProtoTypeMap.put(tableInfos[index].getPrototypeName(),
-                                         new String[] {entryToUpdate[0], entryToUpdate[1],
+                                         new String[] {entryToUpdate[0],
+                                                       entryToUpdate[1],
                                                        Integer.toString(protoTypeTableObjects.size() - 1)});
 
                         // Close the current result set
@@ -6123,6 +6128,8 @@ public class CcddFileIOHandler
                                 }
                             }
                         }
+
+                        rs.close();
 
                         // Add this information to the tableDefs list
                         tableDefs.add(new TableInfo(tableNamesWithProtos.get(index),

@@ -36,12 +36,14 @@ import java.sql.Savepoint;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
 
 import javax.swing.JOptionPane;
 
 import CCDD.CcddConstants.DatabaseListCommand;
 import CCDD.CcddConstants.DbCommandType;
 import CCDD.CcddConstants.DialogOption;
+import CCDD.CcddConstants.EventLogMessageType;
 import CCDD.CcddConstants.ModifiableSizeInfo;
 
 /**************************************************************************************************
@@ -105,6 +107,30 @@ public class CcddDbCommandHandler
     }
 
     /**********************************************************************************************
+     * Set the time limit for the database to respond and for a query to complete execution
+     *
+     * @param component GUI component over which to center any error dialog
+     *********************************************************************************************/
+    protected void setNetworkAndQueryTimeouts(Component component)
+    {
+        try
+        {
+            connection.setNetworkTimeout(Executors.newFixedThreadPool(1),
+                                         ModifiableSizeInfo.POSTGRESQL_DATABASE_TIMEOUT.getSize() * 1000);
+            statement.setQueryTimeout(ModifiableSizeInfo.POSTGRESQL_DATABASE_TIMEOUT.getSize());
+        }
+        catch (SQLException se)
+        {
+            // Inform the user that setting the SQL query timeout failed
+            eventLog.logFailEvent(component,
+                                  "Cannot set SQL query timeout; cause '"
+                                  + se.getMessage()
+                                  + "'",
+                                  "<html><b>Cannot set SQL query timeout");
+        }
+    }
+
+    /**********************************************************************************************
      * Execute a database query command and log the command to the session log
      *
      * @param command   SQL query command to execute
@@ -156,7 +182,6 @@ public class CcddDbCommandHandler
         return (Boolean) executeDbStatement(DbCommandType.COMMAND, command, component);
     }
 
-
     /**********************************************************************************************
      * Execute a database update statement and log the command to the session log
      *
@@ -206,7 +231,6 @@ public class CcddDbCommandHandler
                     break;
             }
 
-
             // Check if auto-commit is disabled and a save point isn't established
             if (connection.getAutoCommit() == false && savePoint == null)
             {
@@ -236,7 +260,7 @@ public class CcddDbCommandHandler
                         else
                         {
                             // Revert any changes to the database to the save point
-                            connection.rollback(savePoint);
+                            rollbackToSavePoint(component);
                         }
                     }
                     catch (SQLException se2)
@@ -436,6 +460,10 @@ public class CcddDbCommandHandler
             {
                 // Revert any changes to the database to the save point
                 connection.rollback(savePoint);
+
+                // Inform the user that rolling back the changes failed
+                eventLog.logEvent(EventLogMessageType.SUCCESS_MSG,
+                                  new StringBuilder("Rolled back changes to database"));
             }
             catch (SQLException se)
             {

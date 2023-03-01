@@ -603,8 +603,7 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
 
                 // Check if the cell isn't already selected (selection highlighting overrides the
                 // invalid highlighting, if applicable)
-                if (!(isFocusOwner() && isRowSelected(row)
-                      && (isColumnSelected(column) || !getColumnSelectionAllowed())))
+                if (!(isRowSelected(row) && (isColumnSelected(column) || !getColumnSelectionAllowed())))
                 {
                     boolean found = true;
 

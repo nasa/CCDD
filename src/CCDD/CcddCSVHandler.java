@@ -837,7 +837,6 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
         }
         catch (Exception pe)
         {
-
             // Inform the user that the file cannot be parsed
             throw new CCDDException("Parsing error; cause '</b>" + pe.getMessage() + "<b>'");
         }
@@ -1486,13 +1485,18 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
      *
      * @param targetTypeDefn        Table type definition of the table in which to import the data;
      *                              ignored if importing all tables
+     *
+     * @throws CCDDException If a data is missing, extraneous, or in error in the import file
+     *
+     * @throws Exception     If an unanticipated error occurs
      *********************************************************************************************/
     public void importTableDefinitions(BufferedReader br,
                                        FileEnvVar importFile,
                                        boolean ignoreErrors,
                                        boolean replaceExistingTables,
                                        ImportType importType,
-                                       TypeDefinition targetTypeDefn)
+                                       TypeDefinition targetTypeDefn) throws CCDDException,
+                                                                             Exception
     {
         String[] columnValues = null;
 
@@ -1518,232 +1522,223 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
         // Create a table definition to contain the table's information
         TableDefinition tableDefn = new TableDefinition();
 
-        try
+        // Read first line in file
+        String line = br.readLine();
+
+        // Remove any leading/trailing white space characters from the row
+        line = line.trim();
+
+        // Continue to read the file until EOF is reached or an error is detected
+        while (line != null)
         {
-            // Read first line in file
-            String line = br.readLine();
-
-            // Remove any leading/trailing white space characters from the row
-            line = line.trim();
-
-            // Continue to read the file until EOF is reached or an error is detected
-            while (line != null)
+            if (!line.isEmpty())
             {
-                if (!line.isEmpty())
+                if (line.replace(Chars.COMMA.getValue(), Chars.EMPTY_STRING.getValue())
+                        .equals(CSVTags.NAME_TYPE.getTag()))
                 {
-                    if (line.replace(Chars.COMMA.getValue(), Chars.EMPTY_STRING.getValue())
-                            .equals(CSVTags.NAME_TYPE.getTag()))
-                    {
-                        readingNameType = true;
-                        readingColumnData = false;
-                        readingDataField = false;
-                        line = br.readLine();
-                    }
-                    else if (line.replace(Chars.COMMA.getValue(), Chars.EMPTY_STRING.getValue())
-                                 .equals(CSVTags.COLUMN_DATA.getTag()))
-                    {
-                        readingNameType = false;
-                        readingColumnData = true;
-                        readingDataField = false;
-                        columnsCounted = false;
-                        line = br.readLine();
-                    }
-                    else if (line.replace(Chars.COMMA.getValue(), Chars.EMPTY_STRING.getValue())
-                                 .equals(CSVTags.DATA_FIELD.getTag()))
-                    {
-                        readingNameType = false;
-                        readingColumnData = false;
-                        readingDataField = true;
-                        line = br.readLine();
+                    readingNameType = true;
+                    readingColumnData = false;
+                    readingDataField = false;
+                    line = br.readLine();
+                }
+                else if (line.replace(Chars.COMMA.getValue(), Chars.EMPTY_STRING.getValue())
+                             .equals(CSVTags.COLUMN_DATA.getTag()))
+                {
+                    readingNameType = false;
+                    readingColumnData = true;
+                    readingDataField = false;
+                    columnsCounted = false;
+                    line = br.readLine();
+                }
+                else if (line.replace(Chars.COMMA.getValue(), Chars.EMPTY_STRING.getValue())
+                             .equals(CSVTags.DATA_FIELD.getTag()))
+                {
+                    readingNameType = false;
+                    readingColumnData = false;
+                    readingDataField = true;
+                    line = br.readLine();
 
-                        // If this is the line that lists the name of the columns then skip it
-                        if (line.contains(FieldsColumn.FIELD_NAME.getColumnName()))
-                        {
-                            line = br.readLine();
-                        }
-                    }
-
-                    if (line.replace(Chars.COMMA.getValue(), Chars.EMPTY_STRING.getValue())
-                            .equals(CSVTags.DESCRIPTION.getTag()))
+                    // If this is the line that lists the name of the columns then skip it
+                    if (line.contains(FieldsColumn.FIELD_NAME.getColumnName()))
                     {
                         line = br.readLine();
-
-                        if (line != null && !line.isEmpty())
-                        {
-                            columnValues = trimLine(line, br);
-
-                            // Store the table description
-                            tableDefn.setDescription(columnValues[0]);
-                        }
-                    }
-                    else
-                    {
-                        columnValues = trimLine(line, br);
-
-                        if (readingNameType == true)
-                        {
-                            // Check if the expected number of inputs is present (the third value,
-                            // the system name, is optional and not used)
-                            if (columnValues.length == 2 || columnValues.length == 3)
-                            {
-                                // Get the table's type definition. If importing into an existing
-                                // table then use its type definition
-                                typeDefn = importType == ImportType.IMPORT_ALL ? tableTypeHandler.getTypeDefinition(columnValues[1])
-                                                                               : targetTypeDefn;
-
-                                // Check if the table type doesn't exist
-                                if (typeDefn == null)
-                                {
-                                    throw new CCDDException("Unknown table type '</b>" + columnValues[1] + "<b>'");
-                                }
-
-                                // Use the table name (with path, if applicable) and type to build
-                                // the parent, path, and type for the table information class
-                                tablePath = columnValues[0];
-                                tableDefn.setName(tablePath);
-                                tableDefn.setTypeName(columnValues[1]);
-
-                                // Get the number of expected columns (the hidden columns, primary
-                                // key and row index, should not be included in the CSV file)
-                                numColumns = typeDefn.getColumnCountVisible();
-                            }
-                            // Incorrect number of inputs
-                            else
-                            {
-                                throw new CCDDException("Too many/few table name and type inputs");
-                            }
-                        }
-                        else if (readingColumnData == true)
-                        {
-                            // Check if any column names exist
-                            if (columnValues.length != 0)
-                            {
-                                // Number of columns in an import file that match the target table
-                                int numValidColumns = 0;
-
-                                if (columnsCounted == false)
-                                {
-                                    // Create storage for the column indices
-                                    columnIndex = new int[columnValues.length];
-
-                                    // Step through each column name
-                                    for (int index = 0; index < columnValues.length; index++)
-                                    {
-                                        // Get the index for this column name
-                                        columnIndex[index] = typeDefn.getVisibleColumnIndexByUserName(columnValues[index]);
-
-                                        // Check if the column name in the file matches that of a
-                                        // column in the table
-                                        if (columnIndex[index] != -1)
-                                        {
-                                            // Increment the counter that tracks the number of
-                                            // matched columns
-                                            numValidColumns++;
-                                        }
-                                        // The number of inputs is incorrect
-                                        else
-                                        {
-                                            // Check if the error should be ignored or the import
-                                            // canceled
-                                            ignoreErrors = getErrorResponse(ignoreErrors,
-                                                                            "<html><b>Table '</b>"
-                                                                             + tableDefn.getName()
-                                                                             + "<b>' column name '</b>"
-                                                                             + columnValues[index]
-                                                                             + "<b>' unrecognized in import file '</b>"
-                                                                             + importFile.getAbsolutePath()
-                                                                             + "<b>'; continue?",
-                                                                            "Column Error",
-                                                                            "Ignore this invalid column name",
-                                                                            "Ignore this and any remaining invalid column names",
-                                                                            "Stop importing", parent);
-                                        }
-                                    }
-
-                                    // Check if no column names in the file match those in the
-                                    // table
-                                    if (numValidColumns == 0)
-                                    {
-                                        throw new CCDDException("No columns match those in the target table",
-                                                                JOptionPane.WARNING_MESSAGE);
-                                    }
-
-                                    columnsCounted = true;
-                                }
-                                else
-                                {
-                                    // Create storage for the row of cell data and initialize the
-                                    // values to nulls (a null indicates that the pasted cell value
-                                    // won't overwrite the current table value if overwriting; if
-                                    // inserting the pasted value is changed to a space)
-                                    String[] rowData = new String[numColumns];
-                                    Arrays.fill(rowData, Chars.EMPTY_STRING.getValue());
-
-                                    // Step through each column in the row
-                                    for (int rowIndex = 0; rowIndex < columnValues.length; rowIndex++)
-                                    {
-                                        // Check if the column exists
-                                        if (rowIndex < columnIndex.length && columnIndex[rowIndex] != -1)
-                                        {
-                                            // Store the cell data in the column matching the one
-                                            // in the target table
-                                            rowData[columnIndex[rowIndex]] = columnValues[rowIndex];
-                                        }
-                                    }
-
-                                    // Add the row of data read in from the file to the cell data
-                                    // list
-                                    tableDefn.addData(rowData);
-                                }
-                            }
-                            // The file contains no column data
-                            else
-                            {
-                                throw new CCDDException("File format invalid");
-                            }
-                        }
-                        else if (readingDataField == true)
-                        {
-                            // Append empty columns as needed to fill out the expected number of
-                            // inputs
-                            columnValues = CcddUtilities.appendArrayColumns(columnValues,
-                                                                            FieldsColumn.values().length - 1 - columnValues.length);
-
-                            // Add the data field definition, checking for (and if possible,
-                            // correcting) errors
-                            ignoreErrors = addImportedDataFieldDefinition(ignoreErrors,
-                                                                          replaceExistingTables,
-                                                                          tableDefn,
-                                                                          new String[] {tableDefn.getName(),
-                                                                                        columnValues[FieldsColumn.FIELD_NAME.ordinal() - 1],
-                                                                                        columnValues[FieldsColumn.FIELD_DESC.ordinal() - 1],
-                                                                                        columnValues[FieldsColumn.FIELD_SIZE.ordinal() - 1],
-                                                                                        columnValues[FieldsColumn.FIELD_TYPE.ordinal() - 1],
-                                                                                        columnValues[FieldsColumn.FIELD_REQUIRED.ordinal() - 1],
-                                                                                        columnValues[FieldsColumn.FIELD_APPLICABILITY.ordinal() - 1],
-                                                                                        columnValues[FieldsColumn.FIELD_VALUE.ordinal() - 1],
-                                                                                        columnValues[FieldsColumn.FIELD_INHERITED.ordinal() - 1]},
-                                                                          importFile.getAbsolutePath(),
-                                                                          inputTypeHandler,
-                                                                          fieldHandler,
-                                                                          parent);
-                        }
                     }
                 }
 
-                line = br.readLine();
+                if (line.replace(Chars.COMMA.getValue(), Chars.EMPTY_STRING.getValue())
+                        .equals(CSVTags.DESCRIPTION.getTag()))
+                {
+                    line = br.readLine();
+
+                    if (line != null && !line.isEmpty())
+                    {
+                        columnValues = trimLine(line, br);
+
+                        // Store the table description
+                        tableDefn.setDescription(columnValues[0]);
+                    }
+                }
+                else
+                {
+                    columnValues = trimLine(line, br);
+
+                    if (readingNameType == true)
+                    {
+                        // Check if the expected number of inputs is present (the third value, the
+                        // system name, is optional and not used)
+                        if (columnValues.length == 2 || columnValues.length == 3)
+                        {
+                            // Get the table's type definition. If importing into an existing table
+                            // then use its type definition
+                            typeDefn = importType == ImportType.IMPORT_ALL ? tableTypeHandler.getTypeDefinition(columnValues[1])
+                                                                           : targetTypeDefn;
+
+                            // Check if the table type doesn't exist
+                            if (typeDefn == null)
+                            {
+                                throw new CCDDException("Unknown table type '</b>" + columnValues[1] + "<b>'");
+                            }
+
+                            // Use the table name (with path, if applicable) and type to build the
+                            // parent, path, and type for the table information class
+                            tablePath = columnValues[0];
+                            tableDefn.setName(tablePath);
+                            tableDefn.setTypeName(columnValues[1]);
+
+                            // Get the number of expected columns (the hidden columns, primary key
+                            // and row index, should not be included in the CSV file)
+                            numColumns = typeDefn.getColumnCountVisible();
+                        }
+                        // Incorrect number of inputs
+                        else
+                        {
+                            throw new CCDDException("Too many/few table name and type inputs");
+                        }
+                    }
+                    else if (readingColumnData == true)
+                    {
+                        // Check if any column names exist
+                        if (columnValues.length != 0)
+                        {
+                            // Number of columns in an import file that match the target table
+                            int numValidColumns = 0;
+
+                            if (columnsCounted == false)
+                            {
+                                // Create storage for the column indices
+                                columnIndex = new int[columnValues.length];
+
+                                // Step through each column name
+                                for (int index = 0; index < columnValues.length; index++)
+                                {
+                                    // Get the index for this column name
+                                    columnIndex[index] = typeDefn.getVisibleColumnIndexByUserName(columnValues[index]);
+
+                                    // Check if the column name in the file matches that of a
+                                    // column in the table
+                                    if (columnIndex[index] != -1)
+                                    {
+                                        // Increment the counter that tracks the number of matched
+                                        // columns
+                                        numValidColumns++;
+                                    }
+                                    // The number of inputs is incorrect
+                                    else
+                                    {
+                                        // Check if the error should be ignored or the import
+                                        // canceled
+                                        ignoreErrors = getErrorResponse(ignoreErrors,
+                                                                        "<html><b>Table '</b>"
+                                                                         + tableDefn.getName()
+                                                                         + "<b>' column name '</b>"
+                                                                         + columnValues[index]
+                                                                         + "<b>' unrecognized in import file '</b>"
+                                                                         + importFile.getAbsolutePath()
+                                                                         + "<b>'; continue?",
+                                                                        "Column Error",
+                                                                        "Ignore this invalid column name",
+                                                                        "Ignore this and any remaining invalid column names",
+                                                                        "Stop importing", parent);
+                                    }
+                                }
+
+                                // Check if no column names in the file match those in the table
+                                if (numValidColumns == 0)
+                                {
+                                    throw new CCDDException("No columns match those in the target table",
+                                                            JOptionPane.WARNING_MESSAGE);
+                                }
+
+                                columnsCounted = true;
+                            }
+                            else
+                            {
+                                // Create storage for the row of cell data and initialize the
+                                // values to nulls (a null indicates that the pasted cell value
+                                // won't overwrite the current table value if overwriting; if
+                                // inserting the pasted value is changed to a space)
+                                String[] rowData = new String[numColumns];
+                                Arrays.fill(rowData, Chars.EMPTY_STRING.getValue());
+
+                                // Step through each column in the row
+                                for (int rowIndex = 0; rowIndex < columnValues.length; rowIndex++)
+                                {
+                                    // Check if the column exists
+                                    if (rowIndex < columnIndex.length && columnIndex[rowIndex] != -1)
+                                    {
+                                        // Store the cell data in the column matching the one in
+                                        // the target table
+                                        rowData[columnIndex[rowIndex]] = columnValues[rowIndex];
+                                    }
+                                }
+
+                                // Add the row of data read in from the file to the cell data
+                                // list
+                                tableDefn.addData(rowData);
+                            }
+                        }
+                        // The file contains no column data
+                        else
+                        {
+                            throw new CCDDException("File format invalid");
+                        }
+                    }
+                    else if (readingDataField == true)
+                    {
+                        // Append empty columns as needed to fill out the expected number of inputs
+                        columnValues = CcddUtilities.appendArrayColumns(columnValues,
+                                                                        FieldsColumn.values().length - 1 - columnValues.length);
+
+                        // Add the data field definition, checking for (and if possible,
+                        // correcting) errors
+                        ignoreErrors = addImportedDataFieldDefinition(ignoreErrors,
+                                                                      replaceExistingTables,
+                                                                      tableDefn,
+                                                                      new String[] {tableDefn.getName(),
+                                                                                    columnValues[FieldsColumn.FIELD_NAME.ordinal() - 1],
+                                                                                    columnValues[FieldsColumn.FIELD_DESC.ordinal() - 1],
+                                                                                    columnValues[FieldsColumn.FIELD_SIZE.ordinal() - 1],
+                                                                                    columnValues[FieldsColumn.FIELD_TYPE.ordinal() - 1],
+                                                                                    columnValues[FieldsColumn.FIELD_REQUIRED.ordinal() - 1],
+                                                                                    columnValues[FieldsColumn.FIELD_APPLICABILITY.ordinal() - 1],
+                                                                                    columnValues[FieldsColumn.FIELD_VALUE.ordinal() - 1],
+                                                                                    columnValues[FieldsColumn.FIELD_INHERITED.ordinal() - 1]},
+                                                                      importFile.getAbsolutePath(),
+                                                                      inputTypeHandler,
+                                                                      fieldHandler,
+                                                                      parent);
+                    }
+                }
             }
 
-            // Check if a table definition exists in the import file
-            if (tableDefn.getName() != null)
-            {
-                // Add the table's definition to the list
-                tableDefinitions.add(tableDefn);
-            }
+            line = br.readLine();
         }
-        catch (Exception e)
+
+        // Check if a table definition exists in the import file
+        if (tableDefn.getName() != null)
         {
-            CcddUtilities.displayException(e, ccddMain.getMainFrame());
+            // Add the table's definition to the list
+            tableDefinitions.add(tableDefn);
         }
     }
 
@@ -1847,10 +1842,6 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                                        importType,
                                        targetTypeDefn);
             }
-        }
-        catch (Exception e)
-        {
-            CcddUtilities.displayException(e, ccddMain.getMainFrame());
         }
         finally
         {
