@@ -384,7 +384,7 @@ public class CcddTableTypeHandler
         /******************************************************************************************
          * Check if the table type represents a command argument structure
          *
-         * @return true if the table type represents a command argument structure
+         * @return True if the table type represents a command argument structure
          *****************************************************************************************/
         protected boolean isCommandArgumentStructure()
         {
@@ -783,7 +783,7 @@ public class CcddTableTypeHandler
          * Determine if this table type contains all of the default protected columns of the
          * Structure table type
          *
-         * @return true if this table type contains all of the protected columns of the Structure
+         * @return True if this table type contains all of the protected columns of the Structure
          *         table type; i.e., this table type represents a structure table
          *****************************************************************************************/
         protected boolean isStructure()
@@ -795,7 +795,7 @@ public class CcddTableTypeHandler
          * Determine if this table type contains all of the default protected columns of the ENUM
          * table type
          *
-         * @return true if this table type contains all of the protected columns of the ENUM table
+         * @return True if this table type contains all of the protected columns of the ENUM table
          *         type; i.e., this table type represents a ENUM table
          *****************************************************************************************/
         protected boolean isENUM()
@@ -807,7 +807,7 @@ public class CcddTableTypeHandler
          * Determine if this table type contains all of the default protected columns of the
          * Structure table type in addition to a column with the Rate input type
          *
-         * @return true if this table type contains all of the protected columns of the Structure
+         * @return True if this table type contains all of the protected columns of the Structure
          *         table type in addition to a column with the Rate input type; i.e., this table
          *         type represents a telemetry structure table
          *****************************************************************************************/
@@ -820,7 +820,7 @@ public class CcddTableTypeHandler
          * Determine if this table type contains all of the default protected columns of the
          * Command table type
          *
-         * @return true if this table type contains all of the protected columns of the Command
+         * @return True if this table type contains all of the protected columns of the Command
          *         table type (but not those of a Structure table type); i.e., this table type
          *         represents a Command table
          *****************************************************************************************/
@@ -836,7 +836,7 @@ public class CcddTableTypeHandler
          * @param typeName Table type name of the default table type with which to compare this
          *                 table's columns
          *
-         * @return true if this table type contains all of the protected columns of the specified
+         * @return True if this table type contains all of the protected columns of the specified
          *         table type
          *****************************************************************************************/
         private boolean isTargetType(String typeName)

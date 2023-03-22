@@ -1274,7 +1274,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
             /**************************************************************************************
              * Verify that the dialog content is valid
              *
-             * @return true if the input values are valid
+             * @return True if the input values are valid
              *************************************************************************************/
             @Override
             protected boolean verifySelection()
@@ -1387,7 +1387,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 /**********************************************************************************
                  * Verify that the dialog content is valid
                  *
-                 * @return true if the input values are valid
+                 * @return True if the input values are valid
                  *********************************************************************************/
                 @Override
                 protected boolean verifySelection()
@@ -1461,7 +1461,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
                 /**********************************************************************************
                  * Verify that the dialog content is valid
                  *
-                 * @return true if the input values are valid
+                 * @return True if the input values are valid
                  *********************************************************************************/
                 @Override
                 protected boolean verifySelection()
@@ -1571,7 +1571,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
      *
      * @param caller Reference to the dialog that is being verified
      *
-     * @return true if the group name is valid; false otherwise
+     * @return True if the group name is valid; false otherwise
      *********************************************************************************************/
     private boolean verifyGroupName(CcddDialogHandler caller)
     {
@@ -1648,7 +1648,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Check if the groups differ from those last committed to the database
      *
-     * @return true if the group definitions have changed
+     * @return True if the group definitions have changed
      *********************************************************************************************/
     private boolean isGroupsChanged()
     {
@@ -1733,7 +1733,7 @@ public class CcddGroupManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Check if the unsaved changes to an open data field table editor should be ignored
      *
-     * @return true if the there are no unsaved data field table editor changes or if the user
+     * @return True if the there are no unsaved data field table editor changes or if the user
      *         chooses to ignore the changes; false if the group has no data field changes, the
      *         data field table editor isn't open, or the user chooses to not ignore the unsaved
      *         changes

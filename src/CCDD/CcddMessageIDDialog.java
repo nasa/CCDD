@@ -252,7 +252,7 @@ public class CcddMessageIDDialog extends CcddDialogHandler
             /**************************************************************************************
              * Check if the field owner is a table
              *
-             * @return true if the field owner is a table
+             * @return True if the field owner is a table
              *************************************************************************************/
             @Override
             protected boolean isApplicable(String tableName)

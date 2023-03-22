@@ -271,7 +271,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
              *
              * @param column Table column index in view coordinates
              *
-             * @return false if the cell contains a combo box; true otherwise
+             * @return False if the cell contains a combo box; true otherwise
              *************************************************************************************/
             @Override
             protected boolean isCellBlankable(int row, int column)
@@ -934,7 +934,7 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Check that a row with contains data in the required columns
      *
-     * @return true if a row is missing data in a required column
+     * @return True if a row is missing data in a required column
      *********************************************************************************************/
     private boolean checkForMissingColumns()
     {

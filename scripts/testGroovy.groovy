@@ -25,7 +25,7 @@ if (checked != null)
 }
 
 // Open the output file
-def file = ccdd.openOutputFile("myFileName")
+def file = ccdd.openOutputFile(ccdd.getOutputPath() + "myFileName")
 
 // Get the array of structure names
 def structNames = ccdd.getStructureTableNames()

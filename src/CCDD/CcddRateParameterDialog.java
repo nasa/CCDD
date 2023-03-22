@@ -129,7 +129,7 @@ public class CcddRateParameterDialog extends CcddDialogHandler
         /******************************************************************************************
          * Get the value validity status
          *
-         * @return true if the input value is valid
+         * @return True if the input value is valid
          *****************************************************************************************/
         protected boolean isValid()
         {
@@ -746,7 +746,7 @@ public class CcddRateParameterDialog extends CcddDialogHandler
      * @param includeUneven   True to include unevenly time-spaced sample rate values; false to
      *                        only include sample rates that are evenly time-spaced
      *
-     * @return true if any of the rate parameters changed
+     * @return True if any of the rate parameters changed
      *********************************************************************************************/
     private boolean isRateChanges(int maxSecPerMsg,
                                   int maxMsgsPerSec,

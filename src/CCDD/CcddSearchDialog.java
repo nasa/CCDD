@@ -924,7 +924,7 @@ public class CcddSearchDialog extends CcddFrameHandler
                 /**********************************************************************************
                  * Check if the search result is for a table or table data field
                  *
-                 * @return true if the search result is for a table or table data field
+                 * @return True if the search result is for a table or table data field
                  *********************************************************************************/
                 @Override
                 protected boolean isApplicable(String tableName)

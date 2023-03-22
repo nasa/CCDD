@@ -33,7 +33,7 @@ if (checked != null)
 }
 
 // Open the output file
-var file = ccdd.openOutputFile("myFileName");
+var file = ccdd.openOutputFile(ccdd.getOutputPath() + "myFileName");
 
 // Get the array of structure names
 var structNames = ccdd.getStructureTableNames();

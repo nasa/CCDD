@@ -2068,7 +2068,7 @@ public class CcddSchedulerEditorHandler
      *
      * @param message Message for which the variables are deallocated from each sub-message
      *
-     * @return true if the variable is deallocated or there are no variables to deallocate; false
+     * @return True if the variable is deallocated or there are no variables to deallocate; false
      *         if there are variable to deallocate but the user cancels the operation
      *********************************************************************************************/
     private boolean deAllocateSubVariables(Message message)
@@ -2152,7 +2152,7 @@ public class CcddSchedulerEditorHandler
     /**********************************************************************************************
      * Compare the current messages to the committed messages to detect any changes
      *
-     * @return true if a message's content changed; false if no change exists
+     * @return True if a message's content changed; false if no change exists
      *********************************************************************************************/
     protected boolean isMessagesChanged()
     {
@@ -2185,7 +2185,7 @@ public class CcddSchedulerEditorHandler
      *
      * @param commMsg Reference to the message's original values
      *
-     * @return true if the (sub-)message's content changed; false if no change exists
+     * @return True if the (sub-)message's content changed; false if no change exists
      *********************************************************************************************/
     private boolean isMessageChanged(Message currMsg, Message commMsg)
     {

@@ -26,6 +26,7 @@
 package CCDD;
 
 import java.io.PrintWriter;
+import java.util.List;
 
 import org.omg.space.xtce.BaseDataType.UnitSet;
 import org.omg.space.xtce.EntryListType;
@@ -87,9 +88,19 @@ public class CcddScriptDataAccessHandlerStatic
         return accessHandler.getOutputPath();
     }
 
+    public Integer getLongestString(List<String> strgList, Integer minWidth)
+    {
+        return accessHandler.getLongestString(strgList, minWidth);
+    }
+
     public static Integer getLongestString(String[] strgArray, Integer minWidth)
     {
         return accessHandler.getLongestString(strgArray, minWidth);
+    }
+
+    public static Integer[] getLongestStrings(List<List<String>> strgList, List<Integer> minWidths)
+    {
+        return accessHandler.getLongestStrings(strgList, minWidths);
     }
 
     public static Integer[] getLongestStrings(String[][] strgArray, Integer[] minWidths)
@@ -705,9 +716,19 @@ public class CcddScriptDataAccessHandlerStatic
         return accessHandler.getInputDialog(labelText);
     }
 
+    public static String getRadioButtonDialog(String label, List<List<String>> buttonInfo)
+    {
+        return accessHandler.getRadioButtonDialog(label, buttonInfo);
+    }
+
     public static String getRadioButtonDialog(String label, String[][] buttonInfo)
     {
         return accessHandler.getRadioButtonDialog(label, buttonInfo);
+    }
+
+    public static boolean[] getCheckBoxDialog(String label, List<List<String>> boxInfo)
+    {
+        return accessHandler.getCheckBoxDialog(label, boxInfo);
     }
 
     public static boolean[] getCheckBoxDialog(String label, String[][] boxInfo)

@@ -1165,7 +1165,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
 
         try
         {
-            // Detect the type of the parsed JSON file and only accept JSONObjects This will throw
+            // Detect the type of the parsed JSON file and only accept JSONObjects. This will throw
             // an exception if it is incorrect
             verifyJSONObjectType(importFile);
 
@@ -1621,8 +1621,6 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      *                                and data type/variable name separator character(s); null if
      *                                includeVariablePaths is false
      *
-     * @param addEOFMarker            Is this the last data to be added to the file?
-     *
      * @param extraInfo               Unused
      *
      * @throws CCDDException If a file I/O or JSON JavaScript parsing error occurs
@@ -1638,7 +1636,6 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                              boolean includeVariablePaths,
                              CcddVariableHandler variableHandler,
                              String[] separators,
-                             boolean addEOFMarker,
                              String outputType,
                              Object... extraInfo) throws CCDDException, Exception
     {
@@ -1761,7 +1758,6 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             }
 
             JSONValue.writeJSONString(outputJO, orderedOutput);
-
             // Output the table data to the selected file. Multiple writers are needed in case
             // tables are appended to an existing file
             fw = new FileWriter(exportFile, true);
@@ -1771,7 +1767,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             scriptEngine.put("jsonString", orderedOutput.toString());
             scriptEngine.eval("result = JSON.stringify(JSON.parse(jsonString), null, 2)");
 
-            if ((outputType.contentEquals(EXPORT_SINGLE_FILE)) && (!addEOFMarker))
+            if (outputType.contentEquals(EXPORT_SINGLE_FILE))
             {
                 int size = ((String) scriptEngine.get("result")).length() - 3;
                 pw.println(((String) scriptEngine.get("result")).substring(0, size) + "],");
@@ -2269,7 +2265,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
     }
 
     /**********************************************************************************************
-     * Export script association data, group data, macro data, telemetry scheduler data or
+     * Export script association data, group data, macro data, telemetry scheduler data, or
      * application scheduler data to the specified folder
      *
      * @param includes   The types of table to be included in the export
@@ -2436,19 +2432,34 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                             break;
 
                         case DBU_INFO:
-                            if (!getDBUInfo(outputJO).isEmpty())
+                            if (outputType.contentEquals(EXPORT_MULTIPLE_FILES))
                             {
-                                if (outputType.contentEquals(EXPORT_MULTIPLE_FILES))
-                                {
-                                    fw = new FileWriter(exportFile + "/" + FileNames.DBU_INFO.JSON(), false);
-                                    bw = new BufferedWriter(fw);
-                                    pw = new PrintWriter(bw);
-                                    outputJO = new OrderedJSONObject();
-                                }
-
-                                // Get the project data fields data
-                                outputJO = getDBUInfo(outputJO);
+                                outputJO = new OrderedJSONObject();
                             }
+
+                            // Get the project data fields data
+                            outputJO = getDBUInfo(outputJO);
+
+                            if (outputType.contentEquals(EXPORT_MULTIPLE_FILES))
+                            {
+                                fw = new FileWriter(exportFile + "/" + FileNames.DBU_INFO.JSON(), false);
+                                bw = new BufferedWriter(fw);
+                                pw = new PrintWriter(bw);
+                            }
+
+//                            if (!getDBUInfo(outputJO).isEmpty())
+//                            {
+//                                if (outputType.contentEquals(EXPORT_MULTIPLE_FILES))
+//                                {
+//                                    fw = new FileWriter(exportFile + "/" + FileNames.DBU_INFO.JSON(), false);
+//                                    bw = new BufferedWriter(fw);
+//                                    pw = new PrintWriter(bw);
+//                                    outputJO = new OrderedJSONObject();
+//                                }
+//
+//                                // Get the project data fields data
+//                                outputJO = getDBUInfo(outputJO);
+//                            }
 
                             break;
                     }
@@ -2687,8 +2698,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                 }
             }
         }
-        catch (
-                IOException | ScriptException iose)
+        catch (IOException | ScriptException iose)
         {
             throw new CCDDException(iose.getMessage());
         }

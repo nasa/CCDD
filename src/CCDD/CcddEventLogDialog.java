@@ -717,7 +717,7 @@ public class CcddEventLogDialog extends CcddFrameHandler
      *
      * @param type Event log message type (e.g., COMMAND_MSG)
      *
-     * @return true if the message is selected to display
+     * @return True if the message is selected to display
      *********************************************************************************************/
     private boolean isFilter(EventLogMessageType type)
     {
@@ -754,7 +754,7 @@ public class CcddEventLogDialog extends CcddFrameHandler
      * Open the event log file. If this is the current session's event log then create the file; if
      * this is an existing log then open the user-selected file
      *
-     * @return true if the log is opened
+     * @return True if the log is opened
      *********************************************************************************************/
     private boolean openEventLogFile()
     {

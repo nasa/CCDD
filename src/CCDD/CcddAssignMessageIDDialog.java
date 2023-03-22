@@ -1217,7 +1217,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
      *
      * @param fieldInformation List of data field information
      *
-     * @return true if a message ID value changed
+     * @return True if a message ID value changed
      *********************************************************************************************/
     private boolean assignTableMessageIDs(MsgTabInfo tabInfo,
                                           List<String> tables,
@@ -1344,7 +1344,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
      *
      * @param fieldInformation List of data field information
      *
-     * @return true if a message ID value changed
+     * @return True if a message ID value changed
      *********************************************************************************************/
     private boolean assignGroupMessageIDs(MsgTabInfo tabInfo,
                                           List<FieldInformation> fieldInformation)

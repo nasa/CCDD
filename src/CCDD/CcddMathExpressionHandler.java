@@ -387,7 +387,7 @@ public class CcddMathExpressionHandler
      *
      * @param nestLevel Nest level that determines the second value and the operator
      *
-     * @return true if the operation is valid; false if an error occurs (divide by zero condition
+     * @return True if the operation is valid; false if an error occurs (divide by zero condition
      *         exists)
      *********************************************************************************************/
     private static boolean performOperation(Double dValue, NestLevel nestLevel)

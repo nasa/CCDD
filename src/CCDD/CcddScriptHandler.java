@@ -126,7 +126,10 @@ public class CcddScriptHandler
     private CcddDataTypeHandler dataTypeHandler;
     private CcddVariableHandler variableHandler;
     private CcddJTableHandler assnsTable;
-    private CcddFrameHandler scriptDialog = null;
+    private CcddFrameHandler scriptDialog;
+    private CcddPy4JHandler py4jHndlr;
+    private CcddScriptDataAccessHandler accessHandler;
+    private CcddScriptDataAccessHandlerStatic staticHandler;
 
     // Components referenced by multiple methods
     private JCheckBox hideScriptFilePath;
@@ -136,10 +139,19 @@ public class CcddScriptHandler
     private static CcddHaltDialog haltDlg;
 
     // List of script engine factories that are available on this platform
-    private final List<ScriptEngineFactory> scriptFactories;
+    private List<ScriptEngineFactory> scriptFactories;
+
+    // Flag that indicates if the Py4J gateway server is available for executing Python scripts
+    private boolean isPy4JAvailable;
+
+    // Flag that indicates if the currently executing script is a Python script handled by Py4J
+    private boolean isPy4JScript;
+
+    // Python executable name
+    private String pythonCommand;
 
     // Global storage for the data obtained in the recursive table data reading method
-    private Object[][] combinedData;
+    private List<Object[]> combinedData;
 
     // List containing the table paths for the tables loaded for a script association. Used to
     // prevent loading the same table more than once
@@ -171,9 +183,29 @@ public class CcddScriptHandler
         // Create references to shorten subsequent calls
         dbTable = ccddMain.getDbTableCommandHandler();
         eventLog = ccddMain.getSessionEventLog();
+        py4jHndlr = ccddMain.getPy4JHandler();
 
         // Get the available script engines
-        scriptFactories = new ScriptEngineManager().getEngineFactories();
+        scriptFactories = new ArrayList<ScriptEngineFactory>(new ScriptEngineManager().getEngineFactories());
+
+        // Set the flag to indicate if the Py4J python access library is available
+        isPy4JAvailable = py4jHndlr.isPy4JAvailable();
+
+        if (isPy4JAvailable)
+        {
+            // Remove the Jython script factory, if present
+            for (ScriptEngineFactory factory : scriptFactories)
+            {
+                if (factory.getEngineName().toLowerCase().contentEquals("jython"))
+                {
+                    scriptFactories.remove(factory);
+                    break;
+                }
+            }
+
+            // Add the Py4J pseudo-factory
+            scriptFactories.add(new CcddPy4JScriptEngineFactory(py4jHndlr.getVersion(), this));
+        }
 
         scriptDialog = null;
     }
@@ -186,6 +218,26 @@ public class CcddScriptHandler
         tableTypeHandler = ccddMain.getTableTypeHandler();
         dataTypeHandler = ccddMain.getDataTypeHandler();
         variableHandler = ccddMain.getVariableHandler();
+    }
+
+    /**********************************************************************************************
+     * Get the reference to the script data access handler
+     *
+     * @return Reference to the script data access handler
+     *********************************************************************************************/
+    protected CcddScriptDataAccessHandler getAccessHandler()
+    {
+        return accessHandler;
+    }
+
+    /**********************************************************************************************
+     *  Get the reference to the static script data access handler
+     *
+     * @return Reference to the static script data access handler
+     *********************************************************************************************/
+    protected CcddScriptDataAccessHandlerStatic getStaticHandler()
+    {
+        return staticHandler;
     }
 
     /**********************************************************************************************
@@ -845,7 +897,7 @@ public class CcddScriptHandler
      *
      * @param row Table row (model coordinates)
      *
-     * @return true if the script association on the specified row is available
+     * @return True if the script association on the specified row is available
      *********************************************************************************************/
     boolean isAssociationAvailable(int row)
     {
@@ -1075,7 +1127,7 @@ public class CcddScriptHandler
      *
      * @param parent GUI component over which to center any error dialog
      *
-     * @return true if the each key has a corresponding value; false if a value is missing
+     * @return True if the each key has a corresponding value; false if a value is missing
      *********************************************************************************************/
     private boolean getEnvironmentVariableMap(Component parent)
     {
@@ -1084,79 +1136,127 @@ public class CcddScriptHandler
         // Get the current system environment variable map
         envVarMap = new HashMap<String, String>(System.getenv());
 
-        // Step through the overrides, if any
-        for (String envVarDefn : envVarOverrideFld.getText().split("\\s*,\\s*"))
+        // Check if the script execution was initiated via the script manager or executive dialog
+        // (and not from command line command)
+        if (parent instanceof CcddFrameHandler)
         {
-            // Check that the definition isn't blank
-            if (!envVarDefn.isEmpty())
+            // Step through the overrides, if any
+            for (String envVarDefn : envVarOverrideFld.getText().split("\\s*,\\s*"))
             {
-                // Split the override into a key and value
-                String[] keyAndValue = CcddUtilities.splitAndRemoveQuotes(envVarDefn.trim(),
-                                                                          "\\s*=\\s*",
-                                                                          2,
-                                                                          true);
+                // Check that the definition isn't blank
+                if (!envVarDefn.isEmpty())
+                {
+                    // Split the override into a key and value
+                    String[] keyAndValue = CcddUtilities.splitAndRemoveQuotes(envVarDefn.trim(),
+                                                                              "\\s*=\\s*",
+                                                                              2,
+                                                                              true);
 
-                // Check if the key and value are present
-                if (keyAndValue.length == 2)
-                {
-                    // Add the key and value to the map if the key doesn't already exist; otherwise
-                    // replace the value for the key
-                    envVarMap.put(keyAndValue[0].trim().replaceAll("^\\$\\s*", ""),
-                                  keyAndValue[1].trim());
+                    // Check if the key and value are present
+                    if (keyAndValue.length == 2)
+                    {
+                        // Add the key and value to the map if the key doesn't already exist;
+                        // otherwise replace the value for the key
+                        envVarMap.put(keyAndValue[0].trim().replaceAll("^\\$\\s*", ""),
+                                      keyAndValue[1].trim());
+                    }
+                    // Insufficient parameters
+                    else
+                    {
+                        // Inform the user that script association execution can't continue due to
+                        // an invalid input
+                        new CcddDialogHandler().showMessageDialog(parent,
+                                                                  "<html><b>Environment variable override key '</b>"
+                                                                  + keyAndValue[0]
+                                                                  + "<b>' has no corresponding value",
+                                                                  "Invalid Input",
+                                                                  JOptionPane.WARNING_MESSAGE,
+                                                                  DialogOption.OK_OPTION);
+                        isValid = false;
+                        break;
+                    }
                 }
-                // Insufficient parameters
-                else
+            }
+
+            // Check if every key has a value
+            if (isValid)
+            {
+                // Update the environment variable override preferences
+                ModifiableOtherSettingInfo.ENV_VAR_OVERRIDE.setValue(envVarOverrideFld.getText().trim(),
+                                                                     ccddMain.getProgPrefs());
+
+                // Step through each script association
+                for (int row = 0; row < assnsTable.getRowCount(); row++)
                 {
-                    // Inform the user that script association execution can't continue due to an
-                    // invalid input
-                    new CcddDialogHandler().showMessageDialog(parent,
-                                                              "<html><b>Environment variable override key '</b>"
-                                                              + keyAndValue[0]
-                                                              + "<b>' has no corresponding value",
-                                                              "Invalid Input",
-                                                              JOptionPane.WARNING_MESSAGE,
-                                                              DialogOption.OK_OPTION);
-                    isValid = false;
-                    break;
+                    // Check if the association isn't unavailable due to a missing table
+                    if (assnsTable.getModel().getValueAt(row,
+                                                         AssociationsTableColumnInfo.AVAILABLE.ordinal()) != AvailabilityType.TABLE_MISSING)
+                    {
+                        // Get the reference to the association's script file
+                        FileEnvVar file = new FileEnvVar(FileEnvVar.expandEnvVars(assnsTable.getValueAt(row,
+                                                                                                        AssociationsTableColumnInfo.SCRIPT_FILE.ordinal()).toString(),
+                                                                                  envVarMap));
+
+                        // Set the availability status based on if the script file exists
+                        ((UndoableTableModel) assnsTable.getModel()).setValueAt((file.exists() ? AvailabilityType.AVAILABLE
+                                                                                               : AvailabilityType.SCRIPT_MISSING),
+                                                                                row,
+                                                                                AssociationsTableColumnInfo.AVAILABLE.ordinal(),
+                                                                                false);
+                    }
                 }
+
+                // Force the table to redraw so that a change in an association's availability status
+                // is reflected
+                ((UndoableTableModel) assnsTable.getModel()).fireTableDataChanged();
+                ((UndoableTableModel) assnsTable.getModel()).fireTableStructureChanged();
             }
         }
 
-        // Check if every key has a value
-        if (isValid)
+        // Check if Py4J is available
+        if (isPy4JAvailable)
         {
-            // Update the environment variable override preferences
-            ModifiableOtherSettingInfo.ENV_VAR_OVERRIDE.setValue(envVarOverrideFld.getText().trim(),
-                                                                 ccddMain.getProgPrefs());
-
-            // Step through each script association
-            for (int row = 0; row < assnsTable.getRowCount(); row++)
-            {
-                // Check if the association isn't unavailable due to a missing table
-                if (assnsTable.getModel().getValueAt(row,
-                                                     AssociationsTableColumnInfo.AVAILABLE.ordinal()) != AvailabilityType.TABLE_MISSING)
-                {
-                    // Get the reference to the association's script file
-                    FileEnvVar file = new FileEnvVar(FileEnvVar.expandEnvVars(assnsTable.getValueAt(row,
-                                                                                                    AssociationsTableColumnInfo.SCRIPT_FILE.ordinal()).toString(),
-                                                                              envVarMap));
-
-                    // Set the availability status based on if the script file exists
-                    ((UndoableTableModel) assnsTable.getModel()).setValueAt((file.exists() ? AvailabilityType.AVAILABLE
-                                                                                           : AvailabilityType.SCRIPT_MISSING),
-                                                                            row,
-                                                                            AssociationsTableColumnInfo.AVAILABLE.ordinal(),
-                                                                            false);
-                }
-            }
-
-            // Force the table to redraw so that a change in an association's availability status
-            // is reflected
-            ((UndoableTableModel) assnsTable.getModel()).fireTableDataChanged();
-            ((UndoableTableModel) assnsTable.getModel()).fireTableStructureChanged();
+            // Update the Python script command
+            setPythonCommand();
         }
 
         return isValid;
+    }
+
+    /**********************************************************************************************
+     * Set the command for executing a Python script based on the program preferences
+     *********************************************************************************************/
+    protected void setPythonCommand()
+    {
+        // Get the Python command from the program preferences
+        pythonCommand = ModifiableOtherSettingInfo.PYTHON_COMMAND_NAME.getValue();
+
+        // Check if a command is found
+        if (!pythonCommand.isEmpty())
+        {
+            // Check if the command references an environment variable
+            if (pythonCommand.startsWith("$"))
+            {
+                // Use the value of the environment variable for the command
+                pythonCommand = envVarMap.get(pythonCommand.substring(1));
+            }
+        }
+        // No command is provided
+        else
+        {
+            // Use the default command
+            pythonCommand = ModifiableOtherSettingInfo.PYTHON_COMMAND_NAME.getDefault();
+        }
+    }
+
+    /**********************************************************************************************
+     * Get the command for executing a Python script
+     *
+     * @return The command for executing a Python script
+     *********************************************************************************************/
+    protected String getPythonCommand()
+    {
+        return pythonCommand;
     }
 
     /**********************************************************************************************
@@ -1319,6 +1419,9 @@ public class CcddScriptHandler
             // altered by a command line command)
             ccddMain.restoreScriptOutputPath();
         }
+
+        // Stop the Py4J gateway server
+        py4jHndlr.stopGatewayServer();
     }
 
     /**********************************************************************************************
@@ -1413,12 +1516,22 @@ public class CcddScriptHandler
                     // since the scripts are user-generated). There shouldn't be a potential for
                     // object corruption in the application since it doesn't reference any objects
                     // created by a script
-                    scriptThread.stop();
+                    if (isPy4JScript)
+                    {
+                        scriptThread.interrupt();
+                    }
+                    else
+                    {
+                        scriptThread.stop();
+                    }
 
                     // Set the execution status(es) to indicate the scripts didn't complete
                     isBad = new boolean[associations.size()];
                     Arrays.fill(isBad, true);
                 }
+
+                // Stop the Py4J gateway server
+                py4jHndlr.stopGatewayServer();
             }
 
             /**************************************************************************************
@@ -1470,7 +1583,6 @@ public class CcddScriptHandler
                                                 Component parent)
     {
         int assnIndex = 0;
-        int step = 0;
         CcddTableTreeHandler tableTree = tree;
 
         // Create an array to indicate if an association has a problem that prevents its execution
@@ -1489,8 +1601,8 @@ public class CcddScriptHandler
         // script manager or executive dialog)
         if (!(parent instanceof CcddFrameHandler))
         {
-            // Get the system environment variables map
-            envVarMap = new HashMap<String, String>(System.getenv());
+            // Initialize the environment variable map
+            getEnvironmentVariableMap(parent);
         }
 
         // Check if no table tree was provided
@@ -1541,6 +1653,19 @@ public class CcddScriptHandler
                 // Check if at least one table is assigned to this script association
                 if (!tablePaths.isEmpty())
                 {
+                    // Check if the cancellation dialog is displayed
+                    if (haltDlg != null)
+                    {
+                        // Set the cancellation dialog label and progress bar text. Use the
+                        // association name in the progress bar; if the name is blank then display
+                        // the script (with full path)
+                        haltDlg.setLabel("Loading table data...");
+                        haltDlg.updateProgressBar((!assn[AssociationsColumn.NAME.ordinal()].toString().isEmpty() ? assn[AssociationsColumn.NAME.ordinal()].toString()
+                                                                                                                 : assn[AssociationsColumn.SCRIPT_FILE.ordinal()].toString()),
+                                                  0);
+                        haltDlg.setItemsPerStep(tablePaths.size());
+                    }
+
                     // Sort the table paths. Sorting the tables based on their position in the
                     // table tree ensures that a child table's data is read as part of a parent (if
                     // the parent is in the association), and not separately from the parent
@@ -1579,7 +1704,14 @@ public class CcddScriptHandler
                     for (String tablePath : tablePaths)
                     {
                         // Initialize the array for each of the tables to load from the database
-                        combinedData = new Object[0][0];
+                        combinedData = new ArrayList<Object[]>(0);
+
+                        // Check if the cancellation dialog is displayed
+                        if (haltDlg != null)
+                        {
+                            // Update the progress bar as each table is loaded
+                            haltDlg.updateProgressBar(null, -1);
+                        }
 
                         // Read the table and child table data from the database and store the
                         // results from the last table loaded. This builds the combined data with
@@ -1669,14 +1801,32 @@ public class CcddScriptHandler
 
         assnIndex = 0;
 
+        // Check if the cancellation dialog is displayed
+        if (haltDlg != null)
+        {
+            // Set the progress bar to update based on the number of associations
+            haltDlg.setItemsPerStep(associations.size());
+            haltDlg.setLabel("Script execution in progress...");
+        }
+
         // Once all table information is loaded then gather the data for each association and
         // execute it. Step through each script association definition
         for (Object[] assn : associations)
         {
-            // Check if script execution is canceled
-            if (haltDlg != null && haltDlg.isHalted())
+            // Check if the cancellation dialog is displayed
+            if (haltDlg != null)
             {
-                break;
+                // Check if script execution is canceled
+                if (haltDlg.isHalted())
+                {
+                    break;
+                }
+
+                // Update the cancellation dialog progress bar. Use the association name in the
+                // progress bar; if the name is blank then display the script (with full path)
+                haltDlg.updateProgressBar((!assn[AssociationsColumn.NAME.ordinal()].toString().isEmpty() ? assn[AssociationsColumn.NAME.ordinal()].toString()
+                                                                                                         : assn[AssociationsColumn.SCRIPT_FILE.ordinal()].toString()),
+                                          -1);
             }
 
             // Check that an error didn't occur loading the data for this association
@@ -1800,17 +1950,6 @@ public class CcddScriptHandler
 
                 try
                 {
-                    // Check if the cancellation dialog is displayed
-                    if (haltDlg != null)
-                    {
-                        // Update the progress bar. Display the association name in the progress
-                        // bar; if the name is blank then display the script (with full path)
-                        haltDlg.updateProgressBar((!assn[AssociationsColumn.NAME.ordinal()].toString().isEmpty() ? assn[AssociationsColumn.NAME.ordinal()].toString()
-                                                                                                                 : scriptFileName),
-                                                  haltDlg.getNumDivisionPerStep() * step);
-                        step++;
-                    }
-
                     // Execute the script using the indicated table data
                     executeScript(scriptFileName,
                                   combinedTableInfo,
@@ -1969,7 +2108,7 @@ public class CcddScriptHandler
                               "<html><b>Cannot execute script '</b>"
                               + scriptFileName
                               + "<b>' using table(s) '</b>"
-                              + members
+                              + CcddUtilities.convertArrayToStringTruncate(new String[] {members})
                               + "<b>'");
     }
 
@@ -2004,6 +2143,7 @@ public class CcddScriptHandler
                                            Component parent) throws CCDDException
     {
         ScriptEngine scriptEngine = null;
+        isPy4JScript = false;
 
         // Create the script file
         FileEnvVar scriptFile = new FileEnvVar(scriptFileName);
@@ -2056,23 +2196,35 @@ public class CcddScriptHandler
                 // either the non-static or static version (Python, Groovy), but others only work
                 // with the non-static (JavaScript, Ruby) or static version (Scala) (this can be
                 // Java version dependent as well)
-                CcddScriptDataAccessHandler accessHandler = new CcddScriptDataAccessHandler(ccddMain,
-                                                                                            scriptEngine,
-                                                                                            tableInformation,
-                                                                                            linkHandler,
-                                                                                            groupHandler,
-                                                                                            scriptFileName,
-                                                                                            groupNames,
-                                                                                            parent);
-                CcddScriptDataAccessHandlerStatic staticHandler = new CcddScriptDataAccessHandlerStatic(accessHandler);
+                accessHandler = new CcddScriptDataAccessHandler(ccddMain,
+                                                                scriptEngine,
+                                                                tableInformation,
+                                                                linkHandler,
+                                                                groupHandler,
+                                                                scriptFileName,
+                                                                groupNames,
+                                                                parent);
+                staticHandler = new CcddScriptDataAccessHandlerStatic(accessHandler);
 
-                // Bind the script data access handlers (non-static and static versions) to the
-                // script context so that the handlers' public access methods can be accessed by
-                // the script using the binding names ('ccdd' or 'ccdds')
-                Bindings scriptBindings = scriptEngine.createBindings();
-                scriptBindings.put("ccdd", accessHandler);
-                scriptBindings.put("ccdds", staticHandler);
-                scriptEngine.setBindings(scriptBindings, ScriptContext.ENGINE_SCOPE);
+                // Check if this is a Python script and the Py4J gateway server is available
+                if (isPy4JAvailable && extension.contentEquals("py"))
+                {
+                    // Start the gateway server
+                    py4jHndlr.startGatewayServer();
+
+                    isPy4JScript = true;
+                }
+                // Not a Python script, or Py4J is not available
+                else
+                {
+                    // Bind the script data access handlers (non-static and static versions) to the
+                    // script context so that the handlers' public access methods can be accessed
+                    // by the script using the binding names ('ccdd' or 'ccdds')
+                    Bindings scriptBindings = scriptEngine.createBindings();
+                    scriptBindings.put("ccdd", accessHandler);
+                    scriptBindings.put("ccdds", staticHandler);
+                    scriptEngine.setBindings(scriptBindings, ScriptContext.ENGINE_SCOPE);
+                }
 
                 // Stop searching since a match was found
                 break;
@@ -2127,7 +2279,14 @@ public class CcddScriptHandler
         try
         {
             // Execute the script
-            scriptEngine.eval(new FileReader(scriptFileName));
+            if (isPy4JScript)
+            {
+                scriptEngine.eval(scriptFileName);
+            }
+            else
+            {
+                scriptEngine.eval(new FileReader(scriptFileName));
+            }
         }
         catch (Exception e)
         {
@@ -2188,59 +2347,65 @@ public class CcddScriptHandler
 
                 // Get the data and place it in an array for reference below. Add columns to
                 // contain the table type and path
-                String[][] data = CcddUtilities.appendArrayColumns(tableInfo.getDataArray(), 2);
-                int typeColumn = data[0].length - TYPE_COLUMN_DELTA;
-                int pathColumn = data[0].length - PATH_COLUMN_DELTA;
+                int numColumns = typeDefn.getColumnCountDatabase() + 2;
+                int typeColumn = numColumns - TYPE_COLUMN_DELTA;
+                int pathColumn = numColumns - PATH_COLUMN_DELTA;
 
-                // Step through each row
-                for (int row = 0; row < data.length && !tableInfo.isErrorFlag(); row++)
+                // Step through each row in the data table
+                for (Object[] rowData : tableInfo.getData())
                 {
+                    // COpy the row data to a new array that has two extra columns
+                    Object[] rowDataPlus2 = new Object[numColumns];
+                    System.arraycopy(rowData, 0, rowDataPlus2, 0, numColumns - 2);
+
                     // Use the index column to store the table path and type for reference during
                     // script execution
-                    data[row][typeColumn] = tableInfo.getType();
-                    data[row][pathColumn] = tablePath;
+                    rowDataPlus2[typeColumn] = tableInfo.getType();
+                    rowDataPlus2[pathColumn] = tablePath;
 
                     // Check if the table represents a structure, contains a variable path column,
                     // and that the variable name and data type aren't blank
-                    if (isStructure && variablePathColumn != -1 && !data[row][variableNameColumn].isEmpty()
-                        && !data[row][dataTypeColumn].isEmpty())
+                    if (isStructure
+                        && variablePathColumn != -1
+                        && !rowDataPlus2[variableNameColumn].toString().isEmpty()
+                        && !rowDataPlus2[dataTypeColumn].toString().isEmpty())
                     {
                         // Get the variable path and store it in the table data. The variable path
                         // isn't stored in the database, but instead is constructed on-the-fly. The
                         // path separators used are those currently stored in the program
                         // preferences
-                        data[row][variablePathColumn] = variableHandler.getVariablePath(tableInfo.getTablePath(),
-                                                                                        data[row][variableNameColumn],
-                                                                                        data[row][dataTypeColumn],
-                                                                                        varPathSeparator,
-                                                                                        excludeDataTypes,
-                                                                                        typeNameSeparator,
-                                                                                        true);
-
+                        rowDataPlus2[variablePathColumn] = variableHandler.getVariablePath(tableInfo.getTablePath(),
+                                                                                           rowDataPlus2[variableNameColumn].toString(),
+                                                                                           rowDataPlus2[dataTypeColumn].toString(),
+                                                                                           varPathSeparator,
+                                                                                           excludeDataTypes,
+                                                                                           typeNameSeparator,
+                                                                                           true);
                     }
 
                     // Store the data from the table in the combined storage array
-                    combinedData = CcddUtilities.concatenateArrays(combinedData, new Object[][] {data[row]});
+                    combinedData.add(rowDataPlus2);
 
                     // Check if this is a structure table reference
-                    if (isStructure && !dataTypeHandler.isPrimitive(data[row][dataTypeColumn]))
+                    if (isStructure && !dataTypeHandler.isPrimitive(rowDataPlus2[dataTypeColumn].toString()))
                     {
                         // Check if the data type or variable name isn't blank, and if an array
                         // size column doesn't exist or that the row doesn't reference an array
                         // definition. This is necessary to prevent appending the prototype
                         // information for this data type structure
-                        if ((!data[row][dataTypeColumn].isEmpty() || !data[row][variableNameColumn].isEmpty())
-                            && (data[row][arraySizeColumn].isEmpty()
-                                || ArrayVariable.isArrayMember(data[row][variableNameColumn])))
+                        if ((!rowDataPlus2[dataTypeColumn].toString().isEmpty()
+                             || !rowDataPlus2[variableNameColumn].toString().isEmpty())
+                            && (rowDataPlus2[arraySizeColumn].toString().isEmpty()
+                                || ArrayVariable.isArrayMember(rowDataPlus2[variableNameColumn])))
                         {
                             // Get the variable in the format dataType.variableName, prepend a
                             // comma to separate the new variable from the preceding variable path,
                             // then break down the child table
                             TableInfo childInfo = readTable(tablePath
                                                             + ","
-                                                            + data[row][dataTypeColumn]
+                                                            + rowDataPlus2[dataTypeColumn]
                                                             + "."
-                                                            + data[row][variableNameColumn],
+                                                            + rowDataPlus2[variableNameColumn],
                                                             parent);
 
                             // Check if an error occurred loading the child table

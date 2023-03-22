@@ -140,7 +140,7 @@ public class CcddImportSupportHandler
      *
      * @param parent           GUI component over which to center any error dialog
      *
-     * @return true if the user elected to ignore the column error
+     * @return True if the user elected to ignore the column error
      *
      * @throws CCDDException If the column name is missing or the user elects to stop the import
      *                       operation due to an invalid input type
@@ -227,7 +227,7 @@ public class CcddImportSupportHandler
      *
      * @param parent           GUI component over which to center any error dialog
      *
-     * @return true if the user elected to ignore the data field error
+     * @return True if the user elected to ignore the data field error
      *
      * @throws CCDDException If the data field name is missing or the user elects to stop the
      *                       import operation due to an invalid input type
@@ -558,7 +558,7 @@ public class CcddImportSupportHandler
      *
      * @param parent                      GUI component over which to center any error dialog
      *
-     * @return true if the user elected to ignore the data field error
+     * @return True if the user elected to ignore the data field error
      *
      * @throws CCDDException If the script file name is missing, or an association with the same
      *                       name but different script file or members exists and the user elects
@@ -853,7 +853,7 @@ public class CcddImportSupportHandler
      *
      * @param parent           GUI component over which to center any error dialog
      *
-     * @return true if the user elected to ignore errors of this type
+     * @return True if the user elected to ignore errors of this type
      *
      * @throws CCDDException If the user selects the Cancel button
      *********************************************************************************************/
@@ -897,7 +897,7 @@ public class CcddImportSupportHandler
      *
      * @param parent           GUI component over which to center any error dialog
      *
-     * @return true if the user elected to ignore errors of this type
+     * @return True if the user elected to ignore errors of this type
      *
      * @throws CCDDException If the user selects the Cancel button
      *********************************************************************************************/

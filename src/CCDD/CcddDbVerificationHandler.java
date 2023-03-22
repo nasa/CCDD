@@ -33,6 +33,7 @@ import static CCDD.CcddConstants.OK_ICON;
 import static CCDD.CcddConstants.PRINT_ICON;
 import static CCDD.CcddConstants.TLM_SCH_SEPARATOR;
 import static CCDD.CcddConstants.MANUAL_FIX;
+import static CCDD.CcddConstants.TYPE_STRUCTURE;
 import static CCDD.CcddConstants.EventLogMessageType.STATUS_MSG;
 
 import java.awt.GridBagConstraints;
@@ -551,7 +552,7 @@ public class CcddDbVerificationHandler
                                              "Verification in progress",
                                              "verification",
                                              100,
-                                             10,
+                                             11,
                                              ccddMain.getMainFrame());
 
                 // Set flags indicating no changes are pending, no inconsistencies exist, and the
@@ -626,44 +627,57 @@ public class CcddDbVerificationHandler
                                         if (!haltDlg.isHalted())
                                         {
                                             // Update the progress bar
-                                            haltDlg.updateProgressBar("Verify table types",
+                                            haltDlg.updateProgressBar("Verify command argument reference flags",
                                                                       haltDlg.getNumDivisionPerStep() * 6);
 
-                                            // Check for inconsistencies between the table type
-                                            // definitions and the tables of that type
-                                            verifyTableTypes(tableResult);
+                                            // Check for inconsistencies in the table type
+                                            // command argument reference flags
+                                            verifyTableTypeCmdArgRef();
 
                                             // Check if verification isn't canceled
                                             if (!haltDlg.isHalted())
                                             {
                                                 // Update the progress bar
-                                                haltDlg.updateProgressBar("Verify custom values table",
+                                                haltDlg.updateProgressBar("Verify table types",
                                                                           haltDlg.getNumDivisionPerStep() * 7);
 
-                                                // Check for duplicate rows within the values table
-                                                verifyValuesTable();
+                                                // Check for inconsistencies between the table type
+                                                // definitions and the tables of that type
+                                                verifyTableTypes(tableResult);
 
                                                 // Check if verification isn't canceled
                                                 if (!haltDlg.isHalted())
                                                 {
                                                     // Update the progress bar
-                                                    haltDlg.updateProgressBar("Verify data tables",
+                                                    haltDlg.updateProgressBar("Verify custom values table",
                                                                               haltDlg.getNumDivisionPerStep() * 8);
 
-                                                    // Check for inconsistencies within the data
-                                                    // tables
-                                                    verifyDataTables();
+                                                    // Check for duplicate rows within the values
+                                                    // table
+                                                    verifyValuesTable();
 
                                                     // Check if verification isn't canceled
                                                     if (!haltDlg.isHalted())
                                                     {
                                                         // Update the progress bar
-                                                        haltDlg.updateProgressBar("Verify message IDs",
+                                                        haltDlg.updateProgressBar("Verify data tables",
                                                                                   haltDlg.getNumDivisionPerStep() * 9);
 
                                                         // Check for inconsistencies within the
-                                                        // message IDs
-                                                        verifyMessageIDs();
+                                                        // data tables
+                                                        verifyDataTables();
+
+                                                        // Check if verification isn't canceled
+                                                        if (!haltDlg.isHalted())
+                                                        {
+                                                            // Update the progress bar
+                                                            haltDlg.updateProgressBar("Verify message IDs",
+                                                                                      haltDlg.getNumDivisionPerStep() * 10);
+
+                                                            // Check for inconsistencies within the
+                                                            // message IDs
+                                                            verifyMessageIDs();
+                                                        }
                                                     }
                                                 }
                                             }
@@ -1772,6 +1786,140 @@ public class CcddDbVerificationHandler
     }
 
     /**********************************************************************************************
+     * Check that the table type command argument reference flags are present and consistent with
+     * their type definitions. If any missing flags or inconsistencies are detected then get user
+     * approval to alter the table(s)
+     *********************************************************************************************/
+    private void verifyTableTypeCmdArgRef()
+    {
+        String typeName = "";
+
+        try
+        {
+            // STep through each table type definition
+            for (TypeDefinition typeDefinition : tableTypeHandler.getTypeDefinitions())
+            {
+                // Get the table type name
+                typeName = typeDefinition.getName();
+
+                // Build the command to get the table type description (set as the column
+                // description for the primary key column definition
+                StringBuilder command = new StringBuilder("SELECT ").append(TableTypesColumn.COLUMN_DESCRIPTION.getColumnName())
+                                                                    .append(" FROM ")
+                                                                    .append(InternalTable.TABLE_TYPES.getTableName())
+                                                                    .append(" WHERE ")
+                                                                    .append(TableTypesColumn.TYPE_NAME.getColumnName())
+                                                                    .append(" = '")
+                                                                    .append(typeName)
+                                                                    .append("' AND ")
+                                                                    .append(TableTypesColumn.COLUMN_NAME_DB.getColumnName())
+                                                                    .append(" = '")
+                                                                    .append(DefaultColumn.PRIMARY_KEY.getDbName())
+                                                                    .append("';");
+                ResultSet result = dbCommand.executeDbQuery(command, ccddMain.getMainFrame());
+
+                if (result.next())
+                {
+                    char firstChar = ' ';
+
+                    // Get the table type description
+                    String typeDescription = result.getString(1);
+
+                    // Check if the description exists
+                    if (typeDescription.length() != 0)
+                    {
+                        // Get the first character of the description, which is the command
+                        // argument reference flag
+                        firstChar = typeDescription.charAt(0);
+                    }
+
+                    // CHeck if the command argument reference flag is valid
+                    if (firstChar == '0' || firstChar == '1')
+                    {
+                        // Set the flag true if the character is a '1'
+                        boolean isCmdArgRef = (firstChar == '1');
+
+                        // Check if the command argument reference is inconsistent with the table
+                        // type
+                        if ((isCmdArgRef
+                             && (!typeDefinition.isStructure()
+                                 || typeName.contentEquals(TYPE_STRUCTURE)))
+                                || (!isCmdArgRef
+                                    && typeName.toLowerCase().contains("cmd arg ref")))
+                        {
+                            // Inconsistent command argument reference
+                            issues.add(new TableIssue("Table type '"
+                                                      + typeName
+                                                      + "' command argument reference flag is inconsistent with the type definition",
+                                                      "Update command argument reference flag",
+                                                      "UPDATE "
+                                                      + InternalTable.TABLE_TYPES.getTableName()
+                                                      + " SET "
+                                                      + TableTypesColumn.COLUMN_DESCRIPTION.getColumnName()
+                                                      + " = '"
+                                                      + (isCmdArgRef ? 0 : 1)
+                                                      + typeDescription.substring(1)
+                                                      + "' WHERE "
+                                                      + TableTypesColumn.TYPE_NAME.getColumnName()
+                                                      + " = '"
+                                                      + typeName
+                                                      + "' AND "
+                                                      + TableTypesColumn.COLUMN_NAME_DB.getColumnName()
+                                                      + " = '"
+                                                      + DefaultColumn.PRIMARY_KEY.getDbName()
+                                                      + "'; "));
+                        }
+                    }
+                    // The command argument reference flag is missing entirely
+                    else
+                    {
+                        // Missing command argument reference
+                        issues.add(new TableIssue("Table type '"
+                                                  + typeName
+                                                  + "' command argument reference flag is missing",
+                                                  "Set the command argument reference flag to 'false'",
+                                                  "UPDATE "
+                                                  + InternalTable.TABLE_TYPES.getTableName()
+                                                  + " SET "
+                                                  + TableTypesColumn.COLUMN_DESCRIPTION.getColumnName()
+                                                  + " = '0"
+                                                  + typeDescription
+                                                  + "' WHERE "
+                                                  + TableTypesColumn.TYPE_NAME.getColumnName()
+                                                  + " = '"
+                                                  + typeName
+                                                  + "' AND "
+                                                  + TableTypesColumn.COLUMN_NAME_DB.getColumnName()
+                                                  + " = '"
+                                                  + DefaultColumn.PRIMARY_KEY.getDbName()
+                                                  + "'; "));
+                    }
+                }
+
+                result.close();
+            }
+        }
+        catch (SQLException se)
+        {
+            // Inform the user that obtaining the table type description failed
+            eventLog.logFailEvent(ccddMain.getMainFrame(),
+                                  "Error obtaining description for table type '"
+                                  + typeName
+                                  + "'; cause '"
+                                  + se.getMessage()
+                                  + "'",
+                                  "<html><b>Error obtaining description for table type '</b>"
+                                  + typeName
+                                  + "<b>'");
+        }
+        catch (Exception e)
+        {
+            // Display a dialog providing details on the unanticipated error
+            CcddUtilities.displayException(e, ccddMain.getMainFrame());
+        }
+    }
+
+    /**********************************************************************************************
      * Check that the tables are consistent with their type definitions. If any inconsistencies are
      * detected then get user approval to alter the table(s)
      *
@@ -2433,7 +2581,7 @@ public class CcddDbVerificationHandler
      *
      * @param arrayName Array variable name
      *
-     * @return true if an extra array member is detected
+     * @return True if an extra array member is detected
      *********************************************************************************************/
     private boolean checkExcessArrayMember(TableInfo tableInfo, int row, String arrayName)
     {
@@ -2484,7 +2632,7 @@ public class CcddDbVerificationHandler
      *
      * @param arrayName Array variable name
      *
-     * @return true if the array definition is missing
+     * @return True if the array definition is missing
      *********************************************************************************************/
     private boolean checkForArrayDefinition(TableInfo tableInfo, int row, String arrayName)
     {
@@ -2527,7 +2675,7 @@ public class CcddDbVerificationHandler
      *
      * @param arrayName Array variable name
      *
-     * @return true if an an array name mismatch is detected
+     * @return True if an an array name mismatch is detected
      *********************************************************************************************/
     private boolean checkArrayNamesMatch(TableInfo tableInfo, int row, String arrayName)
     {

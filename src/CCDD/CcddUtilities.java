@@ -106,7 +106,7 @@ public class CcddUtilities
         /******************************************************************************************
          * Check if the HTML tag represents a reserved character
          *
-         * @return true if the HTML tag represents a reserved character
+         * @return True if the HTML tag represents a reserved character
          *****************************************************************************************/
         private boolean isReservedChar()
         {
@@ -224,7 +224,7 @@ public class CcddUtilities
      *
      * @param array2 Second array to compare
      *
-     * @return true if the two arrays contain the same items
+     * @return True if the two arrays contain the same items
      *********************************************************************************************/
     protected static boolean isArraySetsEqual(Object[] array1, Object[] array2)
     {
@@ -949,6 +949,49 @@ public class CcddUtilities
     }
 
     /**********************************************************************************************
+     * Convert a list of items to a one-dimensional array
+     *
+     * @param list1D List of items
+     *
+     * @param type   Class type
+     *
+     * @param <T>    Generic type
+     *
+     * @return One-dimensional array of items
+     *********************************************************************************************/
+    @SuppressWarnings("unchecked")
+    protected static <T> T[] convertListToArray1D(List<T> list1D, Class<T> type)
+    {
+        return list1D.toArray((T[]) Array.newInstance(type, list1D.size()));
+    }
+
+    /**********************************************************************************************
+     * Convert a list of lists to a two-dimensional array
+     *
+     * @param list2D List of lists
+     *
+     * @param type   Class type
+     *
+     * @param <T>    Generic type
+     *
+     * @return Two-dimensional array of items
+     *********************************************************************************************/
+    @SuppressWarnings("unchecked")
+    protected static <T> T[][] convertListToArray2D(List<List<T>> list2D, Class<T> type)
+    {
+        T[][] array2D = (T[][]) Array.newInstance(type, list2D.size(), list2D.get(0).size());
+        int rowNum = 0;
+
+        for (List<T> row : list2D)
+        {
+            array2D[rowNum] = convertListToArray1D(row, type);
+            rowNum++;
+        }
+
+        return array2D;
+    }
+
+    /**********************************************************************************************
      * Convert an object array to a string array
      *
      * @param asObject Single-dimensional object array to convert
@@ -1204,7 +1247,7 @@ public class CcddUtilities
      *
      * @param list String list to search through for the specified text
      *
-     * @return true if the specified text string is present in the supplied list (case insensitive)
+     * @return True if the specified text string is present in the supplied list (case insensitive)
      *********************************************************************************************/
     protected static boolean contains(String text, List<String> list)
     {
@@ -1579,7 +1622,7 @@ public class CcddUtilities
      *
      * @param searchPattern   Search pattern; can be a regular expression (Pattern)
      *
-     * @return true if the supplied text contains a match to the specified search pattern
+     * @return True if the supplied text contains a match to the specified search pattern
      *********************************************************************************************/
     protected static boolean highlightSearchText(Component component,
                                                  String text,

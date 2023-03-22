@@ -854,7 +854,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     /**********************************************************************************************
      * Check if the table has variable name and array index columns
      *
-     * @return true if the table has variable name and array index columns
+     * @return True if the table has variable name and array index columns
      *********************************************************************************************/
     protected boolean isCanHaveArrays()
     {
@@ -1545,7 +1545,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
              *
              * @param column  Table column index in model coordinates
              *
-             * @return true if the data value can be changed
+             * @return True if the data value can be changed
              *************************************************************************************/
             @Override
             protected boolean isDataAlterable(Object[] rowData, int row, int column)
@@ -1757,7 +1757,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
              * @param isMultiple  True if this is one of multiple cells to be entered and checked;
              *                    false if only a single input is being entered
              *
-             * @return true to indicate that subsequent errors should be displayed; false if
+             * @return True to indicate that subsequent errors should be displayed; false if
              *         subsequent errors should not be displayed; null if the operation should be
              *         canceled
              *************************************************************************************/
@@ -3100,10 +3100,13 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
              *                                 pasted data (e.g., when pasting an array definition
              *                                 into a structure table)
              *
+             * @param isReplaceAllExisting     True to replace all of the existing data in the
+             *                                 table
+             *
              * @param isForceOverwrite         True to overwrite cells, even if considered
              *                                 unalterable. This is only used when importing tables
              *
-             * @return true if the user elected to cancel pasting the data following a cell
+             * @return True if the user elected to cancel pasting the data following a cell
              *         validation error
              *************************************************************************************/
             @Override
@@ -3115,6 +3118,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                         boolean isCombineAsSingleEdit,
                                         boolean isHighlightPastedData,
                                         boolean isNumHiddenRowsCanChange,
+                                        boolean isReplaceAllExisting,
                                         boolean isForceOverwrite)
             {
                 // Check if the paste operation expects the array members to be visible, the table
@@ -3141,6 +3145,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                                       isCombineAsSingleEdit,
                                                       isHighlightPastedData,
                                                       !isShowArrayMembers,
+                                                      isReplaceAllExisting,
                                                       isForceOverwrite);
 
                 return showMessage == null;
@@ -3595,7 +3600,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
      *
      * @param column Table column number; view coordinates
      *
-     * @return true if the cell is required and contains a value or is a combo box and the value is
+     * @return True if the cell is required and contains a value or is a combo box and the value is
      *         in the list
      *********************************************************************************************/
     private boolean isCellValueFound(int row, int column)
@@ -5014,7 +5019,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     /**********************************************************************************************
      * Determine if any changes have been made compared to the most recently committed table data
      *
-     * @return true if any cell in the table has been changed, if the column order has changed, or
+     * @return True if any cell in the table has been changed, if the column order has changed, or
      *         if the table description has changed
      *********************************************************************************************/
     protected boolean isTableChanged()
@@ -5243,7 +5248,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     /**********************************************************************************************
      * Check that a row with contains data in the required columns
      *
-     * @return true if a row is missing data in a required column
+     * @return True if a row is missing data in a required column
      *********************************************************************************************/
     protected boolean checkForMissingColumns()
     {
@@ -5310,7 +5315,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     /**********************************************************************************************
      * Toggle fixing/unfixing the first displayed column
      *
-     * @param show true to display the fixed column, false to hide it
+     * @param show True to display the fixed column, false to hide it
      *********************************************************************************************/
     protected void fixFirstColumn(boolean show)
     {
@@ -5411,7 +5416,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         /******************************************************************************************
          * Set the fixed column to the leftmost column in the main table
          *
-         * @param force true to force setting the fixed column
+         * @param force True to force setting the fixed column
          *****************************************************************************************/
         protected void setFixedColumn(boolean force)
         {
@@ -5432,7 +5437,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         /******************************************************************************************
          * Show or hide the fixed column
          *
-         * @param show true to display the fixed column, false to hide it
+         * @param show True to display the fixed column, false to hide it
          *****************************************************************************************/
         protected void showHideFixedColumn(boolean show)
         {

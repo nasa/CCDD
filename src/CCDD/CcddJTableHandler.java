@@ -561,7 +561,7 @@ public abstract class CcddJTableHandler extends JTable
      *
      * @param column Cell column in view coordinates
      *
-     * @return true if the cell has the focus
+     * @return True if the cell has the focus
      *********************************************************************************************/
     private boolean isFocusCell(int row, int column)
     {
@@ -743,7 +743,7 @@ public abstract class CcddJTableHandler extends JTable
      *
      * @param previousData Current database values for the table
      *
-     * @return true if any cell in the table has been changed
+     * @return True if any cell in the table has been changed
      *********************************************************************************************/
     protected boolean isTableChanged(Object[][] previousData)
     {
@@ -759,7 +759,7 @@ public abstract class CcddJTableHandler extends JTable
      * @param ignoreColumns List containing indices of columns to ignore when checking for changes;
      *                      null or an empty list if no columns are to be ignored
      *
-     * @return true if any cell in the table has been changed
+     * @return True if any cell in the table has been changed
      *********************************************************************************************/
     protected boolean isTableChanged(Object[][] previousData, List<Integer> ignoreColumns)
     {
@@ -801,7 +801,7 @@ public abstract class CcddJTableHandler extends JTable
      *
      * @param column Column index; model coordinate
      *
-     * @return true to allow resizing of the specified column; false otherwise
+     * @return True to allow resizing of the specified column; false otherwise
      *********************************************************************************************/
     protected boolean isColumnResizable(int column)
     {
@@ -814,7 +814,7 @@ public abstract class CcddJTableHandler extends JTable
      *
      * @param column Column index; model coordinate
      *
-     * @return true to allow display of multiple lines in the specified column's cells; false
+     * @return True to allow display of multiple lines in the specified column's cells; false
      *         otherwise
      *********************************************************************************************/
     protected boolean isColumnMultiLine(int column)
@@ -829,7 +829,7 @@ public abstract class CcddJTableHandler extends JTable
      *
      * @param column Column index; model coordinate
      *
-     * @return true to allow display of HTML-formatted, multiple lines in the specified column's
+     * @return True to allow display of HTML-formatted, multiple lines in the specified column's
      *         cells; false otherwise
      *********************************************************************************************/
     protected boolean isColumnHTML(int column)
@@ -843,7 +843,7 @@ public abstract class CcddJTableHandler extends JTable
      *
      * @param column Column index; model coordinate
      *
-     * @return true to allow display of highlighted text in the specified column's cells; false
+     * @return True to allow display of highlighted text in the specified column's cells; false
      *         otherwise
      *********************************************************************************************/
     protected boolean isColumnHighlight(int column)
@@ -857,7 +857,7 @@ public abstract class CcddJTableHandler extends JTable
      *
      * @param column Column index; model coordinate
      *
-     * @return true to hide the specified column; false otherwise
+     * @return True to hide the specified column; false otherwise
      *********************************************************************************************/
     protected boolean isColumnHidden(int column)
     {
@@ -870,7 +870,7 @@ public abstract class CcddJTableHandler extends JTable
      *
      * @param column Column index; model coordinate
      *
-     * @return true to display the specified column as a check box; false otherwise
+     * @return True to display the specified column as a check box; false otherwise
      *********************************************************************************************/
     protected boolean isColumnBoolean(int column)
     {
@@ -885,7 +885,7 @@ public abstract class CcddJTableHandler extends JTable
      *
      * @param column Table column index in view coordinates
      *
-     * @return true if the cell contents can be edited; false otherwise
+     * @return True if the cell contents can be edited; false otherwise
      *********************************************************************************************/
     @Override
     public boolean isCellEditable(int row, int column)
@@ -903,7 +903,7 @@ public abstract class CcddJTableHandler extends JTable
      *
      * @param column  Table column index in model coordinates
      *
-     * @return true if the cell contents can be changed; false otherwise
+     * @return True if the cell contents can be changed; false otherwise
      *********************************************************************************************/
     protected boolean isDataAlterable(Object[] rowData, int row, int column)
     {
@@ -918,7 +918,7 @@ public abstract class CcddJTableHandler extends JTable
      *
      * @param column Table column index in view coordinates
      *
-     * @return true if the cell contents can be deleted; false otherwise
+     * @return True if the cell contents can be deleted; false otherwise
      *********************************************************************************************/
     protected boolean isCellBlankable(int row, int column)
     {
@@ -943,7 +943,7 @@ public abstract class CcddJTableHandler extends JTable
      * @param isMultiple  True if this is one of multiple cells to be entered and checked; false if
      *                    only a single input is being entered
      *
-     * @return true to indicate that subsequent errors should be displayed; false if subsequent
+     * @return True to indicate that subsequent errors should be displayed; false if subsequent
      *         errors should not be displayed; null if the operation should be canceled
      *********************************************************************************************/
     protected Boolean validateCellContent(List<Object[]> tableData,
@@ -960,7 +960,7 @@ public abstract class CcddJTableHandler extends JTable
     /**********************************************************************************************
      * Get the status of the flag that indicates if the contents of the last cell edited is valid
      *
-     * @return true if the contents of the last cell edited is valid; false if the contents is
+     * @return True if the contents of the last cell edited is valid; false if the contents is
      *         invalid
      *********************************************************************************************/
     protected boolean isLastCellValid()
@@ -2689,7 +2689,7 @@ public abstract class CcddJTableHandler extends JTable
      * @param data                 Data with which to populate the inserted row; null to insert an
      *                             empty row
      *
-     * @param highlightInsertedRow true to select (highlight0 the inserted row
+     * @param highlightInsertedRow True to select (highlight0 the inserted row
      *********************************************************************************************/
     protected void insertRow(boolean endEdit,
                              TableInsertionPoint insertionPoint,
@@ -3190,6 +3190,7 @@ public abstract class CcddJTableHandler extends JTable
                               true,
                               true,
                               false,
+                              false,
                               false);
                 }
                 catch (Exception e)
@@ -3243,10 +3244,12 @@ public abstract class CcddJTableHandler extends JTable
      *                                 data (e.g., when pasting an array definition into a
      *                                 structure table)
      *
+     * @param isReplaceAllExisting     True to replace all of the existing data in the table
+     *
      * @param isForceOverwrite         True to overwrite cells, even if considered unalterable.
      *                                 This is only used when importing tables
      *
-     * @return true if the user elected to cancel pasting the data following a cell validation
+     * @return True if the user elected to cancel pasting the data following a cell validation
      *         error
      *********************************************************************************************/
     protected boolean pasteData(Object[] cellData,
@@ -3257,6 +3260,7 @@ public abstract class CcddJTableHandler extends JTable
                                 boolean isCombineAsSingleEdit,
                                 boolean isHighlightPastedData,
                                 boolean isNumHiddenRowsCanChange,
+                                boolean isReplaceAllExisting,
                                 boolean isForceOverwrite)
     {
         Boolean showMessage = true;
@@ -3270,6 +3274,13 @@ public abstract class CcddJTableHandler extends JTable
             // can be handled as a single edit for undo/redo purposes
             undoManager.endEditSequence();
             undoHandler.setAutoEndEditSequence(false);
+        }
+
+        // Check if all of the existing data is to be replaced
+        if (isReplaceAllExisting)
+        {
+            // Clear the table of all existing data
+            tableModel.setRowCount(0);
         }
 
         // Get the table data array
@@ -4088,7 +4099,7 @@ public abstract class CcddJTableHandler extends JTable
     /**********************************************************************************************
      * Determine if the width of the table needs to be resized to fit the dialog containing it
      *
-     * @return true if the width of the table needs to be adjusted to fit the dialog containing it
+     * @return True if the width of the table needs to be adjusted to fit the dialog containing it
      *********************************************************************************************/
     @Override
     public boolean getScrollableTracksViewportWidth()

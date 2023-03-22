@@ -1514,7 +1514,7 @@ public class CcddSchedulerHandler
      *
      * @param numOfVars Number of variables being added
      *
-     * @return true if there is room for the variable(s); false if there is insufficient room
+     * @return True if there is room for the variable(s); false if there is insufficient room
      *********************************************************************************************/
     private boolean checkSlotAvailability(Integer[] indices, int numOfVars)
     {

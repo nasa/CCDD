@@ -351,6 +351,8 @@ public class CcddConstants
 
     protected static final String C_STRUCT_TO_C_CONVERSION = "c_struct_to_csv_conversion";
 
+    protected static final String BACKUP_KEY = "BACKUP";
+
     // Endian type
     protected static enum EndianType
     {
@@ -1932,6 +1934,7 @@ public class CcddConstants
     // Modifiable other settings information
     protected static enum ModifiableOtherSettingInfo
     {
+        PYTHON_COMMAND_NAME("Python command name", "Python script command name (when using Py4J)", "PythonCommandName", "python"),
         EDS_SCHEMA_LOCATION_URL("EDS schema location", "URL for the EDS schema location", "EDSSchemaLocationURL", "http://www.ccsds.org/schema/sois seds.xsd"),
         XTCE_SCHEMA_LOCATION_URL("XTCE schema location", "URL for the XTCE schema location", "XTCESchemaLocationURL", "http://www.omg.org/spec/XTCE/20061101 06-11-06.xsd"),
         ENV_VAR_OVERRIDE("Environment variable override", "Override values for environment variables when executing script associations", "EnvironmentVariableOverride", "");
@@ -2379,7 +2382,7 @@ public class CcddConstants
          * Check if this input format can be selected by the user. Certain formats are for internal
          * use only; the remaining ones can be displayed (e.g., in the input types editor)
          *
-         * @return true if the format can be selected by the user
+         * @return True if the format can be selected by the user
          *****************************************************************************************/
         protected boolean isUserSelectable()
         {
@@ -2389,7 +2392,7 @@ public class CcddConstants
         /******************************************************************************************
          * Check if this input format can be selected when the input type has selection items
          *
-         * @return true if the format can be selected when the input type has selection items
+         * @return True if the format can be selected when the input type has selection items
          *****************************************************************************************/
         protected boolean isValidWithItems()
         {
@@ -2616,7 +2619,7 @@ public class CcddConstants
         TEXT_WHT_SPC("Text (spaces)",
                      "(?s).*",
                      InputTypeFormat.TEXT,
-                     "Text (see Text) with leading/traling white space characters preserved"),
+                     "Text (see Text) with leading/trailing white space characters preserved"),
 
         TEXT_MULTI_WHT_SPC("Text (multi-line, spaces)",
                            "(?s).*",
@@ -2987,7 +2990,7 @@ public class CcddConstants
         /******************************************************************************************
          * Get the column protected status
          *
-         * @return true if the column is protected
+         * @return True if the column is protected
          *****************************************************************************************/
         protected boolean isProtected()
         {
@@ -2997,7 +3000,7 @@ public class CcddConstants
         /******************************************************************************************
          * Get the row value unique status
          *
-         * @return true if the row value must be unique in this column
+         * @return True if the row value must be unique in this column
          *****************************************************************************************/
         protected boolean isRowValueUnique()
         {
@@ -3007,7 +3010,7 @@ public class CcddConstants
         /******************************************************************************************
          * Get the column input required status
          *
-         * @return true if a value is required to be entered in this column
+         * @return True if a value is required to be entered in this column
          *****************************************************************************************/
         protected boolean isInputRequired()
         {
@@ -3017,7 +3020,7 @@ public class CcddConstants
         /******************************************************************************************
          * Get the structure data type allowed status
          *
-         * @return true if the column applies to structure data types
+         * @return True if the column applies to structure data types
          *****************************************************************************************/
         protected boolean isStructureAllowed()
         {
@@ -3027,7 +3030,7 @@ public class CcddConstants
         /******************************************************************************************
          * Get the pointer data type allowed status
          *
-         * @return true if the column applies to pointer data types
+         * @return True if the column applies to pointer data types
          *****************************************************************************************/
         protected boolean isPointerAllowed()
         {
@@ -3090,7 +3093,7 @@ public class CcddConstants
          *
          * @param compareInputType Column input type (InputType)
          *
-         * @return true if the supplied table type and column input type match that for a column
+         * @return True if the supplied table type and column input type match that for a column
          *         required to define the specified type
          *****************************************************************************************/
         protected static boolean isTypeRequiredColumn(String compareTableType,
@@ -3124,7 +3127,7 @@ public class CcddConstants
          *
          * @param compareInputType Input type name
          *
-         * @return true if the supplied table type and input type match a protected table type and
+         * @return True if the supplied table type and input type match a protected table type and
          *         input type combination, and if this pair is flagged as protected
          *****************************************************************************************/
         protected static boolean isInputTypeUnique(String compareTableType, String compareInputType)

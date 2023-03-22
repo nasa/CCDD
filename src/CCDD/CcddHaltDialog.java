@@ -56,10 +56,10 @@ public class CcddHaltDialog extends CcddDialogHandler
     // Flag indicating if the operation is canceled by user input
     private boolean isHalted;
 
-    // Number of divisions in the halt dialog's progress bar per data file
+    // Number of divisions in the halt dialog's progress bar per step
     private int numDivisionPerStep;
 
-    // Total number of item for the current step
+    // Total number of items for the current step
     private int itemsPerStep;
 
     // Counters used to calculate the progress bar value
@@ -187,7 +187,7 @@ public class CcddHaltDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Check if the Cancel button has been pressed
      *
-     * @return true if the Cancel button has been pressed
+     * @return True if the Cancel button has been pressed
      *********************************************************************************************/
     protected boolean isHalted()
     {

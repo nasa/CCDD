@@ -397,7 +397,7 @@ public class CcddCommonTreeHandler extends JTree
      *
      * @param node The current tree node to check
      *
-     * @return true if it is a leaf, false if it is not a leaf
+     * @return True if it is a leaf, false if it is not a leaf
      *********************************************************************************************/
     boolean isLeaf(TreeNode node)
     {

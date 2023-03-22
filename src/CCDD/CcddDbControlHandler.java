@@ -53,6 +53,7 @@ import static CCDD.CcddConstants.DB_PLACEHOLDER_LOCK;
 import static CCDD.CcddConstants.DB_PLACEHOLDER_ADMINS;
 import static CCDD.CcddConstants.DB_PLACEHOLDER_DESC;
 import static CCDD.CcddConstants.USER_PLACEHOLDER_ADMIN_USER;
+import static CCDD.CcddConstants.BACKUP_KEY;
 
 import java.awt.Component;
 import java.io.BufferedReader;
@@ -155,12 +156,13 @@ public class CcddDbControlHandler
     // Temporary data storage table
     private static final String TEMP_TABLE_NAME = INTERNAL_TABLE_PREFIX + "temp_table";
 
+    // Flag that indicates if the default data types should be added to the database
     private boolean addDefaultDataTypes;
 
     /**********************************************************************************************
      * Input stream consumer class
      *********************************************************************************************/
-    private class StreamConsumer extends Thread
+    private static class StreamConsumer extends Thread
     {
         private final InputStream inputStream;
         private final boolean storeOutput;
@@ -188,7 +190,15 @@ public class CcddDbControlHandler
          *****************************************************************************************/
         protected String getOutput()
         {
-            return output != null ? output.toString() : "";
+            String outString = "";
+
+            if (output != null)
+            {
+                outString = output.toString();
+                output.setLength(0);
+            }
+
+            return outString;
         }
 
         /******************************************************************************************
@@ -218,9 +228,9 @@ public class CcddDbControlHandler
                         // This isn't the first line of the stream
                         else
                         {
-                            // Append a semicolon to differentiate the lines
-                            output.append("; ");
-                        }
+                            // Append a line feed to differentiate the lines
+                            output.append("\n");
+                       }
 
                         // Append the output text
                         output.append(line);
@@ -292,7 +302,7 @@ public class CcddDbControlHandler
     /**********************************************************************************************
      * Get the server connection status
      *
-     * @return true if a connection to a database exists (default or otherwise)
+     * @return True if a connection to a database exists (default or otherwise)
      *********************************************************************************************/
     protected boolean isServerConnected()
     {
@@ -302,7 +312,7 @@ public class CcddDbControlHandler
     /**********************************************************************************************
      * Get the database connection status
      *
-     * @return true if a connection to a database other than the default exists
+     * @return True if a connection to a database other than the default exists
      *********************************************************************************************/
     protected boolean isDatabaseConnected()
     {
@@ -457,7 +467,7 @@ public class CcddDbControlHandler
     /**********************************************************************************************
      * Get the status of the flag that indicates if an SSL connection is enabled
      *
-     * @return true if SSL is enabled
+     * @return True if SSL is enabled
      *********************************************************************************************/
     protected boolean isSSL()
     {
@@ -536,7 +546,7 @@ public class CcddDbControlHandler
     /**********************************************************************************************
      * Check if the user has administrative access
      *
-     * @return true if the user has administrative access
+     * @return True if the user has administrative access
      *********************************************************************************************/
     protected boolean isAccessAdmin()
     {
@@ -586,7 +596,7 @@ public class CcddDbControlHandler
     /**********************************************************************************************
      * Check if the user has read-write access
      *
-     * @return true if the user has read-write access
+     * @return True if the user has read-write access
      *********************************************************************************************/
     protected boolean isAccessReadWrite()
     {
@@ -606,7 +616,7 @@ public class CcddDbControlHandler
     /**********************************************************************************************
      * Check if the user's database password is not a blank
      *
-     * @return true if the password is not blank
+     * @return True if the password is not blank
      *********************************************************************************************/
     protected boolean isPasswordNonBlank()
     {
@@ -667,7 +677,7 @@ public class CcddDbControlHandler
      *
      * @param name Table or column name
      *
-     * @return true if the supplied name matches a reserved word (case insensitive)
+     * @return True if the supplied name matches a reserved word (case insensitive)
      *********************************************************************************************/
     protected boolean isKeyWord(String name)
     {
@@ -1047,7 +1057,7 @@ public class CcddDbControlHandler
      *
      * @param databaseName Database name
      *
-     * @return true if the database is locked, false if not locked, or null if the comment cannot
+     * @return True if the database is locked, false if not locked, or null if the comment cannot
      *         be retrieved
      *********************************************************************************************/
     protected Boolean getDatabaseLockStatus(String databaseName)
@@ -1487,7 +1497,7 @@ public class CcddDbControlHandler
      *
      * @param description   Database description
      *
-     * @return true if the command completes successfully; false otherwise
+     * @return True if the command completes successfully; false otherwise
      *********************************************************************************************/
     protected boolean createDatabase(final String projectName,
                                      String ownerName,
@@ -1587,7 +1597,7 @@ public class CcddDbControlHandler
      * Create the reusable database functions and default tables. This does not include the default
      * column functions
      *
-     * @return true if an error occurs creating the database functions or tables
+     * @return True if an error occurs creating the database functions or tables
      *********************************************************************************************/
     private boolean createTablesAndFunctions()
     {
@@ -1840,7 +1850,7 @@ public class CcddDbControlHandler
      * Create the reusable database functions for obtaining structure table members and
      * structure-defining column values
      *
-     * @return true if an error occurs creating the structure functions
+     * @return True if an error occurs creating the structure functions
      *********************************************************************************************/
     protected boolean createStructureColumnFunctions()
     {
@@ -2210,7 +2220,7 @@ public class CcddDbControlHandler
      *
      * @param password User password
      *
-     * @return true if the user is allowed access to the currently open database
+     * @return True if the user is allowed access to the currently open database
      *********************************************************************************************/
     protected boolean authenticateUser(String userName, String password)
     {
@@ -2255,7 +2265,7 @@ public class CcddDbControlHandler
     /**********************************************************************************************
      * Connect to the server (default database)
      *
-     * @return true if the connection attempt failed
+     * @return True if the connection attempt failed
      *********************************************************************************************/
     protected boolean connectToServer()
     {
@@ -2272,7 +2282,7 @@ public class CcddDbControlHandler
      * @param isReconnect  True if this is an attempt to reconnect to the database following a
      *                     failed transaction
      *
-     * @return true if the connection attempt failed
+     * @return True if the connection attempt failed
      *********************************************************************************************/
     protected boolean connectToDatabase(String projectName,
                                         String databaseName,
@@ -2472,7 +2482,7 @@ public class CcddDbControlHandler
     /**********************************************************************************************
      * Reconnect to the active database
      *
-     * @return true if the connection attempt failed
+     * @return True if the connection attempt failed
      *********************************************************************************************/
     protected boolean reconnectToDatabase()
     {
@@ -2484,7 +2494,7 @@ public class CcddDbControlHandler
      *
      * @param projectName Name of the project to open
      *
-     * @return true if an error occurred opening the database; false if the database successfully
+     * @return True if an error occurred opening the database; false if the database successfully
      *         opened
      *********************************************************************************************/
     protected boolean openDatabase(final String projectName)
@@ -2500,7 +2510,7 @@ public class CcddDbControlHandler
      * @param createFunctions     True to create the database functions; false if reopening a
      *                            database (so the functions already exist)
      *
-     * @return true if an error occurred opening the database; false if the database successfully
+     * @return True if an error occurred opening the database; false if the database successfully
      *         opened
      *********************************************************************************************/
     protected boolean openDatabase(String projectName, boolean createFunctions)
@@ -2516,10 +2526,11 @@ public class CcddDbControlHandler
      * @param createFunctions     True to create the database functions; false if reopening a
      *                            database (so the functions already exist)
      *
-     * @param addDefaultDataTypes Should the default data type be added to the database? This is
-     *                            normally false only when restoring a database from JSON or CSV
+     * @param addDefaultDataTypes True if the default data types should be added to the database.
+     *                            This is normally false only when restoring a database from JSON
+     *                            or CSV
      *
-     * @return true if an error occurred opening the database; false if the database successfully
+     * @return True if an error occurred opening the database; false if the database successfully
      *         opened
      *********************************************************************************************/
     protected boolean openDatabase(String projectName,
@@ -2544,7 +2555,7 @@ public class CcddDbControlHandler
      * @param createFunctions True to create the database functions; false if reopening a database
      *                        (so the functions already exist)
      *
-     * @return true if an error occurred opening the database; false if the database successfully
+     * @return True if an error occurred opening the database; false if the database successfully
      *         opened
      *********************************************************************************************/
     protected boolean openDatabase(String projectName,
@@ -3072,7 +3083,7 @@ public class CcddDbControlHandler
      *
      * @param projectName Name of the project to delete
      *
-     * @return false if the specified database is successfully deleted
+     * @return False if the specified database is successfully deleted
      *********************************************************************************************/
     protected boolean deleteDatabase(final String projectName)
     {
@@ -3156,7 +3167,7 @@ public class CcddDbControlHandler
     /**********************************************************************************************
      * Close the currently open database
      *
-     * @return true if no database is connected
+     * @return True if no database is connected
      *********************************************************************************************/
     protected boolean closeDatabase()
     {
@@ -3260,7 +3271,7 @@ public class CcddDbControlHandler
         // may exit before the thread actually begins to run
         try
         {
-            ImmutablePair<Semaphore, Integer> pair = ccddMain.getSemMap().get(CcddMain.BACKUP_KEY);
+            ImmutablePair<Semaphore, Integer> pair = ccddMain.getSemMap().get(BACKUP_KEY);
 
             if (!pair.left.tryAcquire(pair.right, TimeUnit.SECONDS))
             {
@@ -3289,7 +3300,7 @@ public class CcddDbControlHandler
                 backupDatabase(projectName, backupFile);
 
                 // Release the semaphore indicating that this thread's work is finished
-                ccddMain.getSemMap().get(CcddMain.BACKUP_KEY).left.release();
+                ccddMain.getSemMap().get(BACKUP_KEY).left.release();
             }
         });
     }
@@ -3396,7 +3407,7 @@ public class CcddDbControlHandler
      *
      * @param backupFile  File to which to backup the database
      *
-     * @return true if an the database could not be backed up
+     * @return True if an the database could not be backed up
      *********************************************************************************************/
     protected boolean backupDatabase(String projectName, FileEnvVar backupFile)
     {

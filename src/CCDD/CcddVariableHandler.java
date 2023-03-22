@@ -167,7 +167,7 @@ public class CcddVariableHandler
          *
          * @param typeNameSeparator Character(s) to place between data types and variable names
          *
-         * @return true if the separators provided match those used to create the associated
+         * @return True if the separators provided match those used to create the associated
          *         converted variable name list
          *****************************************************************************************/
         protected boolean isSeparatorsEqual(String varPathSeparator,
@@ -300,7 +300,7 @@ public class CcddVariableHandler
      *
      * @param text String in which to search for the sizeof() call
      *
-     * @return true if the supplied text contains a sizeof() call
+     * @return True if the supplied text contains a sizeof() call
      *********************************************************************************************/
     protected static boolean hasSizeof(String text)
     {
@@ -325,7 +325,7 @@ public class CcddVariableHandler
      *
      * @param macroHndlr Macro handler reference
      *
-     * @return true if the supplied text contains a sizeof() call
+     * @return True if the supplied text contains a sizeof() call
      *********************************************************************************************/
     protected static boolean hasSizeof(String text, String dataType, CcddMacroHandler macroHndlr)
     {
@@ -373,7 +373,7 @@ public class CcddVariableHandler
      * Check if the text string in the previous replaceSizeofWithValue() call contained an invalid
      * data type reference
      *
-     * @return true if the text string in the previous replaceSizeofWithValue() call contained an
+     * @return True if the text string in the previous replaceSizeofWithValue() call contained an
      *         invalid data type reference
      *********************************************************************************************/
     protected boolean isInvalidReference()
@@ -751,7 +751,7 @@ public class CcddVariableHandler
      * @param alternateName   Variable path converted using the separator characters, or a
      *                        user-defined name
      *
-     * @return true if the supplied variable path is already in use in a structure
+     * @return True if the supplied variable path is already in use in a structure
      *********************************************************************************************/
     protected boolean isVariablePathInUse(String progDefinedPath, String alternateName)
     {

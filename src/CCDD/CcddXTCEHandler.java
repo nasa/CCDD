@@ -2619,8 +2619,6 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      *                                flag ('true' or 'false'), and data type/variable name
      *                                separator character(s); null if includeVariablePaths is false
      *
-     * @param addEOFMarker            Is this the last data to be added to the file?
-     *
      * @param extraInfo               [0] endianess (EndianType.BIG_ENDIAN or
      *                                EndianType.LITTLE_ENDIAN) <br>
      *                                [1] are the telemetry and command headers big endian (true or
@@ -2645,7 +2643,6 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
                              boolean includeVariablePaths,
                              CcddVariableHandler variableHandler,
                              String[] separators,
-                             boolean addEOFMarker,
                              String outputType,
                              Object... extraInfo) throws JAXBException,
                                                          MarshalException,
@@ -3729,7 +3726,7 @@ public class CcddXTCEHandler extends CcddImportSupportHandler implements CcddImp
      * @param isTlmHdrRef   True if this table represents the telemetry header or one of its
      *                      descendants
      *
-     * @return true if the parameter's data type references the telemetry header or one of its
+     * @return True if the parameter's data type references the telemetry header or one of its
      *         descendants; otherwise return the flag status unchanged
      *
      * @throws CCDDException If an error occurs executing an external (script) method

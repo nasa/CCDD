@@ -162,7 +162,7 @@ public class CcddDialogHandler extends JDialog
          *
          * @param file File or directory path
          *
-         * @return true if the file matches the extension or is a directory path
+         * @return True if the file matches the extension or is a directory path
          *****************************************************************************************/
         @Override
         public boolean accept(File file)
@@ -1504,7 +1504,7 @@ public class CcddDialogHandler extends JDialog
     /**********************************************************************************************
      * Placeholder for method to verify the the dialog box selection(s) prior to closing
      *
-     * @return true
+     * @return True
      *********************************************************************************************/
     protected boolean verifySelection()
     {
@@ -1536,7 +1536,7 @@ public class CcddDialogHandler extends JDialog
      *
      * @param dialogGbc       Dialog panel GridBagLayout layout constraints
      *
-     * @return true if there is one or more items to display; the dialog is populated with the
+     * @return True if there is one or more items to display; the dialog is populated with the
      *         array of radio buttons. false if there are no items to display; the dialog panel is
      *         unchanged
      *********************************************************************************************/
@@ -1841,7 +1841,7 @@ public class CcddDialogHandler extends JDialog
      *
      * @param dialogPanel     Dialog panel on which to place the check boxes
      *
-     * @return true if there is one or more items to display; the dialog is populated with the
+     * @return True if there is one or more items to display; the dialog is populated with the
      *         array of check boxes. false if there are no items to display; the dialog panel is
      *         unchanged
      *********************************************************************************************/
@@ -2434,7 +2434,7 @@ public class CcddDialogHandler extends JDialog
      *
      * @param tgtClass  Target class for which to search
      *
-     * @return true if the container contains an component of the specified class
+     * @return True if the container contains an component of the specified class
      *********************************************************************************************/
     private <E> boolean isContainsComponent(Container container, Class<E> tgtClass)
     {

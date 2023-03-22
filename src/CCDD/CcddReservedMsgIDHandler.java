@@ -151,7 +151,7 @@ public class CcddReservedMsgIDHandler
      *
      * @param otherID Message ID or ID range to which to compare
      *
-     * @return true if the IDs or ID ranges overlap
+     * @return True if the IDs or ID ranges overlap
      *********************************************************************************************/
     protected boolean isWithinRange(int[] idA, String otherID)
     {
@@ -179,7 +179,7 @@ public class CcddReservedMsgIDHandler
      *
      * @param msgID Message ID
      *
-     * @return true if the supplied message ID is already reserved
+     * @return True if the supplied message ID is already reserved
      *********************************************************************************************/
     protected boolean isReservedMsgIDExists(String msgID)
     {

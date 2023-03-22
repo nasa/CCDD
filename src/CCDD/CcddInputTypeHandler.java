@@ -171,7 +171,7 @@ public class CcddInputTypeHandler
         /******************************************************************************************
          * Check if a data field is using the input type
          *
-         * @return true if a data field is using the input type
+         * @return True if a data field is using the input type
          *****************************************************************************************/
         protected boolean isFieldUsesType()
         {
@@ -221,7 +221,7 @@ public class CcddInputTypeHandler
      *
      * @param inputTypeName Input type name to match (case insensitive)
      *
-     * @return true if an input exists with the specified name
+     * @return True if an input exists with the specified name
      *********************************************************************************************/
     protected boolean isInputTypeValid(String inputTypeName)
     {
@@ -235,7 +235,7 @@ public class CcddInputTypeHandler
      *
      * @param inputTypeB Second input type to compare
      *
-     * @return true if the input types differ
+     * @return True if the input types differ
      *********************************************************************************************/
     protected boolean isInputTypeChanged(InputType inputTypeA, InputType inputTypeB)
     {

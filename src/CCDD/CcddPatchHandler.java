@@ -73,7 +73,7 @@ public class CcddPatchHandler
      * patched older versions of the application are no longer guaranteed to function properly and
      * may have detrimental effects
      *
-     * @param ccddMain Main class
+     * @param ccddMain    Main class
      *********************************************************************************************/
     CcddPatchHandler(CcddMain ccddMain)
     {
@@ -89,7 +89,7 @@ public class CcddPatchHandler
                                           + "Project databases created by CCDD versions prior to "
                                           + "2.1.0 will be incompatible with this project "
                                           + "database after applying the patch";
-        patchSet.put(PATCH_01112023, new PatchUtility(ccddMain, PATCH_01112023, patch_01112023_dialogMsg));
+        patchSet.put(PATCH_01112023, new PatchUtility(PATCH_01112023, patch_01112023_dialogMsg));
 
     }
 
@@ -222,7 +222,8 @@ public class CcddPatchHandler
             // Check if the patch hasn't been applied
             if (!isPatched)
             {
-                if (patchSet.get(PATCH_01112023).confirmPatchApplication() == false)
+                // Check if the user cancels installing the patch
+                if (!patchSet.get(PATCH_01112023).confirmPatchApplication())
                 {
                     throw new CCDDException(patchSet.get(PATCH_01112023).getUserCanceledMessage());
                 }
@@ -487,68 +488,89 @@ public class CcddPatchHandler
         }
     }
 
+    /**********************************************************************************************
+     * Patch utility class
+     *********************************************************************************************/
     class PatchUtility
     {
+        // Patch identifier
         final String patchId;
-        String htmlDialogMessage;
-        CcddMain context;
 
-        public PatchUtility(CcddMain context, String patchId, String htmlDialogMessage)
+        // Dialog message to display requesting user intervention
+        String htmlDialogMessage;
+
+        /******************************************************************************************
+         * Patch utility class constructor
+         *
+         * @param patchId           Patch identifier
+         *
+         * @param htmlDialogMessage Dialog message to display requesting user intervention
+         *****************************************************************************************/
+        public PatchUtility(String patchId, String htmlDialogMessage)
         {
-            if (context == null || patchId == null || htmlDialogMessage == null)
+            if (patchId == null || htmlDialogMessage == null)
             {
                 throw new NullPointerException();
             }
 
             this.patchId = patchId;
             this.htmlDialogMessage = htmlDialogMessage;
-            this.context = context;
         }
 
-        private String getAutoPatchMessage()
-        {
-            return "CCDD: "
-                   + CcddUtilities.removeHTMLTags(htmlDialogMessage)
-                   + System.lineSeparator()
-                   + "CCDD: Automatically applying patch "
-                   + patchId;
-        }
-
+        /******************************************************************************************
+         * Determine if the patch should be installed
+         *
+         * @return True if the user confirmed applying the patch, or is automatic patching is
+         *         enabled
+         *
+         * @throws CCDDException If the patch is required and the GUI is not displayed
+         *****************************************************************************************/
         public boolean confirmPatchApplication() throws CCDDException
         {
-            boolean isNotAutoPatch = !context.isAutoPatch();
+            boolean isConfirmed = false;
 
-            if (isNotAutoPatch)
+            // Check if automatic patching is enabled
+            if (ccddMain.isAutoPatch())
             {
-                if (context.isGUIHidden())
+                System.out.println("CCDD: "
+                                   + CcddUtilities.removeHTMLTags(htmlDialogMessage)
+                                   + System.lineSeparator()
+                                   + "CCDD: Automatically applying patch "
+                                   + patchId);
+                isConfirmed = true;
+            }
+            // Automatic patching is disabled
+            else
+            {
+                // Check if the user interface is not displayed
+                if (ccddMain.isGUIHidden())
                 {
-                    // The GUI is hidden and we are not automatically patching so ... we can't
-                    // proceed
-                    throw new CCDDException("Invalid command line combination: Please re-run with the -patch flag or with the GUI enabled ("
+                    // The GUI is hidden and  automatically patching is disabled, so do not proceed
+                    throw new CCDDException("Invalid command line combination: Please re-run with "
+                                            + "the -patch flag or with the GUI enabled ("
                                             + patchId
                                             + ")");
                 }
 
-                return !this.generateQuestionDialog();
+                // Get the user to confirm the patch installation
+                isConfirmed = new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                                        htmlDialogMessage,
+                                                                        "Apply Patch " + patchId,
+                                                                        JOptionPane.QUESTION_MESSAGE,
+                                                                        DialogOption.OK_CANCEL_OPTION) == OK_BUTTON;
             }
 
-            System.out.println(getAutoPatchMessage());
-            return true;
+            return isConfirmed;
         }
 
-        private boolean generateQuestionDialog() throws CCDDException
-        {
-            // Check if the user elects to not apply the patch
-            return new CcddDialogHandler().showMessageDialog(context.getMainFrame(),
-                                                             htmlDialogMessage,
-                                                             "Apply Patch " + patchId,
-                                                             JOptionPane.QUESTION_MESSAGE,
-                                                             DialogOption.OK_CANCEL_OPTION) != OK_BUTTON;
-        }
-
+        /******************************************************************************************
+         * Get text to display when the user cancels installation of a patch
+         *
+         * @return Canceled patch message
+         *****************************************************************************************/
         public String getUserCanceledMessage()
         {
-            return "User elected to not install patch (" + patchId + ")";
+            return "User elected to not install patch " + patchId;
         }
     }
 }

@@ -301,6 +301,21 @@ public class CcddScriptDataAccessHandler
     }
 
     /**********************************************************************************************
+     * Get the number of characters in longest string in a list of strings
+     *
+     * @param strgList  List of strings
+     *
+     * @param minWidth Initial minimum widths; null to use zero as the minimum
+     *
+     * @return Character length of the longest string in the supplied array; null if an input is
+     *         invalid
+     *********************************************************************************************/
+    public Integer getLongestString(List<String> strgList, Integer minWidth)
+    {
+        return getLongestString(strgList.toArray(new String[0]), minWidth);
+    }
+
+    /**********************************************************************************************
      * Get the number of characters in longest string in an array of strings
      *
      * @param strgArray Array of strings
@@ -331,6 +346,23 @@ public class CcddScriptDataAccessHandler
         }
 
         return minWidth;
+    }
+
+    /**********************************************************************************************
+     * Get the number of characters in longest string in each column of a list of strings
+     *
+     * @param strgList  Lists of string lists
+     *
+     * @param minWidths List of initial minimum widths; null to use zero as the minimum for each
+     *                  column
+     *
+     * @return Character length of the longest string in each column of the supplied array; null if
+     *         any of the inputs is invalid
+     *********************************************************************************************/
+    public Integer[] getLongestStrings(List<List<String>> strgList, List<Integer> minWidths)
+    {
+        return getLongestStrings(CcddUtilities.convertListToArray2D(strgList, String.class),
+                                 CcddUtilities.convertListToArray1D(minWidths, Integer.class));
     }
 
     /**********************************************************************************************
@@ -421,7 +453,7 @@ public class CcddScriptDataAccessHandler
      *
      * @param dataType Name of the data type to test
      *
-     * @return true if the supplied data type is a primitive; false otherwise
+     * @return True if the supplied data type is a primitive; false otherwise
      *********************************************************************************************/
     public boolean isDataTypePrimitive(String dataType)
     {
@@ -433,7 +465,7 @@ public class CcddScriptDataAccessHandler
      *
      * @param dataType Name of the data type to test
      *
-     * @return true if the supplied data type is an integer (signed or unsigned); false otherwise
+     * @return True if the supplied data type is an integer (signed or unsigned); false otherwise
      *********************************************************************************************/
     public boolean isDataTypeInteger(String dataType)
     {
@@ -445,7 +477,7 @@ public class CcddScriptDataAccessHandler
      *
      * @param dataType Name of the data type to test
      *
-     * @return true if the supplied data type is an unsigned integer; false otherwise
+     * @return True if the supplied data type is an unsigned integer; false otherwise
      *********************************************************************************************/
     public boolean isDataTypeUnsignedInt(String dataType)
     {
@@ -457,7 +489,7 @@ public class CcddScriptDataAccessHandler
      *
      * @param dataType Name of the data type to test
      *
-     * @return true if the supplied data type is a float or double; false otherwise
+     * @return True if the supplied data type is a float or double; false otherwise
      *********************************************************************************************/
     public boolean isDataTypeFloat(String dataType)
     {
@@ -469,7 +501,7 @@ public class CcddScriptDataAccessHandler
      *
      * @param dataType Name of the data type to test
      *
-     * @return true if the supplied data type is a character or string; false otherwise
+     * @return True if the supplied data type is a character or string; false otherwise
      *********************************************************************************************/
     public boolean isDataTypeCharacter(String dataType)
     {
@@ -481,7 +513,7 @@ public class CcddScriptDataAccessHandler
      *
      * @param dataType Name of the data type to test
      *
-     * @return true if the supplied data type is a character string; false otherwise
+     * @return True if the supplied data type is a character string; false otherwise
      *********************************************************************************************/
     public boolean isDataTypeString(String dataType)
     {
@@ -1989,7 +2021,7 @@ public class CcddScriptDataAccessHandler
      *
      * @param member        Member to search for in the list
      *********************************************************************************************/
-    public void processStructureMemberForOrdering(HashMap<String,
+    private void processStructureMemberForOrdering(HashMap<String,
                                                   List<String>> structuresMap,
                                                   List<String> orderedNames,
                                                   String member)
@@ -2666,7 +2698,7 @@ public class CcddScriptDataAccessHandler
      *
      * @param structureName Prototype name of the structure to check
      *
-     * @return true if the specified structure is referenced by more than one root structure; false
+     * @return True if the specified structure is referenced by more than one root structure; false
      *         otherwise
      *********************************************************************************************/
     public boolean isStructureShared(String structureName)
@@ -2680,7 +2712,7 @@ public class CcddScriptDataAccessHandler
      *
      * @param structureName Prototype name of the structure to check
      *
-     * @return true if the specified structure is referenced by more than one root structure and at
+     * @return True if the specified structure is referenced by more than one root structure and at
      *         least one of these structures is not associated with the script; false otherwise
      *********************************************************************************************/
     public boolean isStructureSharedExternally(String structureName)
@@ -2697,7 +2729,7 @@ public class CcddScriptDataAccessHandler
      * @param isExternal    True to only check if the structure is shared by at least one structure
      *                      not associated with the script
      *
-     * @return true if the specified structure is referenced by more than one root structure and,
+     * @return True if the specified structure is referenced by more than one root structure and,
      *         if the check is for external shared references, that the structure is shared with a
      *         root structure not associated with the script ; false otherwise
      *********************************************************************************************/
@@ -3762,7 +3794,7 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Check if the graphical user interface is not displayed
      *
-     * @return true if the GUI is hidden; false if the GUI is visible
+     * @return True if the GUI is hidden; false if the GUI is visible
      *********************************************************************************************/
     public boolean isGUIHidden()
     {
@@ -3899,6 +3931,24 @@ public class CcddScriptDataAccessHandler
      *
      * @param label      Text to display above the radio buttons
      *
+     * @param buttonInfo List of string lists containing the text and optional descriptions for the radio
+     *                   buttons to display in the dialog
+     *
+     * @return The text for the selected radio button if the Okay button is pressed; returns null
+     *         if no radio button is selected or if the Cancel button is pressed
+     *********************************************************************************************/
+    public String getRadioButtonDialog(String label, List<List<String>> buttonInfo)
+    {
+        return getRadioButtonDialog(label, CcddUtilities.convertListToArray2D(buttonInfo, String.class));
+    }
+
+    /**********************************************************************************************
+     * Display a dialog containing radio buttons. The radio buttons are mutually exclusive; only
+     * one can be selected at a time. The user must press the Okay button to accept the radio
+     * button input, or Cancel to close the dialog without accepting the input
+     *
+     * @param label      Text to display above the radio buttons
+     *
      * @param buttonInfo Array containing the text and optional descriptions for the radio buttons
      *                   to display in the dialog
      *
@@ -3944,6 +3994,24 @@ public class CcddScriptDataAccessHandler
         }
 
         return selectedButton;
+    }
+
+    /**********************************************************************************************
+     * Display a dialog containing one or more check boxes. The user must press the Okay button to
+     * accept the check box input(s), or Cancel to close the dialog without accepting the input
+     *
+     * @param label   Text to display above the check boxes
+     *
+     * @param boxInfo List of lists containing the text and optional descriptions for the check
+     *                boxes to display in the dialog
+     *
+     * @return An array containing the status for the check box(es) if the Okay button is pressed;
+     *         returns null if no check box information is supplied or if the Cancel button is
+     *         pressed
+     *********************************************************************************************/
+    public boolean[] getCheckBoxDialog(String label, List<List<String>> boxInfo)
+    {
+        return getCheckBoxDialog(label, CcddUtilities.convertListToArray2D(boxInfo, String.class));
     }
 
     /**********************************************************************************************
@@ -4938,7 +5006,7 @@ public class CcddScriptDataAccessHandler
      *
      * @param variableName Variable name
      *
-     * @return true if the variable name is an array member
+     * @return True if the variable name is an array member
      *********************************************************************************************/
     public boolean isArrayMember(Object variableName)
     {
@@ -4993,7 +5061,7 @@ public class CcddScriptDataAccessHandler
      *
      * @param classification3   Third level classification attribute (for the space system headers)
      *
-     * @return true if an error occurred preventing exporting the project to the file
+     * @return True if an error occurred preventing exporting the project to the file
      *********************************************************************************************/
     public boolean xtceExport(String outputFileName,
                               boolean isBigEndian,
@@ -5026,7 +5094,6 @@ public class CcddScriptDataAccessHandler
                                      false, // unused for XTCE export
                                      null, // unused for XTCE export
                                      null, // unused for XTCE export
-                                     false, // unused for XTCE export
                                      null, // unused for XTCE export
                                      (isBigEndian ? EndianType.BIG_ENDIAN : EndianType.LITTLE_ENDIAN),
                                      isHeaderBigEndian,
@@ -5257,7 +5324,7 @@ public class CcddScriptDataAccessHandler
      * @param isTlmHdrRef   True if this table represents the telemetry header or one of its
      *                      descendants
      *
-     * @return true if the parameter's data type references the telemetry header or one of its
+     * @return True if the parameter's data type references the telemetry header or one of its
      *         descendants; otherwise return the flag status unchanged
      *
      * @throws CCDDException If an error occurs executing an external (script) method

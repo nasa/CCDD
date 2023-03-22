@@ -971,7 +971,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
      *                    possible when replacing an association, if no changes are made); -1 to
      *                    prevent a duplicate association (as when adding an association)
      *
-     * @return true if the association inputs are valid and the association is successfully added
+     * @return True if the association inputs are valid and the association is successfully added
      *********************************************************************************************/
     private boolean addAssociation(TableInsertionPoint insertPoint, int ignoreRow)
     {
@@ -999,8 +999,8 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
             // Check if the name field isn't blank
             if (!nameFld.getText().isEmpty())
             {
-                // Check if the association name does not match the alphanumeric input type
-                if (!nameFld.getText().matches(DefaultInputType.ALPHANUMERIC.getInputMatch()))
+                // Check if the association name does not match the text input type
+                if (!nameFld.getText().matches(DefaultInputType.TEXT.getInputMatch()))
                 {
                     throw new CCDDException("Illegal character(s) in association name");
                 }
@@ -1105,7 +1105,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
             {
                 // Remove the selected association and set the selection to the newly added
                 // association
-                assnsTable.removeRows(new int[] {selectedRow});
+                assnsTable.removeRows(new int[] {selectedRow + 1});
                 assnsTable.setSelectedRow(selectedRow, true);
             }
         }
@@ -1136,7 +1136,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
     /**********************************************************************************************
      * Check if the script associations have changed
      *
-     * @return true if a change exists
+     * @return True if a change exists
      *********************************************************************************************/
     protected boolean isAssociationsChanged()
     {
@@ -1175,7 +1175,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
      *
      * @param postScriptAssocNames Post-list of script association names
      *
-     * @return true if duplicate caused by REPLACE command
+     * @return True if duplicate caused by REPLACE command
      *********************************************************************************************/
     protected boolean wasReplacePerformed(List<String> preScriptAssocNames,
                                           List<String> postScriptAssocNames)

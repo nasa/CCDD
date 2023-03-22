@@ -709,7 +709,7 @@ public class CcddReservedMsgIDEditorDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Check that a row with contains data in the required columns
      *
-     * @return true if a row is missing data in a required column
+     * @return True if a row is missing data in a required column
      *********************************************************************************************/
     private boolean checkForMissingColumns()
     {

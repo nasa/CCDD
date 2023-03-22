@@ -183,7 +183,7 @@ public class CcddDataTypeHandler
      *
      * @param column Column index
      *
-     * @return true if the specified column contains integer values; false otherwise
+     * @return True if the specified column contains integer values; false otherwise
      *********************************************************************************************/
     private boolean isInteger(int column)
     {
@@ -408,7 +408,7 @@ public class CcddDataTypeHandler
      *
      * @param dataTypeName Name of data type to test
      *
-     * @return true if the supplied data type is a primitive
+     * @return True if the supplied data type is a primitive
      *********************************************************************************************/
     protected boolean isPrimitive(String dataTypeName)
     {
@@ -432,7 +432,7 @@ public class CcddDataTypeHandler
      *
      * @param dataTypeName Data type name
      *
-     * @return true if the specified data type is a signed or unsigned integer
+     * @return True if the specified data type is a signed or unsigned integer
      *********************************************************************************************/
     protected boolean isInteger(String dataTypeName)
     {
@@ -453,7 +453,7 @@ public class CcddDataTypeHandler
      *
      * @param dataTypeName Data type name
      *
-     * @return true if the specified data type is a signed integer
+     * @return True if the specified data type is a signed integer
      *********************************************************************************************/
     protected boolean isSignedInt(String dataTypeName)
     {
@@ -465,7 +465,7 @@ public class CcddDataTypeHandler
      *
      * @param dataTypeName Data type name
      *
-     * @return true if the specified data type is an unsigned integer
+     * @return True if the specified data type is an unsigned integer
      *********************************************************************************************/
     protected boolean isUnsignedInt(String dataTypeName)
     {
@@ -477,7 +477,7 @@ public class CcddDataTypeHandler
      *
      * @param dataTypeName Data type name
      *
-     * @return true if the specified data type is a float or double
+     * @return True if the specified data type is a float or double
      *********************************************************************************************/
     protected boolean isFloat(String dataTypeName)
     {
@@ -489,7 +489,7 @@ public class CcddDataTypeHandler
      *
      * @param dataTypeName Data type name
      *
-     * @return true if this data type is a character or string
+     * @return True if this data type is a character or string
      *********************************************************************************************/
     protected boolean isCharacter(String dataTypeName)
     {
@@ -501,7 +501,7 @@ public class CcddDataTypeHandler
      *
      * @param dataTypeName Data type name
      *
-     * @return true if this data type is a character string
+     * @return True if this data type is a character string
      *********************************************************************************************/
     protected boolean isString(String dataTypeName)
     {
@@ -514,7 +514,7 @@ public class CcddDataTypeHandler
      *
      * @param dataTypeName Data type name
      *
-     * @return true if this data type is a pointer
+     * @return True if this data type is a pointer
      *********************************************************************************************/
     protected boolean isPointer(String dataTypeName)
     {

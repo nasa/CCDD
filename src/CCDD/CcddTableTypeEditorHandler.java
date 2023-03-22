@@ -330,7 +330,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
     /**********************************************************************************************
      * Get the column order change status
      *
-     * @return true if the table type's column order changed
+     * @return True if the table type's column order changed
      *********************************************************************************************/
     protected boolean isColumnOrderChange()
     {
@@ -506,7 +506,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
              *
              * @param column  Table column index in model coordinates
              *
-             * @return true if the data value can be changed
+             * @return True if the data value can be changed
              *************************************************************************************/
             @Override
             protected boolean isDataAlterable(Object[] rowData, int row, int column)
@@ -545,7 +545,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
              *
              * @param column Table column index in view coordinates
              *
-             * @return false if the cell contains a combo box; true otherwise
+             * @return False if the cell contains a combo box; true otherwise
              *************************************************************************************/
             @Override
             protected boolean isCellBlankable(int row, int column)
@@ -1046,7 +1046,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
      * Get the input types that are defined as unique, but are referenced by more than one column
      * definition
      *
-     * @return true if there are duplicated input types that are defined as unique
+     * @return True if there are duplicated input types that are defined as unique
      *********************************************************************************************/
     protected boolean isInvalidInputTypes()
     {
@@ -1144,7 +1144,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
     /**********************************************************************************************
      * Determine if any changes have been made compared to the most recently committed table data
      *
-     * @return true if any cell in the table has been changed, if the column order has changed, or
+     * @return True if any cell in the table has been changed, if the column order has changed, or
      *         if the table description has changed
      *********************************************************************************************/
     protected boolean isTableChanged()
@@ -1283,7 +1283,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
     /**********************************************************************************************
      * Check that a row with contains data in the required columns
      *
-     * @return true if a row is missing data in a required column
+     * @return True if a row is missing data in a required column
      *********************************************************************************************/
     protected boolean checkForMissingColumns()
     {

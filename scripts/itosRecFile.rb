@@ -31,19 +31,19 @@ java_import Java::CCDD.CcddScriptDataAccessHandler
 #******************************************************************************
 def outputFileCreationInfo(file)
   # Add the build information and header to the output file
-  $ccdd.writeToFileLn(file, "/* Created : " + $ccdd.getDateAndTime() + "\n   User    : " + $ccdd.getUser() + "\n   Project : " + $ccdd.getProject() + "\n   Script  : " + $ccdd.getScriptName())
+  ccdd.writeToFileLn(file, "/* Created : " + ccdd.getDateAndTime() + "\n   User    : " + ccdd.getUser() + "\n   Project : " + ccdd.getProject() + "\n   Script  : " + ccdd.getScriptName())
 
   # Check if any table is associated with the script
-  if $ccdd.getTableNumRows() != 0
-      $ccdd.writeToFileLn(file, "   Table(s): " + $ccdd.getTableNames().sort.to_a.join(",\n             "))
+  if ccdd.getTableNumRows() != 0
+      ccdd.writeToFileLn(file, "   Table(s): " + ccdd.getTableNames().sort.to_a.join(",\n             "))
   end
 
   # Check if any groups is associated with the script
-  if $ccdd.getAssociatedGroupNames().length != 0
-      $ccdd.writeToFileLn(file, "   Group(s): " + $ccdd.getAssociatedGroupNames().sort.to_a.join(",\n             "))
+  if ccdd.getAssociatedGroupNames().length != 0
+      ccdd.writeToFileLn(file, "   Group(s): " + ccdd.getAssociatedGroupNames().sort.to_a.join(",\n             "))
   end
 
-  $ccdd.writeToFileLn(file, "*/")
+  ccdd.writeToFileLn(file, "*/")
 end
 
 #******************************************************************************
@@ -77,7 +77,7 @@ def isTelemetry(row)
     isTlm = false
 
     # Get the rate column values for all rate columns in the structure
-    rates = $ccdd.getStructureRates(row)
+    rates = ccdd.getStructureRates(row)
 
     # Step through each rate column value
     for index in 0..rates.length - 1
@@ -105,7 +105,7 @@ end
 # @return Command enumeration name
 #******************************************************************************
 def getCommandEnumerationName(row, argumentNum)
-    return $ccdd.getCommandName(row) + "_" + $ccdd.getCommandArgName(argumentNum, row) + "_ENUMERATION"
+    return ccdd.getCommandName(row) + "_" + ccdd.getCommandArgName(argumentNum, row) + "_ENUMERATION"
 end
 
 #******************************************************************************
@@ -138,21 +138,21 @@ def reorderRowsForByteOrder(endian)
             packCount = 1
 
             # Get the name of the target structure
-            tgtStructName = $ccdd.getStructureTableNameByRow(tgtRow)
+            tgtStructName = ccdd.getStructureTableNameByRow(tgtRow)
 
             # Get the byte offset of the target variable
-            tgtVarPath = $ccdd.getFullVariableNameRaw(tgtRow)
-            tgtOffset = $ccdd.getVariableOffset(tgtVarPath)
+            tgtVarPath = ccdd.getFullVariableNameRaw(tgtRow)
+            tgtOffset = ccdd.getVariableOffset(tgtVarPath)
 
             # Step through the remaining rows so that the structures can be
             # compared with the target
             for compRow in row + 1..$numStructRows - 1
                 # Check if the target structure is the same as the comparison
                 # structure
-                if tgtStructName == $ccdd.getStructureTableNameByRow(compRow)
+                if tgtStructName == ccdd.getStructureTableNameByRow(compRow)
                     # Get the byte offset of the comparison variable
-                    compVarPath = $ccdd.getFullVariableNameRaw(compRow)
-                    compOffset = $ccdd.getVariableOffset(compVarPath)
+                    compVarPath = ccdd.getFullVariableNameRaw(compRow)
+                    compOffset = ccdd.getVariableOffset(compVarPath)
 
                     # Check if the target and comparison variables have the
                     # same offset; i.e., they are bit-packed
@@ -216,9 +216,9 @@ def outputStructureDefinition(structureName, isPacket, outFile)
         row = $newRowOrder[rowIndex]
 
         # Check that this row references a variable in the prototype structure
-        if $ccdd.getStructureTableNameByRow(row) == structureName
+        if ccdd.getStructureTableNameByRow(row) == structureName
             # Get the variable name for this row
-            variableName = $ccdd.getStructureVariableName(row)
+            variableName = ccdd.getStructureVariableName(row)
 
             isFound = false
 
@@ -241,7 +241,7 @@ def outputStructureDefinition(structureName, isPacket, outFile)
                 usedVariableNames.push(variableName)
 
                 # Get the array size for this row
-                arraySize = $ccdd.getStructureArraySize(row)
+                arraySize = ccdd.getStructureArraySize(row)
 
                 # Only output non-array variables or array members (i.e., skip
                 # array definitions)
@@ -249,7 +249,7 @@ def outputStructureDefinition(structureName, isPacket, outFile)
                     skipStringMembers = false
 
                     # Get the variable's data type
-                    dataType = $ccdd.getStructureDataType(row)
+                    dataType = ccdd.getStructureDataType(row)
 
                     # Check if the variable is a string; a string is handled as
                     # a single entity rather than an array of characters
@@ -276,7 +276,7 @@ def outputStructureDefinition(structureName, isPacket, outFile)
                         # prevents returning a duplicate name due to the conversion (e.g.,
                         # abc_0 and abc[0] would otherwise be converted to the same name, abc_0,
                         # if the brackets are simply replaced)
-                        variablePath = $ccdd.getFullVariableName(rowIndex, ",")
+                        variablePath = ccdd.getFullVariableName(rowIndex, ",")
                         varIndex = variablePath.rindex(",") + 1
                         variableName = variablePath[varIndex..-1]
 
@@ -285,18 +285,18 @@ def outputStructureDefinition(structureName, isPacket, outFile)
                             # Check if this is the packet definition
                             if isPacket
                                 # Terminate the previous line with a comma
-                                $ccdd.writeToFileLn(outFile, ",")
+                                ccdd.writeToFileLn(outFile, ",")
                             # This is a prototype structure
                             else
                                 # Terminate the previous line with a line feed
-                                $ccdd.writeToFileLn(outFile, "")
+                                ccdd.writeToFileLn(outFile, "")
                             end
                         end
 
                         termLine = true
 
                         # Get the length in bits for this row
-                        bitLength = $ccdd.getStructureBitLength(row)
+                        bitLength = ccdd.getStructureBitLength(row)
                         otherParameters = ""
 
                         # Check if the length in bits is specified
@@ -307,7 +307,7 @@ def outputStructureDefinition(structureName, isPacket, outFile)
 
                         # Get the ITOS encoded form of the data type as two
                         # characters (type + size)
-                        itosEncode2Char = $ccdd.getITOSEncodedDataType(dataType, "TWO_CHAR")
+                        itosEncode2Char = ccdd.getITOSEncodedDataType(dataType, "TWO_CHAR")
 
                         # Check if variable is a primitive data type or a
                         # structure
@@ -326,7 +326,7 @@ def outputStructureDefinition(structureName, isPacket, outFile)
                         end
 
                         # Create the parameter definition
-                        $ccdd.writeToFile(outFile, "  " + itosEncode2Char + " " + variableName + " {" + otherParameters + "}")
+                        ccdd.writeToFile(outFile, "  " + itosEncode2Char + " " + variableName + " {" + otherParameters + "}")
                     end
                 end
             end
@@ -407,9 +407,9 @@ def outputTelemetryPacket(prefix, structureName, msgID, msgIDOffset)
     msgIDWithOffset = msgIDOffset.sub( "0x", "").to_i(16) + msgID.sub( "0x", "").to_i(16)
 
     # Output the packet definition
-    $ccdd.writeToFileLn($tlmFile, "\nCfeTelemetryPacket " + prefix + structureName)
-    $ccdd.writeToFileLn($tlmFile, "{")
-    $ccdd.writeToFileLn($tlmFile, "  applyWhen={FieldInRange{field = applicationId, range = " + extractMessageID("%x" % msgIDWithOffset) + "}},")
+    ccdd.writeToFileLn($tlmFile, "\nCfeTelemetryPacket " + prefix + structureName)
+    ccdd.writeToFileLn($tlmFile, "{")
+    ccdd.writeToFileLn($tlmFile, "  applyWhen={FieldInRange{field = applicationId, range = " + extractMessageID("%x" % msgIDWithOffset) + "}},")
     outputStructureDefinition(structureName, true, $tlmFile)
 end
 
@@ -426,24 +426,24 @@ def outputStructures(structureNames)
         structureName = structureNames[structIndex]
 
         # Get the value of the structure's message ID data field (if present)
-        msgID = $ccdd.getTableDataFieldValue(structureName, "Message ID")
+        msgID = ccdd.getTableDataFieldValue(structureName, "Message ID")
 
         # Check if the structure doesn't have a message ID
         if msgID == nil || msgID.empty?
             # Check if the structure is referenced by more than one structure
-            if $ccdd.isStructureShared(structureName)
+            if ccdd.isStructureShared(structureName)
                 # Output the structure prototype to the combined recs file
-                $ccdd.writeToFileLn($combFile, "\nprototype Structure " + structureName)
-                $ccdd.writeToFileLn($combFile, "{")
+                ccdd.writeToFileLn($combFile, "\nprototype Structure " + structureName)
+                ccdd.writeToFileLn($combFile, "{")
                 outputStructureDefinition(structureName, false, $combFile)
-                $ccdd.writeToFileLn($combFile, "\n}")
+                ccdd.writeToFileLn($combFile, "\n}")
             # The structure isn't referenced by multiple structures
             else
                 # Output the structure prototype to the rec file
-                $ccdd.writeToFileLn($tlmFile, "\nprototype Structure " + structureName)
-                $ccdd.writeToFileLn($tlmFile, "{")
+                ccdd.writeToFileLn($tlmFile, "\nprototype Structure " + structureName)
+                ccdd.writeToFileLn($tlmFile, "{")
                 outputStructureDefinition(structureName, false, $tlmFile)
-                $ccdd.writeToFileLn($tlmFile, "\n}")
+                ccdd.writeToFileLn($tlmFile, "\n}")
             end
         # The structure has a message ID
         else
@@ -453,13 +453,13 @@ def outputStructures(structureNames)
                 for fcIndex in 0..$numFlightComputers - 1
                     # Output the telemetry packet definition
                     outputTelemetryPacket($fcNames[fcIndex], structureName, msgID, $fcOffset[fcIndex])
-                    $ccdd.writeToFileLn($tlmFile, "\n}")
+                    ccdd.writeToFileLn($tlmFile, "\n}")
                 end
             # There is a single flight computer
             else
                 # Output the telemetry packet definition
                 outputTelemetryPacket("", structureName, msgID, "0")
-                $ccdd.writeToFileLn($tlmFile, "\n}")
+                ccdd.writeToFileLn($tlmFile, "\n}")
             end
         end
     end
@@ -482,32 +482,32 @@ def outputCommands(prefix, msgIDOffset, system)
     for row in 0..$numCommandRows - 1
         # Get the system with which he command is associated from the command
         # table's 'System' data field
-        commandSystem = $ccdd.getTableDataFieldValue($ccdd.getCommandTableNameByRow(row), "System")
+        commandSystem = ccdd.getTableDataFieldValue(ccdd.getCommandTableNameByRow(row), "System")
 
         # Check if the this command table's system matches the target system
         if system == nil || ( commandSystem != nil && system == commandSystem)
             # Get the command name and code, and the message ID for the command
             # table
-            commandName = $ccdd.getCommandName(row)
-            cmdCode = $ccdd.getCommandCode(row)
-            msgID = $ccdd.getTableDataFieldValue($ccdd.getCommandTableNameByRow(row), "Message ID")
+            commandName = ccdd.getCommandName(row)
+            cmdCode = ccdd.getCommandCode(row)
+            msgID = ccdd.getTableDataFieldValue(ccdd.getCommandTableNameByRow(row), "Message ID")
             msgIDWithOffset = msgIDOffset.sub("0x", "").to_i(16) + msgID.sub("0x", "").to_i(16)
 
             # Begin the command definition
-            $ccdd.writeToFileLn($cmdFile, "")
-            $ccdd.writeToFileLn($cmdFile, "CfeSoftwareCommand " + prefix + commandName)
-            $ccdd.writeToFileLn($cmdFile, "{")
-            $ccdd.writeToFileLn($cmdFile, "  applicationId {range=" + extractCommandID("%x" % msgIDWithOffset) + "}")
-            $ccdd.writeToFileLn($cmdFile, "  commandCode {range=" + (cmdCode.sub("0x", "").to_i(16)).to_s + "}")
+            ccdd.writeToFileLn($cmdFile, "")
+            ccdd.writeToFileLn($cmdFile, "CfeSoftwareCommand " + prefix + commandName)
+            ccdd.writeToFileLn($cmdFile, "{")
+            ccdd.writeToFileLn($cmdFile, "  applicationId {range=" + extractCommandID("%x" % msgIDWithOffset) + "}")
+            ccdd.writeToFileLn($cmdFile, "  commandCode {range=" + (cmdCode.sub("0x", "").to_i(16)).to_s + "}")
 
             # Process all of the command arguments for this command
-            for argumentNum in 0..$ccdd.getNumCommandArguments(row) - 1
+            for argumentNum in 0..ccdd.getNumCommandArguments(row) - 1
                 # Get the command argument's name, data type, and array size
-                name = $ccdd.getCommandArgName(argumentNum, row)
-                dataType = $ccdd.getCommandArgDataType(argumentNum, row)
+                name = ccdd.getCommandArgName(argumentNum, row)
+                dataType = ccdd.getCommandArgDataType(argumentNum, row)
 
                 # Get the size in bytes based on the data type
-                sizeInBytes = $ccdd.getDataTypeSizeInBytes(dataType);
+                sizeInBytes = ccdd.getDataTypeSizeInBytes(dataType);
 
                 # Check if the parameter has an argument
                 if name != nil && !name.empty? && dataType != nil && !dataType.empty?
@@ -515,12 +515,12 @@ def outputCommands(prefix, msgIDOffset, system)
 
                     # Get the single character ITOS encoded form of the data
                     # type
-                    itosEncode1Char = $ccdd.getITOSEncodedDataType(dataType, "SINGLE_CHAR")
+                    itosEncode1Char = ccdd.getITOSEncodedDataType(dataType, "SINGLE_CHAR")
 
                     # Check if the parameter is an integer (signed or unsigned)
                     if itosEncode1Char == "I" || itosEncode1Char == "U"
                         # Get the command argument's enumeration value
-                        enumeration = $ccdd.getCommandArgEnumeration(argumentNum, row)
+                        enumeration = ccdd.getCommandArgEnumeration(argumentNum, row)
 
                         # Check if this command has an enumeration
                         if enumeration != nil && !enumeration.empty?
@@ -532,8 +532,8 @@ def outputCommands(prefix, msgIDOffset, system)
                         if sizeInBytes != 0
                             # Get the command argument's minimum and maximum
                             # values
-                            minimumValue = $ccdd.getCommandArgMinimum(argumentNum, row)
-                            maximumValue = $ccdd.getCommandArgMaximum(argumentNum, row)
+                            minimumValue = ccdd.getCommandArgMinimum(argumentNum, row)
+                            maximumValue = ccdd.getCommandArgMaximum(argumentNum, row)
 
                             # Check if a minimum value doesn't exist for this
                             # argument
@@ -571,7 +571,7 @@ def outputCommands(prefix, msgIDOffset, system)
                     # Check if the parameter is a string
                    elsif itosEncode1Char == "S"
                         # Get the command argument's array size value
-                        arraySize = $ccdd.getCommandArgArraySize(argumentNum, row)
+                        arraySize = ccdd.getCommandArgArraySize(argumentNum, row)
 
                         # Check if there is no array size provided
                         if arraySize == nil || arraySize.empty?
@@ -591,11 +591,11 @@ def outputCommands(prefix, msgIDOffset, system)
                     end
 
                     # Output the command argument to the file
-                    $ccdd.writeToFileLn($cmdFile, "  " + itosEncode1Char + sizeInBytes.to_s + " " + name + " {" + argumentInfo + "}")
+                    ccdd.writeToFileLn($cmdFile, "  " + itosEncode1Char + sizeInBytes.to_s + " " + name + " {" + argumentInfo + "}")
                 end
             end
 
-            $ccdd.writeToFileLn($cmdFile, "}")
+            ccdd.writeToFileLn($cmdFile, "}")
         end
     end
 end
@@ -608,10 +608,10 @@ end
 #******************************************************************************
 def outputMnemonicDefinition(row)
     # Get the variable data type
-    dataType = $ccdd.getStructureDataType(row)
+    dataType = ccdd.getStructureDataType(row)
 
      # Get the single character ITOS encoded form of the data type
-    itosEncode = $ccdd.getITOSEncodedDataType(dataType, "SINGLE_CHAR")
+    itosEncode = ccdd.getITOSEncodedDataType(dataType, "SINGLE_CHAR")
 
     # Check if this data type is a recognized base type, and not a structure
     if itosEncode != nil && itosEncode != dataType
@@ -622,8 +622,8 @@ def outputMnemonicDefinition(row)
         end
 
         # Get the variable name and array size
-        variableName = $ccdd.getStructureVariableName(row)
-        arraySize = $ccdd.getStructureArraySize(row)
+        variableName = ccdd.getStructureVariableName(row)
+        arraySize = ccdd.getStructureArraySize(row)
 
         # Check if the variable is not an array definition
         isVar = isVariable(variableName, arraySize)
@@ -644,16 +644,16 @@ def outputMnemonicDefinition(row)
         # Only output non-array variables or array members (i.e., skip array
         # definitions)
         if isOutputMnemonic
-            structurePath = $ccdd.getFullVariableName(row, ".")
+            structurePath = ccdd.getFullVariableName(row, ".")
 
             # Get the full variable name for this variable, which includes all
             # of the variable names in its structure path
-            fullVariableName = $ccdd.getFullVariableName(row)
+            fullVariableName = ccdd.getFullVariableName(row)
 
             enumeration = nil
 
             # Get the enumeration(s)
-            enumerations = $ccdd.getStructureEnumerations(row)
+            enumerations = ccdd.getStructureEnumerations(row)
 
             # Check if any enumeration exists
             if enumerations != nil && enumerations.length != 0
@@ -662,13 +662,13 @@ def outputMnemonicDefinition(row)
             end
 
             # Get the polynomial conversion and limit sets columns (if extant)
-            polynomial = $ccdd.getStructureTableData("polynomial coefficients", row)
-            limitSet = $ccdd.getStructureTableData("limit sets", row)
+            polynomial = ccdd.getStructureTableData("polynomial coefficients", row)
+            limitSet = ccdd.getStructureTableData("limit sets", row)
 
             # Step through each flight computer
             for fcIndex in 0..$numFlightComputers - 1
                 # Output the mnemonic
-                $ccdd.writeToFile($tlmFile, itosEncode + " " + $fcNames[fcIndex] + fullVariableName + " {sourceFields = {" + $fcNames[fcIndex] + structurePath + "}")
+                ccdd.writeToFile($tlmFile, itosEncode + " " + $fcNames[fcIndex] + fullVariableName + " {sourceFields = {" + $fcNames[fcIndex] + structurePath + "}")
 
                 isConversion = false
                 isMultiple = false
@@ -693,21 +693,21 @@ def outputMnemonicDefinition(row)
                     if isMultiple
                         # Output the flight computer-specific conversion
                         # reference
-                        $ccdd.writeToFile($tlmFile, " conversion = " + $fcNames[fcIndex] + fullVariableName + "_CONVERSION")
+                        ccdd.writeToFile($tlmFile, " conversion = " + $fcNames[fcIndex] + fullVariableName + "_CONVERSION")
                     # There is only a single conversion
                     else
                         # Output the conversion reference
-                        $ccdd.writeToFile($tlmFile, " conversion = " + fullVariableName + "_CONVERSION")
+                        ccdd.writeToFile($tlmFile, " conversion = " + fullVariableName + "_CONVERSION")
                     end
                 end
 
                 # Check if this parameter includes a limit or limit set
                 if limitSet != nil && !limitSet.empty?
                     # Output the limit reference
-                    $ccdd.writeToFile($tlmFile, " limits = " + fullVariableName + "_LIMIT")
+                    ccdd.writeToFile($tlmFile, " limits = " + fullVariableName + "_LIMIT")
                 end
 
-                $ccdd.writeToFileLn($tlmFile, "}")
+                ccdd.writeToFileLn($tlmFile, "}")
             end
         end
     end
@@ -717,8 +717,8 @@ end
 # Output all of the mnemonic definitions
 #******************************************************************************
 def outputMnemonicDefinitions()
-    $ccdd.writeToFileLn($tlmFile, "")
-    $ccdd.writeToFileLn($tlmFile, "/* Mnemonic Definitions */")
+    ccdd.writeToFileLn($tlmFile, "")
+    ccdd.writeToFileLn($tlmFile, "/* Mnemonic Definitions */")
 
     # Step through each row in the table
     for row in 0..$numStructRows - 1
@@ -753,36 +753,36 @@ def outputDiscreteConversion(file, discreteConversion, conversionName)
     # the enumerated values is
     # <Discrete Value> | <Display Name> | <Text Color> |
     # <Background Color> ... [, repeat for each discrete value...]
-    enumerations = $ccdd.getArrayFromString(discreteConversion, "|", ",")
+    enumerations = ccdd.getArrayFromString(discreteConversion, "|", ",")
 
     # Check if the variable has enumerations and the required number of
     # parameters is provided
     if enumerations != nil && enumerations[0].length > 3
         # Output the discrete conversion header
-        $ccdd.writeToFileLn(file, "DiscreteConversion " + $ccdd.getFullVariableName(conversionName, "_") + "_CONVERSION")
-        $ccdd.writeToFileLn(file, "{")
+        ccdd.writeToFileLn(file, "DiscreteConversion " + ccdd.getFullVariableName(conversionName, "_") + "_CONVERSION")
+        ccdd.writeToFileLn(file, "{")
 
         # Step through each enumerated value
         for discrete in 0..enumerations.length - 1
             # Output the discrete conversion
-            $ccdd.writeToFile(file, "  Dsc " + enumerations[discrete][disp_name] + " {range = " + enumerations[discrete][value])
+            ccdd.writeToFile(file, "  Dsc " + enumerations[discrete][disp_name] + " {range = " + enumerations[discrete][value])
 
             # Check if a background color is supplied
             if enumerations[discrete][back_color] != nil && !enumerations[discrete][back_color].empty?
                 # Output the background color
-                $ccdd.writeToFile(file, ", bgColor = " + enumerations[discrete][back_color])
+                ccdd.writeToFile(file, ", bgColor = " + enumerations[discrete][back_color])
             end
 
             # Check if a foreground (text) color is supplied
             if enumerations[discrete][text_color] != nil && !enumerations[discrete][text_color].empty?
                 # Output the foreground color
-                $ccdd.writeToFile(file, ", fgColor = " + enumerations[discrete][text_color])
+                ccdd.writeToFile(file, ", fgColor = " + enumerations[discrete][text_color])
             end
 
-            $ccdd.writeToFileLn(file, "}")
+            ccdd.writeToFileLn(file, "}")
         end
 
-        $ccdd.writeToFileLn(file, "}")
+        ccdd.writeToFileLn(file, "}")
     end
 end
 
@@ -797,7 +797,7 @@ def outputTelemetryDiscreteConversions()
         discreteConversion = nil
 
         # Get the enumeration(s)
-        enumerations = $ccdd.getStructureEnumerations(row)
+        enumerations = ccdd.getStructureEnumerations(row)
 
         # Check if any enumeration exists
         if enumerations.length != 0
@@ -810,20 +810,20 @@ def outputTelemetryDiscreteConversions()
             # Check if this is the first discrete conversion
             if isFirst
                 # Write the discrete conversion header to the file
-                $ccdd.writeToFileLn($tlmFile, "")
-                $ccdd.writeToFileLn($tlmFile, "/* Discrete Conversions */")
+                ccdd.writeToFileLn($tlmFile, "")
+                ccdd.writeToFileLn($tlmFile, "/* Discrete Conversions */")
                 isFirst = false
             end
 
             # Get the variable name and array size
-            variableName = $ccdd.getStructureVariableName(row)
-            arraySize = $ccdd.getStructureArraySize(row)
+            variableName = ccdd.getStructureVariableName(row)
+            arraySize = ccdd.getStructureArraySize(row)
 
             # Only output non-array variables or array members (i.e., skip
             # array definitions)
             if isVariable(variableName, arraySize)
                 # Get the full name and path for the variable on this row
-                fullVariableName = $ccdd.getFullVariableName(row)
+                fullVariableName = ccdd.getFullVariableName(row)
 
                 # Output the discrete conversion for this row in the data table
                 outputDiscreteConversion($tlmFile, discreteConversion, fullVariableName)
@@ -839,25 +839,25 @@ def outputCommandDiscreteConversions()
     # Step through each row in the command table
     for row in range($numCommandRows)
         # Step through each of the commands arguments
-        for argumentNum in 0..$ccdd.getNumCommandArguments(row) - 1
+        for argumentNum in 0..ccdd.getNumCommandArguments(row) - 1
             # Get the discrete conversion for this command based on the
             # argument number. Null is returned if no match is found for the
             # column name; it's assumed that no more argument columns exists
             # for this command
-            discreteConversion = $ccdd.getCommandArgEnumeration(argumentNum, row)
+            discreteConversion = ccdd.getCommandArgEnumeration(argumentNum, row)
 
             # Check if the parameter has a discrete conversion
             if discreteConversion != nil && !discreteConversion.empty?
                 # Check if this is the first discrete conversion
                 if argumentNum == 0
                     # Write the discrete conversions header to the file
-                    $ccdd.writeToFileLn($cmdFile, "")
-                    $ccdd.writeToFileLn($cmdFile, "/* Discrete Conversions */")
+                    ccdd.writeToFileLn($cmdFile, "")
+                    ccdd.writeToFileLn($cmdFile, "/* Discrete Conversions */")
                 end
 
                 # Build the name for the conversion using the command and
                 # argument names
-                fullCommandName = $ccdd.getCommandName(row) + "_" + $ccdd.getCommandArgName(argumentNum, row)
+                fullCommandName = ccdd.getCommandName(row) + "_" + ccdd.getCommandArgName(argumentNum, row)
 
                 # Output the discrete conversion for this row in the data table
                 outputDiscreteConversion($cmdFile, discreteConversion, fullCommandName)
@@ -884,22 +884,22 @@ def outputCommandEnumeration(enumeration, enumerationName)
     # format for the enumerated values is
     # <Discrete Value> | <Display Name> | <Text Color> |
     # <Background Color> ... [, repeat for each discrete value...]
-    enumerations = $ccdd.getArrayFromString(enumeration, "|", ",")
+    enumerations = ccdd.getArrayFromString(enumeration, "|", ",")
 
     # Check if the variable has enumerations and the required number of
     # parameters is provided
     if enumerations != nil && enumerations[0].length > 1
         # Output the enumeration header
-        $ccdd.writeToFileLn($cmdFile, "Enumeration " + enumerationName)
-        $ccdd.writeToFileLn($cmdFile, "{")
+        ccdd.writeToFileLn($cmdFile, "Enumeration " + enumerationName)
+        ccdd.writeToFileLn($cmdFile, "{")
 
         # Step through each enumerated value
         for discrete in 0..enumerations.length - 1
             # Output the enumerated value
-            $ccdd.writeToFileLn($cmdFile, "  EnumerationValue " + enumerations[discrete][disp_name] + " {value = " + enumerations[discrete][value] + "}")
+            ccdd.writeToFileLn($cmdFile, "  EnumerationValue " + enumerations[discrete][disp_name] + " {value = " + enumerations[discrete][value] + "}")
         end
 
-        $ccdd.writeToFileLn($cmdFile, "}")
+        ccdd.writeToFileLn($cmdFile, "}")
     end
 end
 
@@ -914,22 +914,22 @@ def outputCommandEnumerations(systemName)
     for row in 0..$numCommandRows - 1
         # Get the system with which he command is associated from the command
         # table's 'System' data field
-        commandSystem = $ccdd.getTableDataFieldValue($ccdd.getCommandTableNameByRow(row), "System")
+        commandSystem = ccdd.getTableDataFieldValue(ccdd.getCommandTableNameByRow(row), "System")
 
         # Check if the this command table's system matches the target system
         if systemName == nil || (commandSystem != nil && systemName == commandSystem)
             # Step through each of the commands arguments
-            for argumentNum in 0..$ccdd.getNumCommandArguments(row) - 1
+            for argumentNum in 0..ccdd.getNumCommandArguments(row) - 1
                 # Get the command argument's enumeration value
-                enumeration = $ccdd.getCommandArgEnumeration(argumentNum, row)
+                enumeration = ccdd.getCommandArgEnumeration(argumentNum, row)
 
                 # Check if this command has an enumeration
                 if enumeration != nil && !enumeration.empty?
                     # Check if this is the first enumeration for the command
                     if argumentNum == 0
                         # Write the enumerations header to the file
-                        $ccdd.writeToFileLn($cmdFile, "")
-                        $ccdd.writeToFileLn($cmdFile, "/* Enumerations */")
+                        ccdd.writeToFileLn($cmdFile, "")
+                        ccdd.writeToFileLn($cmdFile, "/* Enumerations */")
                     end
 
                     # Output the enumeration for this row in the data table
@@ -956,31 +956,31 @@ end
 #******************************************************************************
 def outputLimitDefinition(row, limitSets, isFirst)
     # Get the variable name and array size
-    variableName = $ccdd.getStructureVariableName(row)
-    arraySize = $ccdd.getStructureArraySize(row)
+    variableName = ccdd.getStructureVariableName(row)
+    arraySize = ccdd.getStructureArraySize(row)
 
     # Only output non-array variables or array members (i.e., skip array
     # definitions)
     if isVariable(variableName, arraySize)
         # Separate the limits into an array
-        limits = $ccdd.getArrayFromString(limitSets, "|", ",")
+        limits = ccdd.getArrayFromString(limitSets, "|", ",")
 
         # Check if the variable has limits
         if limits != nil
             # Check if this is the first limit definition
             if isFirst
                 # Write the limit definitions header to the file
-                $ccdd.writeToFileLn($tlmFile, "")
-                $ccdd.writeToFile($tlmFile, "/* Limit Definitions */")
+                ccdd.writeToFileLn($tlmFile, "")
+                ccdd.writeToFile($tlmFile, "/* Limit Definitions */")
                 isFirst = false
             end
 
             # Check if a single limit is specified
             if limits.length == 1
                 # Output the limit header
-                $ccdd.writeToFileLn($tlmFile, "")
-                $ccdd.writeToFileLn($tlmFile, "Limit " + $ccdd.getFullVariableName(row) + "_LIMIT")
-                $ccdd.writeToFileLn($tlmFile, "{")
+                ccdd.writeToFileLn($tlmFile, "")
+                ccdd.writeToFileLn($tlmFile, "Limit " + ccdd.getFullVariableName(row) + "_LIMIT")
+                ccdd.writeToFileLn($tlmFile, "{")
 
                 # Step through each limit definition
                 for index in 0..limits[0].length - 1
@@ -988,31 +988,31 @@ def outputLimitDefinition(row, limitSets, isFirst)
                     # or red-high limit
                     if index < 4 && !limits[0][index].empty?
                         # Output the limit
-                        $ccdd.writeToFileLn($tlmFile, "  " + $ccdd.getITOSLimitName(index) + " = " + limits[0][index])
+                        ccdd.writeToFileLn($tlmFile, "  " + ccdd.getITOSLimitName(index) + " = " + limits[0][index])
                     end
                 end
 
-                $ccdd.writeToFileLn($tlmFile, "}")
+                ccdd.writeToFileLn($tlmFile, "}")
             # Multiple limits are specified
            elsif limits.length > 1
                 # Output the limit set header
-                $ccdd.writeToFileLn($tlmFile, "")
-                $ccdd.writeToFileLn($tlmFile, "LimitSet " + $ccdd.getFullVariableName(row) + "_LIMIT")
-                $ccdd.writeToFileLn($tlmFile, "{")
-                $ccdd.writeToFileLn($tlmFile, "  contextMnemonic = " + limits[0][0])
-                $ccdd.writeToFileLn($tlmFile, "")
+                ccdd.writeToFileLn($tlmFile, "")
+                ccdd.writeToFileLn($tlmFile, "LimitSet " + ccdd.getFullVariableName(row) + "_LIMIT")
+                ccdd.writeToFileLn($tlmFile, "{")
+                ccdd.writeToFileLn($tlmFile, "  contextMnemonic = " + limits[0][0])
+                ccdd.writeToFileLn($tlmFile, "")
 
                 # Step through each limit set
                 for set in 1..limits.length - 1
                     # Check if this is not the first limit value
                     if set != 1
                         # Output a line feed
-                        $ccdd.writeToFileLn($tlmFile, "")
+                        ccdd.writeToFileLn($tlmFile, "")
                     end
 
                     # Output the limit header
-                    $ccdd.writeToFileLn($tlmFile, "  Limit limit" + set.to_s)
-                    $ccdd.writeToFileLn($tlmFile, "  {")
+                    ccdd.writeToFileLn($tlmFile, "  Limit limit" + set.to_s)
+                    ccdd.writeToFileLn($tlmFile, "  {")
 
                     limitIndex = 0
 
@@ -1023,21 +1023,21 @@ def outputLimitDefinition(row, limitSets, isFirst)
                             # Check if this is the context range
                             if limits[set][index].include? ".."
                                 # Output the context range
-                                $ccdd.writeToFileLn($tlmFile, "    contextRange = " + limits[set][index])
+                                ccdd.writeToFileLn($tlmFile, "    contextRange = " + limits[set][index])
                             # Not the context range; must be a limit value
                             else
                                 # Output the limit value
-                                $ccdd.writeToFileLn($tlmFile, "    " + $ccdd.getITOSLimitName(limitIndex) + " = " + limits[set][index])
+                                ccdd.writeToFileLn($tlmFile, "    " + ccdd.getITOSLimitName(limitIndex) + " = " + limits[set][index])
 
                                 limitIndex = limitIndex + 1
                             end
                         end
                     end
 
-                    $ccdd.writeToFileLn($tlmFile, "  }")
+                    ccdd.writeToFileLn($tlmFile, "  }")
                 end
 
-                $ccdd.writeToFileLn($tlmFile, "}")
+                ccdd.writeToFileLn($tlmFile, "}")
             end
         end
     end
@@ -1054,7 +1054,7 @@ def outputLimitDefinitions()
     # Step through each row in the table
     for row in 0..$numStructRows - 1
         # Get the limits for this row
-        limitSets = $ccdd.getStructureTableData("limit sets", row)
+        limitSets = ccdd.getStructureTableData("limit sets", row)
 
         # Check if the parameter has limits
         if limitSets != nil && !limitSets.empty?
@@ -1078,22 +1078,22 @@ end
 #******************************************************************************
 def outputPolynomial(prefix, variableName, coeffs)
     # Output the polynomial conversion header
-    $ccdd.writeToFileLn($tlmFile, "")
-    $ccdd.writeToFile($tlmFile, "PolynomialConversion " + prefix + variableName + "_CONVERSION")
-    $ccdd.writeToFileLn($tlmFile, "{")
-    $ccdd.writeToFile($tlmFile, "  coefficients = {")
+    ccdd.writeToFileLn($tlmFile, "")
+    ccdd.writeToFile($tlmFile, "PolynomialConversion " + prefix + variableName + "_CONVERSION")
+    ccdd.writeToFileLn($tlmFile, "{")
+    ccdd.writeToFile($tlmFile, "  coefficients = {")
 
     # Output the first coefficient (with no preceding comma)
-    $ccdd.writeToFile($tlmFile, coeffs[0])
+    ccdd.writeToFile($tlmFile, coeffs[0])
 
     # Step through each remaining coefficient value
     for index in 1..coeffs.length - 1
         # Output the coefficient, preceded by a comma
-        $ccdd.writeToFile($tlmFile, ", " + coeffs[index])
+        ccdd.writeToFile($tlmFile, ", " + coeffs[index])
     end
 
-    $ccdd.writeToFileLn($tlmFile, "}")
-    $ccdd.writeToFileLn($tlmFile, "}")
+    ccdd.writeToFileLn($tlmFile, "}")
+    ccdd.writeToFileLn($tlmFile, "}")
 end
 
 #******************************************************************************
@@ -1107,8 +1107,8 @@ end
 #******************************************************************************
 def outputPolynomialConversion(row, polynomialCoefficients)
     # Get the variable name and array size
-    variableName = $ccdd.getStructureVariableName(row)
-    arraySize = $ccdd.getStructureArraySize(row)
+    variableName = ccdd.getStructureVariableName(row)
+    arraySize = ccdd.getStructureArraySize(row)
 
     # Only output non-array variables or array members (i.e., skip array
     # definitions)
@@ -1138,10 +1138,10 @@ def outputPolynomialConversion(row, polynomialCoefficients)
             end
 
             # Separate the polynomial coefficients into an array
-            coeffs = $ccdd.getArrayFromString(polySets[polyIndex], "|")
+            coeffs = ccdd.getArrayFromString(polySets[polyIndex], "|")
 
             # Output the polynomial conversion definition
-            outputPolynomial(prefix, $ccdd.getFullVariableName(row), coeffs)
+            outputPolynomial(prefix, ccdd.getFullVariableName(row), coeffs)
         end
 
         # Check if there is more than one set
@@ -1150,7 +1150,7 @@ def outputPolynomialConversion(row, polynomialCoefficients)
             lastPolyindex = (polyIndex - 1)
 
             # Separate the polynomial coefficients into an array
-            coeffs = $ccdd.getArrayFromString(polySets[lastPolyindex], "|")
+            coeffs = ccdd.getArrayFromString(polySets[lastPolyindex], "|")
 
             # Step through any remaining flight computers that don't have a
             # polynomial coefficient set
@@ -1160,7 +1160,7 @@ def outputPolynomialConversion(row, polynomialCoefficients)
 
                 # Output the polynomial conversion definition using the
                 # coefficients from the last defined set
-                outputPolynomial(prefix, $ccdd.getFullVariableName(row), coeffs)
+                outputPolynomial(prefix, ccdd.getFullVariableName(row), coeffs)
             end
         end
     end
@@ -1175,15 +1175,15 @@ def outputPolynomialConversions()
     # Step through each row in the table
     for row in 0..$numStructRows - 1
         # Get the polynomial coefficients for this row
-        polynomialCoefficients = $ccdd.getStructureTableData("polynomial coefficients", row)
+        polynomialCoefficients = ccdd.getStructureTableData("polynomial coefficients", row)
 
         # Check if the parameter has polynomial coefficients
         if polynomialCoefficients != nil && !polynomialCoefficients.empty?
             # Check if this is the first polynomial conversion
             if isFirst
                 # Write the polynomial conversion header to the file
-                $ccdd.writeToFileLn($tlmFile, "")
-                $ccdd.writeToFileLn($tlmFile, "/* Polynomial Conversions  -- a list of constants  {a0,a1,a2,,,an}    ,  where  y= a0 + a1*x + a2*x^2 + ... an*x^n */")
+                ccdd.writeToFileLn($tlmFile, "")
+                ccdd.writeToFileLn($tlmFile, "/* Polynomial Conversions  -- a list of constants  {a0,a1,a2,,,an}    ,  where  y= a0 + a1*x + a2*x^2 + ... an*x^n */")
                 isFirst = false
             end
 
@@ -1203,12 +1203,12 @@ $fcOffset = []
 $numFlightComputers = 0
 
 # Get the number of structure and command table rows
-$numStructRows = $ccdd.getStructureTableNumRows()
-$numCommandRows = $ccdd.getCommandTableNumRows()
+$numStructRows = ccdd.getStructureTableNumRows()
+$numCommandRows = ccdd.getCommandTableNumRows()
 
 # Check if no structure or command data is supplied
 if $numStructRows == 0 && $numCommandRows == 0
-    showErrorDialog("No structure or command data supplied to script " + $ccdd.getScriptName())
+    showErrorDialog("No structure or command data supplied to script " + ccdd.getScriptName())
 # Structure and/or command data is supplied
 else
     $endianess = ""
@@ -1216,7 +1216,7 @@ else
     tmpVal = 0
 
     # Get the value of the data field specifying the message ID skip value
-    msgIDSkip = $ccdd.getGroupDataFieldValue("globals", "MID_delta")
+    msgIDSkip = ccdd.getGroupDataFieldValue("globals", "MID_delta")
 
     # Check if the data field exists or is empty
     if msgIDSkip == nil || msgIDSkip.empty?
@@ -1226,7 +1226,7 @@ else
 
     # Get the value of the data field specifying the flight computer offset
     # value
-    fcOffsetVal = $ccdd.getGroupDataFieldValue("globals", "FC_Offset")
+    fcOffsetVal = ccdd.getGroupDataFieldValue("globals", "FC_Offset")
 
     # Check if the data field exists or is empty
     if fcOffsetVal == nil || fcOffsetVal.empty?
@@ -1235,7 +1235,7 @@ else
     end
 
     # Get the value of the data field specifying the flight computer base value
-    fcBase = $ccdd.getGroupDataFieldValue("globals", "prefix")
+    fcBase = ccdd.getGroupDataFieldValue("globals", "prefix")
 
     # Check if the data field exists or is empty
     if fcBase == nil || fcBase.empty?
@@ -1244,7 +1244,7 @@ else
     end
 
     # Get the value of the data field specifying the number of flight computers
-    numFC = $ccdd.getGroupDataFieldValue("globals", "NumComputers")
+    numFC = ccdd.getGroupDataFieldValue("globals", "NumComputers")
 
     # Check if the data field exists, is empty, or isn't an integer value
     if numFC == nil || !(numFC =~ /[0-9]+/)
@@ -1284,7 +1284,7 @@ else
                 [ "Little (swap)", "Little endian (word swapped)" ] ]
 
     # Get the endianess choice from the user
-    selected = $ccdd.getRadioButtonDialog("Select endianess", buttons)
+    selected = ccdd.getRadioButtonDialog("Select endianess", buttons)
 
     # Check that an endianess was selected
     if selected != nil
@@ -1311,7 +1311,7 @@ else
         $newRowOrder = reorderRowsForByteOrder(endianExtn)
 
         # Get the current date and time
-        dateAndTime = $ccdd.getDateAndTime()
+        dateAndTime = ccdd.getDateAndTime()
 
         # Check if structure data is provided
         if $numStructRows > 0
@@ -1322,20 +1322,20 @@ else
             systemName = nil
 
             # Get the group(s) associated with the script (if any)
-            groupNames = $ccdd.getAssociatedGroupNames()
+            groupNames = ccdd.getAssociatedGroupNames()
 
             # Check if a group is associated with the script
             if groupNames.length != 0
                 # Get the value of the first group's 'System' data field, if
                 # present
-                systemName = $ccdd.getGroupDataFieldValue(groupNames[0], "System")
+                systemName = ccdd.getGroupDataFieldValue(groupNames[0], "System")
             end
 
             # Check if the system name wasn't found in the group data field
             if systemName == nil || systemName.empty?
                 # Get the value of the first root structure's 'System' data
                 # field
-                systemName = $ccdd.getTableDataFieldValue($ccdd.getRootStructureTableNames()[0], "System")
+                systemName = ccdd.getTableDataFieldValue(ccdd.getRootStructureTableNames()[0], "System")
             end
 
             # Check if the data field doesn't exist in either a group or table
@@ -1344,17 +1344,17 @@ else
             end
 
             # Build the telemetry output file name
-            tlmOutputFile = $ccdd.getOutputPath() + systemName + "_" + endianExtn + ".rec"
+            tlmOutputFile = ccdd.getOutputPath() + systemName + "_" + endianExtn + ".rec"
 
             # Open the telemetry output file
-            $tlmFile = $ccdd.openOutputFile(tlmOutputFile)
-            $combFile = $ccdd.openOutputFile($ccdd.getOutputPath() + "common.rec")
+            $tlmFile = ccdd.openOutputFile(tlmOutputFile)
+            $combFile = ccdd.openOutputFile(ccdd.getOutputPath() + "common.rec")
 
             # Check if the telemetry output file successfully opened
             if $tlmFile != nil || $combFile != nil
                 # Get the names of all structures/sub-structures referenced in
                 # tables
-                structureNames = $ccdd.getStructureTablesByReferenceOrder()
+                structureNames = ccdd.getStructureTablesByReferenceOrder()
 
                 # Add a header to the output files
                 outputFileCreationInfo($combFile)
@@ -1377,19 +1377,19 @@ else
                 outputMnemonicDefinitions()
 
                 # Close the telemetry output files
-                $ccdd.closeFile($tlmFile)
-                $ccdd.closeFile($combFile)
+                ccdd.closeFile($tlmFile)
+                ccdd.closeFile($combFile)
             # The telemetry output files cannot be opened
             else
                 # Display an error dialog
-                $ccdd.showErrorDialog("<html><b>Error opening telemetry output file '</b>" + tlmOutputFile + "<b>' or common.rec")
+                ccdd.showErrorDialog("<html><b>Error opening telemetry output file '</b>" + tlmOutputFile + "<b>' or common.rec")
             end
         end
 
         # Check if command data is provided
         if $numCommandRows > 0
             # Get the value of the 'System' data field for first command table
-            firstSystemName = $ccdd.getTableDataFieldValue($ccdd.getCommandTableNames()[0], "System")
+            firstSystemName = ccdd.getTableDataFieldValue(ccdd.getCommandTableNames()[0], "System")
 
             # If the system name doesn't exist then substitute a blank
             if firstSystemName == nil
@@ -1403,8 +1403,8 @@ else
 
                 # Build the command output file name and open the command
                 # output file
-                $cmdFileName = $ccdd.getOutputPath() + prefix + firstSystemName + "_CMD" + "_" + endianExtn + ".rec"
-                $cmdFile = $ccdd.openOutputFile($cmdFileName)
+                $cmdFileName = ccdd.getOutputPath() + prefix + firstSystemName + "_CMD" + "_" + endianExtn + ".rec"
+                $cmdFile = ccdd.openOutputFile($cmdFileName)
 
                 # Check if the command output file successfully opened
                 if $cmdFile != nil
@@ -1412,9 +1412,9 @@ else
                     outputFileCreationInfo($cmdFile)
 
                     # Step through each command table
-                    for cmdTblIndex in 0..$ccdd.getCommandTableNames().length - 1
+                    for cmdTblIndex in 0..ccdd.getCommandTableNames().length - 1
                         # Get the value of the 'System' data field
-                        systemName = $ccdd.getTableDataFieldValue($ccdd.getCommandTableNames()[cmdTblIndex], "System")
+                        systemName = ccdd.getTableDataFieldValue(ccdd.getCommandTableNames()[cmdTblIndex], "System")
 
                         # Output the enumerations for this system
                         outputCommandEnumerations(systemName)
@@ -1424,11 +1424,11 @@ else
                     end
 
                     # Close the command output file
-                    $ccdd.closeFile($cmdFile)
+                    ccdd.closeFile($cmdFile)
                 # The command output file cannot be opened
                 else
                     # Display an error dialog
-                    $ccdd.showErrorDialog("<html><b>Error opening command output file '</b>" + $cmdFileName + "<b>'")
+                    ccdd.showErrorDialog("<html><b>Error opening command output file '</b>" + $cmdFileName + "<b>'")
                 end
             end
         end

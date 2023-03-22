@@ -12,14 +12,14 @@
 java_import Java::CCDD.CcddScriptDataAccessHandler
 
 # Get the array of structure names by the order in which they are referenced
-$structureNames = $ccdd.getStructureTablesByReferenceOrder()
+$structureNames = ccdd.getStructureTablesByReferenceOrder()
 
 # Get the number of structure and command table rows
-$numStructRows = $ccdd.getStructureTableNumRows()
-$numCommandRows = $ccdd.getCommandTableNumRows()
+$numStructRows = ccdd.getStructureTableNumRows()
+$numCommandRows = ccdd.getCommandTableNumRows()
 
 # Get the name of the project database
-$projectName = $ccdd.getProject()
+$projectName = ccdd.getProject()
 
 #** Functions *****************************************************************
 
@@ -31,19 +31,19 @@ $projectName = $ccdd.getProject()
 #******************************************************************************
 def outputFileCreationInfo(file)
   # Add the build information and header to the output file
-  $ccdd.writeToFileLn(file, "/* Created : " + $ccdd.getDateAndTime() + "\n   User    : " + $ccdd.getUser() + "\n   Project : " + $ccdd.getProject() + "\n   Script  : " + $ccdd.getScriptName())
+  ccdd.writeToFileLn(file, "/* Created : " + ccdd.getDateAndTime() + "\n   User    : " + ccdd.getUser() + "\n   Project : " + ccdd.getProject() + "\n   Script  : " + ccdd.getScriptName())
 
   # Check if any table is associated with the script
-  if $ccdd.getTableNumRows() != 0
-      $ccdd.writeToFileLn(file, "   Table(s): " + $ccdd.getTableNames().sort.to_a.join(",\n             "))
+  if ccdd.getTableNumRows() != 0
+      ccdd.writeToFileLn(file, "   Table(s): " + ccdd.getTableNames().sort.to_a.join(",\n             "))
   end
 
   # Check if any groups is associated with the script
-  if $ccdd.getAssociatedGroupNames().length != 0
-      $ccdd.writeToFileLn(file, "   Group(s): " + $ccdd.getAssociatedGroupNames().sort.to_a.join(",\n             "))
+  if ccdd.getAssociatedGroupNames().length != 0
+      ccdd.writeToFileLn(file, "   Group(s): " + ccdd.getAssociatedGroupNames().sort.to_a.join(",\n             "))
   end
 
-  $ccdd.writeToFileLn(file, "*/\n")
+  ccdd.writeToFileLn(file, "*/\n")
 end
 
 #******************************************************************************
@@ -54,11 +54,11 @@ end
 #******************************************************************************
 def makeTelemetryFile(baseFileName)
     # Build the telemetry message IDs output file name and include flag
-    tlmFileName = $ccdd.getOutputPath() + baseFileName + ".h"
+    tlmFileName = ccdd.getOutputPath() + baseFileName + ".h"
     headerIncludeFlag = "_" + baseFileName.upcase + "_H_"
 
     # Open the telemetry message IDs output file
-    tlmFile = $ccdd.openOutputFile(tlmFileName)
+    tlmFile = ccdd.openOutputFile(tlmFileName)
 
     # Check if the telemetry message IDs file successfully opened
     if tlmFile != nil
@@ -66,22 +66,22 @@ def makeTelemetryFile(baseFileName)
         outputFileCreationInfo(tlmFile)
 
         # Add the header include to prevent loading the file more than once
-        $ccdd.writeToFileLn(tlmFile, "#ifndef " + headerIncludeFlag)
-        $ccdd.writeToFileLn(tlmFile, "#define " + headerIncludeFlag)
-        $ccdd.writeToFileLn(tlmFile, "")
+        ccdd.writeToFileLn(tlmFile, "#ifndef " + headerIncludeFlag)
+        ccdd.writeToFileLn(tlmFile, "#define " + headerIncludeFlag)
+        ccdd.writeToFileLn(tlmFile, "")
 
-        $ccdd.writeToFileLn(tlmFile, "#include \"" + $projectName + "_base_ids.h\"")
-        $ccdd.writeToFileLn(tlmFile, "")
+        ccdd.writeToFileLn(tlmFile, "#include \"" + $projectName + "_base_ids.h\"")
+        ccdd.writeToFileLn(tlmFile, "")
 
         # Get an array containing all group names
-        groupNames = $ccdd.getGroupNames(false)
+        groupNames = ccdd.getGroupNames(false)
 
         minimumLength = 12
 
         # Step through each structure name
         for nameIndex in 0..$structureNames.length - 1
             # Get the value of the structure's message ID name data field
-            msgIDName = $ccdd.getTableDataFieldValue($structureNames[nameIndex], "Message ID Name")
+            msgIDName = ccdd.getTableDataFieldValue($structureNames[nameIndex], "Message ID Name")
 
             # Check if the field exists and isn't empty, and the length exceeds
             # the minimum length found thus far
@@ -94,7 +94,7 @@ def makeTelemetryFile(baseFileName)
         # Step through each group name
         for groupIndex in 0..groupNames.length - 1
             # Get the value of the group's message ID name data field
-            msgIDName = $ccdd.getGroupDataFieldValue(groupNames[groupIndex], "Message ID Name")
+            msgIDName = ccdd.getGroupDataFieldValue(groupNames[groupIndex], "Message ID Name")
 
             # Check if the field exists and isn't empty, and the length exceeds
             # the minimum length found thus far
@@ -107,40 +107,40 @@ def makeTelemetryFile(baseFileName)
         # Build the format string used to align the message ID definitions
         format = "#define %-" + (minimumLength + 1).to_s + "s %s\n"
 
-        $ccdd.writeToFileLn(tlmFile, "/* Structure message IDs: " + $structureNames.length.to_s + " structures */")
+        ccdd.writeToFileLn(tlmFile, "/* Structure message IDs: " + $structureNames.length.to_s + " structures */")
 
         # Step through each structure name
         for nameIndex in 0..$structureNames.length - 1
             # Get the values of the structure's message ID and ID name data
             # fields
-            msgID = $ccdd.getTableDataFieldValue($structureNames[nameIndex], "Message ID")
-            msgIDName = $ccdd.getTableDataFieldValue($structureNames[nameIndex], "Message ID Name")
+            msgID = ccdd.getTableDataFieldValue($structureNames[nameIndex], "Message ID")
+            msgIDName = ccdd.getTableDataFieldValue($structureNames[nameIndex], "Message ID Name")
 
             # Output the telemetry message ID to the file
             outputIDDefine(tlmFile, format, msgID, msgIDName)
         end
 
-        $ccdd.writeToFileLn(tlmFile, "")
-        $ccdd.writeToFileLn(tlmFile, "/* Group message IDs: " + groupNames.length.to_s + " groups */")
+        ccdd.writeToFileLn(tlmFile, "")
+        ccdd.writeToFileLn(tlmFile, "/* Group message IDs: " + groupNames.length.to_s + " groups */")
 
         # Step through each group
         for groupIndex in 0..groupNames.length - 1
             # Get the values of the group's message ID and ID name data fields
-            msgID = $ccdd.getGroupDataFieldValue(groupNames[groupIndex], "Message ID")
-            msgIDName = $ccdd.getGroupDataFieldValue(groupNames[groupIndex], "Message ID Name")
+            msgID = ccdd.getGroupDataFieldValue(groupNames[groupIndex], "Message ID")
+            msgIDName = ccdd.getGroupDataFieldValue(groupNames[groupIndex], "Message ID Name")
 
             # Output the telemetry message ID to the file
             outputIDDefine(tlmFile, format, msgID, msgIDName)
         end
 
         # Finish and close the telemetry message IDs output file
-        $ccdd.writeToFileLn(tlmFile, "")
-        $ccdd.writeToFileLn(tlmFile, "#endif /* #ifndef " + headerIncludeFlag + " */")
-        $ccdd.closeFile(tlmFile)
+        ccdd.writeToFileLn(tlmFile, "")
+        ccdd.writeToFileLn(tlmFile, "#endif /* #ifndef " + headerIncludeFlag + " */")
+        ccdd.closeFile(tlmFile)
     # The telemetry message IDs file failed to open
     else
         # Display an error dialog
-        $ccdd.showErrorDialog("<html><b>Error opening telemetry message IDs output file '</b>" + tlmFileName + "<b>'")
+        ccdd.showErrorDialog("<html><b>Error opening telemetry message IDs output file '</b>" + tlmFileName + "<b>'")
     end
 end
 
@@ -152,11 +152,11 @@ end
 #******************************************************************************
 def makeCommandFile(baseFileName)
     # Build the command codes output file name and include flag
-    cmdFileName = $ccdd.getOutputPath() + baseFileName + ".h"
+    cmdFileName = ccdd.getOutputPath() + baseFileName + ".h"
     headerIncludeFlag = "_" + baseFileName.upcase + "_H_"
 
     # Open the command codes output file
-    cmdFile = $ccdd.openOutputFile(cmdFileName)
+    cmdFile = ccdd.openOutputFile(cmdFileName)
 
     # Check if the command codes file successfully opened
     if cmdFile != nil
@@ -164,16 +164,16 @@ def makeCommandFile(baseFileName)
         outputFileCreationInfo(cmdFile)
 
         # Add the header include to prevent loading the file more than once
-        $ccdd.writeToFileLn(cmdFile, "#ifndef " + headerIncludeFlag)
-        $ccdd.writeToFileLn(cmdFile, "#define " + headerIncludeFlag)
-        $ccdd.writeToFileLn(cmdFile, "")
+        ccdd.writeToFileLn(cmdFile, "#ifndef " + headerIncludeFlag)
+        ccdd.writeToFileLn(cmdFile, "#define " + headerIncludeFlag)
+        ccdd.writeToFileLn(cmdFile, "")
 
         minimumLength = 10
 
         # Step through each command table row
         for row in 0..$numCommandRows - 1
             # Get the command name
-            cmdName = $ccdd.getCommandName(row)
+            cmdName = ccdd.getCommandName(row)
 
             # Check if the command name is present and the length exceeds the
             # minimum length found thus far
@@ -189,24 +189,24 @@ def makeCommandFile(baseFileName)
         # Step through each command
         for row in 0..$numCommandRows - 1
             # Get the command ID name and ID value
-            cmdName = $ccdd.getCommandName(row)
-            cmdCode = $ccdd.getCommandCode(row)
+            cmdName = ccdd.getCommandName(row)
+            cmdCode = ccdd.getCommandCode(row)
 
             # Check if the name and ID exist
             if cmdCode != nil && cmdName != nil
                 # Output the formatted command code definition to the file
-                $ccdd.writeToFileFormat(cmdFile, format, cmdName, cmdCode)
+                ccdd.writeToFileFormat(cmdFile, format, cmdName, cmdCode)
             end
         end
 
         # Finish and close the command codes output file
-        $ccdd.writeToFileLn(cmdFile, "")
-        $ccdd.writeToFileLn(cmdFile, "#endif /* #ifndef " + headerIncludeFlag + " */")
-        $ccdd.closeFile(cmdFile)
+        ccdd.writeToFileLn(cmdFile, "")
+        ccdd.writeToFileLn(cmdFile, "#endif /* #ifndef " + headerIncludeFlag + " */")
+        ccdd.closeFile(cmdFile)
     # The command codes file failed to open
     else
         # Display an error dialog
-        $ccdd.showErrorDialog("<html><b>Error opening command codes output file '</b>" + cmdFileName + "<b>'")
+        ccdd.showErrorDialog("<html><b>Error opening command codes output file '</b>" + cmdFileName + "<b>'")
     end
 end
 
@@ -258,7 +258,7 @@ def outputIDDefine(file, format, msgID, msgIDName)
     if msgID != nil && msgID && msgIDName != nil && msgIDName
         # Remove all but the last 12 bits of the ID, format it, and output the
         # #define for the ID to the file with a base value added
-        $ccdd.writeToFileFormat(file, format, msgIDName, "( " + $ccdd.getProject().upcase + "_TLM_MID_BASE_1 + " + extractMessageID(msgID) + " )")
+        ccdd.writeToFileFormat(file, format, msgIDName, "( " + ccdd.getProject().upcase + "_TLM_MID_BASE_1 + " + extractMessageID(msgID) + " )")
     end
 end
 
@@ -282,5 +282,5 @@ if $numStructRows != 0 || $numCommandRows != 0
 # No structure or command data is supplied
 else
     # Display an error dialog
-    $ccdd.showErrorDialog("<html><b>No structure or command data supplied for script '</b>" + $ccdd.getScriptName() + "<b>'")
+    ccdd.showErrorDialog("<html><b>No structure or command data supplied for script '</b>" + ccdd.getScriptName() + "<b>'")
 end

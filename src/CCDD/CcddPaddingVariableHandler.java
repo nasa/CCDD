@@ -173,7 +173,7 @@ public class CcddPaddingVariableHandler
         /******************************************************************************************
          * Check if the table loaded successfully
          *
-         * @return true if the table successfully loaded
+         * @return True if the table successfully loaded
          *****************************************************************************************/
         protected boolean isLoaded()
         {

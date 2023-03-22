@@ -1023,7 +1023,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Verify that the dialog content is valid
      *
-     * @return true if the input values are valid
+     * @return True if the input values are valid
      *********************************************************************************************/
     @Override
     protected boolean verifySelection()
@@ -1604,7 +1604,7 @@ public class CcddDbManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Check that a row with contains data in the required columns
      *
-     * @return true if a row is missing data in a required column
+     * @return True if a row is missing data in a required column
      *********************************************************************************************/
     private boolean checkForMissingColumns()
     {

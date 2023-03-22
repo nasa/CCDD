@@ -639,7 +639,7 @@ public class CcddClassesDataTable
         /******************************************************************************************
          * Get the flag indicating if this is a prototype table
          *
-         * @return true if the table is a prototype
+         * @return True if the table is a prototype
          *****************************************************************************************/
         protected boolean isPrototype()
         {
@@ -649,7 +649,7 @@ public class CcddClassesDataTable
         /******************************************************************************************
          * Get the status of the error flag
          *
-         * @return true if an error occurred obtaining the table data from the database
+         * @return True if an error occurred obtaining the table data from the database
          *****************************************************************************************/
         protected boolean isErrorFlag()
         {
@@ -1238,7 +1238,7 @@ public class CcddClassesDataTable
          * @param tablePath Table path in the format
          *                  {@literal rootName<,childStructure.childName<,...>>}
          *
-         * @return true if the table name/path is not in the expected format
+         * @return True if the table name/path is not in the expected format
          *****************************************************************************************/
         protected static boolean isPathFormatValid(String tablePath)
         {
@@ -1520,7 +1520,7 @@ public class CcddClassesDataTable
         /******************************************************************************************
          * Check if the input type is user-defined
          *
-         * @return true if the input type is defined by the user
+         * @return True if the input type is defined by the user
          *****************************************************************************************/
         protected boolean isCustomInput()
         {
@@ -1919,7 +1919,7 @@ public class CcddClassesDataTable
         /******************************************************************************************
          * Check if the field value is required
          *
-         * @return true if a value is required for this field
+         * @return True if a value is required for this field
          *****************************************************************************************/
         protected boolean isRequired()
         {
@@ -1979,7 +1979,7 @@ public class CcddClassesDataTable
         /******************************************************************************************
          * Check if the field is inherited from the owner table's type definition
          *
-         * @return true if the field is inherited from the owner table's type definition (ignored
+         * @return True if the field is inherited from the owner table's type definition (ignored
          *         if the field does not belong to a table)
          *****************************************************************************************/
         protected boolean isInherited()
@@ -2205,7 +2205,7 @@ public class CcddClassesDataTable
         /******************************************************************************************
          * Get the flag that indicates if the group represents a CFS application
          *
-         * @return true if the group represents a CFS application
+         * @return True if the group represents a CFS application
          *****************************************************************************************/
         protected Boolean isApplication()
         {
@@ -2518,7 +2518,7 @@ public class CcddClassesDataTable
          *
          * @param variableName Variable name
          *
-         * @return true if the variable is an array member
+         * @return True if the variable is an array member
          *****************************************************************************************/
         protected static boolean isArrayMember(Object variableName)
         {
@@ -3956,7 +3956,7 @@ public class CcddClassesDataTable
          *
          * @param varName Name of variable
          *
-         * @return true if the message contains the specified variable
+         * @return True if the message contains the specified variable
          *****************************************************************************************/
         protected boolean isVariableInMessage(String varName)
         {
@@ -4081,7 +4081,7 @@ public class CcddClassesDataTable
          * @param tableName The raw value from the table cell specified as the table name column in
          *                  the openTables() method
          *
-         * @return true if the table should be added to the list of ones to open
+         * @return True if the table should be added to the list of ones to open
          *****************************************************************************************/
         protected boolean isApplicable(String tableName)
         {
@@ -4096,7 +4096,7 @@ public class CcddClassesDataTable
          *
          * @param row       Table row index containing the raw table name value
          *
-         * @return true if the table should be added to the list of ones to open
+         * @return True if the table should be added to the list of ones to open
          *****************************************************************************************/
         protected String cleanUpTableName(String tableName, int row)
         {

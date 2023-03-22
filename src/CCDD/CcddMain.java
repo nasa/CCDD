@@ -50,6 +50,7 @@ import static CCDD.CcddConstants.STRING_LIST_TEXT_SEPARATOR;
 import static CCDD.CcddConstants.TABLE_STRINGS;
 import static CCDD.CcddConstants.USER;
 import static CCDD.CcddConstants.WEB_SERVER_PORT;
+import static CCDD.CcddConstants.BACKUP_KEY;
 import static CCDD.CcddConstants.setLaFAdjustments;
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -152,6 +153,7 @@ public class CcddMain
     private CcddMessageIDHandler messageIDHandler;
     private CcddWebServer webServer;
     private CcddVariableDialog showVariablesDialog;
+    private CcddPy4JHandler py4jHandler;
 
     // References to the various search dialogs
     private CcddSearchDialog searchLogDlg;
@@ -254,22 +256,6 @@ public class CcddMain
     // Flag indicating if the project should be automatically patched with no warning
     private boolean isAutoPatch;
 
-    /**
-     * @return the isAutoPatch
-     */
-    protected boolean isAutoPatch()
-    {
-        return isAutoPatch;
-    }
-
-    /**
-     * @param isAutoPatch The isAutoPatch to set
-     */
-    protected void setAutoPatch(boolean isAutoPatch)
-    {
-        this.isAutoPatch = isAutoPatch;
-    }
-
     // Lists of recently opened project and table names
     private final List<String> recentProjectNames;
     private final List<String> recentTableNames;
@@ -280,19 +266,9 @@ public class CcddMain
     private String orgTableExportPath;
     private String orgScriptOutPath;
 
-    public static final String BACKUP_KEY = "BACKUP";
-    // Contains a hashmap of semaphores and timeouts. These are used for various synchronization
+    // Contains a hash map of semaphores and timeouts. These are used for various synchronization
     // purposes
     private HashMap<String, ImmutablePair<Semaphore, Integer>> semMap;
-
-    /**
-     * @return the semMap
-     */
-
-    protected HashMap<String, ImmutablePair<Semaphore, Integer>> getSemMap()
-    {
-        return semMap;
-    }
 
     /**********************************************************************************************
      * Create the application
@@ -348,10 +324,10 @@ public class CcddMain
         dbCommand.setEventLog();
         dbControl.setEventLog();
 
-        // Create the handler classes for database table commands, file I/O, scripts, and
-        // application parameters
+        // Create the handler classes for database table commands, file I/O, Py4J, and scripts
         dbTable = new CcddDbTableCommandHandler(CcddMain.this);
         fileIOHandler = new CcddFileIOHandler(CcddMain.this);
+        py4jHandler = new CcddPy4JHandler(CcddMain.this);
         scriptHandler = new CcddScriptHandler(CcddMain.this);
 
         // Initialize the lists for storing the names of the recently opened projects and tables
@@ -517,7 +493,7 @@ public class CcddMain
     /**********************************************************************************************
      * Get the status of the flag that indicates if the GUI is hidden
      *
-     * @return true if the GUI is not visible
+     * @return True if the GUI is not visible
      *********************************************************************************************/
     protected boolean isGUIHidden()
     {
@@ -566,7 +542,7 @@ public class CcddMain
     /**********************************************************************************************
      * Get the status of the flag that indicates if the web server is enabled
      *
-     * @return true if the web server is enabled
+     * @return True if the web server is enabled
      *********************************************************************************************/
     protected boolean isWebServer()
     {
@@ -742,6 +718,36 @@ public class CcddMain
     {
         return scriptHandler;
     }
+
+    /**********************************************************************************************
+     * Get the script data access handler
+     *
+     * @return Script data access handler
+     *********************************************************************************************/
+     public CcddScriptDataAccessHandler getCcdd()
+     {
+         return scriptHandler.getAccessHandler();
+     }
+
+     /**********************************************************************************************
+      * Get the static script data access handler
+      *
+      * @return Static script data access handler
+      *********************************************************************************************/
+     public CcddScriptDataAccessHandlerStatic getCcdds()
+     {
+         return scriptHandler.getStaticHandler();
+     }
+
+    /**********************************************************************************************
+     * Get the Py4J handler. The Py4J library allows access to Python 3
+     *
+     * @return Py4J handler
+     *********************************************************************************************/
+     protected CcddPy4JHandler getPy4JHandler()
+     {
+         return py4jHandler;
+     }
 
     /**********************************************************************************************
      * Get the scheduler handler
@@ -938,9 +944,6 @@ public class CcddMain
         // Build the command information list
         commandHandler.buildCommandList();
 
-//        // Create a message ID handler for the project database
-//        messageIDHandler = new CcddMessageIDHandler(CcddMain.this);
-
         // Create the list for the message ID name and ID selection input type (note that the
         // message ID class must be fully instantiated before calling the name and ID list build
         // method)
@@ -975,6 +978,26 @@ public class CcddMain
             // again (i.e., if another database is opened during the same session)
             cmdLnHandler = null;
         }
+    }
+
+    /**********************************************************************************************
+     * Execute the command line commands that depend on a project database being open
+     *
+     * @param isAutoPatch True if patches are to be applied automatically
+     *********************************************************************************************/
+    protected void setAutoPatch(boolean isAutoPatch)
+    {
+        this.isAutoPatch = isAutoPatch;
+    }
+
+    /**********************************************************************************************
+     * EGet the flag that indicates if patches are to be applied automatically
+     *
+     * @return True if patches are to be applied automatically
+     *********************************************************************************************/
+    protected boolean isAutoPatch()
+    {
+        return isAutoPatch;
     }
 
     /**********************************************************************************************
@@ -1988,7 +2011,7 @@ public class CcddMain
         mntmVerifyDatabase = createMenuItem(mnProject, "Verify", KeyEvent.VK_V, 1,
                                             "Perform a project database consistency check");
         mntmChangeDbOwner = createMenuItem(mnProject, "Change owner", KeyEvent.VK_W, 1,
-                                           "Change owner of an existing project databaser");
+                                           "Change owner of an existing project database");
         mntmManageUsers = createMenuItem(mnProject, "Manage users", KeyEvent.VK_M, 1,
                                          "Open the user access level manager");
 
@@ -3175,6 +3198,16 @@ public class CcddMain
     }
 
     /**********************************************************************************************
+     * Get the semaphore map
+     *
+     * @return the semaphore map
+     *********************************************************************************************/
+    protected HashMap<String, ImmutablePair<Semaphore, Integer>> getSemMap()
+    {
+        return semMap;
+    }
+
+    /**********************************************************************************************
      * Create a shutdown hook so that normal and abnormal termination of the application can close
      * the database and event log file
      *********************************************************************************************/
@@ -3250,15 +3283,16 @@ public class CcddMain
             // before exiting
             try
             {
-                for (String s : semMap.keySet())
+                for (String sem : semMap.keySet())
                 {
-                    ImmutablePair<Semaphore, Integer> pair = semMap.get(s);
+                    ImmutablePair<Semaphore, Integer> pair = semMap.get(sem);
+
                     if (!pair.left.tryAcquire(pair.right, TimeUnit.SECONDS))
                     {
                         // Log an error
-                        this.getSessionEventLog().logFailEvent(this.getMainFrame(),
-                                                               "Failed to acquire a semaphore upon program termination",
-                                                               "<html><b>Failed to acquire a semaphore</b>");
+                        getSessionEventLog().logFailEvent(getMainFrame(),
+                                                          "Failed to acquire a semaphore upon program termination",
+                                                          "<html><b>Failed to acquire a semaphore</b>");
                     }
                 }
             }
@@ -3288,7 +3322,7 @@ public class CcddMain
      * @param laf Name of the selected look and feel; null to use the look and feel stored in the
      *            program preferences
      *
-     * @return true if an error occurred loading the look and feel
+     * @return True if an error occurred loading the look and feel
      *********************************************************************************************/
     protected boolean setLookAndFeel(String laf)
     {
@@ -3623,7 +3657,7 @@ public class CcddMain
      *
      * @param parent        GUI component over which to center the confirmation dialog
      *
-     * @return true if there are no uncommitted changes or if the user elects to ignore the changes
+     * @return True if there are no uncommitted changes or if the user elects to ignore the changes
      *         and continue with the operation; false if changes exist and the user cancels the
      *         operation
      *********************************************************************************************/

@@ -180,7 +180,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
          *
          * @param text Text describing the data
          *
-         * @return true if the supplied text matches the tag name or alternate tag name, if one
+         * @return True if the supplied text matches the tag name or alternate tag name, if one
          *         exists (case insensitive)
          *****************************************************************************************/
         protected boolean isTag(String text)
@@ -1501,9 +1501,9 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
         String[] columnValues = null;
 
         // Initialize the number of matching columns and the cell data storage
-        Boolean readingNameType = false;
-        Boolean readingColumnData = false;
-        Boolean readingDataField = false;
+        boolean readingNameType = false;
+        boolean readingColumnData = false;
+        boolean readingDataField = false;
 
         // Initialize the table information
         int numColumns = 0;
@@ -1582,7 +1582,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                 {
                     columnValues = trimLine(line, br);
 
-                    if (readingNameType == true)
+                    if (readingNameType)
                     {
                         // Check if the expected number of inputs is present (the third value, the
                         // system name, is optional and not used)
@@ -1615,7 +1615,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                             throw new CCDDException("Too many/few table name and type inputs");
                         }
                     }
-                    else if (readingColumnData == true)
+                    else if (readingColumnData)
                     {
                         // Check if any column names exist
                         if (columnValues.length != 0)
@@ -1623,7 +1623,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                             // Number of columns in an import file that match the target table
                             int numValidColumns = 0;
 
-                            if (columnsCounted == false)
+                            if (!columnsCounted)
                             {
                                 // Create storage for the column indices
                                 columnIndex = new int[columnValues.length];
@@ -1703,7 +1703,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                             throw new CCDDException("File format invalid");
                         }
                     }
-                    else if (readingDataField == true)
+                    else if (readingDataField)
                     {
                         // Append empty columns as needed to fill out the expected number of inputs
                         columnValues = CcddUtilities.appendArrayColumns(columnValues,
@@ -1893,8 +1893,6 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
      *                                and data type/variable name separator character(s); null if
      *                                includeVariablePaths is false
      *
-     * @param addEOFMarker            Is this the last data to be added to the file?
-     *
      * @param extraInfo               Unused
      *
      * @throws CCDDException If a file I/O or parsing error occurs
@@ -1909,7 +1907,6 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                              boolean includeVariablePaths,
                              CcddVariableHandler variableHandler,
                              String[] separators,
-                             boolean addEOFMarker,
                              String outputType,
                              Object... extraInfo) throws CCDDException, Exception
     {
@@ -3120,8 +3117,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                     }
                 }
 
-                // Remove any leading/trailing white space characters from the row
-                String trimmedLine = line.trim();
+                String trimmedLine = line;
 
                 // Check that the row isn't empty and isn't a comment line (starts with a
                 // #character)
@@ -3151,17 +3147,15 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                             }
                         }
 
-                        // Remove any leading/trailing white space characters from the combined
-                        // multiple line row. This only removed white space outside the quotes that
-                        // bound the text
-                        trimmedLine = line.trim();
+                        trimmedLine = line;
                     }
 
                     // Remove any trailing commas and empty quotes from the row. If the CSV file is
                     // generated from a spreadsheet application then extra commas are appended to a
                     // row if needed for the number of columns to be equal with the other rows.
                     // These empty trailing columns are ignored
-                    line = trimmedLine.replaceAll("(?:[,\\s*]|\"\\s*\",|,\"\\s*\")*$", "");
+                    line = trimmedLine.replaceAll("\\,+$", "") // Trailing commas with no data (no quotes)
+                                      .replaceAll("(?:\\,\\s*\"\")+$", ""); // Trailing commas with no data in quotes
 
                     // Parse the import data. The values are comma- separated; however, commas
                     // within quotes are ignored - this allows commas to be included in the data

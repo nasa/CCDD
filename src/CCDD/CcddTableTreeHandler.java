@@ -614,7 +614,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     /**********************************************************************************************
      * Get the status of the group filter
      *
-     * @return true if the group filter is enabled
+     * @return True if the group filter is enabled
      *********************************************************************************************/
     protected boolean isFilteredByGroup()
     {
@@ -758,9 +758,9 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      * @param rateFilter       Data rate used to filter the table tree for variables with rates;
      *                         null if the tree is not filtered by data rate
      *
-     * @param isByGroupChanged true if isByGroup changed
+     * @param isByGroupChanged True if isByGroup changed
      *
-     * @param isByTypeChanged  true if isByType changed
+     * @param isByTypeChanged  True if isByType changed
      *
      * @param parent           Component building this table tree
      *********************************************************************************************/
@@ -1289,7 +1289,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      *
      * @param node        Node to test for validity
      *
-     * @return true if the supplied node has a descendant that's in the valid tables list
+     * @return True if the supplied node has a descendant that's in the valid tables list
      *********************************************************************************************/
     private boolean setInvalidNodesAndTrim(List<String> validTables, ToolTipTreeNode node)
     {
@@ -1920,7 +1920,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      * @param targetPath Name of the node to search for, in the form
      *                   rootTable[,dataType1.variable1[,dataType2.variable2[,...]]]
      *
-     * @return true if the target path exists in in the tree
+     * @return True if the target path exists in in the tree
      *********************************************************************************************/
     protected boolean isNodeInTree(String targetPath)
     {
@@ -2543,7 +2543,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
      *
      * @param node Node for which to adjust the text and color
      *
-     * @return true if the node is enabled; false if disabled
+     * @return True if the node is enabled; false if disabled
      *********************************************************************************************/
     private boolean setNodeEnableByChildState(ToolTipTreeNode node)
     {

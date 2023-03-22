@@ -41,19 +41,19 @@ $VARIABLE_NAME = 6
 #******************************************************************************
 def outputFileCreationInfo(file)
   # Add the build information and header to the output file
-  $ccdd.writeToFileLn(file, "/* Created : " + $ccdd.getDateAndTime() + "\n   User    : " + $ccdd.getUser() + "\n   Project : " + $ccdd.getProject() + "\n   Script  : " + $ccdd.getScriptName())
+  ccdd.writeToFileLn(file, "/* Created : " + ccdd.getDateAndTime() + "\n   User    : " + ccdd.getUser() + "\n   Project : " + ccdd.getProject() + "\n   Script  : " + ccdd.getScriptName())
 
   # Check if any table is associated with the script
-  if $ccdd.getTableNumRows() != 0
-      $ccdd.writeToFileLn(file, "   Table(s): " + $ccdd.getTableNames().sort.to_a.join(",\n             "))
+  if ccdd.getTableNumRows() != 0
+      ccdd.writeToFileLn(file, "   Table(s): " + ccdd.getTableNames().sort.to_a.join(",\n             "))
   end
 
   # Check if any group is associated with the script
-  if $ccdd.getAssociatedGroupNames().length != 0
-      $ccdd.writeToFileLn(file, "   Group(s): " + $ccdd.getAssociatedGroupNames().sort.to_a.join(",\n             "))
+  if ccdd.getAssociatedGroupNames().length != 0
+      ccdd.writeToFileLn(file, "   Group(s): " + ccdd.getAssociatedGroupNames().sort.to_a.join(",\n             "))
   end
 
-  $ccdd.writeToFileLn(file, "*/\n")
+  ccdd.writeToFileLn(file, "*/\n")
 end
 
 #******************************************************************************
@@ -61,10 +61,10 @@ end
 #******************************************************************************
 def makeCopyTableFile()
     # Create the copy table output file name
-    copyTableFileName = $ccdd.getOutputPath() + "hk_cpy_tbl.c"
+    copyTableFileName = ccdd.getOutputPath() + "hk_cpy_tbl.c"
 
     # Open the copy table output file
-    copyTableFile = $ccdd.openOutputFile(copyTableFileName)
+    copyTableFile = ccdd.openOutputFile(copyTableFileName)
 
     # Check if the copy table file successfully opened
     if copyTableFile != nil
@@ -76,7 +76,7 @@ def makeCopyTableFile()
         outputFileCreationInfo(copyTableFile)
 
         # Get an array containing the data stream names
-        copyTables = $ccdd.getDataStreamNames()
+        copyTables = ccdd.getDataStreamNames()
 
         # Default column widths. The widths of the individual copy table
         # entries can increase these values
@@ -85,7 +85,7 @@ def makeCopyTableFile()
         # Process the copy table for each data stream separately
         for copyTable in 0..copyTables.length - 1
             # Get the telemetry message IDs for this data stream
-            tlmMsgIDs = $ccdd.getTelemetryMessageIDs(copyTables[copyTable])
+            tlmMsgIDs = ccdd.getTelemetryMessageIDs(copyTables[copyTable])
 
             # Step through each of the telemetry message IDs
             for msgIndex in 0..tlmMsgIDs.length - 1
@@ -111,7 +111,7 @@ def makeCopyTableFile()
             end
 
             # Get the copy table entries for this data stream
-            copyTableEntries = $ccdd.getCopyTableEntries(copyTables[copyTable], $CCSDS_HEADER_LENGTH, "Message ID Name", true)
+            copyTableEntries = ccdd.getCopyTableEntries(copyTables[copyTable], $CCSDS_HEADER_LENGTH, "Message ID Name", true)
 
             # Store the copy table entries so they won't have have to be
             # retrieved from CCDD again below
@@ -120,7 +120,7 @@ def makeCopyTableFile()
             # Check if there are any entries in the copy table
             if copyTableEntries.length > 0
                 # Adjust the minimum column widths
-                columnWidth = $ccdd.getLongestStrings(copyTableEntries, columnWidth)
+                columnWidth = ccdd.getLongestStrings(copyTableEntries, columnWidth)
              
                 # Update the total number of copy table entries
                 totalEntries += copyTableEntries.length
@@ -141,26 +141,26 @@ def makeCopyTableFile()
         end
 
         # Write the standard include files to the copy table file
-        $ccdd.writeToFileLn(copyTableFile, "#include \"cfe.h\"")
-        $ccdd.writeToFileLn(copyTableFile, "#include \"hk_utils.h\"")
-        $ccdd.writeToFileLn(copyTableFile, "#include \"hk_app.h\"")
-        $ccdd.writeToFileLn(copyTableFile, "#include \"hk_msgids.h\"")
-        $ccdd.writeToFileLn(copyTableFile, "#include \"hk_tbldefs.h\"")
-        $ccdd.writeToFileLn(copyTableFile, "#include \"cfe_tbl_filedef.h\"")
-        $ccdd.writeToFileLn(copyTableFile, "")
+        ccdd.writeToFileLn(copyTableFile, "#include \"cfe.h\"")
+        ccdd.writeToFileLn(copyTableFile, "#include \"hk_utils.h\"")
+        ccdd.writeToFileLn(copyTableFile, "#include \"hk_app.h\"")
+        ccdd.writeToFileLn(copyTableFile, "#include \"hk_msgids.h\"")
+        ccdd.writeToFileLn(copyTableFile, "#include \"hk_tbldefs.h\"")
+        ccdd.writeToFileLn(copyTableFile, "#include \"cfe_tbl_filedef.h\"")
+        ccdd.writeToFileLn(copyTableFile, "")
         
         # Get the number of rows for the Includes table data
-        numIncludeRows = $ccdd.getTableNumRows("Includes")
+        numIncludeRows = ccdd.getTableNumRows("Includes")
         
         # Check if there are any data to include
         if numIncludeRows > 0
             # Step through each row of Includes data
             for row in 0..numIncludeRows - 1
                 # Output the Includes table's 'includes' column data
-                $ccdd.writeToFileLn(copyTableFile, $ccdd.getTableData("Includes", "includes", row))
+                ccdd.writeToFileLn(copyTableFile, ccdd.getTableData("Includes", "includes", row))
             end
             
-            $ccdd.writeToFileLn(copyTableFile, "")
+            ccdd.writeToFileLn(copyTableFile, "")
         end
         
         # Build the format strings so that the columns in each row are aligned
@@ -168,10 +168,10 @@ def makeCopyTableFile()
         formatBody = "  {%-" + columnWidth[$INPUT_MSG_ID].to_s + "s, %" + columnWidth[$INPUT_OFFSET].to_s + "s, %-" + columnWidth[$OUTPUT_MSG_ID].to_s + "s, %" + columnWidth[$OUTPUT_OFFSET].to_s + "s, %" + columnWidth[$VARIABLE_BYTES].to_s + "s}%s  /* (%" + $HK_COPY_TABLE_ENTRIES.to_s.length.to_s + "s) %s : %s */\n"
 
         # Write the copy table definition statement
-        $ccdd.writeToFileLn(copyTableFile, "hk_copy_table_entry_t HK_CopyTable[$HK_COPY_TABLE_ENTRIES] =")
-        $ccdd.writeToFileLn(copyTableFile, "{")
-        $ccdd.writeToFileFormat(copyTableFile, formatHeader, "Input", "Input", "Output", "Output", "Num")
-        $ccdd.writeToFileFormat(copyTableFile, formatHeader, "Message ID", "Offset", "Message ID", "Offset", "Bytes")
+        ccdd.writeToFileLn(copyTableFile, "hk_copy_table_entry_t HK_CopyTable[$HK_COPY_TABLE_ENTRIES] =")
+        ccdd.writeToFileLn(copyTableFile, "{")
+        ccdd.writeToFileFormat(copyTableFile, formatHeader, "Input", "Input", "Output", "Output", "Num")
+        ccdd.writeToFileFormat(copyTableFile, formatHeader, "Message ID", "Offset", "Message ID", "Offset", "Bytes")
 
         # Set the counter for the number of entries remaining in the copy table
         rowsRemaining = $HK_COPY_TABLE_ENTRIES - 1
@@ -195,7 +195,7 @@ def makeCopyTableFile()
                     end
 
                     # Write the entry to the copy table file
-                    $ccdd.writeToFileFormat(copyTableFile, formatBody, copyTableEntries[row][$INPUT_MSG_ID], copyTableEntries[row][$INPUT_OFFSET], copyTableEntries[row][$OUTPUT_MSG_ID], copyTableEntries[row][$OUTPUT_OFFSET], copyTableEntries[row][$VARIABLE_BYTES], comma, entryIndex.to_s, copyTableEntries[row][$VARIABLE_PARENT], copyTableEntries[row][$VARIABLE_NAME])
+                    ccdd.writeToFileFormat(copyTableFile, formatBody, copyTableEntries[row][$INPUT_MSG_ID], copyTableEntries[row][$INPUT_OFFSET], copyTableEntries[row][$OUTPUT_MSG_ID], copyTableEntries[row][$OUTPUT_OFFSET], copyTableEntries[row][$VARIABLE_BYTES], comma, entryIndex.to_s, copyTableEntries[row][$VARIABLE_PARENT], copyTableEntries[row][$VARIABLE_NAME])
 
                     # Check if no available rows remain in the copy table
                     if entryIndex == $HK_COPY_TABLE_ENTRIES
@@ -227,7 +227,7 @@ def makeCopyTableFile()
                 end
   
                 # Add the blank entry to the copy table
-                $ccdd.writeToFileFormat(copyTableFile, emptyFormatBody, "HK_UNDEFINED_ENTRY", "0", "HK_UNDEFINED_ENTRY", "0", "0", comma, entryIndex.to_s)
+                ccdd.writeToFileFormat(copyTableFile, emptyFormatBody, "HK_UNDEFINED_ENTRY", "0", "HK_UNDEFINED_ENTRY", "0", "0", comma, entryIndex.to_s)
 
                 # Increment the copy table entry index
                 entryIndex += 1
@@ -235,14 +235,14 @@ def makeCopyTableFile()
         end
 
         # Terminate the table definition statement
-        $ccdd.writeToFileLn(copyTableFile, "};")
-        $ccdd.writeToFileLn(copyTableFile, "")
-        $ccdd.writeToFileLn(copyTableFile, "CFE_TBL_FILEDEF(HK_CopyTable, HK.CopyTable, HK Copy Tbl, hk_cpy_tbl.tbl)")
-        $ccdd.closeFile(copyTableFile)
+        ccdd.writeToFileLn(copyTableFile, "};")
+        ccdd.writeToFileLn(copyTableFile, "")
+        ccdd.writeToFileLn(copyTableFile, "CFE_TBL_FILEDEF(HK_CopyTable, HK.CopyTable, HK Copy Tbl, hk_cpy_tbl.tbl)")
+        ccdd.closeFile(copyTableFile)
     # The copy table file failed to open
     else
         # Display an error dialog
-        $ccdd.showErrorDialog("<html><b>Error opening copy table output file '</b>" + copyTableFileName + "<b>'")
+        ccdd.showErrorDialog("<html><b>Error opening copy table output file '</b>" + copyTableFileName + "<b>'")
     end
 end
 
@@ -252,11 +252,11 @@ end
 def makeIDDefinitionFile()
     # Build the ID definitions header output file name and include flag
     baseFileName = "combined_pkt_ids"
-    idDefinesFileName = $ccdd.getOutputPath() + baseFileName + ".h"
+    idDefinesFileName = ccdd.getOutputPath() + baseFileName + ".h"
     headerIncludeFlag = "_" + baseFileName.upcase() + "_H_"
 
     # Open the types header output file
-    idDefinesFile = $ccdd.openOutputFile(idDefinesFileName)
+    idDefinesFile = ccdd.openOutputFile(idDefinesFileName)
 
     # Check if the types header file successfully opened
     if idDefinesFile != nil
@@ -264,22 +264,22 @@ def makeIDDefinitionFile()
         outputFileCreationInfo(idDefinesFile)
 
         # Add the header include to prevent loading the file more than once
-        $ccdd.writeToFileLn(idDefinesFile, "#ifndef " + headerIncludeFlag)
-        $ccdd.writeToFileLn(idDefinesFile, "#define " + headerIncludeFlag)
-        $ccdd.writeToFileLn(idDefinesFile, "")
+        ccdd.writeToFileLn(idDefinesFile, "#ifndef " + headerIncludeFlag)
+        ccdd.writeToFileLn(idDefinesFile, "#define " + headerIncludeFlag)
+        ccdd.writeToFileLn(idDefinesFile, "")
 
         # Get the number of rows for the Includes table data
-        numIncludeRows = $ccdd.getTableNumRows("Includes")
+        numIncludeRows = ccdd.getTableNumRows("Includes")
 
         # Check if there are any data to include
         if numIncludeRows > 0
             # Step through each row of Includes data
             for row in 0..numIncludeRows-1
                 # Output the Includes table's 'includes' column data
-                $ccdd.writeToFileLn(idDefinesFile, $ccdd.getTableData("Includes", "includes", row))
+                ccdd.writeToFileLn(idDefinesFile, ccdd.getTableData("Includes", "includes", row))
             end
 
-            $ccdd.writeToFileLn(idDefinesFile, "")
+            ccdd.writeToFileLn(idDefinesFile, "")
         end
 
         minimumLength = 1
@@ -296,19 +296,19 @@ def makeIDDefinitionFile()
         # Step through the list of names that are used
         for index in 0..$usedHKNames.length - 1
             # Output the ID name and ID to the file
-            $ccdd.writeToFileFormat(idDefinesFile, "#define %-" + minimumLength.to_s + "s  (%7s + FC_OFFSET )\n", $usedHKNames[index], $usedHKValues[index])
+            ccdd.writeToFileFormat(idDefinesFile, "#define %-" + minimumLength.to_s + "s  (%7s + FC_OFFSET )\n", $usedHKNames[index], $usedHKValues[index])
         end
 
         # Finish and close the ID definitions header output file
-        $ccdd.writeToFileLn(idDefinesFile, "")
-        $ccdd.writeToFileLn(idDefinesFile, "#endif  /* " + headerIncludeFlag + " */")
+        ccdd.writeToFileLn(idDefinesFile, "")
+        ccdd.writeToFileLn(idDefinesFile, "#endif  /* " + headerIncludeFlag + " */")
 
         # Close the output file
-        $ccdd.closeFile(idDefinesFile)
+        ccdd.closeFile(idDefinesFile)
     # The combined ID file failed to open
     else
         # Display an error dialog
-        $ccdd.showErrorDialog("<html><b>Error opening combined ID output file '</b>" + idDefinesFileName + "<b>'")
+        ccdd.showErrorDialog("<html><b>Error opening combined ID output file '</b>" + idDefinesFileName + "<b>'")
     end
 end
 

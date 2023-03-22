@@ -166,7 +166,7 @@ public class CcddUndoHandler
     /**********************************************************************************************
      * Get the flag that allows registering an edit with the undo manager
      *
-     * @return true if edits are stored for possible undo action; false to if edits are performed
+     * @return True if edits are stored for possible undo action; false to if edits are performed
      *         without storing it
      *********************************************************************************************/
     protected boolean isAllowUndo()
@@ -193,7 +193,7 @@ public class CcddUndoHandler
      * Get the status of the flag that indicates if an edit sequence should be automatically ended.
      * This flag is not used in the undoable table model and table column model classes
      *
-     * @return true if the edit sequence is ended automatically; false if automatic ending is
+     * @return True if the edit sequence is ended automatically; false if automatic ending is
      *         suspended
      *********************************************************************************************/
     protected boolean isAutoEndEditSequence()
@@ -224,7 +224,7 @@ public class CcddUndoHandler
          *
          * @param undoable True if the list addition can be undone
          *
-         * @return true
+         * @return True
          *****************************************************************************************/
         protected boolean add(E listItem, boolean undoable)
         {
@@ -312,7 +312,7 @@ public class CcddUndoHandler
          *
          * @param undoable  True if the list addition can be undone
          *
-         * @return true if the list changed as a result of the call
+         * @return True if the list changed as a result of the call
          *****************************************************************************************/
         // Suppress warnings is used because when this code is compiled some of it is not legal,
         // but it will be at runtime
@@ -359,7 +359,7 @@ public class CcddUndoHandler
          *
          * @param undoable True if the list removal can be undone
          *
-         * @return true if the list contained the specified element
+         * @return True if the list contained the specified element
          *****************************************************************************************/
         // Suppress warnings is used because when this code is compiled some of it is not legal,
         // but it will be at runtime
@@ -450,7 +450,7 @@ public class CcddUndoHandler
          *
          * @param undoable  True if the list removal can be undone
          *
-         * @return true if the list changed as a result of the call
+         * @return True if the list changed as a result of the call
          *****************************************************************************************/
         // Suppress warnings is used because when this code is compiled some of it is not legal,
         // but it will be at runtime

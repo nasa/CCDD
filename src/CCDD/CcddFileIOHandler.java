@@ -1437,7 +1437,7 @@ public class CcddFileIOHandler
      *
      * @param usersAndAccessLevel         List of users and their access levels
      *
-     * @return true if an error occurred while importing
+     * @return True if an error occurred while importing
      *********************************************************************************************/
     protected boolean importFileInBackground(final FileEnvVar[] dataFile,
                                              final boolean importingEntireDatabase,
@@ -1619,7 +1619,7 @@ public class CcddFileIOHandler
      *
      * @param parent                      GUI component over which to center any error dialog
      *
-     * @return true if the import operation completes successfully
+     * @return True if the import operation completes successfully
      *********************************************************************************************/
     protected boolean importFiles(List<FileEnvVar> dataFiles,
                                   boolean backupFirst,
@@ -2651,7 +2651,7 @@ public class CcddFileIOHandler
      *
      * @param parent          GUI component over which to center any error dialog
      *
-     * @return true if the table is successfully imported; false if the table exists and the
+     * @return True if the table is successfully imported; false if the table exists and the
      *         replaceExisting flag is not true
      *
      * @throws CCDDException The existing table that the new table replaces cannot be removed, the
@@ -2807,6 +2807,7 @@ public class CcddFileIOHandler
                                                  true,
                                                  false,
                                                  true,
+                                                 replaceExisting,
                                                  tableInfo.isPrototype())) // It's okay to overwrite existing 'unalterable'
                                                                            // cells if it's a proto/root (or not a structure)
             {
@@ -3064,6 +3065,7 @@ public class CcddFileIOHandler
                                                                false,
                                                                true,
                                                                true,
+                                                               false,
                                                                false))
                         {
                             // Let the user know how many rows were added
@@ -3309,7 +3311,7 @@ public class CcddFileIOHandler
      *
      * @param parent                  GUI component over which to center any error dialog
      *
-     * @return true if an error occurred while exporting
+     * @return True if an error occurred while exporting
      *********************************************************************************************/
     protected boolean exportSelectedTablesInBackground(final String filePath,
                                                        final String[] tablePaths,
@@ -3494,7 +3496,7 @@ public class CcddFileIOHandler
      *
      * @param parent                  GUI component over which to center any error dialog
      *
-     * @return true if the export completes successfully
+     * @return True if the export completes successfully
      *********************************************************************************************/
     protected boolean exportSelectedTables(final String originalFilePath,
                                            final String[] tablePaths,
@@ -3534,8 +3536,6 @@ public class CcddFileIOHandler
         CcddImportExportInterface ioHandler = null;
         List<String> skippedTables = new ArrayList<String>();
         ScriptEngine scriptEngine = null;
-        boolean addEOFMarker = true;
-        boolean addSOFMarker = true;
 
         // Are we writing to a single file or multiple files?
         String outputType = "";
@@ -3648,30 +3648,13 @@ public class CcddFileIOHandler
 
             if (tablePaths.length != 0)
             {
-                // Check if the tables are to be exported to a single file or multiple files
+                // Check if the tables are to be exported to a single file
                 if (singleFile)
                 {
                     // Exporting all tables to a single file. Check if the file already exists, if
                     // not one will be created. If it does then did the user elect to overwrite it?
                     if (isOverwriteExportFileIfExists(file, overwriteFile, parent))
                     {
-                        // If more data is going to be added later the do not add a brace at the
-                        // end of the file (Only applies to JSON)
-                        if (includeAllTableTypes
-                            || includeAllDataTypes
-                            || includeAllInputTypes
-                            || includeAllMacros
-                            || includeReservedMsgIDs
-                            || includeProjectFields
-                            || includeGroups
-                            || includeAssociations
-                            || includeTlmSched
-                            || includeAppSched
-                            || includeVariablePaths)
-                        {
-                            addEOFMarker = false;
-                        }
-
                         List<TableInfo> tableDefs = null;
 
                         if ((fileExtn == FileExtension.JSON) || (fileExtn == FileExtension.CSV))
@@ -3701,7 +3684,6 @@ public class CcddFileIOHandler
                                                includeVariablePaths,
                                                variableHandler,
                                                separators,
-                                               addEOFMarker,
                                                outputType,
                                                endianess,
                                                isHeaderBigEndian,
@@ -3725,6 +3707,7 @@ public class CcddFileIOHandler
                         skippedTables.addAll(Arrays.asList(tablePaths));
                     }
                 }
+                // Files are exported to multiple files
                 else
                 {
                     List<TableInfo> tableDefs = null;
@@ -3772,7 +3755,6 @@ public class CcddFileIOHandler
                                                    includeVariablePaths,
                                                    variableHandler,
                                                    separators,
-                                                   true,
                                                    outputType,
                                                    version,
                                                    validationStatus,
@@ -3809,32 +3791,20 @@ public class CcddFileIOHandler
                 if (includeAllTableTypes || includeAllInputTypes || includeAllDataTypes)
                 {
                     // If more data is going to be added later then do not add a brace at the end
-                    // of the file (Only applies to JSON)
-                    if (includeGroups
-                        || includeAllMacros
-                        || includeAssociations
-                        || includeTlmSched
-                        || includeAppSched
-                        || includeReservedMsgIDs
-                        || includeProjectFields)
-                    {
-                        addEOFMarker = false;
-                    }
-                    else
-                    {
-                        addEOFMarker = true;
-                    }
-
-                    // If data already exists then do not add a brace at the start of the file
-                    // (Only applies to JSON)
-                    if (tablePaths.length == 0 || outputType.contentEquals(EXPORT_MULTIPLE_FILES))
-                    {
-                        addSOFMarker = true;
-                    }
-                    else
-                    {
-                        addSOFMarker = false;
-                    }
+                    // of the file (only applies to JSON)
+                    boolean addEOFMarker = (fileExtn == FileExtension.JSON)
+                                           && (includeGroups
+                                               || includeAllMacros
+                                               || includeAssociations
+                                               || includeTlmSched
+                                               || includeAppSched
+                                               || includeReservedMsgIDs
+                                               || includeProjectFields) ? false
+                                                                        : true;
+                    boolean addSOFMarker = (fileExtn == FileExtension.JSON)
+                                           && (tablePaths.length == 0
+                                               || outputType.contentEquals(EXPORT_MULTIPLE_FILES)) ? true
+                                                                                                   : false;
 
                     ioHandler.exportTableInfoDefinitions(exportDirectoryOrFile,
                                                          includeAllTableTypes,
@@ -3861,7 +3831,6 @@ public class CcddFileIOHandler
                                                exportDataTypes.RESERVED_MSG_ID,
                                                exportDataTypes.PROJECT_FIELDS,
                                                exportDataTypes.DBU_INFO};
-
                 ioHandler.exportInternalCCDDData(includes,
                                                  dataTypes,
                                                  exportDirectoryOrFile,
@@ -3930,7 +3899,7 @@ public class CcddFileIOHandler
      *
      * @param parent        GUI component over which to center any error dialog
      *
-     * @return true if the file doesn't exist, or if it does exist and the user elects to overwrite
+     * @return True if the file doesn't exist, or if it does exist and the user elects to overwrite
      *         it; false if the file exists and the user elects not to overwrite it, or if an error
      *         occurs deleting the existing file or creating a new one
      *********************************************************************************************/
@@ -4451,11 +4420,11 @@ public class CcddFileIOHandler
      *
      * @param tablePaths           Table path for each table to load
      *
-     * @param exportEntireDatabase true if exporting the entire database
+     * @param exportEntireDatabase True if exporting the entire database
      *
      * @param importFileType       Import file type
      *
-     * @param singleFile           true if importing to a single file
+     * @param singleFile           True if importing to a single file
      *
      * @param parent               GUI component over which to center any error dialog
      *
@@ -4624,7 +4593,7 @@ public class CcddFileIOHandler
      *
      *@throws IOException Error occurred reading file(s)
      *
-     * @return true if the files match, false otherwise
+     * @return True if the files match, false otherwise
      *********************************************************************************************/
     public static boolean compareFiles(File file1,
                                        File file2,
@@ -4715,7 +4684,7 @@ public class CcddFileIOHandler
      *
      * @param parent                      GUI component over which to center any error dialog
      *
-     * @return true if an error occurred importing
+     * @return True if an error occurred importing
      *********************************************************************************************/
     protected boolean prepareJSONOrCSVImport(FileEnvVar[] dataFiles,
                                              final boolean importingEntireDatabase,
@@ -4895,13 +4864,6 @@ public class CcddFileIOHandler
                         // Is there anything to delete?
                         if (deletedFiles.size() != 0)
                         {
-                            // Inform the user that there are tables scheduled to be deleted
-                            new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                                      "<html><b>Some tables are going to be deleted</b>",
-                                                                      "Deletion Warning",
-                                                                      JOptionPane.WARNING_MESSAGE,
-                                                                      DialogOption.OK_OPTION);
-
                             // Here, deal with the differing formats in how the filenames are
                             // stored versus how table paths are stored
                             List<String> pathList = tableTree.getTableTreePathList(null);
@@ -5659,7 +5621,7 @@ public class CcddFileIOHandler
      *
      * @param directoryPath Path to the directory that is going to be cleaned
      *
-     * @param singleFile    true if exporting to a single file
+     * @param singleFile    True if exporting to a single file
      *
      * @param parent        GUI component over which to center any error dialog
      *********************************************************************************************/

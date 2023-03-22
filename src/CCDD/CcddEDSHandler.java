@@ -2132,8 +2132,6 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
      *                                flag ('true' or 'false'), and data type/variable name
      *                                separator character(s); null if includeVariablePaths is false
      *
-     * @param addEOFMarker            Is this the last data to be added to the file?
-     *
      * @param extraInfo               [0] endianess (EndianType.BIG_ENDIAN or
      *                                EndianType.LITTLE_ENDIAN) <br>
      *                                [1] are the telemetry and command headers big endian (true or
@@ -2151,7 +2149,6 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                              boolean includeVariablePaths,
                              CcddVariableHandler variableHandler,
                              String[] separators,
-                             boolean addEOFMarker,
                              String outputType,
                              Object... extraInfo) throws JAXBException,
                                                          MarshalException,

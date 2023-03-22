@@ -511,7 +511,7 @@ public class CcddMacroHandler
      *
      * @param macroName Macro name
      *
-     * @return true if a recursive reference is detected in the macro's value
+     * @return True if a recursive reference is detected in the macro's value
      *********************************************************************************************/
     protected boolean isMacroRecursive(String macroName)
     {
@@ -677,7 +677,7 @@ public class CcddMacroHandler
      *
      * @param text Text string containing macro names
      *
-     * @return true if the text contains a macro reference
+     * @return True if the text contains a macro reference
      *********************************************************************************************/
     protected static boolean hasMacro(String text)
     {
@@ -699,7 +699,7 @@ public class CcddMacroHandler
      *
      * @param macroName Macro name
      *
-     * @return true if the supplied macro name is already in use
+     * @return True if the supplied macro name is already in use
      *********************************************************************************************/
     protected boolean isMacroExists(String macroName)
     {

@@ -3,7 +3,7 @@ Core Flight System (CFS) Command and Data Dictionary (CCDD) utility
 
 CCDD is a software tool for managing the command and telemetry data for CFS and CFS applications.  CCDD is written in Java™ and interacts with a PostgreSQL database, so it can be used on any operating system that supports the Java Runtime Environment (JRE) and PostgreSQL.  CCDD is released as open source software under the NASA Open Source Software Agreement, version 1.3, and is hosted on GitHub.
 
-The CCDD application uses tables, similar to a spreadsheet, to display and allow manipulation of telemetry data structures, command information, and other data pertinent to a CFS project.  The data is stored in a PostgreSQL database for manipulation and data security.  The PostgreSQL database server can be run locally or centralized on a remote host for easier access by multiple users.  Data can be imported into the application from files in comma-separated values (CSV), JavaScript Object Notation (JSON), electronic data sheet (EDS), and extensible markup language (XML) telemetric and command exchange (XTCE) formats.  Data can be exported from the application to files in CSV, JSON, EDS, and XTCE formats.  The CCDD tables also allow simple cut and paste operations from the host operating system’s clipboard.  To make use of the project’s data, CCDD can interact with Java Virtual Machine (JVM)-based scripting languages via a set of supplied data access methods.  Using scripts, the user can translate the data stored in the CCDD’s database into output files.  Example scripts for creating common CFS related output files are provided in four of these scripting languages.  An embedded web server can be activated, allowing web-based application access to the data.
+The CCDD application uses tables, similar to a spreadsheet, to display and allow manipulation of telemetry data structures, command information, and other data pertinent to a CFS project.  The data is stored in a PostgreSQL database for manipulation and data security.  The PostgreSQL database server can be run locally or centralized on a remote host for easier access by multiple users.  Data can be imported into the application from files in comma-separated values (CSV), JavaScript Object Notation (JSON), electronic data sheet (EDS), and extensible markup language (XML) telemetric and command exchange (XTCE) formats.  Data can be exported from the application to files in CSV, JSON, EDS, and XTCE formats.  The CCDD tables also allow simple cut and paste operations from the host operating system’s clipboard.  To make use of the project’s data, CCDD can interact with scripting languages via a set of supplied data access methods.  Using scripts, the user can translate the data stored in the CCDD’s database into output files.  Example scripts for creating common CFS related output files are provided in four of these scripting languages.  An embedded web server can be activated, allowing web-based application access to the data.
 
 See the CCDD installation guide for details on set up.  See the developer's and user's guides for details on use.  A tutorial is also provided.
 
@@ -14,6 +14,21 @@ _Note: The master branch contains_ **CCDD version 1**_, which is superseded by_ 
 * Beginning with CCDD version 2.1 PostgreSQL versions 12 and later are supported
 
 * CCDD version 2 works with Java 7-13
+
+* Beginning with CCDD version 2.1.2 Python 3 is supported
+
+*** Version 2.1.2 has been released **
+
+Below is a brief description of what has changed in version 2.1.2
+* Added support for Python 3 using the Py4J interface (Python 2.7 is also supported using Py4J). In order to use this capability, Py4J must be installed, and existing scripts will require modification.
+* Corrected a bug that left a table description entry for the original table name in the custom values table when the table name is changed
+* Changed line trimming of imported CSV files so that spaces are preserved between commas and double quotes to accommodate columns with input types that allow leading/trailing spaces
+* Corrected the script Replace operation so that it removes the old association instead of the new one
+* Altered the script execution cancellation dialog's progress bar to indicate when table data is loaded for each script association
+* Added test to Verify to check for for valid command argument reference flag values, which are embedded in the table type description
+* Corrected the case when storing the table types where the last INSERT INTO command has no values to store (resulted in an SQL error since the command was incomplete)
+* Changed the script association name input type from ALPHANUMERIC to TEXT. This is mainly to allow spaces in the name, but other characters are not allowed as well
+* Corrected a bug when importing data into a table with the 'Replace existing table(s)' check box selected. The current table contents is first deleted
 
 *** Version 2.1.1 has been released **
 

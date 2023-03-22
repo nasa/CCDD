@@ -701,7 +701,7 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
      * @param isMultiple True if this is one of multiple cells to be entered and checked; false if
      *                   only a single input is being entered
      *
-     * @return true to indicate that subsequent errors should be displayed; false if subsequent
+     * @return True to indicate that subsequent errors should be displayed; false if subsequent
      *         errors should not be displayed; null if the replace operation should be canceled
      *********************************************************************************************/
     private Boolean replaceMatchInCell(List<Object[]> tableData,

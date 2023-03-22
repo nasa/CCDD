@@ -547,7 +547,7 @@ public class CcddTelemetrySchedulerDialog extends CcddDialogHandler implements C
     /**********************************************************************************************
      * Check if a change has been made to a message
      *
-     * @return true if a message in any of the data streams changed; false otherwise
+     * @return True if a message in any of the data streams changed; false otherwise
      *********************************************************************************************/
     private boolean isChanges()
     {

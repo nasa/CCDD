@@ -24,7 +24,7 @@ if (checked != null)
 }
 
 // Open the output file
-var file = openOutputFile("myFileName")
+var file = openOutputFile(ccdd.getOutputPath() + "myFileName")
 
 // Get the array of structure names
 var structNames = getStructureTableNames()

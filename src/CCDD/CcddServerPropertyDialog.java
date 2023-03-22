@@ -133,7 +133,7 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Check if the password was successfully set in the Password dialog
      *
-     * @return true if the password is set in the Password dialog; false if Cancel was selected or
+     * @return True if the password is set in the Password dialog; false if Cancel was selected or
      *         the dialog type is not Password
      *********************************************************************************************/
     protected boolean isPasswordSet()
@@ -381,7 +381,7 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
      *
      * @param border    Border with which to surround the input fields
      *
-     * @return true if at least one user exists in the server or if the user can be entered
+     * @return True if at least one user exists in the server or if the user can be entered
      *         manually
      *********************************************************************************************/
     private boolean addLoginPanel(JPanel selectPnl, GridBagConstraints gbc, Border border)
@@ -510,7 +510,7 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Verify that the dialog content is valid
      *
-     * @return true if the input values are valid
+     * @return True if the input values are valid
      *********************************************************************************************/
     @Override
     protected boolean verifySelection()

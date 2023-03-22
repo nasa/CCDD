@@ -235,8 +235,6 @@ public interface CcddImportExportInterface
      *                                and data type/variable name separator character(s); null if
      *                                includeVariablePaths is false
      *
-     * @param addEOFMarker            Is this the last data to be added to the file?
-     *
      * @param outputType              String representing rather the output is going to a single
      *                                file or multiple files. Should be "Single" or "Multiple"
      *
@@ -255,7 +253,6 @@ public interface CcddImportExportInterface
                                boolean includeVariablePaths,
                                CcddVariableHandler variableHandler,
                                String[] separators,
-                               boolean addEOFMarker,
                                String outputType,
                                Object... extraInfo) throws JAXBException,
                                                            CCDDException,

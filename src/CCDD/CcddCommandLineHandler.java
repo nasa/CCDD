@@ -328,7 +328,7 @@ public class CcddCommandLineHandler
         /******************************************************************************************
          * Check if the command requires an argument
          *
-         * @return true if the command requires an argument
+         * @return True if the command requires an argument
          *****************************************************************************************/
         protected boolean hasArgument()
         {
@@ -1055,10 +1055,13 @@ public class CcddCommandLineHandler
                     // The GUI is displayed
                     else
                     {
-                        // TODO Doesn't allow for not running in background
+                        // TODO Doesn't allow for _not_ running in background
                         ccddMain.getScriptHandler().performScriptExecutionInBackground(null,
                                                                                        associations,
                                                                                        ccddMain.getMainFrame());
+//                        ccddMain.getScriptHandler().performScriptExecution(null,
+//                                                                           associations,
+//                                                                           ccddMain.getMainFrame());
                     }
                 }
             }

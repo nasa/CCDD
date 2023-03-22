@@ -23,19 +23,19 @@ java_import Java::CCDD.CcddScriptDataAccessHandler
 #*****************************************************************************/
 def outputFileCreationInfo(file)
     # Add the build information and header to the output file
-    $ccdd.writeToFileLn(file, "# Created : " + $ccdd.getDateAndTime() + "\n# User    : " + $ccdd.getUser() + "\n# Project : " + $ccdd.getProject() + "\n# Script  : " + $ccdd.getScriptName())
+    ccdd.writeToFileLn(file, "# Created : " + ccdd.getDateAndTime() + "\n# User    : " + ccdd.getUser() + "\n# Project : " + ccdd.getProject() + "\n# Script  : " + ccdd.getScriptName())
 
     # Check if any table is associated with the script
-    if $ccdd.getTableNumRows() != 0
-        $ccdd.writeToFileLn(file, "   Table(s): " + $ccdd.getTableNames().sort.to_a.join(",\n             "))
+    if ccdd.getTableNumRows() != 0
+        ccdd.writeToFileLn(file, "   Table(s): " + ccdd.getTableNames().sort.to_a.join(",\n             "))
     end
   
     # Check if any groups is associated with the script
-    if $ccdd.getAssociatedGroupNames().length != 0
-        $ccdd.writeToFileLn(file, "   Group(s): " + $ccdd.getAssociatedGroupNames().sort.to_a.join(",\n             "))
+    if ccdd.getAssociatedGroupNames().length != 0
+        ccdd.writeToFileLn(file, "   Group(s): " + ccdd.getAssociatedGroupNames().sort.to_a.join(",\n             "))
     end
     
-    $ccdd.writeToFileLn(file, "")
+    ccdd.writeToFileLn(file, "")
 end
 
 # *****************************************************************************
@@ -103,17 +103,17 @@ def nextRow(pageFile, variableName, fullVariableName, row)
     
         # Go to the next column
         $columnCount = $columnCount + 1
-        $ccdd.writeToFileLn(pageFile, "## col_max_len going from " + $maxColumnLength.to_s + " back to " + $columnStep.to_s)
+        ccdd.writeToFileLn(pageFile, "## col_max_len going from " + $maxColumnLength.to_s + " back to " + $columnStep.to_s)
         $rowCount = 1
         $columnOffset = $columnOffset + $maxColumnLength + 2
         $maxColumnLength = $columnStep
 
         # Check if the current variable is a member within an array
         if $inMiddleOfArray
-            $ccdd.writeToFileLn(pageFile, "array_fmt(1, " + $columnOffset.to_s + ",\"" + $nextColumnHeader + "\")")
+            ccdd.writeToFileLn(pageFile, "array_fmt(1, " + $columnOffset.to_s + ",\"" + $nextColumnHeader + "\")")
         # Not a variable within an array
         else
-            $ccdd.writeToFileLn(pageFile, "(1, " + $columnOffset.to_s + ",\"" + $lastSubStructureName + "\")")
+            ccdd.writeToFileLn(pageFile, "(1, " + $columnOffset.to_s + ",\"" + $lastSubStructureName + "\")")
         end
     # Not at the maximum row
     else
@@ -239,11 +239,11 @@ def outputMnemonic(pageFile, row, fltCompName)
     isOutput = false
     itosFormat = ""
 
-    variableName = $ccdd.getStructureVariableName(row)
-    dataType = $ccdd.getStructureDataType(row)
+    variableName = ccdd.getStructureVariableName(row)
+    dataType = ccdd.getStructureDataType(row)
  
     # Get the ITOS encoded form of the data type
-    itosEncode = $ccdd.getITOSEncodedDataType(dataType, "BIG_ENDIAN")
+    itosEncode = ccdd.getITOSEncodedDataType(dataType, "BIG_ENDIAN")
 
     # Check if this data type is a recognized base type or structure
     if itosEncode != nil
@@ -254,14 +254,14 @@ def outputMnemonic(pageFile, row, fltCompName)
         end
         
         # Get the variable name and array size
-        arraySize = $ccdd.getStructureArraySize(row)
-        fullVariableName = $ccdd.getFullVariableName(row)
+        arraySize = ccdd.getStructureArraySize(row)
+        fullVariableName = ccdd.getFullVariableName(row)
 
         # See if this row would exceed the maximum. If so start another column
         nextRow(pageFile, variableName, fullVariableName, row)
 
         # Get the full variable name (including the variable's structure path)
-        tmp = $ccdd.getFullVariableName(row, " ")
+        tmp = ccdd.getFullVariableName(row, " ")
 
         # Find number of spaces (i.e. " ") in tmp and makes prepad a string
         # containing only that many spaces
@@ -284,7 +284,7 @@ def outputMnemonic(pageFile, row, fltCompName)
                 $lastSubStructureName = $nextColumnHeader
                 $headerNames[row] = $lastSubStructureName
                 $fullHeaderNames[row] = fullVariableName
-                $ccdd.writeToFileLn(pageFile, "(+, " + $columnOffset.to_s + ", \"" + $nextColumnHeader + "\")")
+                ccdd.writeToFileLn(pageFile, "(+, " + $columnOffset.to_s + ", \"" + $nextColumnHeader + "\")")
             # Not a structure; it's a primitive type
             else
                 if isArrayElement(arraySize)
@@ -299,14 +299,14 @@ def outputMnemonic(pageFile, row, fltCompName)
 
                     # This item is first on a row
                     if index.to_i % $modNum != 0
-                        $ccdd.writeToFileLn(pageFile, fullVariableName2 + "(=, +, \" :v" + itosFormat + ":\", raw)")
+                        ccdd.writeToFileLn(pageFile, fullVariableName2 + "(=, +, \" :v" + itosFormat + ":\", raw)")
                         lenAll = 0
                     # This array item is NOT first item on a row
                     else
                         lastIndex = ([arraySize.to_i - 1, index.to_i + $modNum - 1].min).to_s.ljust(maxDigits)
                         arrayMessage = prepad + "[" + indexPadded + "-" + lastIndex.to_s + "]"
                         lenAll = arrayMessage.length + ($numITOSDigits + 1) * ([$modNum, arraySize.to_i].min)
-                        $ccdd.writeToFileLn(pageFile, fullVariableName2 + "(+, " + $columnOffset.to_s + ", \"" + arrayMessage + "  :v" + itosFormat + ":\", raw)")
+                        ccdd.writeToFileLn(pageFile, fullVariableName2 + "(+, " + $columnOffset.to_s + ", \"" + arrayMessage + "  :v" + itosFormat + ":\", raw)")
                     end
                     
                     if index.to_i != arraySize.to_i - 1 && (index.to_i + 1) % $modNum != 0
@@ -319,7 +319,7 @@ def outputMnemonic(pageFile, row, fltCompName)
                     end
                 # Not an array item, print normally
                 else
-                    $ccdd.writeToFileLn(pageFile, fullVariableName2 + "(+, " + $columnOffset.to_s + ", \"" + prepad + variableName + " :v" + itosFormat + ":\", raw)")
+                    ccdd.writeToFileLn(pageFile, fullVariableName2 + "(+, " + $columnOffset.to_s + ", \"" + prepad + variableName + " :v" + itosFormat + ":\", raw)")
 
                     lenAll = prepad.length + variableName.length + $numITOSDigits + 2
                 end
@@ -329,15 +329,15 @@ def outputMnemonic(pageFile, row, fltCompName)
         else
             $nextColumnHeader = prepad + variableName + "[" + arraySize + "] - " + itosEncode
             lenAll = $nextColumnHeader.length
-            $ccdd.writeToFileLn(pageFile, "array_fmt(+, " + $columnOffset.to_s + ", \"" + $nextColumnHeader + "\")")
+            ccdd.writeToFileLn(pageFile, "array_fmt(+, " + $columnOffset.to_s + ", \"" + $nextColumnHeader + "\")")
         end
 
         if $maxColumnLength < lenAll
-            $ccdd.writeToFileLn(pageFile, "## col_max_len is now = " + lenAll.to_s + " (was " + $maxColumnLength.to_s + ")")
+            ccdd.writeToFileLn(pageFile, "## col_max_len is now = " + lenAll.to_s + " (was " + $maxColumnLength.to_s + ")")
             $maxColumnLength = lenAll
         end
     else
-        $ccdd.writeToFileLn(pageFile, "#### NOT printing " + variableName)
+        ccdd.writeToFileLn(pageFile, "#### NOT printing " + variableName)
     end
 
     return isOutput
@@ -353,24 +353,24 @@ end
 #            flight computer name
 #*****************************************************************************/
 def outputMnemonics(pageFile, fltCompName)
-    $ccdd.writeToFileLn(pageFile, "# Mnemonics")
+    ccdd.writeToFileLn(pageFile, "# Mnemonics")
 
     # Step through each of the structure table rows
-    for row in 0..$ccdd.getStructureTableNumRows() - 1
+    for row in 0..ccdd.getStructureTableNumRows() - 1
         # Initialize the header name array values to blanks
         $fullHeaderNames.push("")
         $headerNames.push("")
     end
     
     # Step through each row in the table
-    for row in 0..$ccdd.getStructureTableNumRows() - 1
+    for row in 0..ccdd.getStructureTableNumRows() - 1
         # Output the mnemonic for this row in the data table
         isOutput = outputMnemonic(pageFile, row, fltCompName)
         
         # Check if a mnemonic definition was output to the file
         if isOutput
             # Add an end of line to file to get ready for next line
-            $ccdd.writeToFileLn(pageFile, "")
+            ccdd.writeToFileLn(pageFile, "")
         end
     end
 end
@@ -383,7 +383,7 @@ end
 #*****************************************************************************/
 def outputPageFile(fltCompName)
     # Initialize the name, row, and column parameters
-    $nextColumnHeader = fltCompName + $ccdd.getRootStructureTableNames()[0]
+    $nextColumnHeader = fltCompName + ccdd.getRootStructureTableNames()[0]
     $lastSubStructureName = $nextColumnHeader
     $columnStep = 20
     $maxColumnLength = $columnStep
@@ -396,32 +396,32 @@ def outputPageFile(fltCompName)
     # Check if structure data is provided
     if $numStructRows != 0
         # Build the page file name and open the page output file
-        baseName = "auto_" + fltCompName + $ccdd.getRootStructureTableNames()[0]
-        pageFileName = $ccdd.getOutputPath() + baseName + ".page"
-        pageFile = $ccdd.openOutputFile(pageFileName)
+        baseName = "auto_" + fltCompName + ccdd.getRootStructureTableNames()[0]
+        pageFileName = ccdd.getOutputPath() + baseName + ".page"
+        pageFile = ccdd.openOutputFile(pageFileName)
 
         # Check if the page output file successfully opened
         if pageFile != nil
             # Begin building the page display. The "page" statement must be on
             # the first row
-            $ccdd.writeToFileLn(pageFile, "page " + baseName)
-            $ccdd.writeToFileLn(pageFile, "")
+            ccdd.writeToFileLn(pageFile, "page " + baseName)
+            ccdd.writeToFileLn(pageFile, "")
             outputFileCreationInfo(pageFile)
-            $ccdd.writeToFileLn(pageFile, "color default (orange, default)")
-            $ccdd.writeToFileLn(pageFile, "color mnedef (text (white, black) )")
-            $ccdd.writeToFileLn(pageFile, "color subpage (lightblue, blue)")
-            $ccdd.writeToFileLn(pageFile, "color array_fmt (royalblue, black)")
-            $ccdd.writeToFileLn(pageFile, "")
+            ccdd.writeToFileLn(pageFile, "color default (orange, default)")
+            ccdd.writeToFileLn(pageFile, "color mnedef (text (white, black) )")
+            ccdd.writeToFileLn(pageFile, "color subpage (lightblue, blue)")
+            ccdd.writeToFileLn(pageFile, "color array_fmt (royalblue, black)")
+            ccdd.writeToFileLn(pageFile, "")
 
             # Output the telemetry display definitions
             outputMnemonics(pageFile, fltCompName)
 
             # Close the page output file
-            $ccdd.closeFile(pageFile)
+            ccdd.closeFile(pageFile)
         # The page output file cannot be opened
         else
             # Display an error dialog
-            $ccdd.showErrorDialog("<html><b>Error opening telemetry output file '</b>" + pageFileName + "<b>'")
+            ccdd.showErrorDialog("<html><b>Error opening telemetry output file '</b>" + pageFileName + "<b>'")
         end
     end
 end
@@ -431,7 +431,7 @@ end
 #  Main ***********************************************************************
 
 # Get the number of structure and command table rows
-$numStructRows = $ccdd.getStructureTableNumRows()
+$numStructRows = ccdd.getStructureTableNumRows()
 
 $fcNames = []
 $numFlightComputers = 0
@@ -452,11 +452,11 @@ $modNum = $modNumDefault
 
 # Check if no structure or command data is supplied
 if $numStructRows == 0
-    $ccdd.showErrorDialog("No structure or command data supplied to script " + $ccdd.getScriptName())
+    ccdd.showErrorDialog("No structure or command data supplied to script " + ccdd.getScriptName())
 # Structure and/or command data is supplied
 else
     # Get the value of the data field specifying the flight computer base value
-    fcBase = $ccdd.getGroupDataFieldValue("globals", "prefix")
+    fcBase = ccdd.getGroupDataFieldValue("globals", "prefix")
 
     # Check if the data field exists or is empty
     if fcBase == nil || fcBase == ""
@@ -465,7 +465,7 @@ else
     end
     
     # Get the value of the data field specifying the number of flight computers
-    numFC = $ccdd.getGroupDataFieldValue("globals", "NumComputers")
+    numFC = ccdd.getGroupDataFieldValue("globals", "NumComputers")
 
     # Check if the data field exists, is empty, or isn't an integer value
     if numFC == nil || !(numFC =~ /[0-9]+/)

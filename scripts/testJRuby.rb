@@ -8,7 +8,7 @@ puts "Test of a Ruby script using JRuby"
 boxes = [ [ "Box 1", " Box 1 description" ], [ "Box 2", "" ] ]
 
 # Display the check box dialog and get the user's selection
-checked = $ccdd.getCheckBoxDialog("Check Box Dialog Test", boxes)
+checked = ccdd.getCheckBoxDialog("Check Box Dialog Test", boxes)
 
 # Check if the Cancel button wasn't selected
 if checked != nil
@@ -23,10 +23,10 @@ if checked != nil
 end
 
 # Open the output file
-file = $ccdd.openOutputFile("myFileName")
+file = ccdd.openOutputFile(ccdd.getOutputPath() + "myFileName")
 
 # Get the array of structure names
-structNames = $ccdd.getStructureTableNames()
+structNames = ccdd.getStructureTableNames()
 
 index = 0
 
@@ -34,11 +34,11 @@ index = 0
 structNames.each do |name|
 
     # Write the structure name to the output file
-    $ccdd.writeToFileLn(file, "structNames[#{index}] = #{name}")
+    ccdd.writeToFileLn(file, "structNames[#{index}] = #{name}")
 
     index += 1
 
 end
 
 # Close the output file
-$ccdd.closeFile(file)
+ccdd.closeFile(file)

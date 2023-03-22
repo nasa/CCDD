@@ -208,7 +208,7 @@ public class CcddPaddingDialog extends CcddDialogHandler
      *
      * @param prototypeTree Reference to the prototype table tree
      *
-     * @return true if at least one table is selected
+     * @return True if at least one table is selected
      *********************************************************************************************/
     private boolean isStructureSelected(CcddTableTreeHandler prototypeTree)
     {

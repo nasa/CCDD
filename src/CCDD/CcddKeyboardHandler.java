@@ -1017,7 +1017,7 @@ public class CcddKeyboardHandler
      *
      * @param comp Reference to the component where the key press event occurred
      *
-     * @return true if the key press event is handled by this method; false otherwise
+     * @return True if the key press event is handled by this method; false otherwise
      *********************************************************************************************/
     private boolean tableEditCellHandler(Component comp)
     {

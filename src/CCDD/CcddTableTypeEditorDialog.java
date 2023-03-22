@@ -1243,7 +1243,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
      * Determine if any of the table types represented in this editor dialog have uncommitted
      * changes
      *
-     * @return true if any of the editors represented in this editor dialog have uncommitted
+     * @return True if any of the editors represented in this editor dialog have uncommitted
      *         changes
      *********************************************************************************************/
     private boolean isTablesChanged()
@@ -1479,7 +1479,7 @@ public class CcddTableTypeEditorDialog extends CcddFrameHandler
      * Determine if any of the table types have uncommitted changes. Store the names of the changed
      * table types in a list
      *
-     * @return true if any of the table types have uncommitted changes
+     * @return True if any of the table types have uncommitted changes
      *********************************************************************************************/
     protected boolean isTypesChanged()
     {

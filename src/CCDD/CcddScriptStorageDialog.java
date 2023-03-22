@@ -450,7 +450,7 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Verify that the dialog content is valid
      *
-     * @return true if the input values are valid
+     * @return True if the input values are valid
      *********************************************************************************************/
     @Override
     protected boolean verifySelection()

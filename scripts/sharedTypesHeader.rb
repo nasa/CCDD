@@ -12,14 +12,14 @@
 java_import Java::CCDD.CcddScriptDataAccessHandler
 
 # Get the array of structure names by the order in which they are referenced
-$structureNames = $ccdd.getStructureTablesByReferenceOrder()
+$structureNames = ccdd.getStructureTablesByReferenceOrder()
 
 # Get the number of structure and command table rows
-$numStructRows = $ccdd.getStructureTableNumRows()
-$numCommandRows = $ccdd.getCommandTableNumRows()
+$numStructRows = ccdd.getStructureTableNumRows()
+$numCommandRows = ccdd.getCommandTableNumRows()
 
 # Get an array containing the data stream names
-$dataStreams = $ccdd.getDataStreamNames()
+$dataStreams = ccdd.getDataStreamNames()
 
 #** Functions *****************************************************************
 
@@ -31,19 +31,19 @@ $dataStreams = $ccdd.getDataStreamNames()
 #******************************************************************************
 def outputFileCreationInfo(file)
   # Add the build information and header to the output file
-  $ccdd.writeToFileLn(file, "/* Created : " + $ccdd.getDateAndTime() + "\n   User    : " + $ccdd.getUser() + "\n   Project : " + $ccdd.getProject() + "\n   Script  : " + $ccdd.getScriptName())
+  ccdd.writeToFileLn(file, "/* Created : " + ccdd.getDateAndTime() + "\n   User    : " + ccdd.getUser() + "\n   Project : " + ccdd.getProject() + "\n   Script  : " + ccdd.getScriptName())
 
   # Check if any table is associated with the script
-  if $ccdd.getTableNumRows() != 0
-      $ccdd.writeToFileLn(file, "   Table(s): " + $ccdd.getTableNames().sort.to_a.join(",\n             "))
+  if ccdd.getTableNumRows() != 0
+      ccdd.writeToFileLn(file, "   Table(s): " + ccdd.getTableNames().sort.to_a.join(",\n             "))
   end
 
   # Check if any groups is associated with the script
-  if $ccdd.getAssociatedGroupNames().length != 0
-      $ccdd.writeToFileLn(file, "   Group(s): " + $ccdd.getAssociatedGroupNames().sort.to_a.join(",\n             "))
+  if ccdd.getAssociatedGroupNames().length != 0
+      ccdd.writeToFileLn(file, "   Group(s): " + ccdd.getAssociatedGroupNames().sort.to_a.join(",\n             "))
   end
 
-  $ccdd.writeToFileLn(file, "*/\n")
+  ccdd.writeToFileLn(file, "*/\n")
 end
 
 #******************************************************************************
@@ -77,13 +77,13 @@ def outputStructure(file, structIndex)
     # through each structure data row
     for row in 0..$numStructRows - 1
         # Check if the structure name in the row matches the current structure
-        if $structureNames[structIndex] == $ccdd.getStructureTableNameByRow(row)
+        if $structureNames[structIndex] == ccdd.getStructureTableNameByRow(row)
             # Check if this is the first pass through the structure data
             if firstPass
                 firstPass = false
 
                 # Get the value of the structure's message ID data field
-                msgID = $ccdd.getTableDataFieldValue($structureNames[structIndex], "Message ID")
+                msgID = ccdd.getTableDataFieldValue($structureNames[structIndex], "Message ID")
 
                 # Check if the structure table has a message ID
                 if msgID != nil && !msgID.empty?
@@ -95,13 +95,13 @@ def outputStructure(file, structIndex)
             end
 
             # Get the variable name for this row
-            variableName = $ccdd.getStructureVariableName(row)
+            variableName = ccdd.getStructureVariableName(row)
 
             # Check that this isn't an array member; only array definitions
             # appear in the type definition
             if !variableName.end_with?("]")
                 # Get the variable's array size
-                arraySize = $ccdd.getStructureArraySize(row)
+                arraySize = ccdd.getStructureArraySize(row)
 
                 # Check if the variable is an array
                 if !arraySize.empty?
@@ -115,7 +115,7 @@ def outputStructure(file, structIndex)
                 end
 
                 # Get the variable's bit length
-                bitLength = $ccdd.getStructureBitLength(row)
+                bitLength = ccdd.getStructureBitLength(row)
 
                 # Check if the variable has a bit length
                 if !bitLength.empty?
@@ -125,7 +125,7 @@ def outputStructure(file, structIndex)
 
                 # Determine the length of the variable definition by adding up
                 # the individual parts
-                defnLength = ("   " + $ccdd.getStructureDataType(row) + " " + variableName + arraySize + bitLength + "; ").length
+                defnLength = ("   " + ccdd.getStructureDataType(row) + " " + variableName + arraySize + bitLength + "; ").length
 
                 # Check if the length exceeds the minimum length found thus far
                 if defnLength > minimumLength
@@ -143,22 +143,22 @@ def outputStructure(file, structIndex)
         deltaSize = 0
 
         # Check if the structure name in the row matches the target structure
-        if $structureNames[structIndex] == $ccdd.getStructureTableNameByRow(row)
+        if $structureNames[structIndex] == ccdd.getStructureTableNameByRow(row)
             # Get the variable name for this row in the structure
-            variableName = $ccdd.getStructureVariableName(row)
+            variableName = ccdd.getStructureVariableName(row)
 
             # Check if this is the first pass through the structure data
             if firstPass
                 firstPass = false
 
                 # Get the description for the current structure
-                structDescription = $ccdd.getTableDescriptionByRow("Structure", row)
+                structDescription = ccdd.getTableDescriptionByRow("Structure", row)
 
                 # Get the size of the entire structure, in bytes
-                structSize = $ccdd.getDataTypeSizeInBytes($structureNames[structIndex])
+                structSize = ccdd.getDataTypeSizeInBytes($structureNames[structIndex])
 
                 # Get the value of the structure's message ID data field
-                msgID = $ccdd.getTableDataFieldValue($structureNames[structIndex], "Message ID")
+                msgID = ccdd.getTableDataFieldValue($structureNames[structIndex], "Message ID")
 
                 # Check if the structure table has a message ID
                 if msgID != nil && !msgID.empty?
@@ -170,19 +170,19 @@ def outputStructure(file, structIndex)
 
                 # Display the structure name, size, and description prior to
                 # the structure's type definition
-                $ccdd.writeToFile(file, "/* Structure: " + $structureNames[structIndex] + " (" + structSize.to_s + " bytes total)")
+                ccdd.writeToFile(file, "/* Structure: " + $structureNames[structIndex] + " (" + structSize.to_s + " bytes total)")
 
                 # Check if the structure has a description
                 if !structDescription.empty?
                     # Display the structure's description
-                    $ccdd.writeToFile(file, "\n   Description: " + structDescription)
+                    ccdd.writeToFile(file, "\n   Description: " + structDescription)
                 end
 
-                $ccdd.writeToFileLn(file, " */")
+                ccdd.writeToFileLn(file, " */")
 
                 # Begin the structure type definition
-                $ccdd.writeToFileLn(file, "typedef struct")
-                $ccdd.writeToFileLn(file, "{")
+                ccdd.writeToFileLn(file, "typedef struct")
+                ccdd.writeToFileLn(file, "{")
 
                 # Check if CCSDS headers should be added
                 if isCCSDS
@@ -196,14 +196,14 @@ def outputStructure(file, structIndex)
                     ccsdsVar = "   char CFS_PRI_HEADER[6];"
                     comment = "#CCSDS_PriHdr_t"
                     sizeString = "(6 bytes)"
-                    $ccdd.writeToFileFormat(file, "%-" + minimumLength.to_s + "s /* [%5s] " + sizeString + "  " + comment + " */\n", ccsdsVar, offsetStr)
+                    ccdd.writeToFileFormat(file, "%-" + minimumLength.to_s + "s /* [%5s] " + sizeString + "  " + comment + " */\n", ccsdsVar, offsetStr)
 
                     # Output the variable array that contains the secondary
                     # header values
                     offsetStr = "6"
                     ccsdsVar = "   char CFS_SEC_HEADER[6];"
                     comment = "#CCSDS_CmdSecHdr_t"
-                    $ccdd.writeToFileFormat(file, "%-" + minimumLength.to_s + "s /* [%5s] " + sizeString + "  " + comment + " */\n", ccsdsVar, offsetStr)
+                    ccdd.writeToFileFormat(file, "%-" + minimumLength.to_s + "s /* [%5s] " + sizeString + "  " + comment + " */\n", ccsdsVar, offsetStr)
                 # No CCSDS header should be added
                 else
                     # Set the variable byte offset to zero
@@ -222,12 +222,12 @@ def outputStructure(file, structIndex)
                 usedVariableNames.push(variableName)
 
                 # Get the variable's data type, array size, and description
-                dataType = $ccdd.getStructureDataType(row)
-                arraySize = $ccdd.getStructureArraySize(row)
-                description = $ccdd.getStructureDescription(row)
+                dataType = ccdd.getStructureDataType(row)
+                arraySize = ccdd.getStructureArraySize(row)
+                description = ccdd.getStructureDescription(row)
 
                 # Determine the size of the variable, in bytes
-                byteSize = $ccdd.getDataTypeSizeInBytes(dataType)
+                byteSize = ccdd.getDataTypeSizeInBytes(dataType)
 
                 # Build the variable's full path; this will be used to get the
                 # structure's byte offset
@@ -273,7 +273,7 @@ def outputStructure(file, structIndex)
 
                     # Get the byte offset of the first member of this array
                     # variable within its structure
-                    varOffset = $ccdd.getVariableOffset(variablePath + firstDim)
+                    varOffset = ccdd.getVariableOffset(variablePath + firstDim)
 
                     # Create the array variable definition, placing brackets
                     # around the array dimensions
@@ -290,10 +290,10 @@ def outputStructure(file, structIndex)
 
                     # Get the byte offset of the this variable within its
                     # structure
-                    varOffset = $ccdd.getVariableOffset(variablePath)
+                    varOffset = ccdd.getVariableOffset(variablePath)
 
                     # Get the variable's bit length
-                    bitLength = $ccdd.getStructureBitLength(row)
+                    bitLength = ccdd.getStructureBitLength(row)
 
                     # Check if the bit length is provided
                     if !bitLength.empty?
@@ -334,7 +334,7 @@ def outputStructure(file, structIndex)
                 # Step through each data stream
                 for dataStream in 0..$dataStreams.length - 1
                     # Get the variable's rate for this data stream
-                    rateValue = $ccdd.getStructureTableData($dataStreams[dataStream], row)
+                    rateValue = ccdd.getStructureTableData($dataStreams[dataStream], row)
 
                     # Check if the variable has a rate assigned in this stream
                     if !rateValue.empty?
@@ -346,14 +346,14 @@ def outputStructure(file, structIndex)
                 # Build the full variable definition, along with the byte
                 # offset, size, rate, and description information, then
                 # output it to the types header file
-                $ccdd.writeToFileFormat(file, "%-" + minimumLength.to_s + "s /* [%5s] " + (sizeString + rateInfo + "  " + description).strip() + " */\n", variableMsg, varOffset)
+                ccdd.writeToFileFormat(file, "%-" + minimumLength.to_s + "s /* [%5s] " + (sizeString + rateInfo + "  " + description).strip() + " */\n", variableMsg, varOffset)
             end
         end
     end
 
     # Conclude the structure's type definition, pad it for length and add the
     # structure's total size, then output this to the types header file
-    $ccdd.writeToFileFormat(file, "%-" + minimumLength.to_s + "s /* Total size of " + structSize.to_s + " bytes */\n", "} " + $structureNames[structIndex] + ";")
+    ccdd.writeToFileFormat(file, "%-" + minimumLength.to_s + "s /* Total size of " + structSize.to_s + " bytes */\n", "} " + $structureNames[structIndex] + ";")
 end
 
 #******************************************************************************
@@ -366,11 +366,11 @@ end
 def makeSharedHeaders(baseFileName)
     # Build the shared type definitions header output file name and include
     # flag
-    sharedFileName = $ccdd.getOutputPath() + baseFileName + ".h"
+    sharedFileName = ccdd.getOutputPath() + baseFileName + ".h"
     headerIncludeFlag = "_" + baseFileName.toUpperCase() + "_H_"
 
     # Open the shared type definitions header output file
-    sharedFile = $ccdd.openOutputFile(sharedFileName)
+    sharedFile = ccdd.openOutputFile(sharedFileName)
 
     # Check if the shared type definitions header file successfully opened
     if sharedFile != nil
@@ -378,16 +378,16 @@ def makeSharedHeaders(baseFileName)
         outputFileCreationInfo(sharedFile)
 
         # Add the header include to prevent loading the file more than once
-        $ccdd.writeToFileLn(sharedFile, "#ifndef " + headerIncludeFlag)
-        $ccdd.writeToFileLn(sharedFile, "#define " + headerIncludeFlag)
-        $ccdd.writeToFileLn(sharedFile, "#include <stdint.h>")
-        $ccdd.writeToFileLn(sharedFile, "")
+        ccdd.writeToFileLn(sharedFile, "#ifndef " + headerIncludeFlag)
+        ccdd.writeToFileLn(sharedFile, "#define " + headerIncludeFlag)
+        ccdd.writeToFileLn(sharedFile, "#include <stdint.h>")
+        ccdd.writeToFileLn(sharedFile, "")
 
         # Step through each structure. This list is in order so that base
         # structures are created before being referenced in another structure
         for struct in 0..$structureNames.length - 1
             # Check if the structure is referenced by more than one structure
-            if $ccdd.isStructureShared($structureNames[struct])
+            if ccdd.isStructureShared($structureNames[struct])
                 # Output the structure's type definition to the shared types
                 # file
                 outputStructure(sharedFile, struct)
@@ -395,13 +395,13 @@ def makeSharedHeaders(baseFileName)
         end
 
         # Finish and close the shared type definitions header output file
-        $ccdd.writeToFileLn(sharedFile, "")
-        $ccdd.writeToFileLn(sharedFile, "#endif /* #ifndef " + headerIncludeFlag + " */")
-        $ccdd.closeFile(sharedFile)
+        ccdd.writeToFileLn(sharedFile, "")
+        ccdd.writeToFileLn(sharedFile, "#endif /* #ifndef " + headerIncludeFlag + " */")
+        ccdd.closeFile(sharedFile)
     # The shared type definitions header file failed to open
     else
         # Display an error dialog
-        $ccdd.showErrorDialog("<html><b>Error opening types header output file '</b>" + sharedFileName + "<b>'")
+        ccdd.showErrorDialog("<html><b>Error opening types header output file '</b>" + sharedFileName + "<b>'")
     end
 end
 
@@ -417,5 +417,5 @@ end
 # No structure or command data is supplied
 else
     # Display an error dialog
-    $ccdd.showErrorDialog("<html><b>No structure data supplied for script '</b>" + $ccdd.getScriptName() + "<b>'")
+    ccdd.showErrorDialog("<html><b>No structure data supplied for script '</b>" + ccdd.getScriptName() + "<b>'")
 end

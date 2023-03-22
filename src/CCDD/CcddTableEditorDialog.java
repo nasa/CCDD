@@ -2009,7 +2009,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     /**********************************************************************************************
      * Get the selection state of the Array - Overwrite all radio button
      *
-     * @return true if the Array - Overwrite all radio button is selected
+     * @return True if the Array - Overwrite all radio button is selected
      *********************************************************************************************/
     protected boolean isArrayOverwriteAll()
     {
@@ -2019,7 +2019,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     /**********************************************************************************************
      * Get the selection state of the Array - Overwrite none radio button
      *
-     * @return true if the Array - Overwrite none radio button is selected
+     * @return True if the Array - Overwrite none radio button is selected
      *********************************************************************************************/
     protected boolean isArrayOverwriteNone()
     {
@@ -2240,7 +2240,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     /**********************************************************************************************
      * Determine if any of the tables represented in this editor dialog have uncommitted changes
      *
-     * @return true if any of the editors represented in this editor dialog have uncommitted
+     * @return True if any of the editors represented in this editor dialog have uncommitted
      *         changes
      *********************************************************************************************/
     protected boolean isTablesChanged()

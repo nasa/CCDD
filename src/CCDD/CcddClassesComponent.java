@@ -1088,6 +1088,7 @@ public class CcddClassesComponent
          *
          * @param textComp Text component over which to display the pop-up combo box
          *****************************************************************************************/
+        @SuppressWarnings("deprecation")
         private void positionReferencePopup(JTextComponent textComp)
         {
             try
@@ -1671,7 +1672,7 @@ public class CcddClassesComponent
          * @param checkColumn Column index in view coordinates to compare to this cell's column
          *                    index
          *
-         * @return true if the cell's row and column indices match the specified ones
+         * @return True if the cell's row and column indices match the specified ones
          *****************************************************************************************/
         protected boolean isCell(int checkRow, int checkColumn)
         {
@@ -1805,7 +1806,7 @@ public class CcddClassesComponent
          *
          * @param column Cell column in view coordinates
          *
-         * @return true if the cell is already in the selection list
+         * @return True if the cell is already in the selection list
          *****************************************************************************************/
         protected boolean contains(int row, int column)
         {
@@ -1815,7 +1816,7 @@ public class CcddClassesComponent
         /******************************************************************************************
          * Determine if only one or no cells are currently selected
          *
-         * @return true is one or no cells are currently selected
+         * @return True is one or no cells are currently selected
          *****************************************************************************************/
         protected boolean isOneOrNone()
         {
@@ -3460,7 +3461,7 @@ public class CcddClassesComponent
              *
              * @param flavor Data flavor
              *
-             * @return true if the data flavor is supported
+             * @return True if the data flavor is supported
              *************************************************************************************/
             @Override
             public boolean isDataFlavorSupported(DataFlavor flavor)
@@ -3647,7 +3648,7 @@ public class CcddClassesComponent
              *
              * @param dtde Drop target drag event reference
              *
-             * @return true is the drop target can accept the drag event
+             * @return True is the drop target can accept the drag event
              *************************************************************************************/
             public boolean isDragAcceptable(DropTargetDragEvent dtde)
             {
@@ -3690,7 +3691,7 @@ public class CcddClassesComponent
              *
              * @param dtde Drop target drag event reference
              *
-             * @return true is the drop target can accept the drop event
+             * @return True is the drop target can accept the drop event
              *************************************************************************************/
             public boolean isDropAcceptable(DropTargetDropEvent dtde)
             {

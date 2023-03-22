@@ -224,7 +224,7 @@ public abstract class CcddInputFieldPanelHandler
      * Check if the description field is the current focus owner (i.e., editing is active for the
      * field)
      *
-     * @return true if the description field has the focus
+     * @return True if the description field has the focus
      *********************************************************************************************/
     protected boolean isDescriptionFocusOwner()
     {

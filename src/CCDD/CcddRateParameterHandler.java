@@ -117,7 +117,7 @@ public class CcddRateParameterHandler
      * Get the value of the flag that indicates if unevenly time-space sample rates are to be
      * included
      *
-     * @return true if unevenly time-spaced sample rate values are included; false if only sample
+     * @return True if unevenly time-spaced sample rate values are included; false if only sample
      *         rates that are evenly time-spaced are included
      *********************************************************************************************/
     protected boolean isIncludeUneven()
@@ -385,7 +385,7 @@ public class CcddRateParameterHandler
     /**********************************************************************************************
      * Set the rate information list based on the unique rate columns
      *
-     * @return true if the number of rate columns changed
+     * @return True if the number of rate columns changed
      *********************************************************************************************/
     protected boolean setRateInformation()
     {

@@ -75,7 +75,7 @@ public class CcddFieldHandler
     /**********************************************************************************************
      * Determine if the current field information differs from that stored in the database
      *
-     * @return true if the current field information differs from that stored in the database
+     * @return True if the current field information differs from that stored in the database
      *********************************************************************************************/
     protected boolean isFieldInformationChanged()
     {
@@ -575,7 +575,7 @@ public class CcddFieldHandler
      * @param isRootStruct  True if the owner is a root structure table; null to obtain the root
      *                      structure status from the list maintained in the database table handler
      *
-     * @return true if the field is applicable to the owner
+     * @return True if the field is applicable to the owner
      *********************************************************************************************/
     protected boolean isFieldApplicable(String ownerName,
                                         String applicability,
@@ -866,7 +866,7 @@ public class CcddFieldHandler
      *
      * @param updateInfo Updated field information used to replace the existing field information
      *
-     * @return true if the a matching owner and field exists for the provided field information
+     * @return True if the a matching owner and field exists for the provided field information
      *         update
      *********************************************************************************************/
     protected boolean updateField(FieldInformation updateInfo)
@@ -1039,7 +1039,7 @@ public class CcddFieldHandler
      *
      * @param inputType     Input type name for the default field
      *
-     * @return true if a table in the list has a data field with the same name but a different
+     * @return True if a table in the list has a data field with the same name but a different
      *         input type
      *********************************************************************************************/
     protected boolean checkForDuplicateField(List<String> tablesOfType,
@@ -1202,7 +1202,7 @@ public class CcddFieldHandler
      *
      * @param ownerName Data field owner name
      *
-     * @return true if the data field owner is a table
+     * @return True if the data field owner is a table
      *********************************************************************************************/
     protected static boolean isTableField(String ownerName)
     {
@@ -1214,7 +1214,7 @@ public class CcddFieldHandler
      *
      * @param ownerName Data field owner name
      *
-     * @return true if the data field owner is the project
+     * @return True if the data field owner is the project
      *********************************************************************************************/
     protected static boolean isProjectField(String ownerName)
     {
@@ -1226,7 +1226,7 @@ public class CcddFieldHandler
      *
      * @param ownerName Data field owner name
      *
-     * @return true if the data field owner is a table type
+     * @return True if the data field owner is a table type
      *********************************************************************************************/
     protected static boolean isTableTypeField(String ownerName)
     {
@@ -1238,7 +1238,7 @@ public class CcddFieldHandler
      *
      * @param ownerName Data field owner name
      *
-     * @return true if the data field owner is a group
+     * @return True if the data field owner is a group
      *********************************************************************************************/
     protected static boolean isGroupField(String ownerName)
     {

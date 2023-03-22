@@ -1048,10 +1048,10 @@ public class CcddTableManagerDialog extends CcddDialogHandler
         }
 
         // Create a check box for indicating existing tables can be replaced
-        replaceExistingTablesCb = new JCheckBox("Replace existing tables");
+        replaceExistingTablesCb = new JCheckBox("Replace existing table(s)");
         replaceExistingTablesCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         replaceExistingTablesCb.setBorder(emptyBorder);
-        replaceExistingTablesCb.setToolTipText(CcddUtilities.wrapText("Replace data tables that already exist with the imported table",
+        replaceExistingTablesCb.setToolTipText(CcddUtilities.wrapText("Replace data table that already exists with the imported table",
                                                                       ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
 
         // Add a listener for changes to the Replace Existing Tables check box selection status
@@ -1374,7 +1374,8 @@ public class CcddTableManagerDialog extends CcddDialogHandler
             gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
 
             // Check if exporting in CSV or JSON format
-            if (dialogType == ManagerDialogType.EXPORT_CSV || dialogType == ManagerDialogType.EXPORT_JSON)
+            if (dialogType == ManagerDialogType.EXPORT_CSV
+                || dialogType == ManagerDialogType.EXPORT_JSON)
             {
                 // Create a panel to contain the store in file(s) radio buttons
                 JPanel storeInPnl = new JPanel(new GridBagLayout());
@@ -2508,7 +2509,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Verify that the dialog content is valid
      *
-     * @return true if the input values are valid
+     * @return True if the input values are valid
      *********************************************************************************************/
     @Override
     protected boolean verifySelection()

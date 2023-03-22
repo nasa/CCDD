@@ -604,7 +604,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
             /**************************************************************************************
              * Verify that the dialog content is valid
              *
-             * @return true if the input values are valid
+             * @return True if the input values are valid
              *************************************************************************************/
             @Override
             protected boolean verifySelection()
@@ -712,7 +712,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                 /**********************************************************************************
                  * Verify that the dialog content is valid
                  *
-                 * @return true if the input values are valid
+                 * @return True if the input values are valid
                  *********************************************************************************/
                 @Override
                 protected boolean verifySelection()
@@ -827,7 +827,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
                     /******************************************************************************
                      * Verify that the dialog content is valid
                      *
-                     * @return true if the input values are valid
+                     * @return True if the input values are valid
                      *****************************************************************************/
                     @Override
                     protected boolean verifySelection()
@@ -1226,7 +1226,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
      *
      * @param isCopy True to if this verification is for a link copy operation
      *
-     * @return true if the link name is valid, and, for a copy operation, that a data stream is
+     * @return True if the link name is valid, and, for a copy operation, that a data stream is
      *         selected; false otherwise
      *********************************************************************************************/
     private boolean verifyLinkName(boolean isCopy)
@@ -1299,7 +1299,7 @@ public class CcddLinkManagerDialog extends CcddDialogHandler
     /**********************************************************************************************
      * Check if the links for any stream differ from those last committed to the database
      *
-     * @return true if any of the streams' link definitions have changed
+     * @return True if any of the streams' link definitions have changed
      *********************************************************************************************/
     private boolean isLinksChanged()
     {

@@ -165,7 +165,7 @@ public class CcddFrameHandler extends JFrame
     /**********************************************************************************************
      * Placeholder for method to verify the the window box selection(s) prior to closing
      *
-     * @return true
+     * @return True
      *********************************************************************************************/
     protected boolean verifySelection()
     {

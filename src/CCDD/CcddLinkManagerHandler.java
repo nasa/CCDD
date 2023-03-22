@@ -1067,7 +1067,7 @@ public class CcddLinkManagerHandler
     /**********************************************************************************************
      * Check if the links differ from those last committed to the database
      *
-     * @return true if the link definitions have changed
+     * @return True if the link definitions have changed
      *********************************************************************************************/
     protected boolean isLinksChanged()
     {

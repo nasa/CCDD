@@ -340,7 +340,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
                     /******************************************************************************
                      * Verify input fields
                      *
-                     * @return true if the dialog input is valid
+                     * @return True if the dialog input is valid
                      *****************************************************************************/
                     @Override
                     protected boolean verifySelection()
@@ -1824,7 +1824,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
      *
      * @param ownerName Name of the data field's owner
      *
-     * @return true if the field owner isn't a table
+     * @return True if the field owner isn't a table
      *********************************************************************************************/
     private boolean ownerIsNotTable(String ownerName)
     {
@@ -1919,7 +1919,7 @@ public class CcddFieldTableEditorDialog extends CcddFrameHandler
     /**********************************************************************************************
      * Determine if any unsaved changes exist in the data field table editor
      *
-     * @return true if changes exist that haven't been saved; false if there are no unsaved changes
+     * @return True if changes exist that haven't been saved; false if there are no unsaved changes
      *********************************************************************************************/
     protected boolean isFieldTableChanged()
     {

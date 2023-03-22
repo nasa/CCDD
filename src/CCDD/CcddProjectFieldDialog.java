@@ -503,7 +503,7 @@ public class CcddProjectFieldDialog extends CcddDialogHandler
      * Check if the project description or data fields differ from those last committed to the
      * database
      *
-     * @return true if the project description or data field definitions have changed
+     * @return True if the project description or data field definitions have changed
      *********************************************************************************************/
     private boolean isFieldsChanged()
     {
