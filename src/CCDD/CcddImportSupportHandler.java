@@ -274,6 +274,7 @@ public class CcddImportSupportHandler
         else if (!inputTypeHandler.isInputTypeValid(fieldDefn[FieldsColumn.FIELD_TYPE.ordinal()]))
         {
             isError = true;
+Thread.dumpStack();//TODO
 
             // Check if the error should be ignored or the import canceled
             continueOnError = getErrorResponse(continueOnError,
@@ -286,7 +287,8 @@ public class CcddImportSupportHandler
                                                + "<b>' unrecognized in import file '</b>"
                                                + fileName
                                                + "<b>'; continue?",
-                                               "Data Field Error", "Ignore this data field error (default to 'Text')",
+                                               "Data Field Error",
+                                               "Ignore this data field error (default to 'Text')",
                                                "Ignore this and any remaining invalid data fields (use default "
                                                + "values where possible, or skip the affected data field)",
                                                "Stop importing",
@@ -321,7 +323,8 @@ public class CcddImportSupportHandler
                                                "Data Field Error",
                                                "Ignore this data field error (default to 'All tables')",
                                                "Ignore this and any remaining invalid data fields (use default values)",
-                                               "Stop importing", parent);
+                                               "Stop importing",
+                                               parent);
 
             // Default to all tables being applicable
             fieldDefn[FieldsColumn.FIELD_APPLICABILITY.ordinal()] = ApplicabilityType.ALL.getApplicabilityName();
@@ -344,43 +347,41 @@ public class CcddImportSupportHandler
             // Check if this field already exists
             if (fieldInfo != null)
             {
-                // Check if the field's input type, required state, applicability, or value don't
-                // match (the description and size are allowed to differ)
-                if (!fieldDefn[FieldsColumn.FIELD_DESC.ordinal()].equals(fieldInfo.getDescription())
-                    || !fieldDefn[FieldsColumn.FIELD_SIZE.ordinal()].equals(Integer.toString(fieldInfo.getSize()))
-                    || !fieldDefn[FieldsColumn.FIELD_TYPE.ordinal()].equals(fieldInfo.getInputType().getInputName())
-                    || !fieldDefn[FieldsColumn.FIELD_REQUIRED.ordinal()].equalsIgnoreCase(Boolean.toString(fieldInfo.isRequired()))
-                    || !fieldDefn[FieldsColumn.FIELD_APPLICABILITY.ordinal()].equals(fieldInfo.getApplicabilityType().getApplicabilityName())
-                    || !fieldDefn[FieldsColumn.FIELD_VALUE.ordinal()].equals(fieldInfo.getValue()))
+                // Check if not replacing an existing field and the field's input type, required
+                // state, applicability, or value don't match (the description and size are allowed
+                // to differ)
+                if (!replaceExisting
+                    && (!fieldDefn[FieldsColumn.FIELD_DESC.ordinal()].equals(fieldInfo.getDescription())
+                        || !fieldDefn[FieldsColumn.FIELD_SIZE.ordinal()].equals(Integer.toString(fieldInfo.getSize()))
+                        || !fieldDefn[FieldsColumn.FIELD_TYPE.ordinal()].equals(fieldInfo.getInputType().getInputName())
+                        || !fieldDefn[FieldsColumn.FIELD_REQUIRED.ordinal()].equalsIgnoreCase(Boolean.toString(fieldInfo.isRequired()))
+                        || !fieldDefn[FieldsColumn.FIELD_APPLICABILITY.ordinal()].equals(fieldInfo.getApplicabilityType().getApplicabilityName())
+                        || !fieldDefn[FieldsColumn.FIELD_VALUE.ordinal()].equals(fieldInfo.getValue())))
                 {
+                    // Check if the error should be ignored or the import canceled
+                    continueOnError = getErrorResponse(continueOnError,
+                                                       "<html><b>Data field '</b>"
+                                                       + fieldDefn[FieldsColumn.FIELD_NAME.ordinal()]
+                                                       + "<b>' for owner '</b>"
+                                                       + fieldDefn[FieldsColumn.OWNER_NAME.ordinal()]
+                                                       + "<b>' doesn't match the existing definition in import file '</b>"
+                                                       + fileName
+                                                       + "<b>'; continue?",
+                                                       "Data Field Error",
+                                                       "Ignore this data field (keep existing field)",
+                                                       "Ignore this and any remaining invalid data fields "
+                                                       + "(use default values or keep existing)",
+                                                       "Stop importing",
+                                                       parent);
 
-                    if (!replaceExisting)
-                    {
-                        // Check if the error should be ignored or the import canceled
-                        continueOnError = getErrorResponse(continueOnError,
-                                                           "<html><b>Data field '</b>"
-                                                           + fieldDefn[FieldsColumn.FIELD_NAME.ordinal()]
-                                                           + "<b>' for owner '</b>"
-                                                           + fieldDefn[FieldsColumn.OWNER_NAME.ordinal()]
-                                                           + "<b>' doesn't match the existing definition in import file '</b>"
-                                                           + fileName
-                                                           + "<b>'; continue?",
-                                                           "Data Field Error",
-                                                           "Ignore this data field (keep existing field)",
-                                                           "Ignore this and any remaining invalid data fields "
-                                                           + "(use default values or keep existing)",
-                                                           "Stop importing",
-                                                           parent);
-
-                        // Keep the existing field info
-                        fieldDefn[FieldsColumn.FIELD_DESC.ordinal()] = fieldInfo.getDescription();
-                        fieldDefn[FieldsColumn.FIELD_SIZE.ordinal()] = Integer.toString(fieldInfo.getSize());
-                        fieldDefn[FieldsColumn.FIELD_TYPE.ordinal()] = fieldInfo.getInputType().getInputName();
-                        fieldDefn[FieldsColumn.FIELD_REQUIRED.ordinal()] = Boolean.toString(fieldInfo.isRequired());
-                        fieldDefn[FieldsColumn.FIELD_APPLICABILITY.ordinal()] = fieldInfo.getApplicabilityType().getApplicabilityName();
-                        fieldDefn[FieldsColumn.FIELD_VALUE.ordinal()] = fieldInfo.getValue();
-                        fieldDefn[FieldsColumn.FIELD_INHERITED.ordinal()] = Boolean.toString(fieldInfo.isInherited());
-                    }
+                    // Keep the existing field info
+                    fieldDefn[FieldsColumn.FIELD_DESC.ordinal()] = fieldInfo.getDescription();
+                    fieldDefn[FieldsColumn.FIELD_SIZE.ordinal()] = Integer.toString(fieldInfo.getSize());
+                    fieldDefn[FieldsColumn.FIELD_TYPE.ordinal()] = fieldInfo.getInputType().getInputName();
+                    fieldDefn[FieldsColumn.FIELD_REQUIRED.ordinal()] = Boolean.toString(fieldInfo.isRequired());
+                    fieldDefn[FieldsColumn.FIELD_APPLICABILITY.ordinal()] = fieldInfo.getApplicabilityType().getApplicabilityName();
+                    fieldDefn[FieldsColumn.FIELD_VALUE.ordinal()] = fieldInfo.getValue();
+                    fieldDefn[FieldsColumn.FIELD_INHERITED.ordinal()] = Boolean.toString(fieldInfo.isInherited());
                 }
             }
 

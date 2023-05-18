@@ -1247,7 +1247,7 @@ public class CcddDbTableCommandHandler
                 {
                     // Execute the database update
                     dbCommand.executeDbUpdate(command, parent);
-                    command = new StringBuilder("");
+                    command.setLength(0);
                 }
             }
 
@@ -1351,7 +1351,7 @@ public class CcddDbTableCommandHandler
                                       boolean defaultFields,
                                       Component parent)
     {
-        StringBuilder command = new StringBuilder("");
+        StringBuilder command = new StringBuilder();
 
         // Convert the table name to lower case and bound it with double quotes if it matches a
         // PostgreSQL reserved word. PostgreSQL automatically assumes lower case (unless the name
@@ -1497,7 +1497,7 @@ public class CcddDbTableCommandHandler
                                     if (command.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                                     {
                                         dbCommand.executeDbUpdate(command, tableDialog);
-                                        command = new StringBuilder("");
+                                        command.setLength(0);
                                     }
                                 }
                             }
@@ -1530,7 +1530,7 @@ public class CcddDbTableCommandHandler
                                     if (command.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                                     {
                                         dbCommand.executeDbUpdate(command, tableDialog);
-                                        command = new StringBuilder("");
+                                        command.setLength(0);
                                     }
                                }
                             }
@@ -2640,10 +2640,10 @@ public class CcddDbTableCommandHandler
     protected void storeRateParameters(Component parent)
     {
         // Build the string containing the rate parameters
-        StringBuilder comment = new StringBuilder(rateHandler.getMaxSecondsPerMsg()).append(",")
-                                                                                    .append(rateHandler.getMaxMsgsPerSecond())
-                                                                                    .append(",")
-                                                                                    .append(rateHandler.isIncludeUneven());
+        StringBuilder comment = new StringBuilder(String.valueOf(rateHandler.getMaxSecondsPerMsg())).append(",")
+                                                                                                    .append(rateHandler.getMaxMsgsPerSecond())
+                                                                                                    .append(",")
+                                                                                                    .append(rateHandler.isIncludeUneven());
 
         // Step through each stream
         for (RateInformation rateInfo : rateHandler.getRateInformation())
@@ -3214,15 +3214,15 @@ public class CcddDbTableCommandHandler
             dbCommand.createSavePoint(parent);
 
             StringBuilder command = new StringBuilder(updateFieldInfo ? modifyFieldsCommand(tableInfo.getTablePath(),
-                                                                                             tableInfo.getFieldInformation())
-                                                                       : "")
-                                              .append(updateDescription ? buildTableDescription(tableInfo.getTablePath(),
-                                                                                           description)
-                                                                   : "")
-                                              .append(updateColumnOrder ? buildColumnOrder(tableInfo.getTablePath(),
-                                                                                      tableInfo.getColumnOrder())
-                                                                   : "")
-                                              .append(modifyInternalFieldsTable(additions));
+                                                                                            tableInfo.getFieldInformation())
+                                                                      : "")
+                                        .append(updateDescription ? buildTableDescription(tableInfo.getTablePath(),
+                                                                                          description)
+                                                                  : "")
+                                        .append(updateColumnOrder ? buildColumnOrder(tableInfo.getTablePath(),
+                                                                                     tableInfo.getColumnOrder())
+                                                                  : "")
+                                        .append(modifyInternalFieldsTable(additions));
 
             if (command.length() != 0)
             {
@@ -3548,6 +3548,8 @@ public class CcddDbTableCommandHandler
                                            .append(FieldsColumn.FIELD_VALUE.getColumnName())
                                            .append(", ")
                                            .append(FieldsColumn.FIELD_INHERITED.getColumnName())
+                                           .append(", ")
+                                           .append(FieldsColumn.ROW_NUM.getColumnName())
                                            .append(" FROM ")
                                            .append(InternalTable.FIELDS.getTableName())
                                            .append(" WHERE ")
@@ -3742,6 +3744,8 @@ public class CcddDbTableCommandHandler
                                .append(FieldsColumn.FIELD_VALUE.getColumnName())
                                .append(", ")
                                .append(FieldsColumn.FIELD_INHERITED.getColumnName())
+                               .append(", ")
+                               .append(FieldsColumn.ROW_NUM.getColumnName())
                                .append(" FROM ")
                                .append(InternalTable.FIELDS.getTableName())
                                .append(" WHERE ")
@@ -3800,14 +3804,14 @@ public class CcddDbTableCommandHandler
         ResultSet queryResult;
         int nextKeyValue = 1;
         List<String> stringArrays = new ArrayList<String>();
-        StringBuilder addCmd = new StringBuilder("");
-        StringBuilder valuesAddCmd = new StringBuilder("");
-        StringBuilder groupsAddCmd = new StringBuilder("");
-        StringBuilder fieldsAddCmd = new StringBuilder("");
-        StringBuilder ordersAddCmd = new StringBuilder("");
-        StringBuilder assnsAddCmd = new StringBuilder("");
-        StringBuilder linksDelCmd = new StringBuilder("");
-        StringBuilder tlmDelCmd = new StringBuilder("");
+        StringBuilder addCmd = new StringBuilder();
+        StringBuilder valuesAddCmd = new StringBuilder();
+        StringBuilder groupsAddCmd = new StringBuilder();
+        StringBuilder fieldsAddCmd = new StringBuilder();
+        StringBuilder ordersAddCmd = new StringBuilder();
+        StringBuilder assnsAddCmd = new StringBuilder();
+        StringBuilder linksDelCmd = new StringBuilder();
+        StringBuilder tlmDelCmd = new StringBuilder();
         List<String> removedDataTypes = new ArrayList<String>();
 
         // Retrieve the largest key value in the database for this particular table and then add 1
@@ -3840,7 +3844,7 @@ public class CcddDbTableCommandHandler
                 addCmd = CcddUtilities.removeTrailer(addCmd, ", ");
                 addCmd.append("; ");
                 isCommandSent = executeTableCommand(addCmd, isCommandSent, parent);
-                addCmd = new StringBuilder("");
+                addCmd.setLength(0);
 
                 // Create the insert table data command
                 addCmd.append(insertCmd.toString());
@@ -3926,7 +3930,7 @@ public class CcddDbTableCommandHandler
                                 if (valuesAddCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                                 {
                                     isCommandSent = executeTableCommand(valuesAddCmd, isCommandSent, parent);
-                                    valuesAddCmd = new StringBuilder("");
+                                    valuesAddCmd.setLength(0);
                                 }
 
                                 groupsAddCmd.append("UPDATE ")
@@ -3949,7 +3953,7 @@ public class CcddDbTableCommandHandler
                                 if (groupsAddCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                                 {
                                     isCommandSent = executeTableCommand(groupsAddCmd, isCommandSent, parent);
-                                    groupsAddCmd = new StringBuilder("");
+                                    groupsAddCmd.setLength(0);
                                 }
 
                                 fieldsAddCmd.append("UPDATE ")
@@ -3972,7 +3976,7 @@ public class CcddDbTableCommandHandler
                                 if (fieldsAddCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                                 {
                                     isCommandSent = executeTableCommand(fieldsAddCmd, isCommandSent, parent);
-                                    fieldsAddCmd = new StringBuilder("");
+                                    fieldsAddCmd.setLength(0);
                                 }
 
                                 ordersAddCmd.append("UPDATE ")
@@ -4009,7 +4013,7 @@ public class CcddDbTableCommandHandler
                                 if (ordersAddCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                                 {
                                     isCommandSent = executeTableCommand(ordersAddCmd, isCommandSent, parent);
-                                    ordersAddCmd = new StringBuilder("");
+                                    ordersAddCmd.setLength(0);
                                 }
 
                                 String orgPathWithChildren = dataType + "(," + PATH_IDENT + ")?";
@@ -4033,7 +4037,7 @@ public class CcddDbTableCommandHandler
                                 if (assnsAddCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                                 {
                                     isCommandSent = executeTableCommand(assnsAddCmd, isCommandSent, parent);
-                                    assnsAddCmd = new StringBuilder("");
+                                    assnsAddCmd.setLength(0);
                                 }
                             }
                         }
@@ -4140,22 +4144,22 @@ public class CcddDbTableCommandHandler
     {
         boolean isCommandSent = false;
 
-        StringBuilder modCmd = new StringBuilder("");
-        StringBuilder valuesModCmd = new StringBuilder("");
-        StringBuilder linksModCmd = new StringBuilder("");
-        StringBuilder tlmModCmd = new StringBuilder("");
-        StringBuilder groupsModCmd = new StringBuilder("");
-        StringBuilder fieldsModCmd = new StringBuilder("");
-        StringBuilder ordersModCmd = new StringBuilder("");
-        StringBuilder assnsModCmd = new StringBuilder("");
-        StringBuilder linksDelCmd = new StringBuilder("");
-        StringBuilder tlmDelCmd = new StringBuilder("");
+        StringBuilder modCmd = new StringBuilder();
+        StringBuilder valuesModCmd = new StringBuilder();
+        StringBuilder linksModCmd = new StringBuilder();
+        StringBuilder tlmModCmd = new StringBuilder();
+        StringBuilder groupsModCmd = new StringBuilder();
+        StringBuilder fieldsModCmd = new StringBuilder();
+        StringBuilder ordersModCmd = new StringBuilder();
+        StringBuilder assnsModCmd = new StringBuilder();
+        StringBuilder linksDelCmd = new StringBuilder();
+        StringBuilder tlmDelCmd = new StringBuilder();
         List<Object[]> tablePathList = null;
         List<String> changedDataTypes = new ArrayList<String>();
         List<StringBuilder> valDelCmd = new ArrayList<StringBuilder>();
         List<StringBuilder> valInsCmd = new ArrayList<StringBuilder>();
 
-        valDelCmd.add(new StringBuilder(""));
+        valDelCmd.add(new StringBuilder());
         StringBuilder insertCmd = new StringBuilder("INSERT INTO ").append(InternalTable.VALUES.getTableName())
                                                                    .append(" (")
                                                                    .append(ValuesColumn.TABLE_PATH.getColumnName())
@@ -4345,7 +4349,7 @@ public class CcddDbTableCommandHandler
                             if (valuesModCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                             {
                                 isCommandSent = executeTableCommand(valuesModCmd, isCommandSent, parent);
-                                valuesModCmd = new StringBuilder("");
+                                valuesModCmd.setLength(0);
                             }
 
                             groupsModCmd.append("UPDATE ")
@@ -4368,7 +4372,7 @@ public class CcddDbTableCommandHandler
                             if (groupsModCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                             {
                                 isCommandSent = executeTableCommand(groupsModCmd, isCommandSent, parent);
-                                groupsModCmd = new StringBuilder("");
+                                groupsModCmd.setLength(0);
                             }
 
                             fieldsModCmd.append("UPDATE ")
@@ -4405,6 +4409,8 @@ public class CcddDbTableCommandHandler
                                         .append(FieldsColumn.FIELD_VALUE.getColumnName())
                                         .append(", ")
                                         .append(FieldsColumn.FIELD_INHERITED)
+                                        .append(", ")
+                                        .append(FieldsColumn.ROW_NUM.getColumnName())
                                         .append(" FROM ")
                                         .append(InternalTable.FIELDS.getTableName())
                                         .append(" WHERE ")
@@ -4421,7 +4427,7 @@ public class CcddDbTableCommandHandler
                             if (fieldsModCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                             {
                                 isCommandSent = executeTableCommand(fieldsModCmd, isCommandSent, parent);
-                                fieldsModCmd = new StringBuilder("");
+                                fieldsModCmd.setLength(0);
                             }
 
                             ordersModCmd.append("UPDATE ")
@@ -4458,7 +4464,7 @@ public class CcddDbTableCommandHandler
                             if (ordersModCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                             {
                                 isCommandSent = executeTableCommand(ordersModCmd, isCommandSent, parent);
-                                ordersModCmd = new StringBuilder("");
+                                ordersModCmd.setLength(0);
                             }
 
                             String orgPathWithChildren = newDataType + "(," + PATH_IDENT + ")?";
@@ -4488,14 +4494,14 @@ public class CcddDbTableCommandHandler
                             if (linksDelCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                             {
                                 isCommandSent = executeTableCommand(linksDelCmd, isCommandSent, parent);
-                                linksDelCmd = new StringBuilder("");
+                                linksDelCmd.setLength(0);
                             }
 
                             // Check if the length of the command string has reached the limit
                             if (tlmDelCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                             {
                                 isCommandSent = executeTableCommand(tlmDelCmd, isCommandSent, parent);
-                                tlmDelCmd = new StringBuilder("");
+                                tlmDelCmd.setLength(0);
                             }
                         }
 
@@ -4526,28 +4532,32 @@ public class CcddDbTableCommandHandler
                         // dealing with a shift due to a new row of data being added
                         boolean variableStillExists = false;
 
-                        for (int i = 0; i < modifications.size(); i++)
+                        // Step through the modifications
+                        for (TableModification otherMod : modifications)
                         {
-                            Object[] rowData = modifications.get(i).getRowData();
-                            String variableName = (String) rowData[(int) modifications.get(i).getVariableColumn()];
-
-                            if (variableName.contentEquals(oldVariableName))
+                            if (!mod.equals(otherMod))
                             {
-                                variableStillExists = true;
+                                Object[] rowData = otherMod.getRowData();
 
-                                // We now know that the variable name is the same so check to
-                                // see if the data type and array size is the same
-                                String dataType = (String) rowData[(int) modifications.get(i).getDataTypeColumn()];
-                                String arraySize = (String) rowData[(int) modifications.get(i).getArraySizeColumn()];
-
-                                if (dataType.contentEquals(oldDataType) && arraySize.contentEquals(oldArraySize))
+                                // Check if he variable names match
+                                if (oldVariableName.contentEquals(rowData[otherMod.getVariableColumn()].toString()))
                                 {
-                                    wasShifted = true;
-                                    break;
+                                    variableStillExists = true;
+
+                                    // Check if the data type and array size are the same
+                                    if (oldDataType.contentEquals(rowData[otherMod.getDataTypeColumn()].toString())
+                                        && oldArraySize.contentEquals(rowData[otherMod.getArraySizeColumn()].toString()))
+                                    {
+                                        // Set the flag to indicate the row still exists, but has moved
+                                        wasShifted = true;
+                                        break;
+                                    }
                                 }
                             }
                         }
 
+                        // Check that this row hasn't simply been shifted do to additions or
+                        // deletions
                         if (!wasShifted)
                         {
                             for (Object[] path : tablePathList)
@@ -4587,7 +4597,7 @@ public class CcddDbTableCommandHandler
                                     // Create the commands to update the internal tables for
                                     // instances of non-array member variables of the prototype
                                     // table
-                                    if (!orgVarPathEsc.contains("[") || orgVarPathEsc.contains("[0"))
+                                    if (!orgVarPathEsc.contains("[")) // TODO removed this portion:  || orgVarPathEsc.contains("[0"))
                                     {
                                         valuesModCmd.append(updateVarNameAndDataType(orgVarPathEsc,
                                                                                      newVariablePath,
@@ -4602,7 +4612,7 @@ public class CcddDbTableCommandHandler
                                         if (valuesModCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                                         {
                                             isCommandSent = executeTableCommand(valuesModCmd, isCommandSent, parent);
-                                            valuesModCmd = new StringBuilder("");
+                                            valuesModCmd.setLength(0);
                                         }
 
                                         groupsModCmd.append(updateVarNameAndDataType(orgVarPathEsc,
@@ -4618,7 +4628,7 @@ public class CcddDbTableCommandHandler
                                         if (groupsModCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                                         {
                                             isCommandSent = executeTableCommand(groupsModCmd, isCommandSent, parent);
-                                            groupsModCmd = new StringBuilder("");
+                                            groupsModCmd.setLength(0);
                                         }
 
                                         ordersModCmd.append(updateVarNameAndDataType(orgVarPathEsc,
@@ -4634,7 +4644,7 @@ public class CcddDbTableCommandHandler
                                         if (ordersModCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                                         {
                                             isCommandSent = executeTableCommand(ordersModCmd, isCommandSent, parent);
-                                            ordersModCmd = new StringBuilder("");
+                                            ordersModCmd.setLength(0);
                                         }
                                    }
 
@@ -4671,7 +4681,7 @@ public class CcddDbTableCommandHandler
                                             if (assnsModCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                                             {
                                                 isCommandSent = executeTableCommand(assnsModCmd, isCommandSent, parent);
-                                                assnsModCmd = new StringBuilder("");
+                                                assnsModCmd.setLength(0);
                                             }
 
                                             break;
@@ -4700,7 +4710,7 @@ public class CcddDbTableCommandHandler
                                         if (linksModCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                                         {
                                             isCommandSent = executeTableCommand(linksModCmd, isCommandSent, parent);
-                                            linksModCmd = new StringBuilder("");
+                                            linksModCmd.setLength(0);
                                         }
 
                                         // Since the variable still fits within any message in
@@ -4719,7 +4729,7 @@ public class CcddDbTableCommandHandler
                                         if (tlmModCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                                         {
                                             isCommandSent = executeTableCommand(tlmModCmd, isCommandSent, parent);
-                                            tlmModCmd = new StringBuilder("");
+                                            tlmModCmd.setLength(0);
                                         }
                                     }
                                     // The data type, bit length, or rate changed
@@ -4763,7 +4773,7 @@ public class CcddDbTableCommandHandler
                                     if (linksModCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                                     {
                                         isCommandSent = executeTableCommand(linksModCmd, isCommandSent, parent);
-                                        linksModCmd = new StringBuilder("");
+                                        linksModCmd.setLength(0);
                                     }
 
                                     tlmModCmd.append(updateVarNameAndDataType(orgVarPathEscBit,
@@ -4779,7 +4789,7 @@ public class CcddDbTableCommandHandler
                                     if (tlmModCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                                     {
                                         isCommandSent = executeTableCommand(tlmModCmd, isCommandSent, parent);
-                                        tlmModCmd = new StringBuilder("");
+                                        tlmModCmd.setLength(0);
                                     }
                                 }
 
@@ -4812,7 +4822,7 @@ public class CcddDbTableCommandHandler
                                     if (valuesModCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                                     {
                                         isCommandSent = executeTableCommand(valuesModCmd, isCommandSent, parent);
-                                        valuesModCmd = new StringBuilder("");
+                                        valuesModCmd.setLength(0);
                                     }
 
                                     // Build a regular expression for locating references to
@@ -4833,7 +4843,7 @@ public class CcddDbTableCommandHandler
                                     if (groupsModCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                                     {
                                         isCommandSent = executeTableCommand(groupsModCmd, isCommandSent, parent);
-                                        groupsModCmd = new StringBuilder("");
+                                        groupsModCmd.setLength(0);
                                     }
 
                                     fieldsModCmd.append("DELETE FROM ")
@@ -4849,7 +4859,7 @@ public class CcddDbTableCommandHandler
                                     if (fieldsModCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                                     {
                                         isCommandSent = executeTableCommand(fieldsModCmd, isCommandSent, parent);
-                                        fieldsModCmd = new StringBuilder("");
+                                        fieldsModCmd.setLength(0);
                                     }
 
                                     // Check to see if this is an array definition. If so do
@@ -4870,7 +4880,7 @@ public class CcddDbTableCommandHandler
                                         if (fieldsModCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                                         {
                                             isCommandSent = executeTableCommand(fieldsModCmd, isCommandSent, parent);
-                                            fieldsModCmd = new StringBuilder("");
+                                            fieldsModCmd.setLength(0);
                                         }
                                     }
 
@@ -4887,7 +4897,7 @@ public class CcddDbTableCommandHandler
                                     if (ordersModCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                                     {
                                         isCommandSent = executeTableCommand(ordersModCmd, isCommandSent, parent);
-                                        ordersModCmd = new StringBuilder("");
+                                        ordersModCmd.setLength(0);
                                     }
 
                                     String orgPathWithChildren = new StringBuilder(orgVarPathEsc).append("(?:,")
@@ -4916,7 +4926,7 @@ public class CcddDbTableCommandHandler
                                     if (assnsModCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                                     {
                                         isCommandSent = executeTableCommand(assnsModCmd, isCommandSent, parent);
-                                        assnsModCmd = new StringBuilder("");
+                                        assnsModCmd.setLength(0);
                                     }
 
                                     // Check if the rate didn't change as well (if the rate
@@ -4953,7 +4963,7 @@ public class CcddDbTableCommandHandler
                                     if (valuesModCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                                     {
                                         isCommandSent = executeTableCommand(valuesModCmd, isCommandSent, parent);
-                                        valuesModCmd = new StringBuilder("");
+                                        valuesModCmd.setLength(0);
                                     }
 
                                     // Build a regular expression for locating references to
@@ -4976,7 +4986,7 @@ public class CcddDbTableCommandHandler
                                     if (groupsModCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                                     {
                                         isCommandSent = executeTableCommand(groupsModCmd, isCommandSent, parent);
-                                        groupsModCmd = new StringBuilder("");
+                                        groupsModCmd.setLength(0);
                                     }
 
                                     fieldsModCmd.append("DELETE FROM ")
@@ -4992,7 +5002,7 @@ public class CcddDbTableCommandHandler
                                     if (fieldsModCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                                     {
                                         isCommandSent = executeTableCommand(fieldsModCmd, isCommandSent, parent);
-                                        fieldsModCmd = new StringBuilder("");
+                                        fieldsModCmd.setLength(0);
                                     }
 
                                     ordersModCmd.append("DELETE FROM ")
@@ -5008,7 +5018,7 @@ public class CcddDbTableCommandHandler
                                     if (ordersModCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                                     {
                                         isCommandSent = executeTableCommand(ordersModCmd, isCommandSent, parent);
-                                        ordersModCmd = new StringBuilder("");
+                                        ordersModCmd.setLength(0);
                                     }
 
                                     // Check if the variable changed from not an array to an
@@ -5039,7 +5049,7 @@ public class CcddDbTableCommandHandler
                                         if (assnsModCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                                         {
                                             isCommandSent = executeTableCommand(assnsModCmd, isCommandSent, parent);
-                                            assnsModCmd = new StringBuilder("");
+                                            assnsModCmd.setLength(0);
                                         }
                                     }
 
@@ -5074,7 +5084,7 @@ public class CcddDbTableCommandHandler
                                     if (linksDelCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                                     {
                                         isCommandSent = executeTableCommand(linksDelCmd, isCommandSent, parent);
-                                        linksDelCmd = new StringBuilder("");
+                                        linksDelCmd.setLength(0);
                                     }
 
                                     // Check if the length of the command string has
@@ -5082,7 +5092,7 @@ public class CcddDbTableCommandHandler
                                     if (tlmDelCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                                     {
                                         isCommandSent = executeTableCommand(tlmDelCmd, isCommandSent, parent);
-                                        tlmDelCmd = new StringBuilder("");
+                                        tlmDelCmd.setLength(0);
                                     }
                                 }
 
@@ -5103,7 +5113,7 @@ public class CcddDbTableCommandHandler
                                     if (fieldsModCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                                     {
                                         isCommandSent = executeTableCommand(fieldsModCmd, isCommandSent, parent);
-                                        fieldsModCmd = new StringBuilder("");
+                                        fieldsModCmd.setLength(0);
                                     }
                                 }
                             }
@@ -5129,14 +5139,14 @@ public class CcddDbTableCommandHandler
                             if (valuesModCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                             {
                                 isCommandSent = executeTableCommand(valuesModCmd, isCommandSent, parent);
-                                valuesModCmd = new StringBuilder("");
+                                valuesModCmd.setLength(0);
                             }
 
                             // Check if the length of the command string has reached the limit
                             if (fieldsModCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                             {
                                 isCommandSent = executeTableCommand(fieldsModCmd, isCommandSent, parent);
-                                fieldsModCmd = new StringBuilder("");
+                                fieldsModCmd.setLength(0);
                             }
                         }
                     }
@@ -5180,14 +5190,14 @@ public class CcddDbTableCommandHandler
                         if (valuesModCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                         {
                             isCommandSent = executeTableCommand(valuesModCmd, isCommandSent, parent);
-                            valuesModCmd = new StringBuilder("");
+                            valuesModCmd.setLength(0);
                         }
 
                         // Check if the length of the command string has reached the limit
                         if (fieldsModCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                         {
                             isCommandSent = executeTableCommand(fieldsModCmd, isCommandSent, parent);
-                            fieldsModCmd = new StringBuilder("");
+                            fieldsModCmd.setLength(0);
                         }
                     }
                 }
@@ -5218,7 +5228,7 @@ public class CcddDbTableCommandHandler
                     if (assnsModCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                     {
                         isCommandSent = executeTableCommand(assnsModCmd, isCommandSent, parent);
-                        assnsModCmd = new StringBuilder("");
+                        assnsModCmd.setLength(0);
                     }
                }
 
@@ -5234,7 +5244,7 @@ public class CcddDbTableCommandHandler
                 if (modCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                 {
                     isCommandSent = executeTableCommand(modCmd, isCommandSent, parent);
-                    modCmd = new StringBuilder("");
+                    modCmd.setLength(0);
                 }
             }
             // Not a prototype table, so modifications are made to the custom values table if
@@ -5277,7 +5287,7 @@ public class CcddDbTableCommandHandler
                             if (valDelCmd.get(lastIndex).length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                             {
                                 // Start a new deletion command
-                                valDelCmd.add(new StringBuilder(""));
+                                valDelCmd.add(new StringBuilder());
                             }
                         }
 
@@ -5336,14 +5346,14 @@ public class CcddDbTableCommandHandler
                         if (linksDelCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                         {
                             isCommandSent = executeTableCommand(linksDelCmd, isCommandSent, parent);
-                            linksDelCmd = new StringBuilder("");
+                            linksDelCmd.setLength(0);
                         }
 
                         // Check if the length of the command string has reached the limit
                         if (tlmDelCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                         {
                             isCommandSent = executeTableCommand(tlmDelCmd, isCommandSent, parent);
-                            tlmDelCmd = new StringBuilder("");
+                            tlmDelCmd.setLength(0);
                         }
 
                         break;
@@ -5362,7 +5372,7 @@ public class CcddDbTableCommandHandler
             if (fieldsModCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
             {
                 isCommandSent = executeTableCommand(fieldsModCmd, isCommandSent, parent);
-                fieldsModCmd = new StringBuilder("");
+                fieldsModCmd.setLength(0);
             }
         }
 
@@ -5448,14 +5458,14 @@ public class CcddDbTableCommandHandler
         boolean isCommandSent = false;
 
         // StringBuilders used to hold the values of the various commands being built
-        StringBuilder delCmd = new StringBuilder("");
-        StringBuilder valuesDelCmd = new StringBuilder("");
-        StringBuilder groupsDelCmd = new StringBuilder("");
-        StringBuilder fieldsDelCmd = new StringBuilder("");
-        StringBuilder ordersDelCmd = new StringBuilder("");
-        StringBuilder assnsDelCmd = new StringBuilder("");
-        StringBuilder linksDelCmd = new StringBuilder("");
-        StringBuilder tlmDelCmd = new StringBuilder("");
+        StringBuilder delCmd = new StringBuilder();
+        StringBuilder valuesDelCmd = new StringBuilder();
+        StringBuilder groupsDelCmd = new StringBuilder();
+        StringBuilder fieldsDelCmd = new StringBuilder();
+        StringBuilder ordersDelCmd = new StringBuilder();
+        StringBuilder assnsDelCmd = new StringBuilder();
+        StringBuilder linksDelCmd = new StringBuilder();
+        StringBuilder tlmDelCmd = new StringBuilder();
 
         // Step through each deletion
         for (TableModification del : deletions)
@@ -5473,7 +5483,7 @@ public class CcddDbTableCommandHandler
             if (delCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
             {
                 isCommandSent = executeTableCommand(delCmd, isCommandSent, parent);
-                delCmd = new StringBuilder("");
+                delCmd.setLength(0);
             }
 
             // Check if the internal tables are to be updated and the table represents a structure
@@ -5521,7 +5531,7 @@ public class CcddDbTableCommandHandler
                 if (valuesDelCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                 {
                     isCommandSent = executeTableCommand(valuesDelCmd, isCommandSent, parent);
-                    valuesDelCmd = new StringBuilder("");
+                    valuesDelCmd.setLength(0);
                 }
 
                 // Append the command to delete the variable from the link and telemetry scheduler
@@ -5546,14 +5556,14 @@ public class CcddDbTableCommandHandler
                 if (linksDelCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                 {
                     isCommandSent = executeTableCommand(linksDelCmd, isCommandSent, parent);
-                    linksDelCmd = new StringBuilder("");
+                    linksDelCmd.setLength(0);
                 }
 
                 // Check if the length of the command string has reached the limit
                 if (tlmDelCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                 {
                     isCommandSent = executeTableCommand(tlmDelCmd, isCommandSent, parent);
-                    tlmDelCmd = new StringBuilder("");
+                    tlmDelCmd.setLength(0);
                 }
 
                 // Check if the data type represents a structure
@@ -5578,7 +5588,7 @@ public class CcddDbTableCommandHandler
                     if (groupsDelCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                     {
                         isCommandSent = executeTableCommand(groupsDelCmd, isCommandSent, parent);
-                        groupsDelCmd = new StringBuilder("");
+                        groupsDelCmd.setLength(0);
                     }
 
                     fieldsDelCmd.append("DELETE FROM ")
@@ -5597,7 +5607,7 @@ public class CcddDbTableCommandHandler
                     if (fieldsDelCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                     {
                         isCommandSent = executeTableCommand(fieldsDelCmd, isCommandSent, parent);
-                        fieldsDelCmd = new StringBuilder("");
+                        fieldsDelCmd.setLength(0);
                     }
 
                     ordersDelCmd.append("DELETE FROM ")
@@ -5616,7 +5626,7 @@ public class CcddDbTableCommandHandler
                     if (ordersDelCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                     {
                         isCommandSent = executeTableCommand(ordersDelCmd, isCommandSent, parent);
-                        ordersDelCmd = new StringBuilder("");
+                        ordersDelCmd.setLength(0);
                     }
 
                     String protoPathWithChildren = protoVarPathEsc + "(?:," + PATH_IDENT + ")?";
@@ -5643,7 +5653,7 @@ public class CcddDbTableCommandHandler
                     if (assnsDelCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                     {
                         isCommandSent = executeTableCommand(assnsDelCmd, isCommandSent, parent);
-                        assnsDelCmd = new StringBuilder("");
+                        assnsDelCmd.setLength(0);
                     }
                 }
 
@@ -5659,14 +5669,14 @@ public class CcddDbTableCommandHandler
                 if (valuesDelCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                 {
                     isCommandSent = executeTableCommand(valuesDelCmd, isCommandSent, parent);
-                    valuesDelCmd = new StringBuilder("");
+                    valuesDelCmd.setLength(0);
                 }
 
                 // Check if the length of the command string has reached the limit
                 if (fieldsDelCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                 {
                     isCommandSent = executeTableCommand(fieldsDelCmd, isCommandSent, parent);
-                    fieldsDelCmd = new StringBuilder("");
+                    fieldsDelCmd.setLength(0);
                 }
           }
             // Check if this is a command table
@@ -5683,14 +5693,14 @@ public class CcddDbTableCommandHandler
                 if (valuesDelCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                 {
                     isCommandSent = executeTableCommand(valuesDelCmd, isCommandSent, parent);
-                    valuesDelCmd = new StringBuilder("");
+                    valuesDelCmd.setLength(0);
                 }
 
                 // Check if the length of the command string has reached the limit
                 if (fieldsDelCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                 {
                     isCommandSent = executeTableCommand(fieldsDelCmd, isCommandSent, parent);
-                    fieldsDelCmd = new StringBuilder("");
+                    fieldsDelCmd.setLength(0);
                 }
             }
         }
@@ -5774,7 +5784,7 @@ public class CcddDbTableCommandHandler
     private boolean updateTablesRecentlyConvertedToRoot(List<String> updatedDataTypes,
                                                         Component parent) throws SQLException
     {
-        StringBuilder modCmd = new StringBuilder("");
+        StringBuilder modCmd = new StringBuilder();
         boolean result = false;
 
         // Update the root structures
@@ -6057,8 +6067,8 @@ public class CcddDbTableCommandHandler
     private String updateLinksAndTlmForPackingChange(ToolTipTreeNode orgTableNode,
                                                      Component parent)
     {
-        StringBuilder linksDelCmd = new StringBuilder("");
-        StringBuilder tlmDelCmd = new StringBuilder("");
+        StringBuilder linksDelCmd = new StringBuilder();
+        StringBuilder tlmDelCmd = new StringBuilder();
         List<String> removeMembers = new ArrayList<String>();
         List<List<String>> updatedPacking = new ArrayList<List<String>>();
 
@@ -6319,7 +6329,7 @@ public class CcddDbTableCommandHandler
      *********************************************************************************************/
     private String deleteTlmPathRefs(List<String> variablePaths)
     {
-        StringBuilder tlmCommand = new StringBuilder("");
+        StringBuilder tlmCommand = new StringBuilder();
 
         // Check if any paths are supplied
         if (variablePaths != null)
@@ -6911,7 +6921,7 @@ public class CcddDbTableCommandHandler
 
         try
         {
-            StringBuilder msgIDCmd = new StringBuilder("");
+            StringBuilder msgIDCmd = new StringBuilder();
 
             // Check if any table column or data field uses the message name & ID input type
             if (!msgIDRefChkResults.getReferences().isEmpty() || msgIDRefChkResults.isFieldUsesType())
@@ -7055,7 +7065,7 @@ public class CcddDbTableCommandHandler
                                 if (msgIDCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                                 {
                                     dbCommand.executeDbUpdate(msgIDCmd, parent);
-                                    msgIDCmd = new StringBuilder("");
+                                    msgIDCmd.setLength(0);
                                 }
                             }
                         }
@@ -7084,7 +7094,7 @@ public class CcddDbTableCommandHandler
                             if (msgIDCmd.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                             {
                                 dbCommand.executeDbUpdate(msgIDCmd, parent);
-                                msgIDCmd = new StringBuilder("");
+                                msgIDCmd.setLength(0);
                             }
                         }
                     }
@@ -7562,10 +7572,10 @@ public class CcddDbTableCommandHandler
      *
      * @return True if an error occurred building the specified table
      *********************************************************************************************/
-    boolean storeNonTableTypesInfoTable(InternalTable intTable,
-                                        List<String[]> tableData,
-                                        String tableComment,
-                                        Component parent)
+    protected boolean storeNonTableTypesInfoTable(InternalTable intTable,
+                                                  List<String[]> tableData,
+                                                  String tableComment,
+                                                  Component parent)
     {
         boolean errorFlag = false;
 
@@ -7583,7 +7593,7 @@ public class CcddDbTableCommandHandler
         // The table doesn't exist
         else
         {
-        // Build the command to create the table
+            // Build the command to create the table
             command.append("CREATE TABLE ")
                    .append(tableName)
                    .append(" ")
@@ -7838,7 +7848,7 @@ public class CcddDbTableCommandHandler
                     if (command.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                     {
                         dbCommand.executeDbUpdate(command, parent);
-                        command = new StringBuilder("");
+                        command.setLength(0);
                     }
                 }
             }
@@ -7857,7 +7867,7 @@ public class CcddDbTableCommandHandler
                     if (command.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                     {
                         dbCommand.executeDbUpdate(command, parent);
-                        command = new StringBuilder("");
+                        command.setLength(0);
                     }
                 }
             }
@@ -7938,7 +7948,7 @@ public class CcddDbTableCommandHandler
                     if (command.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                     {
                         dbCommand.executeDbCommand(command, parent);
-                        command = new StringBuilder("");
+                        command.setLength(0);
                     }
                 }
             }
@@ -8039,6 +8049,7 @@ public class CcddDbTableCommandHandler
      *********************************************************************************************/
     private String modifyFieldsCommand(String ownerName, List<FieldInformation> fieldInformation)
     {
+
         // Build the command to delete the existing field definitions for the specified table/group
         StringBuilder command = new StringBuilder("DELETE FROM ").append(InternalTable.FIELDS.getTableName())
                                                                  .append(" WHERE ")
@@ -8050,6 +8061,11 @@ public class CcddDbTableCommandHandler
         // Check if any fields exist
         if (fieldInformation != null && !fieldInformation.isEmpty())
         {
+            // Determine the starting row number to assign (to preserve the order of the fields).
+            // The actual value doesn't matter, only that it won't result is a field definition
+            // that matches any existing field definition
+            int rowNumber = fieldHandler.getFieldInformation().size();
+
             // Append the command to insert the field definitions
             command.append("INSERT INTO ").append(InternalTable.FIELDS.getTableName()).append(" VALUES ");
 
@@ -8079,7 +8095,11 @@ public class CcddDbTableCommandHandler
                        .append(String.valueOf(fieldInfo.isInherited()
                                               || (CcddFieldHandler.isTableTypeField(fieldInfo.getOwnerName())
                                                   && !CcddFieldHandler.isTableTypeField(ownerName))))
+                       .append(", ")
+                       .append(rowNumber)
                        .append("), ");
+
+                rowNumber++;
             }
 
             command = CcddUtilities.removeTrailer(command, ", ").append("; ");
@@ -8166,7 +8186,7 @@ public class CcddDbTableCommandHandler
                     storeTableTypesInfoTable(typeDialog);
 
                     // Create the command to update the table definitions table
-                    StringBuilder command = new StringBuilder("");
+                    StringBuilder command = new StringBuilder();
 
                     // Get an array containing tables of the specified type
                     tableNames = queryTablesOfTypeList(typeName, typeDialog);
@@ -8346,7 +8366,7 @@ public class CcddDbTableCommandHandler
                     storeTableTypesInfoTable(parent);
 
                     // Create the command to update the table definitions table
-                    StringBuilder command = new StringBuilder("");
+                    StringBuilder command = new StringBuilder();
 
                     // Get an array containing tables of the specified type
                     tableNames = queryTablesOfTypeList(typeDefn.getName(), ccddMain.getMainFrame());
@@ -8627,7 +8647,7 @@ public class CcddDbTableCommandHandler
             storeTableTypesInfoTable(editorDialog);
 
             // Create the command to update the table type definitions table
-            StringBuilder command = new StringBuilder("");
+            StringBuilder command = new StringBuilder();
 
             // Check if this isn't a new table type
             if (originalDefn != null)
@@ -8681,7 +8701,7 @@ public class CcddDbTableCommandHandler
                         if (command.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                         {
                             commands.add(command);
-                            command = new StringBuilder("");
+                            command.setLength(0);
                         }
                     }
 
@@ -8739,7 +8759,7 @@ public class CcddDbTableCommandHandler
                         if (command.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                         {
                             commands.add(command);
-                            command = new StringBuilder("");
+                            command.setLength(0);
                         }
                     }
 
@@ -8760,7 +8780,7 @@ public class CcddDbTableCommandHandler
                         if (command.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                         {
                             commands.add(command);
-                            command = new StringBuilder("");
+                            command.setLength(0);
                         }
                     }
 
@@ -8785,7 +8805,7 @@ public class CcddDbTableCommandHandler
                         if (command.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                         {
                             commands.add(command);
-                            command = new StringBuilder("");
+                            command.setLength(0);
                         }
                     }
                 }
@@ -8804,9 +8824,9 @@ public class CcddDbTableCommandHandler
                     // Build the sub-command required to detect references to tables of the
                     // affected type in the custom values, links, and telemetry scheduler tables
                     // ////////////////////////////////////////////////////////////////////////////
-                    StringBuilder valuesCmd = new StringBuilder("");
-                    StringBuilder linksCmd = new StringBuilder("");
-                    StringBuilder tlmSchCmd = new StringBuilder("");
+                    StringBuilder valuesCmd = new StringBuilder();
+                    StringBuilder linksCmd = new StringBuilder();
+                    StringBuilder tlmSchCmd = new StringBuilder();
 
                     // Step through each prototype table of the specified type
                     for (String protoName : protoTableNames)
@@ -8905,7 +8925,7 @@ public class CcddDbTableCommandHandler
                         if (command.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                         {
                             commands.add(command);
-                            command = new StringBuilder("");
+                            command.setLength(0);
                         }
                     }
 
@@ -8949,7 +8969,7 @@ public class CcddDbTableCommandHandler
                             if (command.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                             {
                                 commands.add(command);
-                                command = new StringBuilder("");
+                                command.setLength(0);
                             }
                         }
 
@@ -9019,7 +9039,7 @@ public class CcddDbTableCommandHandler
                                     if (command.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                                     {
                                         commands.add(command);
-                                        command = new StringBuilder("");
+                                        command.setLength(0);
                                     }
                                 }
                                 // The new rate name is already in use
@@ -9051,7 +9071,7 @@ public class CcddDbTableCommandHandler
                         if (command.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                         {
                             commands.add(command);
-                            command = new StringBuilder("");
+                            command.setLength(0);
                         }
 
                         // Check if the table type represents a structure and a rate column is
@@ -9077,7 +9097,7 @@ public class CcddDbTableCommandHandler
                             if (command.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                             {
                                 commands.add(command);
-                                command = new StringBuilder("");
+                                command.setLength(0);
                             }
                         }
                     }
@@ -9305,7 +9325,7 @@ public class CcddDbTableCommandHandler
                                 if (command.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                                 {
                                     commands.add(command);
-                                    command = new StringBuilder("");
+                                    command.setLength(0);
                                 }
                             }
                         }
@@ -9665,7 +9685,7 @@ public class CcddDbTableCommandHandler
 
                 try
                 {
-                    StringBuilder command = new StringBuilder("");
+                    StringBuilder command = new StringBuilder();
 
                     // Step through each modification
                     for (String[] mod : modifications)
@@ -10175,8 +10195,7 @@ public class CcddDbTableCommandHandler
 
                                         // Make the change to the cell, including any updates to
                                         // changes in array size
-                                        table.validateCellContent(tableData, row, column, oldValue, newValue, false,
-                                                                  true);
+                                        table.validateCellContent(tableData, row, column, oldValue, newValue, false, true);
 
                                         // Load the updated array of data into the table
                                         table.loadDataArrayIntoTable(tableData.toArray(new Object[0][0]), false);
@@ -10613,7 +10632,7 @@ public class CcddDbTableCommandHandler
                             if (tableTypeCommand.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                             {
                                 dbCommand.executeDbUpdate(tableTypeCommand, dialog);
-                                tableTypeCommand = new StringBuilder("");
+                                tableTypeCommand.setLength(0);
                             }
 
                             fieldCommand.append("UPDATE ")
@@ -10632,7 +10651,7 @@ public class CcddDbTableCommandHandler
                             if (fieldCommand.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                             {
                                 dbCommand.executeDbUpdate(fieldCommand, dialog);
-                                fieldCommand = new StringBuilder("");
+                                fieldCommand.setLength(0);
                             }
                         }
 
@@ -10790,7 +10809,7 @@ public class CcddDbTableCommandHandler
                                     if (fieldCommand.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                                     {
                                         dbCommand.executeDbUpdate(fieldCommand, dialog);
-                                        fieldCommand = new StringBuilder("");
+                                        fieldCommand.setLength(0);
                                     }
                                 }
                             }

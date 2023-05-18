@@ -52,6 +52,7 @@ import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.EventLogMessageType;
 import CCDD.CcddConstants.FileExtension;
 import CCDD.CcddConstants.InternalTable;
+import CCDD.CcddConstants.InternalTable.TableTypesColumn;
 import CCDD.CcddConstants.ModifiablePathInfo;
 import CCDD.CcddConstants.OverwriteFieldValueType;
 import CCDD.CcddConstants.ServerPropertyDialogType;
@@ -65,6 +66,7 @@ public class CcddPatchHandler
     private HashMap<String, PatchUtility> patchSet = new HashMap<String, PatchUtility>();
     private final CcddMain ccddMain;
     private final String PATCH_01112023 = "#01112023";
+    private final String PATCH_05032023 = "#05032023";
 
     /**********************************************************************************************
      * CFS Command and Data Dictionary project database patch handler class constructor. The patch
@@ -79,8 +81,9 @@ public class CcddPatchHandler
     {
         this.ccddMain = ccddMain;
 
-        // Add each of the patches here
         patchSet.clear();
+
+        // Add each of the patches here
         String patch_01112023_dialogMsg = "<html><b>Apply patch to update the project to "
                                           + "eliminate OIDs?<br><br></b>"
                                           + "The internal tables are altered by "
@@ -91,40 +94,66 @@ public class CcddPatchHandler
                                           + "database after applying the patch";
         patchSet.put(PATCH_01112023, new PatchUtility(PATCH_01112023, patch_01112023_dialogMsg));
 
+        String patch_05032023_dialogMsg = "<html><b>Apply patch to update the primary key column "
+                                          + "input type to 'Non-negative integer' in the table "
+                                          + "type definitions?<br><br></b>"
+                                          + "The internal table __table_types is altered by "
+                                          + "changing the input type for all _key_ columns from "
+                                          + "'Positive integer' to 'Non-negative integer'. This "
+                                          + "allows primary key values to be equal to zero. <br><b><i>"
+                                          + "Project databases created by CCDD versions prior to "
+                                          + "2.1.3 will be incompatible with this project "
+                                          + "database after applying the patch";
+        patchSet.put(PATCH_05032023, new PatchUtility(PATCH_05032023, patch_05032023_dialogMsg));
     }
 
     /**********************************************************************************************
      * Apply patches based on the input flag
      *
-     * @param isBeforeHandlerInit True if the patch must be implemented prior to initializing the
-     *                            handler classes; false if the patch must be implemented after
-     *                            initializing the handler classes
+     * @param stage 1 for patches that must be implemented prior to initializing the handler
+     *              classes, 2 for patches that must be implemented after initializing the handler
+     *              classes, and 3 for patches that must be implemented after creating the project-
+     *              specific PostgreSQL functions
      *
      * @throws CCDDException If the user elects to not install the patch or an error occurs while
      *                       applying the patch
      *********************************************************************************************/
-    protected void applyPatches(boolean isBeforeHandlerInit) throws CCDDException
+    protected void applyPatches(int stage) throws CCDDException
     {
         // *** NOTE *** NOTE *** NOTE *** NOTE *** NOTE *** NOTE *** NOTE *** NOTE *** NOTE ***
         // Patches are removed after an appropriate amount of time has been given for the patch to
         // be applied. In the event that an older database needs to be updated the old patches can
         // be found in the MRs submitted on 3/11/2021 and on 11/28/2022
 
-        // Check if only patches that must be performed prior to handler initialization should be
-        // implemented
-        if (isBeforeHandlerInit)
+        switch(stage)
         {
-            // Patch #01112023: Convert the project to eliminate the OID columns in the internal
-            // tables
-            eliminateOIDs();
-        }
-        // Only patches that must be performed after handler initialization should be implemented
-        else
-        {
-            // Patch #10022020: Add the ENUM table type to the internal table types table and
-            // update the size column of the data types internal table to have a type of text
-            // rather than int
-            updateTableTypeAndDataTypeTables();
+            // Perform any patches to update this project database to the latest schema that must
+            // be implemented prior to initializing the handler classes
+            case 1:
+                // Patch #01112023: Convert the project to eliminate the OID columns in the
+                //internal tables
+                eliminateOIDs();
+
+                // Patch #05022023: Update the primary key column input type to 'Non-negative
+                // integer' in the table type definitions
+                updatePrimaryKeyInputType();
+
+                break;
+
+            // Perform any patches to update this project database to the latest schema that must
+            // be implemented after initializing the handler classes
+            case 2:
+                break;
+
+            // Perform any patches to update this project database to the latest schema that must
+            // be implemented after creating the project-specific PostgreSQL functions
+            case 3:
+                // Patch #10022020: Add the ENUM table type to the internal table types table and
+                // update the size column of the data types internal table to have a type of text
+                // rather than int
+                updateTableTypeAndDataTypeTables();
+
+                break;
         }
     }
 
@@ -182,6 +211,114 @@ public class CcddPatchHandler
                     throw new CCDDException("Unable to back up project database");
                 }
             }
+        }
+    }
+
+    /**********************************************************************************************
+     * Update the primary key column input type to 'Non-negative integer' in the table type
+     * definitions
+     *
+     * @throws CCDDException If the user elects to not install the patch or an error occurs while
+     *                       applying the patch
+     *********************************************************************************************/
+    private void updatePrimaryKeyInputType() throws CCDDException
+    {
+        CcddEventLogDialog eventLog = ccddMain.getSessionEventLog();
+        CcddDbControlHandler dbControl = ccddMain.getDbControlHandler();
+        CcddDbCommandHandler dbCommand = ccddMain.getDbCommandHandler();
+
+        try
+        {
+            // Execute the command to get the number of primary key columns with the 'Positive
+            // integer' input type
+            ResultSet result = dbCommand.executeDbQuery(new StringBuilder("SELECT COUNT(*) FROM ").append(InternalTable.TABLE_TYPES.getTableName())
+                                                                                                  .append(" WHERE ")
+                                                                                                  .append(TableTypesColumn.COLUMN_NAME_DB.getColumnName())
+                                                                                                  .append(" = '")
+                                                                                                  .append(DefaultColumn.PRIMARY_KEY.getDbName())
+                                                                                                  .append("' AND ")
+                                                                                                  .append(TableTypesColumn.INPUT_TYPE.getColumnName())
+                                                                                                  .append(" = '")
+                                                                                                  .append(DefaultInputType.INT_POSITIVE.getInputName())
+                                                                                                  .append("';"),
+                                                        ccddMain.getMainFrame());
+
+            // Get the number of table columns from the result set
+            result.next();
+            int numPosIntTypes = result.getInt(1);
+            result.close();
+
+            // Check if the table types table hasn't been patched
+            if (numPosIntTypes != 0)
+            {
+                // Check if the user cancels installing the patch
+                if (!patchSet.get(PATCH_05032023).confirmPatchApplication())
+                {
+                    throw new CCDDException(patchSet.get(PATCH_05032023).getUserCanceledMessage());
+                }
+
+                // Back up the project database before applying the patch
+                backupDatabase(dbControl);
+
+                // Create a save point in case an error occurs while applying the patch
+                dbCommand.createSavePoint(ccddMain.getMainFrame());
+
+                // Change the primary key column input types
+                dbCommand.executeDbCommand(new StringBuilder("UPDATE ").append(InternalTable.TABLE_TYPES.getTableName())
+                                                                       .append(" SET ")
+                                                                       .append(TableTypesColumn.INPUT_TYPE.getColumnName())
+                                                                       .append(" = '")
+                                                                       .append(DefaultInputType.INT_NON_NEGATIVE.getInputName())
+                                                                       .append("' WHERE ")
+                                                                       .append(TableTypesColumn.COLUMN_NAME_DB.getColumnName())
+                                                                       .append(" = '")
+                                                                       .append(DefaultColumn.PRIMARY_KEY.getDbName())
+                                                                       .append("';"),
+                                           ccddMain.getMainFrame());
+
+
+                // Release the save point. This must be done within a transaction block, so it must
+                // be done prior to the commit below
+                dbCommand.releaseSavePoint(ccddMain.getMainFrame());
+
+                // Commit the change(s) to the database
+                dbControl.getConnection().commit();
+
+                // Inform the user that updating the database tables completed
+                eventLog.logEvent(EventLogMessageType.SUCCESS_MSG,
+                                  new StringBuilder("Project '").append(dbControl.getProjectName())
+                                                                .append("' primary key input type update complete"));
+}
+        }
+        catch (Exception e)
+        {
+            // Inform the user that converting the command tables failed
+            eventLog.logFailEvent(ccddMain.getMainFrame(),
+                                  "Cannot update primary key input types in project '"
+                                  + dbControl.getProjectName()
+                                  + "'; cause '"
+                                  + e.getMessage()
+                                  + "'",
+                                  "<html><b>Cannot update primary key input types in project '</b>"
+                                  + dbControl.getProjectName()
+                                  + "<b>' (project database will be closed)");
+
+            try
+            {
+                // Revert any changes made to the database
+                dbCommand.rollbackToSavePoint(ccddMain.getMainFrame());
+            }
+            catch (SQLException se)
+            {
+                // Inform the user that rolling back the changes failed
+                eventLog.logFailEvent(ccddMain.getMainFrame(),
+                                      "Cannot revert changes to project; cause '"
+                                      + se.getMessage()
+                                      + "'",
+                                      "<html><b>Cannot revert changes to project");
+            }
+
+            throw new CCDDException();
         }
     }
 

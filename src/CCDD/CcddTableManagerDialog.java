@@ -774,7 +774,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                     }
 
                     // Check if data is being imported
-                    if (importing == true)
+                    if (importing)
                     {
                         // Check to see if the callingEditorDlg represents an open table editor or
                         // if it is null. If it is an open table editor then we are doing a single

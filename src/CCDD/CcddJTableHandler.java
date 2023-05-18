@@ -522,7 +522,7 @@ public abstract class CcddJTableHandler extends JTable
      * @param columnDelta -1 if the cells were moved left, +1 if the cells were moved right, 0 if
      *                    the cell column position is unchanged
      *********************************************************************************************/
-    private void adjustSelectedCells(int rowDelta, int columnDelta)
+    protected void adjustSelectedCells(int rowDelta, int columnDelta)
     {
         // Step through each selected cell
         for (SelectedCell cell : selectedCells.getSelectedCells())
@@ -3429,7 +3429,9 @@ public abstract class CcddJTableHandler extends JTable
                             && ((pass == 1 && newValue.toString().isEmpty())
                                 || (pass == 2 && !newValue.toString().isEmpty()))
                             && modelColumn < tableModel.getColumnCount()
-                            && (isForceOverwrite || isDataAlterable(tableData.get(modelRow), modelRow, modelColumn)))
+                            && (isForceOverwrite
+                                || isReplaceAllExisting
+                                || isDataAlterable(tableData.get(modelRow), modelRow, modelColumn)))
                         {
                             // Check if the value has changed
                             if (!oldValue.equals(newValue))
@@ -3457,7 +3459,7 @@ public abstract class CcddJTableHandler extends JTable
                                 // Check that skipping insertion of rows is not active
                                 if (skipRowAddCount == 0)
                                 {
-                                    // Get the number of rows added (if any)  by the last pasted
+                                    // Get the number of rows added (if any) by the last pasted
                                     // value
                                     int count = getNumOfRowsAdded(newValue.toString(), modelColumn);
 
@@ -3637,13 +3639,13 @@ public abstract class CcddJTableHandler extends JTable
         // Move the selected row(s) up or down one row
         tableModel.moveRow(startRow, endRow, toRow);
 
-        // Update the cell selection
-        selected.moveCellSelection(rowDelta, 0);
-
         // Scroll the window to keep the moved row(s) visible
         scrollToCell(convertRowIndexToView(startRow + rowDelta),
                      getSelectedColumn() + getSelectedColumnCount() - 1,
                      false);
+
+        // Update the cell selection
+        selected.moveCellSelection(rowDelta, 0);
 
         // Flag the end of the editing sequence for undo/redo purposes
         undoManager.endEditSequence();
@@ -3856,8 +3858,8 @@ public abstract class CcddJTableHandler extends JTable
             // Set the text (foreground) color for the selected cell(s)
             comp.setForeground(index == -1 ? ModifiableColorInfo.SELECTED_TEXT.getColor() : rowColor.get(index));
 
-            // Check if this cell has the focus (last cell selected) and the only this cell should
-            // be highlighted
+            // Check if this cell has the focus (last cell selected) and only this cell should be
+            // highlighted
             if (isFocusCell(row, column) && !isSelectedRow)
             {
                 // Color the cell background to indicate it has the focus
@@ -4003,7 +4005,6 @@ public abstract class CcddJTableHandler extends JTable
                         // Set the last row to the table's visible row count
                         lastRow = getRowCount();
                     }
-
                 }
             }
             // A specific row or rows changed

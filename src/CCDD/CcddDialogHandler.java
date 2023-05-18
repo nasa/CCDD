@@ -2186,12 +2186,22 @@ public class CcddDialogHandler extends JDialog
                                  + " : "
                                  + CcddUtilities.removeHTMLTags(upperObject.toString());
 
-                // Check if this is a warning or error message
+                // Check if this is a warning or error message, or if the output is redirected to a
+                // file
                 if (icon.equals(getIcon("OptionPane.warningIcon", WARNING_ICON))
-                    || icon.equals(getIcon("OptionPane.errorIcon", ERROR_ICON)))
+                    || icon.equals(getIcon("OptionPane.errorIcon", ERROR_ICON))
+                    || System.console() == null)
                 {
                     // Output the message the standard error stream
                     System.err.println(message);
+
+                    // Check if a button panel is provided. This is the case if the dialog is a
+                    // question dialog and the program output is redirected to file
+                    if (buttonPnl != null)
+                    {
+                        // Set the last button as selected
+                        buttonSelected = buttonPnl.getComponentCount() - 1;
+                    }
                 }
                 // Not an error or warning message
                 else
@@ -2200,7 +2210,8 @@ public class CcddDialogHandler extends JDialog
                     System.out.println("\n" + message);
 
                     // Check if this is a question message
-                    if (icon.equals(getIcon("OptionPane.questionIcon", QUESTION_ICON)))
+                    if (buttonPnl != null
+                        && icon.equals(getIcon("OptionPane.questionIcon", QUESTION_ICON)))
                     {
                         message = "";
 
@@ -2303,7 +2314,8 @@ public class CcddDialogHandler extends JDialog
             }
 
             // Set up button panel related items and combine the button and upper panels
-            buttonHandler.assembleWindowComponents(buttonPnl, defaultBtn,
+            buttonHandler.assembleWindowComponents(buttonPnl,
+                                                   defaultBtn,
                                                    upperComponent,
                                                    optionType,
                                                    getContentPane(),

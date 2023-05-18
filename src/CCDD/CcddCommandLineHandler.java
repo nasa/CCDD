@@ -1141,12 +1141,13 @@ public class CcddCommandLineHandler
                     }
 
                     // Create the snapshot directory
-                    ccddMain.getFileIOHandler().createSnapshotDirectory(ccddMain.getMainFrame());
+                    ccddMain.getFileIOHandler().createSnapshot2Directory(ccddMain.getMainFrame());
 
                     // Check if the GUI isn't displayed
                     if (ccddMain.isGUIHidden())
                     {
-                        if ((importFileType == FileExtension.JSON) || (importFileType == FileExtension.CSV)
+                        if ((importFileType == FileExtension.JSON)
+                            || (importFileType == FileExtension.CSV)
                             || (importFileType == FileExtension.C_HEADER))
                         {
                             if (ccddMain.getFileIOHandler().prepareJSONOrCSVImport(dataFile.toArray(new FileEnvVar[0]),
@@ -2442,9 +2443,11 @@ public class CcddCommandLineHandler
                             // If we are working with a directory look at the first file within the
                             // directory to determine if we are working with JSON or CSV files
                             FileEnvVar directory = new FileEnvVar(createRestore);
+
                             if (directory.isDirectory())
                             {
                                 File firstFile = directory.listFiles()[0];
+
                                 if (firstFile.getName().endsWith(".json"))
                                 {
                                     ccddMain.getFileIOHandler().restoreDatabaseFromJSONOrCSV(ManagerDialogType.IMPORT_JSON,

@@ -17,6 +17,27 @@ _Note: The master branch contains_ **CCDD version 1**_, which is superseded by_ 
 
 * Beginning with CCDD version 2.1.2 Python 3 is supported
 
+*** Version 2.1.3 has been released **
+
+Below is a brief description of what has changed in version 2.1.3
+* Added the row number column to the data field table SQL UPDATE and INSERT commands. This keeps the fields in the correct order
+* Updated the default Enum size data field to accept INTEGER inputs only
+* Added check to the table cell validation to prevent entering an array member (a variable name with a square bracket character) directly into a variable name column
+* Changed the CSV hander fieldColumnNames array size (value didn't account for the row number column)
+* Updated CSV table definition import in importTableDefinitions()
+* Changed to clear StringBuilders using setLength(0) (speed improvement) 
+* Updated the C header conversion to include array member rows. A parent component is now required in the convertFile method in case the GUI is hidden
+* Corrected the JSON and CSV import preparation method so that only a call to delete prototype (versus prototype and child) tables is made when the option to delete non-existent tables is selected
+* Getting the rate parameters from the database has been separated from the rate handler constructor. If an error occurs retrieving the rate parameters an exception is thrown since the database table handler has not been fully initialized
+* Corrected storeRateParameters so that the initial (integer) parameter is converted to a string when creating the StringBuilder
+* Corrected isFieldInformationChanged so that it returns true if a difference is detected
+* A question dialog outputs only the message if program output is redirected. If a button panel is provided then the last button is automatically selected
+* Changed the primary key column definition to accept 0, and not just positive integers. A patch is implemented that allows the user to update existing projects
+* Corrected a bug that removed cell selection and focus with one or more rows were moved in a table with hidden array members
+* Altered the patch handler to accept three stages of patch implementation
+* Removed sorting of the issues found during project verification. The sorting adversely affected implementation of the fixes
+* Corrected a bug in the Py4J gateway server class that prevented Jython from loading when Py4J wasn't present
+
 *** Version 2.1.2 has been released **
 
 Below is a brief description of what has changed in version 2.1.2

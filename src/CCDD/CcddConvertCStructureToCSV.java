@@ -28,6 +28,7 @@ import static CCDD.CcddConstants.C_STRUCT_TO_C_CONVERSION;
 import static CCDD.CcddConstants.MACRO_IDENTIFIER;
 import static CCDD.CcddConstants.SNAP_SHOT_FILE_PATH_2;
 
+import java.awt.Component;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.PrintWriter;
@@ -37,6 +38,8 @@ import java.util.Comparator;
 import java.util.List;
 
 import javax.swing.JOptionPane;
+
+import org.apache.commons.lang3.StringUtils;
 
 import CCDD.CcddClassesComponent.FileEnvVar;
 import CCDD.CcddConstants.DefaultInputType;
@@ -67,9 +70,11 @@ public class CcddConvertCStructureToCSV
      *
      * @param ccddMain  Main class
      *
+     * @param   parent  GUI component over which to center any error dialog
+     *
      * @return Files converted to CSV format
      *********************************************************************************************/
-    public FileEnvVar[] convertFile(FileEnvVar[] dataFiles, CcddMain ccddMain)
+    public FileEnvVar[] convertFile(FileEnvVar[] dataFiles, CcddMain ccddMain, Component parent)
     {
         CcddMacroHandler macroHandler = ccddMain.getMacroHandler();
         dataTypeHandler = ccddMain.getDataTypeHandler();
@@ -78,7 +83,7 @@ public class CcddConvertCStructureToCSV
         // Create a list to hold all files
         List<FileEnvVar> newDataFile = new ArrayList<FileEnvVar>();
 
-        new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+        new CcddDialogHandler().showMessageDialog(parent,
                                                   "<html><b>Macro values or formulae for a variable's "
                                                   + "array size or bit length are converted to CCDD "
                                                   + "macros. If the macro is not defined in the header "
@@ -89,7 +94,8 @@ public class CcddConvertCStructureToCSV
                                                   + "formula used as an array size evaluates to less "
                                                   + "than 2 (array size must be >= 2)",
                                                   "Notice",
-                                                  JOptionPane.QUESTION_MESSAGE,
+                                                  (parent != null ? JOptionPane.QUESTION_MESSAGE
+                                                                  : JOptionPane.INFORMATION_MESSAGE),
                                                   DialogOption.OK_OPTION);
 
         try
@@ -537,6 +543,27 @@ public class CcddConvertCStructureToCSV
                                                           + description
                                                           + "\"");
 
+                                        // Check if the array size is a number (i.e., this is an
+                                        // array definition)
+                                        if (StringUtils.isNumeric(arraySize))
+                                        {
+                                            // Step through each array index
+                                            for (int memIndex = 0; memIndex < Integer.valueOf(arraySize); ++memIndex)
+                                            {
+                                                // Add the array member
+                                                structDataOut.add("\""
+                                                        + dataType
+                                                        + ptr
+                                                        + "\",\""
+                                                        + variableName
+                                                        + "["
+                                                        + memIndex
+                                                        + "]\",\""
+                                                        + arraySize
+                                                        + "\",\"\",\"\"");
+                                            }
+                                        }
+
                                         // If the data type isn't recognized then add  it to the
                                         // list
                                         if (!dataTypeNames.contains(dataType))
@@ -626,7 +653,7 @@ public class CcddConvertCStructureToCSV
                     }
 
                     // Inform the user that new data types have been added
-                    new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                    new CcddDialogHandler().showMessageDialog(parent,
                                                               "<html><b>The following non-structure data types "
                                                               + "are referenced, but are not defined in the "
                                                               + "header file(s). A default data type is created "
@@ -634,7 +661,8 @@ public class CcddConvertCStructureToCSV
                                                               + "to alter the data types after importing completes:</b><br>"
                                                               + CcddUtilities.convertArrayToStringTruncate(newDataTypeNames.toArray(new String[0])),
                                                               "Undefined Data Types",
-                                                              JOptionPane.QUESTION_MESSAGE,
+                                                              (parent != null ? JOptionPane.QUESTION_MESSAGE
+                                                                              : JOptionPane.INFORMATION_MESSAGE),
                                                               DialogOption.OK_OPTION);
 
                     // Add the new data types and store them in the database
@@ -643,14 +671,14 @@ public class CcddConvertCStructureToCSV
                                                   CcddUtilities.removeArrayListColumn(dataTypeHandler.getDataTypeData(),
                                                                                       DataTypesColumn.ROW_NUM.ordinal()),
                                                   null,
-                                                  ccddMain.getMainFrame());
+                                                  parent);
                 }
 
                 // Check if there are new macros
                 if (newMacros.size() != 0)
                 {
                     // Sort the list of macros in alphabetical order
-                    Collections.sort(newMacros, Collections.reverseOrder(new Comparator<String[]>()
+                    Collections.sort(newMacros, new Comparator<String[]>()
                     {
                         /**************************************************************************
                          * Override the compare method to sort in alphabetical order
@@ -661,7 +689,7 @@ public class CcddConvertCStructureToCSV
                             // Compare the strings
                             return string1[MacrosColumn.MACRO_NAME.ordinal()].compareTo(string2[MacrosColumn.MACRO_NAME.ordinal()]);
                         }
-                    }));
+                    });
 
                     // Update the macros
                     macroHandler.initializeMacroUpdates();
@@ -673,7 +701,7 @@ public class CcddConvertCStructureToCSV
                                                   CcddUtilities.removeArrayListColumn(macroHandler.getMacroData(),
                                                                                       MacrosColumn.ROW_NUM.ordinal()),
                                                   null,
-                                                  ccddMain.getMainFrame());
+                                                  parent);
                 }
             }
         }
@@ -683,7 +711,7 @@ public class CcddConvertCStructureToCSV
             newDataFile.clear();
 
             // Inform the user that the C header import failed
-            ccddMain.getSessionEventLog().logFailEvent(ccddMain.getMainFrame(),
+            ccddMain.getSessionEventLog().logFailEvent(parent,
                                                        "C header import failed; cause '"
                                                        + e.getMessage()
                                                        + "'",

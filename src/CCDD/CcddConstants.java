@@ -333,9 +333,9 @@ public class CcddConstants
     protected static final int keepDataFieldsCbIndex = 3;
 
     // Snapshot file paths
-    protected static final String SNAP_SHOT_FILE_PATH = "." + File.separator + ".snapshot" + File.separator;
-    protected static final String SNAP_SHOT_FILE_PATH_2 = "." + File.separator + ".snapshot2" + File.separator;
     protected static final String SNAP_SHOT_FILE = "snapshot";
+    protected static final String SNAP_SHOT_FILE_PATH = "." + File.separator + "." + SNAP_SHOT_FILE + File.separator;
+    protected static final String SNAP_SHOT_FILE_PATH_2 = "." + File.separator + "." + SNAP_SHOT_FILE + "2" + File.separator;
 
     // Exporting a single file or multiple files
     protected static final String EXPORT_MULTIPLE_FILES = "Multiple";
@@ -2849,7 +2849,7 @@ public class CcddConstants
     {
         // Format: Table type, Column name, Column description (tool tip), protected flag, required
         // flag Common columns
-        PRIMARY_KEY("", "_Key_", "Primary key", DefaultInputType.INT_POSITIVE, true, true, true, false, false, false),
+        PRIMARY_KEY("", "_Key_", "Primary key", DefaultInputType.INT_NON_NEGATIVE, true, true, true, false, false, false),
 
         ROW_INDEX("", "_Index_", "Row index", DefaultInputType.INT_POSITIVE, true, true, true, false, false, false),
 
@@ -3416,7 +3416,7 @@ public class CcddConstants
                 + "', 'true', '"
                 + ApplicabilityType.ALL.getApplicabilityName()
                 + "', '', 'false', 2), ('Type:ENUM', 'Size (Bytes):', 'Size of the enumeration in bytes', '2', '"
-                + DefaultInputType.TEXT.getInputName()
+                + DefaultInputType.INTEGER.getInputName()
                 + "', 'true', '"
                 + ApplicabilityType.ALL.getApplicabilityName()
                 + "', '', 'true', 3)"),
@@ -3627,11 +3627,21 @@ public class CcddConstants
 
             private final String name;
 
+            /**************************************************************************************
+             * Application scheduler comments constructor
+             *
+             * @param name Comment name
+             *************************************************************************************/
             AppSchedulerComment(String name)
             {
                 this.name = name;
             }
 
+            /**************************************************************************************
+             * Get the application scheduler comment
+             *
+             * @return  Comment name
+             *************************************************************************************/
             protected String getName()
             {
                 return name;

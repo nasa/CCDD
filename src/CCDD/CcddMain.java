@@ -944,6 +944,9 @@ public class CcddMain
         // Build the command information list
         commandHandler.buildCommandList();
 
+        // Get the rate parameters from the project database
+        rateHandler.getRateParameters();
+
         // Create the list for the message ID name and ID selection input type (note that the
         // message ID class must be fully instantiated before calling the name and ID list build
         // method)

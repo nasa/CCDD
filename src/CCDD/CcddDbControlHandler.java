@@ -956,9 +956,8 @@ public class CcddDbControlHandler
         {
             // Get the comment for the database
             ResultSet resultSet = dbCommand.executeDbQuery(new StringBuilder("SELECT description FROM pg_shdescription JOIN pg_database "
-                                                                             + "ON objoid = pg_database.oid WHERE datname = '")
-                                           .append(databaseName)
-                                           .append("';"),
+                                                                             + "ON objoid = pg_database.oid WHERE datname = '").append(databaseName)
+                                                                                                                               .append("';"),
                                            ccddMain.getMainFrame());
             resultSet.next();
 
@@ -1625,7 +1624,6 @@ public class CcddDbControlHandler
 
             // Create function to delete functions whether or not the input parameters match
             dbCommand.executeDbCommand(command, ccddMain.getMainFrame());
-            command.setLength(0);
 
             // Step through each internal table type
             for (InternalTable intTable : InternalTable.values())
@@ -2614,7 +2612,7 @@ public class CcddDbControlHandler
                         // Perform any patches to update this project database to the latest schema
                         // that must be implemented prior to initializing the handler classes
                         CcddPatchHandler patchHandler = new CcddPatchHandler(ccddMain);
-                        patchHandler.applyPatches(true);
+                        patchHandler.applyPatches(1);
 
                         // Create and set the project-specific handlers that must be created prior
                         // to creating the project-specific PostgreSQL functions
@@ -2631,11 +2629,16 @@ public class CcddDbControlHandler
 
                         // Perform any patches to update this project database to the latest schema
                         // that must be implemented after initializing the handler classes
-                        patchHandler.applyPatches(false);
+                        patchHandler.applyPatches(2);
 
                         // Create and set the project-specific handlers that must be created after
                         // creating the project-specific PostgreSQL functions
                         ccddMain.setPostFunctionDbSpecificHandlers();
+
+                        // Perform any patches to update this project database to the latest schema
+                        // that must be implemented after creating the project-specific PostgreSQL
+                        // functions
+                        patchHandler.applyPatches(3);
 
                         // Set the user's access level
                         setAccessLevel();
@@ -2887,7 +2890,7 @@ public class CcddDbControlHandler
                                                                                                               administrator,
                                                                                                               false,
                                                                                                               description)),
-                                         ccddMain.getMainFrame());
+                                          ccddMain.getMainFrame());
             }
             // Check if the currently open database is not the one being renamed; otherwise, check
             // if the target database can be closed and the default opened (required in order to

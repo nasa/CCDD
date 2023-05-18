@@ -1415,8 +1415,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                 {
                     for (JSONObject dbInfoJO : parseJSONArray(defn))
                     {
-                        dbControl.renameDatabase(dbControl.getDatabaseName(),
-                                                 dbControl.getDatabaseName(),
+                        dbControl.renameDatabase(dbControl.getProjectName(),
+                                                 dbControl.getProjectName(),
                                                  getString(dbInfoJO,
                                                            JSONTags.DB_DESCRIPTION.getTag()));
                     }
@@ -1521,9 +1521,11 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                         // defined
                         if (dataFieldsJA != null)
                         {
+
                             // Step through each data field definition
                             for (JSONObject dataFieldJO : parseJSONArray(dataFieldsJA))
                             {
+
                                 // Add the data field definition, checking for (and if possible,
                                 // correcting) errors
                                 ignoreErrors = addImportedDataFieldDefinition(ignoreErrors,
@@ -4023,6 +4025,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                         break;
                 }
             }
+
             appCommentJA.add(appCommentJO);
 
             if (!appCommentJA.isEmpty())

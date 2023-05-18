@@ -47,8 +47,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
@@ -2412,7 +2410,7 @@ public class CcddDbVerificationHandler
                                 {
                                     // Check if the array definition and all of its members don't
                                     // have the same variable name
-                                    if (checkArrayNamesMatch(tableInfo, row, arrayName))
+                                    if (checkArrayNamesMatch(tableInfo, row, lastMissingRow + 1, arrayName))
                                     {
                                         // Back up a row so that it can be checked as a separate
                                         // variable
@@ -2448,7 +2446,7 @@ public class CcddDbVerificationHandler
                             else
                             {
                                 // Check if an array member is expected but not present
-                                checkForMissingArrayMember(tableInfo, row, arrayName);
+                                checkForMissingArrayMember(tableInfo, lastMissingRow + 1, arrayName);
                             }
                         }
                     }
@@ -2552,7 +2550,8 @@ public class CcddDbVerificationHandler
 
         // Check if the cell is not an array member variable name and if the value doesn't match
         // the input type expected for this column
-        if (data != null && !data.isEmpty()
+        if (data != null
+            && !data.isEmpty()
             && !(column == variableNameIndex && ArrayVariable.isArrayMember(data))
             && typeDefn.getInputTypes()[column] != null
             && !data.matches(typeDefn.getInputTypes()[column].getInputMatch()))
@@ -2669,15 +2668,17 @@ public class CcddDbVerificationHandler
      * its members or is not the next array member in sequence. This implies that one or more array
      * members are missing as well as the next array variable's definition
      *
-     * @param tableInfo Reference to the table information
+     * @param tableInfo    Reference to the table information
      *
-     * @param row       Row index
+     * @param row          Row index
      *
-     * @param arrayName Array variable name
+     * @param lastArrayRow Last row index in the array
+     *
+     * @param arrayName    Array variable name
      *
      * @return True if an an array name mismatch is detected
      *********************************************************************************************/
-    private boolean checkArrayNamesMatch(TableInfo tableInfo, int row, String arrayName)
+    private boolean checkArrayNamesMatch(TableInfo tableInfo, int row, int lastArrayRow, String arrayName)
     {
         boolean isMismatch = false;
 
@@ -2695,7 +2696,7 @@ public class CcddDbVerificationHandler
                                       + "' is missing array member "
                                       + expectedArrayIndex,
                                       "Add missing array member",
-                                      row,
+                                      lastArrayRow,
                                       addMissingArrayRow(tableInfo,
                                                          arrayName,
                                                          currentArrayIndex),
@@ -2948,6 +2949,35 @@ public class CcddDbVerificationHandler
     }
 
     /**********************************************************************************************
+     * Set the current issue's table data to that supplied. Check if any other issue is for the
+     * same table and, if so, replace the issue's table data with the current issue's table data so
+     * that any changes are reflected in all the instances of the table
+     *
+     * @param issue     Reference to the current issue
+     *
+     * @param tableData Table data for the current issue
+     *********************************************************************************************/
+    private void updateIssuesTableData(TableIssue issue, List<Object[]> tableData)
+    {
+        // Set the current issue's table data
+        issue.getTableInformation().setData(tableData.toArray(new Object[0][0]));
+
+        // Step through each issue
+        for (TableIssue otherIssue : issues)
+        {
+            // Check if the table matches that for the another issue
+            if (otherIssue.getTableInformation() != null
+                && !otherIssue.equals(issue)
+                && otherIssue.getTableInformation().getTablePath()
+                             .equals(issue.getTableInformation().getTablePath()))
+            {
+                // Replace the other issues table data with this issue's table data
+                otherIssue.getTableInformation().setData(issue.getTableInformation().getData());
+            }
+        }
+    }
+
+    /**********************************************************************************************
      * Compare the current table data to the committed table data and create lists of the changed
      * values necessary to update the table in the database to match the current values
      *
@@ -3001,19 +3031,6 @@ public class CcddDbVerificationHandler
         else
         {
             int totalIssues = issues.size();
-
-            // Sort the issues by issue description
-            Collections.sort(issues, new Comparator<TableIssue>()
-            {
-                /**********************************************************************************
-                 * Compare the issue descriptions, ignoring case
-                 *********************************************************************************/
-                @Override
-                public int compare(TableIssue iss1, TableIssue iss2)
-                {
-                    return iss1.getIssue().compareToIgnoreCase(iss2.getIssue());
-                }
-            });
 
             // Set the initial layout manager characteristics
             GridBagConstraints gbc = new GridBagConstraints(0,
@@ -3090,17 +3107,19 @@ public class CcddDbVerificationHandler
                 {
                     boolean result;
 
+                    int modelRow = convertRowIndexToModel(row);
+
                     // If the issue is related to a non-existent data type than CCDD can not fix
                     // it. The user will need to manually address this issue
-                    if (issues.get(row).getAction().contentEquals(MANUAL_FIX))
+                    if (issues.get(modelRow).getAction().contentEquals(MANUAL_FIX))
                     {
                         result = false;
                     }
                     else
                     {
                         result = (column == VerificationColumnInfo.FIX.ordinal()
-                                  && (issues.get(row).getCommand() != null
-                                      || issues.get(row).getRow() != -1));
+                                  && (issues.get(modelRow).getCommand() != null
+                                      || issues.get(modelRow).getRow() != -1));
                     }
 
                     return result;
@@ -3238,10 +3257,10 @@ public class CcddDbVerificationHandler
                     // Create a runnable object to be executed
                     SwingUtilities.invokeLater(new Runnable()
                     {
-                        /**********************************************************************************
+                        /**************************************************************************
                          * Since the log addition involves a GUI update use invokeLater to execute
                          * the call on the event dispatch thread
-                         *********************************************************************************/
+                         *************************************************************************/
                         @Override
                         public void run()
                         {
@@ -3292,6 +3311,7 @@ public class CcddDbVerificationHandler
                     {
                         int row = 0;
                         updateCmd = "";
+                        boolean isFixSelected = false;
 
                         // Step through each issue detected
                         for (TableIssue issue : issues)
@@ -3301,17 +3321,22 @@ public class CcddDbVerificationHandler
 
                             // Check if the issue is flagged to be fixed and the PostgreSQL
                             // command has been assigned
-                             if (issue.isFix() && issue.getCommand() != null)
+                            if (issue.isFix())
                             {
-                                // Add the command to fix the issue to the command string
-                                updateCmd += issue.getCommand();
+                                isFixSelected = true;
+
+                                if (issue.getCommand() != null)
+                                {
+                                    // Add the command to fix the issue to the command string
+                                    updateCmd += issue.getCommand();
+                                }
                             }
 
                             row++;
                         }
 
                         // Check if any updates are approved by the user
-                        if (!updateCmd.isEmpty())
+                        if (isFixSelected)
                         {
                             // Create a save point in case an error occurs while modifying a table
                             dbCommand.createSavePoint(ccddMain.getMainFrame());
@@ -3329,21 +3354,13 @@ public class CcddDbVerificationHandler
                                 {
                                     try
                                     {
-                                        // Check if any updates are approved by the user
+                                        // Check if there any command string updates
                                         if (!updateCmd.isEmpty())
                                         {
                                             // Make the changes to the table(s) in the database
                                             dbCommand.executeDbCommand(new StringBuilder(updateCmd),
                                                                        ccddMain.getMainFrame());
                                         }
-
-                                        // Row index adjustment. An adjustment of a row to be
-                                        // inserted/deleted must be made based on the user's
-                                        // selected issues to update
-                                        int rowAdjust = 0;
-
-                                        // Name of the previously updated table
-                                        String previousTable = "";
 
                                         // Step through each issue detected
                                         for (TableIssue issue : issues)
@@ -3353,42 +3370,70 @@ public class CcddDbVerificationHandler
                                             // the data value(s) within a table
                                             if (issue.isFix() && issue.getRow() != -1)
                                             {
-                                                // Check if the name of the table to be updated
-                                                // differs from the previously updated table
-                                                if (!previousTable.equals(issue.getTableInformation().getProtoVariableName()))
-                                                {
-                                                    // Reset the row index adjustment
-                                                    rowAdjust = 0;
-                                                }
-
-                                                // Store the name of the table for the next loop
-                                                previousTable = issue.getTableInformation().getProtoVariableName();
-
                                                 // Check if a column is specified. This indicates a
                                                 // specific row and column value is changed
                                                 if (issue.getColumn() != -1)
                                                 {
-                                                    // Update the cell value
-                                                    issue.getTableInformation().getData().get(issue.getRow())[issue.getColumn()] = issue.getData();
+                                                    int updateRow = 0;
+
+                                                    // Update the row in the existing table data
+                                                    for (Object[] rowData : issue.getTableInformation().getData())
+                                                    {
+                                                        if (rowData[DefaultColumn.ROW_INDEX.ordinal()] != ""
+                                                            && issue.getRow() == Integer.valueOf(rowData[DefaultColumn.ROW_INDEX.ordinal()].toString()) - 1)
+                                                        {
+                                                            List<Object[]> tableData = new ArrayList<Object[]>();
+                                                            tableData.addAll(issue.getTableInformation().getData());
+                                                            tableData.get(updateRow)[issue.getColumn()] = issue.getData();
+                                                            updateIssuesTableData(issue, tableData);
+                                                            break;
+                                                        }
+
+                                                        updateRow++;
+                                                    }
                                                 }
                                                 // Check if the row data is specified. This
                                                 // indicates an entire row is added
                                                 else if (issue.getRowData() != null)
                                                 {
+                                                    int insertRow = 0;
+
                                                     // Insert the row into the existing table data
-                                                    List<Object[]> tableData = issue.getTableInformation().getData();
-                                                    tableData.add(issue.getRow() + rowAdjust, issue.getRowData());
-                                                    issue.getTableInformation().setData(tableData.toArray(new Object[0][0]));
-                                                    rowAdjust++;
+                                                    for (Object[] rowData : issue.getTableInformation().getData())
+                                                    {
+                                                        if (rowData[DefaultColumn.ROW_INDEX.ordinal()] != ""
+                                                            && issue.getRow() == Integer.valueOf(rowData[DefaultColumn.ROW_INDEX.ordinal()].toString()) - 1)
+                                                        {
+                                                            List<Object[]> tableData = new ArrayList<Object[]>();
+                                                            tableData.addAll(issue.getTableInformation().getData());
+                                                            tableData.add(insertRow, issue.getRowData());
+                                                            updateIssuesTableData(issue, tableData);
+                                                            break;
+                                                        }
+
+                                                        insertRow++;
+                                                    }
                                                 }
                                                 // An entire row is deleted
                                                 else
                                                 {
+                                                    int removeRow = 0;
+
                                                     // Remove the row from the existing table data
-                                                    List<Object[]> tableData = issue.getTableInformation().getData();
-                                                    tableData.remove(issue.getRow() + rowAdjust);
-                                                    issue.getTableInformation().setData(tableData.toArray(new Object[0][0]));
-                                                    rowAdjust--;
+                                                    for (Object[] rowData : issue.getTableInformation().getData())
+                                                    {
+                                                        if (rowData[DefaultColumn.ROW_INDEX.ordinal()] != ""
+                                                            && issue.getRow() == Integer.valueOf(rowData[DefaultColumn.ROW_INDEX.ordinal()].toString()) - 1)
+                                                        {
+                                                            List<Object[]> tableData = new ArrayList<Object[]>();
+                                                            tableData.addAll(issue.getTableInformation().getData());
+                                                            tableData.remove(removeRow);
+                                                            updateIssuesTableData(issue, tableData);
+                                                            break;
+                                                        }
+
+                                                        removeRow++;
+                                                    }
                                                 }
                                             }
                                         }

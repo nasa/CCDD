@@ -75,22 +75,6 @@ public class CcddRateParameterHandler
 
         // Initialize the rate information list
         rateInformation = new ArrayList<RateInformation>();
-
-        // Get the rate parameters from the project database
-        getRateParameters();
-
-        // Sort the rate information by data stream name
-        Collections.sort(rateInformation, new Comparator<RateInformation>()
-        {
-            /**************************************************************************************
-             * Compare the stream names of two rates, ignoring case
-             *************************************************************************************/
-            @Override
-            public int compare(RateInformation rate1, RateInformation rate2)
-            {
-                return rate1.getStreamName().compareToIgnoreCase(rate2.getStreamName());
-            }
-        });
     }
 
     /**********************************************************************************************
@@ -456,9 +440,10 @@ public class CcddRateParameterHandler
     }
 
     /**********************************************************************************************
-     * Get the rate parameters from the database and calculate the sample rates
+     * Get the rate parameters from the database, calculate the sample rates, and sort the rate
+     * information by data stream name
      *********************************************************************************************/
-    private void getRateParameters()
+    protected void getRateParameters()
     {
         // Build the rate information list from the table types
         setRateInformation();
@@ -556,6 +541,19 @@ public class CcddRateParameterHandler
 
         // Calculate the sample rates from the rate parameter values
         calculateSampleRates();
+
+        // Sort the rate information by data stream name
+        Collections.sort(rateInformation, new Comparator<RateInformation>()
+        {
+            /**************************************************************************************
+             * Compare the stream names of two rates, ignoring case
+             *************************************************************************************/
+            @Override
+            public int compare(RateInformation rate1, RateInformation rate2)
+            {
+                return rate1.getStreamName().compareToIgnoreCase(rate2.getStreamName());
+            }
+        });
     }
 
     /**********************************************************************************************

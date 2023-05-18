@@ -52,9 +52,9 @@ public class CcddPy4JHandler
     private String version = "";
 
     /**********************************************************************************************
-     *  Py4J handler class constructor
+     * Py4J handler class constructor
      *
-     *  @param ccddMain Main class
+     * @param ccddMain Main class
      *********************************************************************************************/
     CcddPy4JHandler(CcddMain ccddMain)
     {
@@ -66,7 +66,7 @@ public class CcddPy4JHandler
      *********************************************************************************************/
     protected void startGatewayServer()
     {
-        if (gatewayServer == null)
+        if (!isGatewayActive())
         {
             gatewayServer = new CcddPy4JGatewayServer(ccddMain);
             gatewayServer.start();
@@ -78,7 +78,7 @@ public class CcddPy4JHandler
      *********************************************************************************************/
     protected void stopGatewayServer()
     {
-        if (gatewayServer != null)
+        if (isGatewayActive())
         {
             gatewayServer.shutdown();
             gatewayServer = null;
@@ -95,13 +95,13 @@ public class CcddPy4JHandler
         boolean isAvailable = false;
 
         // Check if the server is not active
-        if (gatewayServer == null)
+        if (!isGatewayActive())
         {
             // Start the server
             startGatewayServer();
 
             // Check if the server started successfully
-            if (gatewayServer != null)
+            if (isGatewayActive())
             {
                 // Get the Py4J version
                 version = gatewayServer.getVersion();
@@ -130,6 +130,11 @@ public class CcddPy4JHandler
     {
         return version;
     }
+
+    private boolean isGatewayActive()
+    {
+        return gatewayServer != null && gatewayServer.isGatewayValid();
+    }
 }
 
 /**************************************************************************************************
@@ -142,6 +147,7 @@ class CcddPy4JGatewayServer
     private Class<?> serverClass = null;
     private Object instance = null;
     private String version = "";
+    private boolean isValid;
 
     /**********************************************************************************************
      * Py4J gateway server class constructor. Load the Py4J gateway server class if available and
@@ -151,14 +157,17 @@ class CcddPy4JGatewayServer
      *********************************************************************************************/
     CcddPy4JGatewayServer(Object entryPoint)
     {
+        isValid = false;
+
         try
         {
             // Load the library, if present
             serverClass = Class.forName("py4j.GatewayServer");
             instance = serverClass.getDeclaredConstructor(Object.class).newInstance(entryPoint);
 
-             URL location = serverClass.getResource('/' + serverClass.getName().replace('.', '/') + ".class");
-             version = location.getFile().replaceFirst(".+" + File.separator + "py4j(.+)\\.jar.+", "$1");
+            URL location = serverClass.getResource('/' + serverClass.getName().replace('.', '/') + ".class");
+            version = location.getFile().replaceFirst(".+" + File.separator + "py4j(.+)\\.jar.+", "$1");
+            isValid = true;
         }
         catch (Exception e)
         {
@@ -171,7 +180,7 @@ class CcddPy4JGatewayServer
     public void start()
     {
         // Check if the library exists
-        if (instance != null)
+        if (isValid && instance != null)
         {
             try
             {
@@ -190,12 +199,14 @@ class CcddPy4JGatewayServer
     public void shutdown()
     {
         // Check if the library exists
-        if (instance != null)
+        if (isValid && instance != null)
         {
             try
             {
+                isValid = false;
+
                 // Execute the server stop() method
-              serverClass.getMethod("shutdown").invoke(instance);
+                serverClass.getMethod("shutdown").invoke(instance);
             }
             catch (Exception e)
             {
@@ -211,6 +222,16 @@ class CcddPy4JGatewayServer
     protected String getVersion()
     {
         return version;
+    }
+
+    /**********************************************************************************************
+     * Get the Py4J server status
+     *
+     * @return True if the server is valid
+     *********************************************************************************************/
+    protected boolean isGatewayValid()
+    {
+        return isValid;
     }
 }
 

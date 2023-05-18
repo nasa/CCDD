@@ -1387,8 +1387,8 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
 
                     if (columnValues.length == 3)
                     {
-                        dbControl.renameDatabase(dbControl.getDatabaseName(),
-                                                 dbControl.getDatabaseName(),
+                        dbControl.renameDatabase(dbControl.getProjectName(),
+                                                 dbControl.getProjectName(),
                                                  columnValues[2]);
                     }
                 }
@@ -1504,6 +1504,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
         boolean readingNameType = false;
         boolean readingColumnData = false;
         boolean readingDataField = false;
+        boolean isOtherTag = false;
 
         // Initialize the table information
         int numColumns = 0;
@@ -1533,52 +1534,63 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
         {
             if (!line.isEmpty())
             {
-                if (line.replace(Chars.COMMA.getValue(), Chars.EMPTY_STRING.getValue())
-                        .equals(CSVTags.NAME_TYPE.getTag()))
-                {
-                    readingNameType = true;
-                    readingColumnData = false;
-                    readingDataField = false;
-                    line = br.readLine();
-                }
-                else if (line.replace(Chars.COMMA.getValue(), Chars.EMPTY_STRING.getValue())
-                             .equals(CSVTags.COLUMN_DATA.getTag()))
-                {
-                    readingNameType = false;
-                    readingColumnData = true;
-                    readingDataField = false;
-                    columnsCounted = false;
-                    line = br.readLine();
-                }
-                else if (line.replace(Chars.COMMA.getValue(), Chars.EMPTY_STRING.getValue())
-                             .equals(CSVTags.DATA_FIELD.getTag()))
-                {
-                    readingNameType = false;
-                    readingColumnData = false;
-                    readingDataField = true;
-                    line = br.readLine();
+                String lineWithoutCommas = line.replace(Chars.COMMA.getValue(), Chars.EMPTY_STRING.getValue());
 
-                    // If this is the line that lists the name of the columns then skip it
-                    if (line.contains(FieldsColumn.FIELD_NAME.getColumnName()))
+                for (CSVTags tag : CSVTags.values())
+                {
+                    if (lineWithoutCommas.equals(tag.getTag()))
                     {
-                        line = br.readLine();
+                        isOtherTag = false;
+                        readingNameType = false;
+                        readingColumnData = false;
+                        readingDataField = false;
+
+                        if (tag.getTag().equals(CSVTags.NAME_TYPE.getTag()))
+                        {
+                            readingNameType = true;
+                            line = br.readLine();
+                        }
+                        else if (tag.getTag().equals(CSVTags.COLUMN_DATA.getTag()))
+                        {
+                            readingColumnData = true;
+                            columnsCounted = false;
+                            line = br.readLine();
+                        }
+                        else if (tag.getTag().equals(CSVTags.DATA_FIELD.getTag()))
+                        {
+                            readingDataField = true;
+                            line = br.readLine();
+
+                            // If this is the line that lists the name of the columns then skip it
+                            if (line.contains(FieldsColumn.FIELD_NAME.getColumnName()))
+                            {
+                                line = br.readLine();
+                            }
+                        }
+                        else if (tag.getTag().equals(CSVTags.DESCRIPTION.getTag()))
+                        {
+                            isOtherTag = true;
+                            line = br.readLine();
+
+                            if (line != null && !line.isEmpty())
+                            {
+                                columnValues = trimLine(line, br);
+
+                                // Store the table description
+                                tableDefn.setDescription(columnValues[0]);
+                            }
+                        }
+                        else
+                        {
+                            isOtherTag = true;
+                        }
+
+                        break;
                     }
                 }
 
-                if (line.replace(Chars.COMMA.getValue(), Chars.EMPTY_STRING.getValue())
-                        .equals(CSVTags.DESCRIPTION.getTag()))
-                {
-                    line = br.readLine();
-
-                    if (line != null && !line.isEmpty())
-                    {
-                        columnValues = trimLine(line, br);
-
-                        // Store the table description
-                        tableDefn.setDescription(columnValues[0]);
-                    }
-                }
-                else
+                // Check if this line doesn't represent data for another tag type
+                if (!isOtherTag)
                 {
                     columnValues = trimLine(line, br);
 
@@ -1597,6 +1609,16 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                             if (typeDefn == null)
                             {
                                 throw new CCDDException("Unknown table type '</b>" + columnValues[1] + "<b>'");
+                            }
+
+                            // Check if this begins a new table definition following a previous
+                            // table's definition
+                            if (tableDefn.getName() != null)
+                            {
+                                // Add the previous table's definition to the list
+                                tableDefinitions.add(tableDefn);
+
+                                tableDefn = new TableDefinition();
                             }
 
                             // Use the table name (with path, if applicable) and type to build the
@@ -1734,10 +1756,10 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
             line = br.readLine();
         }
 
-        // Check if a table definition exists in the import file
+        // Check if a table definition was created that hasn't been stored above
         if (tableDefn.getName() != null)
         {
-            // Add the table's definition to the list
+            // Add the final table's definition to the list
             tableDefinitions.add(tableDefn);
         }
     }
@@ -2044,11 +2066,11 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                         }
                     }
 
-                    // Grab the data field info
+                    // Get the existing data fields for the specified owner
                     List<FieldInformation> fieldInformation = fieldHandler.getFieldInformationByOwner(tableDefs.get(counter).getTablePath());
 
-                    // Get the visible column names based on the table's type
-                    String[] fieldColumnNames = new String[FieldsColumn.values().length - 2];
+                    // Get the data field database column names (excluding the owner name and row number)
+                    String[] fieldColumnNames = new String[7];
                     fieldColumnNames[0] = FieldsColumn.FIELD_NAME.getColumnName();
                     fieldColumnNames[1] = FieldsColumn.FIELD_DESC.getColumnName();
                     fieldColumnNames[2] = FieldsColumn.FIELD_SIZE.getColumnName();
@@ -2060,7 +2082,7 @@ public class CcddCSVHandler extends CcddImportSupportHandler implements CcddImpo
                     // Check if the table contains any data fields
                     if (!fieldInformation.isEmpty())
                     {
-                        // Output the data field marker
+                        // Output the data field marker and field column names
                         outputData.append(Chars.NEW_LINE.getValue())
                                   .append(CSVTags.DATA_FIELD.getTag())
                                   .append(Chars.NEW_LINE.getValue())

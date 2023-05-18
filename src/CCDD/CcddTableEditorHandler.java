@@ -1948,6 +1948,19 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                         // Check if the variable name or data type has been changed
                         if (column == variableNameIndex || column == dataTypeIndex)
                         {
+                            // Check if an array member variable name is entered into the protected
+                            // variable name column
+                            if (column == variableNameIndex
+                                && (variableName.contains("[") || variableName.contains("]"))
+                                && !isDataAlterable(tableData.get(row), row, column))
+                            {
+                                throw new CCDDException("Invalid characters in table '</b>"
+                                        + currentTableInfo.getTablePath()
+                                        + "<b>' for column '</b>"
+                                        + typeDefn.getColumnNamesUser()[column]
+                                        + "<b>'; '[' and ']' not allowed in variable name");
+                            }
+
                             // Check if the data type is a reference to this structure table or one
                             // of its ancestors, which causes a circular reference. This can occur
                             // if a data type is pasted into the cell
@@ -2153,7 +2166,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                         }
                     }
                 }
-                catch (CCDDException ce)
+                catch (Exception e)
                 {
                     // Set the flag that indicates the last edited cell's content is invalid
                     setLastCellValid(false);
@@ -2167,7 +2180,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                             // Inform the user that the input value is invalid
                             new CcddDialogHandler().showMessageDialog(parent,
                                                                       "<html><b>"
-                                                                      + ce.getMessage(),
+                                                                      + e.getMessage(),
                                                                       "Invalid Input",
                                                                       JOptionPane.WARNING_MESSAGE,
                                                                       DialogOption.OK_OPTION);
@@ -2175,16 +2188,35 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                         // This is one of multiple cells being inserted
                         else
                         {
-                            // Inform the user that the input value is invalid
-                            CcddDialogHandler validityDlg = new CcddDialogHandler();
-                            int buttonSelected = validityDlg.showIgnoreCancelDialog(parent,
+                            int buttonSelected;
+
+                            // Check if the GUI is visible
+                            if (parent != null)
+                            {
+                                // Inform the user that the input value is invalid
+                                CcddDialogHandler validityDlg = new CcddDialogHandler();
+                                buttonSelected = validityDlg.showIgnoreCancelDialog(parent,
                                                                                     "<html><b>"
-                                                                                    + ce.getMessage(),
+                                                                                    + e.getMessage(),
                                                                                     "Invalid Input",
                                                                                     "Ignore this invalid input",
                                                                                     "Ignore this and any remaining invalid inputs for this table",
                                                                                     "Cease inputting values",
                                                                                     false);
+                            }
+                            // The GUI is not visible
+                            else
+                            {
+                                // Inform the user that the input value is invalid (this message
+                                // appears on the command line)
+                                new CcddDialogHandler().showMessageDialog(parent,
+                                                                          "<html><b>"
+                                                                          + e.getMessage(),
+                                                                          "Invalid Input",
+                                                                          JOptionPane.WARNING_MESSAGE,
+                                                                          DialogOption.OK_OPTION);
+                                buttonSelected = CANCEL_BUTTON;
+                            }
 
                             // Check if the Ignore All button was pressed
                             if (buttonSelected == IGNORE_BUTTON)
@@ -2204,11 +2236,6 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     // Restore the cell contents to its original value and pop the edit from the
                     // stack
                     tableData.get(row)[column] = oldValue;
-                }
-                catch (Exception e)
-                {
-                    // Display a dialog providing details on the unanticipated error
-                    CcddUtilities.displayException(e, parent);
                 }
 
                 return showMessage;
@@ -2684,6 +2711,33 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             }
 
             /**************************************************************************************
+             * Override the method to adjust the selected cells in order to account for rows that
+             * hidden when array members are moved
+             *
+             * @param rowDelta    Number of rows that the selected cells were moved. Negative value
+             *                    if the cells were moved up, positive value if the cells were
+             *                    moved down, 0 if the cell row position is unchanged
+             *
+             * @param columnDelta -1 if the cells were moved left, +1 if the cells were moved
+             *                    right, 0 if the cell column position is unchanged
+             *************************************************************************************/
+            @Override
+            protected void adjustSelectedCells(int rowDelta, int columnDelta)
+            {
+                // Check if the table is allowed to contain arrays, and the arrays are not expanded
+                // (the members are hidden)
+                if (isCanHaveArrays() && !isShowArrayMembers)
+                {
+                    // Alter the number of row(s) moved to a unit value
+                    rowDelta = (rowDelta > 0) ? 1
+                                              : (rowDelta < 0) ? -1
+                                                               : 0;
+                }
+
+                super.adjustSelectedCells(rowDelta, columnDelta);
+            }
+
+            /**************************************************************************************
              * Move the selected row(s) in the specified direction if possible. Account for if the
              * selection or target is an array definition or member
              *
@@ -2704,7 +2758,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 modelEndRow = selected.getEndRow();
 
                 // Check if the selected row(s) can be moved in the desired direction
-                if ((rowDelta < 0 && modelStartRow > 0) || (rowDelta > 0 && modelEndRow < tableModel.getRowCount() - 1))
+                if ((modelStartRow >= 0 && modelEndRow >= 0)
+                    && ((rowDelta < 0 && modelStartRow > 0)
+                        || (rowDelta > 0 && modelEndRow < tableModel.getRowCount() - 1)))
                 {
                     // Check if the table can display arrays
                     if (isCanHaveArrays())
@@ -3137,18 +3193,16 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 // array member data must be included if the pasted data contains any array member
                 // cell values. If not expanded then the pasted data is treated as if no array
                 // member cell values are present; instead, the array member rows are skipped
-                Boolean showMessage = super.pasteData(cellData,
-                                                      numColumns,
-                                                      isInsert,
-                                                      isAddIfNeeded,
-                                                      isStartFirstColumn,
-                                                      isCombineAsSingleEdit,
-                                                      isHighlightPastedData,
-                                                      !isShowArrayMembers,
-                                                      isReplaceAllExisting,
-                                                      isForceOverwrite);
-
-                return showMessage == null;
+                return super.pasteData(cellData,
+                                       numColumns,
+                                       isInsert,
+                                       isAddIfNeeded,
+                                       isStartFirstColumn,
+                                       isCombineAsSingleEdit,
+                                       isHighlightPastedData,
+                                       !isShowArrayMembers,
+                                       isReplaceAllExisting,
+                                       isForceOverwrite);
             }
 
             /**************************************************************************************

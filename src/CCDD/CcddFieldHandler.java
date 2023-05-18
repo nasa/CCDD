@@ -79,7 +79,7 @@ public class CcddFieldHandler
      *********************************************************************************************/
     protected boolean isFieldInformationChanged()
     {
-        return fieldInformation.equals(storedFieldInformation);
+        return !fieldInformation.equals(storedFieldInformation);
     }
 
     /**********************************************************************************************

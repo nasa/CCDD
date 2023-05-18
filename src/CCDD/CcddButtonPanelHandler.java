@@ -308,12 +308,10 @@ public class CcddButtonPanelHandler
      *********************************************************************************************/
     private JPanel createButtonPanel(DialogOption optionType)
     {
-
         // If this contains an array of options, then create the buttons according to those options
         // and return the new panel
         if (optionType.getOptionArray() != null && optionType.getOptionArray().length > 0)
         {
-
             // Add each of the extra buttons here
             for (DialogOption option : optionType.getOptionArray())
             {
@@ -354,54 +352,53 @@ public class CcddButtonPanelHandler
                     }
                 });
             }
-            // Return the modifed button panel with all of the extra buttons assigned
-            return buttonPnl;
         }
-
         // Otherwise create the button panel like previously
-
-        // Create the Okay button
-        JButton btnOkButton = new JButton(optionType.getButtonText(),
-                                          new ImageIcon(getClass().getResource(optionType.getButtonIcon())));
-        btnOkButton.setFont(ModifiableFontInfo.DIALOG_BUTTON.getFont());
-        btnOkButton.setMnemonic(optionType.getButtonMnemonic());
-        buttonPnl.add(btnOkButton);
-
-        // Add a listener for the Okay button
-        btnOkButton.addActionListener(new ActionListener()
+        else
         {
-            /**************************************************************************************
-             * Set the selected button to indicate Okay and exit the window
-             *************************************************************************************/
-            @Override
-            public void actionPerformed(ActionEvent ae)
-            {
-                closeWindow(OK_BUTTON);
-            }
-        });
+            // Create the Okay button
+            JButton btnOkButton = new JButton(optionType.getButtonText(),
+                                              new ImageIcon(getClass().getResource(optionType.getButtonIcon())));
+            btnOkButton.setFont(ModifiableFontInfo.DIALOG_BUTTON.getFont());
+            btnOkButton.setMnemonic(optionType.getButtonMnemonic());
+            buttonPnl.add(btnOkButton);
 
-        // Check if the window has more than one button
-        if (optionType.getNumButtons() == 2)
-        {
-            // Create the Cancel button
-            JButton btnCancelButton = new JButton(optionType.getSecondaryButtonText(),
-                                                  new ImageIcon(getClass().getResource(CANCEL_ICON)));
-            btnCancelButton.setFont(ModifiableFontInfo.DIALOG_BUTTON.getFont());
-            btnCancelButton.setMnemonic(KeyEvent.VK_C);
-            buttonPnl.add(btnCancelButton);
-
-            // Add a listener for the Cancel button
-            btnCancelButton.addActionListener(new ActionListener()
+            // Add a listener for the Okay button
+            btnOkButton.addActionListener(new ActionListener()
             {
-                /**********************************************************************************
-                 * Set the selected button to indicate Cancel and exit the window
-                 *********************************************************************************/
+                /**************************************************************************************
+                 * Set the selected button to indicate Okay and exit the window
+                 *************************************************************************************/
                 @Override
                 public void actionPerformed(ActionEvent ae)
                 {
-                    closeWindow(CANCEL_BUTTON);
+                    closeWindow(OK_BUTTON);
                 }
             });
+
+            // Check if the window has more than one button
+            if (optionType.getNumButtons() == 2)
+            {
+                // Create the Cancel button
+                JButton btnCancelButton = new JButton(optionType.getSecondaryButtonText(),
+                                                      new ImageIcon(getClass().getResource(CANCEL_ICON)));
+                btnCancelButton.setFont(ModifiableFontInfo.DIALOG_BUTTON.getFont());
+                btnCancelButton.setMnemonic(KeyEvent.VK_C);
+                buttonPnl.add(btnCancelButton);
+
+                // Add a listener for the Cancel button
+                btnCancelButton.addActionListener(new ActionListener()
+                {
+                    /**********************************************************************************
+                     * Set the selected button to indicate Cancel and exit the window
+                     *********************************************************************************/
+                    @Override
+                    public void actionPerformed(ActionEvent ae)
+                    {
+                        closeWindow(CANCEL_BUTTON);
+                    }
+                });
+            }
         }
 
         return buttonPnl;

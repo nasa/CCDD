@@ -234,12 +234,12 @@ public class CcddFieldEditorDialog extends CcddDialogHandler
                 {
                     // Check if ...
                     if (
-                    // ... the row represents a separator or line break
-                    (column != FieldEditorColumnInfo.APPLICABILITY.ordinal()
-                     && inputTypeHandler.getInputTypeByName(fieldTable.getValueAt(row, inputTypeIndex)
-                                                                      .toString())
-                                                                      .getInputFormat()
-                                                                      .equals(InputTypeFormat.PAGE_FORMAT))
+                        // ... the row represents a separator or line break
+                        (column != FieldEditorColumnInfo.APPLICABILITY.ordinal()
+                         && inputTypeHandler.getInputTypeByName(fieldTable.getValueAt(row, inputTypeIndex)
+                                                                          .toString())
+                                                                          .getInputFormat()
+                                                                          .equals(InputTypeFormat.PAGE_FORMAT))
 
                         // ... the row represents a table's inherited field
                         || (CcddFieldHandler.isTableField(ownerName)

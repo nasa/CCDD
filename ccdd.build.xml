@@ -27,7 +27,7 @@
           <zipfileset dir="${dir.jarfile}/CCDD_lib" includes="commons-io-2.6.jar"/>
           <zipfileset dir="${dir.jarfile}/CCDD_lib" includes="commons-lang3-3.9.jar"/>
           <zipfileset dir="${dir.jarfile}/CCDD_lib" includes="EDS.jar"/>
-          <zipfileset dir="${dir.jarfile}/CCDD_lib" includes="jaxb-api-2.2.3.jar"/>
+          <zipfileset dir="${dir.jarfile}/CCDD_lib" includes="jaxb-api-2.3.1.jar"/>
           <zipfileset dir="${dir.jarfile}/CCDD_lib" includes="jetty-http-9.2.18.v20160721.jar"/>
           <zipfileset dir="${dir.jarfile}/CCDD_lib" includes="jetty-io-9.2.18.v20160721.jar"/>
           <zipfileset dir="${dir.jarfile}/CCDD_lib" includes="jetty-security-9.2.18.v20160721.jar"/>
