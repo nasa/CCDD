@@ -3753,6 +3753,8 @@ public class CcddFileIOHandler
                                                    variableHandler,
                                                    separators,
                                                    outputType,
+                                                   endianess,
+                                                   isHeaderBigEndian,
                                                    version,
                                                    validationStatus,
                                                    classification1,

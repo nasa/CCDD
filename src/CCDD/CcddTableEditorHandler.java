@@ -1438,6 +1438,15 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             }
 
             /**************************************************************************************
+             * Allow the columns to be displayed with the text highlighted
+             *************************************************************************************/
+            @Override
+            protected boolean isColumnHighlight(int column)
+            {
+                return true;
+            }
+
+            /**************************************************************************************
              * Return true if the table data, column order, description, or a data field changes.
              * If the table isn't open in and editor (as when a macro is changed) then the table
              * description and data fields are not applicable
