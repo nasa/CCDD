@@ -2752,37 +2752,14 @@ public abstract class CcddJTableHandler extends JTable
      *********************************************************************************************/
     protected void setSelectedRow(int viewRow, boolean highlightInsertedRow)
     {
-        setSelectedRowAndColumn(viewRow, -1, highlightInsertedRow);
-    }
-
-    /**********************************************************************************************
-     * Select the specified row and column, and scroll the table so that it is visible
-     *
-     * @param viewRow              Row index to select and scroll to, view coordinates
-     *
-     * @param viewColumn           Column index to select and scroll to, view coordinates
-     *
-     * @param highlightInsertedRow True to highlight the inserted row
-     *********************************************************************************************/
-    protected void setSelectedRowAndColumn(int viewRow, int viewColumn, boolean highlightInsertedRow)
-    {
         // Check if the new row is visible (row filters can make the row invisible)
         if (viewRow != -1 && viewRow < getRowCount())
         {
             // Adjust the cell focus to the row
             setFocusCell(viewRow, focusColumn);
 
-            // Check if no column is specified
-            if (viewColumn == -1)
-            {
-                // Scroll the window to keep the inserted row visible
-                scrollToRow(viewRow);
-            }
-            // The selected o=column is specified
-            else
-            {
-                scrollToCell(viewRow, viewColumn, false);
-            }
+            // Scroll the window to keep the inserted row visible
+            scrollToRow(viewRow);
 
             // Check if highlighting of the inserted row is allowed
             if (highlightInsertedRow)
@@ -2790,29 +2767,19 @@ public abstract class CcddJTableHandler extends JTable
                 // Create a runnable object to be executed
                 SwingUtilities.invokeLater(new Runnable()
                 {
-                    /******************************************************************************
+                    /**********************************************************************************
                      * Execute after all pending Swing events are finished
-                     *****************************************************************************/
+                     *********************************************************************************/
                     @Override
                     public void run()
                     {
-                        int startColumn = viewColumn;
-                        int stopColumn = viewColumn;
-
-                        // Highlight the entire row if no column is specified
-                        if (viewColumn == -1)
-                        {
-                            startColumn = 0;
-                            stopColumn = getColumnCount() - 1;
-                        }
-
                         // Select the new row
                         setRowSelectionInterval(viewRow, viewRow);
-                        setColumnSelectionInterval(startColumn, stopColumn);
+                        setColumnSelectionInterval(0, getColumnCount() - 1);
                         setSelectedCells(viewRow,
                                          viewRow,
-                                         startColumn,
-                                         stopColumn);
+                                         0,
+                                         getColumnCount() - 1);
                     }
                 });
             }
@@ -2869,15 +2836,6 @@ public abstract class CcddJTableHandler extends JTable
         }
 
         final int offset = pixelOffset;
-
-        // Apply the offset so that the cell isn't shifted up or down when scrolling below
-        rectBefore.y += offset;
-
-        // Scroll the window to keep the specified cell visible. This is called twice; immediately
-        // and then in the invokeLater() call below. If only performed once the specified cell may
-        // not be visible since the rectangle returned by getCellRect() can differ; the second call
-        // ensures the cell is visible
-        scrollRectToVisible(rectBefore);
 
         // Create a runnable object to be executed
         SwingUtilities.invokeLater(new Runnable()

@@ -15,7 +15,7 @@
                 <attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
                 <attribute name="Rsrc-Main-Class" value="CCDD.CcddMain"/>
                 <attribute name="Class-Path" value="."/>
-                <attribute name="Rsrc-Class-Path" value="./ commons-io-2.6.jar commons-lang3-3.9.jar EDS.jar jaxb-api-2.2.3.jar jetty-http-9.2.18.v20160721.jar jetty-io-9.2.18.v20160721.jar jetty-security-9.2.18.v20160721.jar jetty-server-9.2.18.v20160721.jar jetty-servlet-9.2.18.v20160721.jar jetty-util-9.2.18.v20160721.jar json-simple-1.1.1.jar postgresql-42.5.2.jar servlet-api-3.1.jar XTCE.jar jaxb-core-2.3.0.jar jaxb-impl-2.3.1.jar"/>
+                <attribute name="Rsrc-Class-Path" value="./ commons-io-2.6.jar commons-lang3-3.9.jar EDS.jar jaxb-api-2.3.1.jar jetty-http-9.2.18.v20160721.jar jetty-io-9.2.18.v20160721.jar jetty-security-9.2.18.v20160721.jar jetty-server-9.2.18.v20160721.jar jetty-servlet-9.2.18.v20160721.jar jetty-util-9.2.18.v20160721.jar json-simple-1.1.1.jar postgresql-42.5.2.jar servlet-api-3.1.jar XTCE.jar jaxb-core-2.3.0.jar jaxb-impl-2.3.1.jar"/>
                 <attribute name="CCDD-Version" value="${build.version}.${build.number}"/>
                 <attribute name="Build-Date" value="${TODAY}"/>
                 <attribute name="Created-By" value="NASA JSC: ER6"/>

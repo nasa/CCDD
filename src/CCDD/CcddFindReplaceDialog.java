@@ -853,14 +853,17 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
                         {
                             // Highlight the selected cell and scroll the table so that it's
                             // visible
-                            table.setSelectedRowAndColumn(selRow, selColumn, true);
+                            table.setSelectedCells(selRow, selRow, selColumn, selColumn);
+                            table.setRowSelectionInterval(selRow, selRow);
+                            table.setColumnSelectionInterval(selColumn, selColumn);
+                            table.scrollToCell(selRow, selColumn, false);
                         }
 
                         break;
                     }
                 }
             } while (!(row == selRow && column == selColumn));
-            // Continue to search until a match is found or the search wraps around to the starting
+            // Continue to search until a match is found of the search wraps around to the starting
             // cell
         }
     }
