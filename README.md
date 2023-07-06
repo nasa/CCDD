@@ -17,6 +17,19 @@ _Note: The master branch contains_ **CCDD version 1**_, which is superseded by_ 
 
 * Beginning with CCDD version 2.1.2 Python 3 is supported
 
+*** Version 2.1.4 has been released **
+
+Below is a brief description of what has changed in version 2.1.4
+* Corrected highlighting of matching search text in data tables when using the find/replace dialog
+* Corrected scrolling a data table to a specified cell (for example, when using the find/replace dialog)
+* Corrected a table export bug that caused XTCE exports to throw an exception
+* Corrected a bug that resulted in mis-ordering of the table paths when getting the list of paths from a table tree. This affected the order that table data was loaded when executing a script
+* Improved halting script execution. The application could hang when exiting if a script had been halted. Attempts to re-run a script could result in no activity occurring. The correction eliminates both of these issues  
+* Removed ability to backup and rename a project at the same time
+* Changed font scale factor to show the trailing decimal zero for whole numbers
+* Corrected initial vertical sizing of file chooser dialogs when scaling is enabled in Linux (using _gsettings set org.gnome.desktop.interface scaling-factor 2_). Lower portions of the dialogs are now displayed without having to manually resize the dialog
+* Changed how array data is treated when importing tables. Import were required to include all array member rows in addition to the array's definition; with this update it's possible to include just the array definition
+
 *** Version 2.1.3 has been released **
 
 Below is a brief description of what has changed in version 2.1.3

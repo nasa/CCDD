@@ -2752,14 +2752,37 @@ public abstract class CcddJTableHandler extends JTable
      *********************************************************************************************/
     protected void setSelectedRow(int viewRow, boolean highlightInsertedRow)
     {
+        setSelectedRowAndColumn(viewRow, -1, highlightInsertedRow);
+    }
+
+    /**********************************************************************************************
+     * Select the specified row and column, and scroll the table so that it is visible
+     *
+     * @param viewRow              Row index to select and scroll to, view coordinates
+     *
+     * @param viewColumn           Column index to select and scroll to, view coordinates
+     *
+     * @param highlightInsertedRow True to highlight the inserted row
+     *********************************************************************************************/
+    protected void setSelectedRowAndColumn(int viewRow, int viewColumn, boolean highlightInsertedRow)
+    {
         // Check if the new row is visible (row filters can make the row invisible)
         if (viewRow != -1 && viewRow < getRowCount())
         {
             // Adjust the cell focus to the row
             setFocusCell(viewRow, focusColumn);
 
-            // Scroll the window to keep the inserted row visible
-            scrollToRow(viewRow);
+            // Check if no column is specified
+            if (viewColumn == -1)
+            {
+                // Scroll the window to keep the inserted row visible
+                scrollToRow(viewRow);
+            }
+            // The selected o=column is specified
+            else
+            {
+                scrollToCell(viewRow, viewColumn, false);
+            }
 
             // Check if highlighting of the inserted row is allowed
             if (highlightInsertedRow)
@@ -2767,19 +2790,29 @@ public abstract class CcddJTableHandler extends JTable
                 // Create a runnable object to be executed
                 SwingUtilities.invokeLater(new Runnable()
                 {
-                    /**********************************************************************************
+                    /******************************************************************************
                      * Execute after all pending Swing events are finished
-                     *********************************************************************************/
+                     *****************************************************************************/
                     @Override
                     public void run()
                     {
+                        int startColumn = viewColumn;
+                        int stopColumn = viewColumn;
+
+                        // Highlight the entire row if no column is specified
+                        if (viewColumn == -1)
+                        {
+                            startColumn = 0;
+                            stopColumn = getColumnCount() - 1;
+                        }
+
                         // Select the new row
                         setRowSelectionInterval(viewRow, viewRow);
-                        setColumnSelectionInterval(0, getColumnCount() - 1);
+                        setColumnSelectionInterval(startColumn, stopColumn);
                         setSelectedCells(viewRow,
                                          viewRow,
-                                         0,
-                                         getColumnCount() - 1);
+                                         startColumn,
+                                         stopColumn);
                     }
                 });
             }
@@ -2836,6 +2869,15 @@ public abstract class CcddJTableHandler extends JTable
         }
 
         final int offset = pixelOffset;
+
+        // Apply the offset so that the cell isn't shifted up or down when scrolling below
+        rectBefore.y += offset;
+
+        // Scroll the window to keep the specified cell visible. This is called twice; immediately
+        // and then in the invokeLater() call below. If only performed once the specified cell may
+        // not be visible since the rectangle returned by getCellRect() can differ; the second call
+        // ensures the cell is visible
+        scrollRectToVisible(rectBefore);
 
         // Create a runnable object to be executed
         SwingUtilities.invokeLater(new Runnable()
@@ -3213,6 +3255,55 @@ public abstract class CcddJTableHandler extends JTable
     }
 
     /**********************************************************************************************
+     * Determine the starting row for pasting the data, in view coordinates. If no row is selected
+     * then default to the first row
+     *
+     * @return The starting row for pasting, in view coordinates
+     *********************************************************************************************/
+    protected int getStartPasteRow()
+    {
+        // Determine the starting row in model coordinates
+        int startRow = Math.max(getSelectedRow(),
+                                getSelectedRow()
+                                + getSelectedRowCount()
+                                - 1);
+
+        // Check if no row is selected or if the table contains no rows
+        if (startRow == -1)
+        {
+            // Set the start row to the first row
+            startRow = 0;
+        }
+
+        return startRow;
+    }
+
+    /**********************************************************************************************
+     * Determine the starting column for pasting, in view coordinates
+     *
+     * @param isStartFirstColumn True if pasting of the data begins in the first column;
+     *                                 false to begin pasting at the currently cell with the focus
+     *
+     * @return The starting column for pasting, in view coordinates
+     *********************************************************************************************/
+    protected int getStartPasteColumn(boolean isStartFirstColumn)
+    {
+        // Check if no row is selected
+        if (getSelectedRow() == -1)
+        {
+            // Clear the column selection. The column selection can remain in effect after an undo
+            // action that clears the row selection
+            getColumnModel().getSelectionModel().clearSelection();
+        }
+
+        return isStartFirstColumn ? 0
+                                    : Math.max(Math.max(getSelectedColumn(), 0),
+                                               getSelectedColumn()
+                                               + getSelectedColumnCount()
+                                               - 1);
+    }
+
+    /**********************************************************************************************
      * Paste the contents of the supplied cell data array into the table. Depending on the input
      * flag values, current rows are either overwritten, excess rows are discarded, or new rows are
      * inserted below the currently selected row to contain the pasted data. The currently selected
@@ -3300,15 +3391,13 @@ public abstract class CcddJTableHandler extends JTable
         // Determine the starting column and ending column for pasting the data. If no column is
         // selected then default to the first column. Data pasted outside of the column range is
         // ignored
-        final int startColumn = isStartFirstColumn ? 0
-                                                 : Math.max(Math.max(getSelectedColumn(), 0),
-                                                            getSelectedColumn() + getSelectedColumnCount() - 1);
+        final int startColumn = getStartPasteColumn(isStartFirstColumn);
         int endColumn = startColumn + numColumns - 1;
         final int endColumnSelect = Math.min(endColumn, getColumnCount() - 1);
 
-        // Determine the starting row for pasting the data. If no row is selected then default to
-        // the first row
-        int startRow = Math.max(getSelectedRow(), getSelectedRow() + getSelectedRowCount() - 1);
+        // Determine the starting row for pasting the data, in view coordinates. If no row is
+        // selected then default to the first row
+        int startRow = getStartPasteRow();
 
         // Check if no row is selected or if the table contains no rows
         if (startRow == -1)

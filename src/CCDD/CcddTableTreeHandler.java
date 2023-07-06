@@ -60,6 +60,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -195,7 +196,6 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     {
         ALL, PROTOTYPE_ONLY, INSTANCE_ONLY
     }
-
 
     /**********************************************************************************************
      * Table tree handler class constructor
@@ -1778,7 +1778,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         // Get the paths from the tree matching the search criteria
         tablePathList = getTableTreePathArray(searchName, startNode, maxLevel);
 
-        HashSet<String> variablePaths = new HashSet<String>();
+        LinkedHashSet<String> variablePaths = new LinkedHashSet<String>();
 
         // Step through each path
         for (Object[] path : tablePathList)

@@ -493,13 +493,14 @@ public class CcddPreferencesDialog extends CcddDialogHandler
             {
                 // Update the GUI using the scale factor
                 ccddMain.setFontScaleFactor(fontScale.getText(), CcddPreferencesDialog.this);
+                fontScale.setText(ccddMain.getProgPrefs().get(FONT_SCALE, "1.0"));
             }
         };
 
         // Add the font scaling input field
         JLabel fontScaleLbl = new JLabel("Font scale");
         fontScaleLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
-        fontScale = new JTextField(ccddMain.getProgPrefs().get(FONT_SCALE, "1"), 3);
+        fontScale = new JTextField(ccddMain.getProgPrefs().get(FONT_SCALE, "1.0"), 3);
         fontScale.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
         JButton fontScaleBtn = new JButton("Update");
         fontScaleBtn.setFont(ModifiableFontInfo.DIALOG_BUTTON.getFont());

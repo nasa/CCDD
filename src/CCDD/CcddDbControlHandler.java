@@ -889,12 +889,13 @@ public class CcddDbControlHandler
                                  parent);
     }
 
-    /**
+    /**********************************************************************************************
      * Query the list of all databases and determine if one exists with the given name
      *
-     * @param queryDatabaseName The Database name to find
-     * @return a database with that name exists or does not
-     */
+     * @param queryDatabaseName The database name to find
+     *
+     * @return True if a database with the specified name exists
+     *********************************************************************************************/
     protected boolean isDatabaseNameInUse(String queryDatabaseName)
     {
         // Get the list of available databases
@@ -3304,101 +3305,6 @@ public class CcddDbControlHandler
 
                 // Release the semaphore indicating that this thread's work is finished
                 ccddMain.getSemMap().get(BACKUP_KEY).left.release();
-            }
-        });
-    }
-
-    /**********************************************************************************************
-     * Rename a project database, back it up and revert the rename. This can be used during a
-     * backup operation to change the name of the backed up database to match the backup file name
-     * (for instance).
-     *
-     * This will perform the following sequence of operations: 1: Rename an existing database to
-     * the new name 2: Backup the newly renamed database (database name and backup file name will
-     * match now) 3: Rename the database to its original name
-     *
-     * @param projectName    Current project name
-     *
-     * @param newProjectName New project name
-     *
-     * @param backupFile     File to which to backup the database
-     *********************************************************************************************/
-    protected void backupAndRenameDatabase(final String projectName,
-                                           final String newProjectName,
-                                           final FileEnvVar backupFile)
-    {
-        // Get the description (and pass in the database name to get the correct value)
-        String description = getDatabaseDescription(convertProjectNameToDatabase(projectName));
-
-        // If the description is incorrect, then throw an error in the log and fail
-        if (description == null)
-        {
-            eventLog.logFailEvent(ccddMain.getMainFrame(),
-                                  "Database description is not valid '",
-                                  "<html><b>Cannot rename project '</b>"
-                                  + projectName
-                                  + "<b>'");
-            return;
-        }
-
-        // Rename the database to get the new name
-        renameDatabase(projectName, newProjectName, description);
-
-        // Perform the backup operation
-        backupDatabase(newProjectName, backupFile);
-
-        // Rename the database to its original name
-        renameDatabase(newProjectName, projectName, description);
-
-    }
-
-    /**********************************************************************************************
-     * Backup a project database. This command is executed in a separate thread since it can take a
-     * noticeable amount time to complete, and by using a separate thread the GUI is allowed to
-     * continue to update. The GUI menu commands, however, are disabled until the database command
-     * completes execution
-     *
-     * @param projectName    Current project name
-     *
-     * @param newProjectName New project name
-     *
-     * @param backupFile     File to which to backup the database
-     *********************************************************************************************/
-    protected void backupAndRenameDatabaseInBackground(final String projectName,
-                                                       final String newProjectName,
-                                                       final FileEnvVar backupFile)
-    {
-        // Execute the command in the background
-        CcddBackgroundCommand.executeInBackground(ccddMain, new BackgroundCommand()
-        {
-            /**************************************************************************************
-             * Backup database command
-             *************************************************************************************/
-            @Override
-            protected void execute()
-            {
-                // This will be coming from the GUI which will require that the only database that
-                // can be backed up is the open one so close it first
-                if (ccddMain.ignoreUncommittedChanges("Close Project",
-                                                      "Discard changes?",
-                                                      true,
-                                                      null,
-                                                      null))
-                {
-                    openDatabase(DEFAULT_DATABASE);
-                }
-                else
-                {
-                    // The user has chosen not to close the database so exit
-                    return;
-                }
-
-                // Perform the sequence of operations here
-                backupAndRenameDatabase(projectName, newProjectName, backupFile);
-
-                // Open the original database again
-                openDatabase(projectName);
-
             }
         });
     }

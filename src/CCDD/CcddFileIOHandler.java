@@ -26,7 +26,6 @@
 package CCDD;
 
 import static CCDD.CcddConstants.CCDD_PROJECT_IDENTIFIER;
-import static CCDD.CcddConstants.DEFAULT_DATABASE;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.SCRIPT_DESCRIPTION_TAG;
 import static CCDD.CcddConstants.USERS_GUIDE;
@@ -118,7 +117,6 @@ import CCDD.CcddConstants.TableTreeType;
 import CCDD.CcddImportExportInterface.ImportType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 import CCDD.CcddConstants.exportDataTypes;
-import CCDD.CcddBackupName;
 import CCDD.CcddConvertCStructureToCSV;
 
 import org.apache.commons.io.FileUtils;
@@ -149,6 +147,9 @@ public class CcddFileIOHandler
     private final CcddEventLogDialog eventLog;
     private CcddHaltDialog haltDlg;
     private boolean errorFlag;
+
+    // Regular expression match for acceptable file name characters
+    private String allowedFileChars = "[^a-zA-Z0-9_\\.]";
 
     /**********************************************************************************************
      * File I/O handler class constructor
@@ -266,8 +267,7 @@ public class CcddFileIOHandler
         // blank)
         if (isPasswordSet)
         {
-            // Get the name of the currently open database
-            final String databaseName = dbControl.getDatabaseName();
+            // Get the name of the currently open project
             String projectName = dbControl.getProjectName();
 
             // Set the initial layout manager characteristics
@@ -336,7 +336,8 @@ public class CcddFileIOHandler
             // Allow the user to select the backup file path + name
             FileEnvVar[] dataFile = dlg.choosePathFile(ccddMain,
                                                        ccddMain.getMainFrame(),
-                                                       databaseName + FileExtension.DBU.getExtension(),
+                                                       projectName.replaceAll(allowedFileChars, "_")
+                                                       + FileExtension.DBU.getExtension(),
                                                        null,
                                                        new FileNameExtensionFilter[] {new FileNameExtensionFilter(FileExtension.DBU.getDescription(),
                                                                                                                   FileExtension.DBU.getExtensionName())},
@@ -347,18 +348,18 @@ public class CcddFileIOHandler
                                                        DialogOption.BACKUP_OPTION,
                                                        stampPnl);
 
-            // File name with the white space stripped
-            String compliantFileName = dlg.getFileNameField().getText().replaceAll("\\s", "");
-
-            FileEnvVar chosenBackupPath = CcddBackupName.reconstructBackupFilePath(dataFile, compliantFileName);
-
             // Check if a file was chosen
-            if (chosenBackupPath != null)
+            if (dataFile != null && dataFile[0] != null)
             {
                 boolean cancelBackup = false;
 
+                // Remove any special characters from the file name
+                FileEnvVar cleanFilePath = new FileEnvVar(dataFile[0].getParent()
+                                                          + File.separator
+                                                          + dataFile[0].getName().replaceAll(allowedFileChars, "_"));
+
                 // Check if the backup file exists
-                if (chosenBackupPath.exists())
+                if (cleanFilePath.exists())
                 {
                     // Check if the existing file should be overwritten
                     if (new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
@@ -368,12 +369,12 @@ public class CcddFileIOHandler
                                                                   DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
                     {
                         // Check if the file can be deleted
-                        if (!chosenBackupPath.delete())
+                        if (!cleanFilePath.delete())
                         {
                             // Inform the user that the existing backup file cannot be replaced
                             new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                                       "<html><b>Cannot replace existing backup file '</b>"
-                                                                      + chosenBackupPath.getAbsolutePath()
+                                                                      + cleanFilePath.getAbsolutePath()
                                                                       + "<b>'",
                                                                       "File Error",
                                                                       JOptionPane.ERROR_MESSAGE,
@@ -389,83 +390,18 @@ public class CcddFileIOHandler
                     }
                 }
 
-                // Strip away the file name extension and the data and time (if any)
-                String backupName = CcddBackupName.removeExtensionTimeStamp(FileExtension.DBU.getExtension(),
-                                                                            dateTimeFormat,
-                                                                            compliantFileName,
-                                                                            stampChkBx.isSelected());
-
-                // Is the new database name different from the current one?
-                boolean isDifferentName = !databaseName.equals(backupName);
-
-                // Check to see if the new name already exists (and is not the same name)
-                if (isDifferentName
-                    && dbControl.isDatabaseNameInUse(dbControl.convertProjectNameToDatabase(backupName)))
-                {
-                    new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                              "<html><b>Cannot backup project '</b>"
-                                                              + backupName
-                                                              + "<b>', project already exists in workspace.",
-                                                              "Backup Error",
-                                                              JOptionPane.ERROR_MESSAGE,
-                                                              DialogOption.OK_OPTION);
-                    cancelBackup = true;
-                }
-
                 // Check that no errors occurred and that the user didn't cancel the backup
                 if (!cancelBackup)
                 {
                     // Check if the operation should be performed in the background
                     if (doInBackground)
                     {
-                        if (isDifferentName)
-                        {
-                            // Create a backup of the current database
-                            dbControl.backupAndRenameDatabaseInBackground(projectName,
-                                                                          backupName,
-                                                                          chosenBackupPath);
-                        }
-                        else
-                        {
-                            dbControl.backupDatabaseInBackground(projectName, chosenBackupPath);
-                        }
-
+                        dbControl.backupDatabaseInBackground(projectName, cleanFilePath);
                     }
                     // Perform the operation in the foreground
                     else
                     {
-                        // Check for a different name
-                        if (isDifferentName)
-                        {
-                            // This will be coming from the GUI which will require that the only
-                            // database that can be backed up is the open one so close it first
-                            if (ccddMain.ignoreUncommittedChanges("Close Project",
-                                                                  "Discard changes?",
-                                                                  true,
-                                                                  null,
-                                                                  null))
-                            {
-                                dbControl.openDatabase(DEFAULT_DATABASE);
-                            }
-                            else
-                            {
-                                // The user has chosen not to close the database so exit
-                                return;
-                            }
-
-                            // Perform the sequence of operations here
-                            dbControl.backupAndRenameDatabase(projectName,
-                                                              backupName,
-                                                              chosenBackupPath);
-
-                            // Open the original database again
-                            dbControl.openDatabase(projectName);
-                        }
-                        // It is the same name so just do the backup
-                        else
-                        {
-                            dbControl.backupDatabase(projectName, chosenBackupPath);
-                        }
+                        dbControl.backupDatabase(projectName, cleanFilePath);
                     }
                 }
             }
@@ -3753,6 +3689,8 @@ public class CcddFileIOHandler
                                                    variableHandler,
                                                    separators,
                                                    outputType,
+                                                   endianess,
+                                                   isHeaderBigEndian,
                                                    version,
                                                    validationStatus,
                                                    classification1,
@@ -4172,7 +4110,7 @@ public class CcddFileIOHandler
      *                    before storing the path
      *
      * @param modPath     ModifiablePathInfo reference for the path being updated
-     ********************************************************************************************/
+     *********************************************************************************************/
     protected static void storePath(CcddMain ccddMain,
                                     String pathName,
                                     boolean hasFileName,
@@ -4201,12 +4139,11 @@ public class CcddFileIOHandler
      * @param list   List containing the strings to write to the selected file
      *
      * @param parent GUI component over which to center the dialog
-     ********************************************************************************************/
+     *********************************************************************************************/
     protected void writeListToFile(List<String> list, Component parent)
     {
         // Create the file choice dialog
         final CcddDialogHandler dlg = new CcddDialogHandler();
-
 
         // Allow the user to select the backup file path + name
         FileEnvVar[] dataFile = dlg.choosePathFile(ccddMain,
@@ -4221,18 +4158,18 @@ public class CcddFileIOHandler
                                                    DialogOption.STORE_OPTION,
                                                    null);
 
-        // File name with the white space stripped
-        String compliantFileName = dlg.getFileNameField().getText().replaceAll("\\s", "");
-
-        FileEnvVar chosenFilePath = CcddBackupName.reconstructBackupFilePath(dataFile, compliantFileName);
-
         // Check if a file was chosen
-        if (chosenFilePath != null)
+        if (dataFile != null && dataFile[0] != null)
         {
             boolean cancelBackup = false;
 
+            // Remove any special characters from the file name
+            FileEnvVar cleanFilePath = new FileEnvVar(dataFile[0].getParent()
+                                                      + File.separator
+                                                      + dataFile[0].getName().replaceAll(allowedFileChars, "_"));
+
             // Check if the backup file exists
-            if (chosenFilePath.exists())
+            if (cleanFilePath.exists())
             {
                 // Check if the existing file should be overwritten
                 if (new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
@@ -4242,12 +4179,12 @@ public class CcddFileIOHandler
                                                               DialogOption.OK_CANCEL_OPTION) == OK_BUTTON)
                 {
                     // Check if the file can be deleted
-                    if (!chosenFilePath.delete())
+                    if (!cleanFilePath.delete())
                     {
                         // Inform the user that the existing file cannot be replaced
                         new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
                                                                   "<html><b>Cannot replace existing file '</b>"
-                                                                  + chosenFilePath.getAbsolutePath()
+                                                                  + cleanFilePath.getAbsolutePath()
                                                                   + "<b>'",
                                                                   "File Error",
                                                                   JOptionPane.ERROR_MESSAGE,
@@ -4267,7 +4204,7 @@ public class CcddFileIOHandler
             if (!cancelBackup)
             {
                 // Open the selected file
-                PrintWriter printWriter =  openOutputFile(chosenFilePath.getAbsolutePath());
+                PrintWriter printWriter =  openOutputFile(cleanFilePath.getAbsolutePath());
 
                 // Write the list contents to the file
                 for (String line : list)
@@ -5223,7 +5160,6 @@ public class CcddFileIOHandler
     {
         // Create a list to hold all the files
         List<FileEnvVar> dataFiles = new ArrayList<FileEnvVar>();
-
 
         // This will throw an exception if it is incorrect
         try

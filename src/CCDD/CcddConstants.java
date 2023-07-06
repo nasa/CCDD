@@ -356,19 +356,24 @@ public class CcddConstants
     // Endian type
     protected static enum EndianType
     {
-        BIG_ENDIAN, LITTLE_ENDIAN
+        BIG_ENDIAN,
+        LITTLE_ENDIAN
     }
 
     // GUI update type
     protected static enum GUIUpdateType
     {
-        LAF, FONT, COLOR
+        LAF,
+        FONT,
+        COLOR
     }
 
     // Table selection modes
     protected static enum TableSelectionMode
     {
-        SELECT_BY_ROW, SELECT_BY_COLUMN, SELECT_BY_CELL
+        SELECT_BY_ROW,
+        SELECT_BY_COLUMN,
+        SELECT_BY_CELL
     }
 
     // Arrow keys focus options - used for determining keyboard traversal actions in response to
@@ -915,7 +920,7 @@ public class CcddConstants
         protected static void setModifiableFonts(Preferences progPrefs)
         {
             // Get the font scaling factor from the program preferences
-            float scale = Float.valueOf(progPrefs.get(FONT_SCALE, "1"));
+            float scale = Float.valueOf(progPrefs.get(FONT_SCALE, "1.0"));
 
             // Step through each modifiable font
             for (ModifiableFontInfo modFont : ModifiableFontInfo.values())

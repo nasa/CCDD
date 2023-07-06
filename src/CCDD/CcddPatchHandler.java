@@ -276,7 +276,6 @@ public class CcddPatchHandler
                                                                        .append("';"),
                                            ccddMain.getMainFrame());
 
-
                 // Release the save point. This must be done within a transaction block, so it must
                 // be done prior to the commit below
                 dbCommand.releaseSavePoint(ccddMain.getMainFrame());

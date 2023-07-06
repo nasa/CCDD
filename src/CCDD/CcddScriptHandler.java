@@ -144,6 +144,9 @@ public class CcddScriptHandler
     // Flag that indicates if the Py4J gateway server is available for executing Python scripts
     private boolean isPy4JAvailable;
 
+    // Flag that indicates when a script is actively executing
+    private boolean isScriptExecuting;
+
     // Flag that indicates if the currently executing script is a Python script handled by Py4J
     private boolean isPy4JScript;
 
@@ -158,7 +161,7 @@ public class CcddScriptHandler
     private List<String> loadedTablePaths;
 
     // Array to indicate if a script association has a problem that prevents its execution
-    private boolean[] isBad;
+    private boolean[] isScriptFail;
 
     // Environment variable map
     private Map<String, String> envVarMap;
@@ -1351,6 +1354,13 @@ public class CcddScriptHandler
         // Check that at least one association is to be executed
         if (selectedAssn.size() != 0)
         {
+            // Initialize the execution flag. This flag is true only while a script is actively
+            // being executed
+            isScriptExecuting = false;
+
+            // Initialize the script association execution failure array
+            initializeScriptFail(selectedAssn.size());
+
             if (executeInBackground.isSelected())
             {
                 // Execute the script script association(s) in the background. This displays the
@@ -1367,6 +1377,18 @@ public class CcddScriptHandler
                 performScriptExecution(tableTree, selectedAssn, dialog);
             }
         }
+    }
+
+    /**********************************************************************************************
+     * Initialize the array that indicates if an association has a problem that prevents its
+     * execution
+     *
+     * @param numAssns Number of associations to execute
+     *********************************************************************************************/
+    protected void initializeScriptFail(int numAssns)
+    {
+        isScriptFail = new boolean[numAssns];
+        Arrays.fill(isScriptFail, false);
     }
 
     /**********************************************************************************************
@@ -1396,15 +1418,15 @@ public class CcddScriptHandler
             ((CcddFrameHandler) dialog).setControlsEnabled(false);
         }
 
-        // Execute the script association(s) and obtain the completion status(es)
-        isBad = getDataAndExecuteScript(tree, associations, dialog);
+        // Execute the script association(s)
+        getDataAndExecuteScript(tree, associations, dialog);
 
         // Remove the converted variable name list(s) other than the one created using the
         // separators stored in the program preferences
         variableHandler.removeUnusedLists();
 
         // Log the result of the script execution(s)
-        logScriptCompletionStatus(associations, isBad);
+        logScriptCompletionStatus(associations);
 
         // Check if the script was executed via the script manager or executive dialogs
         if (dialog instanceof CcddFrameHandler)
@@ -1464,24 +1486,13 @@ public class CcddScriptHandler
                     ((CcddFrameHandler) dialog).setControlsEnabled(false);
                 }
 
-                // Execute the script association(s) and obtain the completion status(es)
-                isBad = getDataAndExecuteScript(tree, associations, dialog);
+                // Execute the script association(s)
+                getDataAndExecuteScript(tree, associations, dialog);
 
-                // Remove the converted variable name list(s) other than the one created using the
-                // separators stored in the program preferences
-                variableHandler.removeUnusedLists();
-
-                // Check if the user didn't cancel script execution
+                // Close the cancellation dialog if the user didn't cancel script execution
                 if (!haltDlg.isHalted())
                 {
-                    // Close the cancellation dialog
                     haltDlg.closeDialog();
-                }
-                // Script execution was canceled
-                else
-                {
-                    ccddMain.getSessionEventLog().logEvent(EventLogMessageType.STATUS_MSG,
-                                                           new StringBuilder("Script execution terminated by user"));
                 }
             }
         });
@@ -1509,25 +1520,31 @@ public class CcddScriptHandler
                 // still executing
                 if (option == OK_BUTTON && scriptThread.isAlive())
                 {
-                    // Forcibly stop script execution. Note: this method is deprecated due to
-                    // inherent issues that can occur when a thread is abruptly stopped. However,
-                    // the stop method is the only manner in which the script can be terminated
-                    // (without additional code within the script itself, which cannot be assumed
-                    // since the scripts are user-generated). There shouldn't be a potential for
-                    // object corruption in the application since it doesn't reference any objects
-                    // created by a script
-                    if (isPy4JScript)
+                    // Check is a script is actively being executed
+                    if (isScriptExecuting)
                     {
-                        scriptThread.interrupt();
-                    }
-                    else
-                    {
-                        scriptThread.stop();
+                        if (isPy4JScript)
+                        {
+                            // Interrupt script execution. stop() cannot be used here; instead the
+                            // interrupt is caught and handled in the Py4J handler to stop the
+                            // script
+                            scriptThread.interrupt();
+                        }
+                        else
+                        {
+                            // Forcibly stop script execution. Note: this method is deprecated due
+                            // to inherent issues that can occur when a thread is abruptly stopped.
+                            // However, the stop method is the only manner in which the script can
+                            // be terminated (without additional code within the script itself,
+                            // which cannot be assumed since the scripts are user-generated). There
+                            // shouldn't be a potential for object corruption in the application
+                            // since it doesn't reference any objects created by a script
+                            scriptThread.stop();
+                        }
                     }
 
-                    // Set the execution status(es) to indicate the scripts didn't complete
-                    isBad = new boolean[associations.size()];
-                    Arrays.fill(isBad, true);
+                    ccddMain.getSessionEventLog().logEvent(EventLogMessageType.STATUS_MSG,
+                                                           new StringBuilder("Script execution terminated by user"));
                 }
 
                 // Stop the Py4J gateway server
@@ -1541,7 +1558,11 @@ public class CcddScriptHandler
             protected void complete()
             {
                 // Log the result of the script execution(s)
-                logScriptCompletionStatus(associations, isBad);
+                logScriptCompletionStatus(associations);
+
+                // Remove the converted variable name list(s) other than the one created using the
+                // separators stored in the program preferences
+                variableHandler.removeUnusedLists();
 
                 // Check if the script was executed via the script manager or executive dialogs
                 if (dialog instanceof CcddFrameHandler)
@@ -1574,19 +1595,13 @@ public class CcddScriptHandler
      *
      * @param parent       GUI component over which to center any error dialog; null if none (e.g.,
      *                     if called via the command line)
-     *
-     * @return Array containing flags that indicate, for each association, if the association did
-     *         not complete successfully
      *********************************************************************************************/
-    protected boolean[] getDataAndExecuteScript(CcddTableTreeHandler tree,
-                                                List<Object[]> associations,
-                                                Component parent)
+    protected void getDataAndExecuteScript(CcddTableTreeHandler tree,
+                                           List<Object[]> associations,
+                                           Component parent)
     {
         int assnIndex = 0;
         CcddTableTreeHandler tableTree = tree;
-
-        // Create an array to indicate if an association has a problem that prevents its execution
-        boolean[] isBad = new boolean[associations.size()];
 
         // Get the variable path separators and the show/hide data type flag from the program
         // preferences
@@ -1634,11 +1649,6 @@ public class CcddScriptHandler
             // Check if script execution is canceled
             if (haltDlg != null && haltDlg.isHalted())
             {
-                ccddMain.getSessionEventLog().logEvent(EventLogMessageType.STATUS_MSG,
-                                                       new StringBuilder("Script execution terminated by user"));
-
-                isBad = new boolean[associations.size()];
-                Arrays.fill(isBad, true);
                 break;
             }
 
@@ -1703,6 +1713,12 @@ public class CcddScriptHandler
                     // Step through each table path+name
                     for (String tablePath : tablePaths)
                     {
+                        // Check if script execution is canceled
+                        if (haltDlg != null && haltDlg.isHalted())
+                        {
+                            break;
+                        }
+
                         // Initialize the array for each of the tables to load from the database
                         combinedData = new ArrayList<Object[]>(0);
 
@@ -1786,9 +1802,8 @@ public class CcddScriptHandler
                                assn[AssociationsColumn.MEMBERS.ordinal()].toString(),
                                ce.getMessage(),
                                parent);
-
                 // Set the flag for this association indicating it can't be executed
-                isBad[assnIndex] = true;
+                isScriptFail[assnIndex] = true;
             }
             catch (Exception e)
             {
@@ -1830,10 +1845,14 @@ public class CcddScriptHandler
             }
 
             // Check that an error didn't occur loading the data for this association
-            if (!isBad[assnIndex])
+            if (!isScriptFail[assnIndex])
             {
                 TableInfo[] combinedTableInfo = null;
                 List<String> groupNames = new ArrayList<String>();
+
+                // Set the script association fail flag; if the script completes execution this is
+                // set back to false
+                isScriptFail[assnIndex] = true;
 
                 // Get the list of association table paths
                 List<String> tablePaths = getAssociationTablePaths(assn[AssociationsColumn.MEMBERS.ordinal()].toString(),
@@ -1846,12 +1865,24 @@ public class CcddScriptHandler
                 // Step through each table path+name or group
                 for (String member : members)
                 {
+                    // Check if script execution is canceled
+                    if (haltDlg != null && haltDlg.isHalted())
+                    {
+                        break;
+                    }
+
                     // Check if this is a reference to a group
                     if (member.startsWith(GROUP_DATA_FIELD_IDENT))
                     {
                         // Add the group name to the list of referenced groups
                         groupNames.add(member.substring(GROUP_DATA_FIELD_IDENT.length()));
                     }
+                }
+
+                // Check if script execution is canceled
+                if (haltDlg != null && haltDlg.isHalted())
+                {
+                    break;
                 }
 
                 // Check if at least one table is assigned to this script association
@@ -1865,6 +1896,12 @@ public class CcddScriptHandler
                     // information instance
                     for (TableInfo tableInfo : tableInformation)
                     {
+                        // Check if script execution is canceled
+                        if (haltDlg != null && haltDlg.isHalted())
+                        {
+                            break;
+                        }
+
                         // Check if this table is a member of the association
                         if (tablePaths.contains(tableInfo.getTablePath()))
                         {
@@ -1877,6 +1914,12 @@ public class CcddScriptHandler
                         }
                     }
 
+                    // Check if script execution is canceled
+                    if (haltDlg != null && haltDlg.isHalted())
+                    {
+                        break;
+                    }
+
                     // Create storage for the combined table data
                     combinedTableInfo = new TableInfo[tableTypes.size()];
 
@@ -1884,6 +1927,12 @@ public class CcddScriptHandler
                     // through each table type represented in this association
                     for (int typeIndex = 0; typeIndex < tableTypes.size(); typeIndex++)
                     {
+                        // Check if script execution is canceled
+                        if (haltDlg != null && haltDlg.isHalted())
+                        {
+                            break;
+                        }
+
                         String tableName = "";
                         List<Object[]> allTableData = new ArrayList<Object[]>();
 
@@ -1891,9 +1940,21 @@ public class CcddScriptHandler
                         // given table type in the order that the table appears in the association
                         for (String tablePath : tablePaths)
                         {
+                            // Check if script execution is canceled
+                            if (haltDlg != null && haltDlg.isHalted())
+                            {
+                                break;
+                            }
+
                             // Step through each table information instance
                             for (TableInfo tableInfo : tableInformation)
                             {
+                                // Check if script execution is canceled
+                                if (haltDlg != null && haltDlg.isHalted())
+                                {
+                                    break;
+                                }
+
                                 // Check if the path for the table described by the table
                                 // information matches the path of the associated table
                                 if (tablePath.equals(tableInfo.getTablePath()))
@@ -1920,6 +1981,12 @@ public class CcddScriptHandler
                             }
                         }
 
+                        // Check if script execution is canceled
+                        if (haltDlg != null && haltDlg.isHalted())
+                        {
+                            break;
+                        }
+
                         // Create the table information from the table data obtained from the
                         // database
                         combinedTableInfo[typeIndex] = new TableInfo(tableTypes.get(typeIndex),
@@ -1944,6 +2011,12 @@ public class CcddScriptHandler
                                                          new ArrayList<FieldInformation>(0));
                 }
 
+                // Check if script execution is canceled
+                if (haltDlg != null && haltDlg.isHalted())
+                {
+                    break;
+                }
+
                 // Get the script file name with any environment variables expanded
                 String scriptFileName = FileEnvVar.expandEnvVars(assn[AssociationsColumn.SCRIPT_FILE.ordinal()].toString(),
                                                                  envVarMap);
@@ -1957,6 +2030,9 @@ public class CcddScriptHandler
                                   linkHandler,
                                   groupHandler,
                                   parent);
+
+                    // Reset the flag flag for this association to indicate it completed execution
+                    isScriptFail[assnIndex] = false;
                 }
                 catch (CCDDException ce)
                 {
@@ -1965,9 +2041,6 @@ public class CcddScriptHandler
                                    assn[AssociationsColumn.MEMBERS.ordinal()].toString(),
                                    ce.getMessage(),
                                    parent);
-
-                    // Set the flag for this association indicating it can't be executed
-                    isBad[assnIndex] = true;
                 }
                 catch (Exception e)
                 {
@@ -1983,8 +2056,6 @@ public class CcddScriptHandler
 
             assnIndex++;
         }
-
-        return isBad;
     }
 
     /**********************************************************************************************
@@ -2015,10 +2086,9 @@ public class CcddScriptHandler
      *
      * @param associations List of script association executed
      *
-     * @param isBad        Array containing flags that indicate, for each association, if the
-     *                     association did not complete successfully
+     * @return True if any of the script associations failed to execute
      *********************************************************************************************/
-    protected void logScriptCompletionStatus(List<Object[]> associations, boolean[] isBad)
+    protected boolean logScriptCompletionStatus(List<Object[]> associations)
     {
         int assnIndex = 0;
 
@@ -2039,7 +2109,7 @@ public class CcddScriptHandler
                                  + ";";
 
             // Check if the script executed successfully
-            if (isBad != null && !isBad[assnIndex])
+            if (!isScriptFail[assnIndex])
             {
                 // Append the association to the success message
                 successMessage += association;
@@ -2073,6 +2143,8 @@ public class CcddScriptHandler
             // Update the event log
             eventLog.logEvent(FAIL_MSG, new StringBuilder(failMessage));
         }
+
+        return isFail;
     }
 
     /**********************************************************************************************
@@ -2278,6 +2350,9 @@ public class CcddScriptHandler
 
         try
         {
+            // Set the flag to indicate the script is executing
+            isScriptExecuting = true;
+
             // Execute the script
             if (isPy4JScript)
             {
@@ -2292,6 +2367,11 @@ public class CcddScriptHandler
         {
             // Inform the user that the script encountered an error
             throw new CCDDException("Script file '" + scriptFileName + "' error '" + e.getMessage() + "'");
+        }
+        finally
+        {
+            // Reset the execution flag
+            isScriptExecuting = false;
         }
     }
 

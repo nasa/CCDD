@@ -866,7 +866,6 @@ public class CcddDbVerificationHandler
         }
     }
 
-
     /**********************************************************************************************
      * Check that the internal tables are consistent with their definitions. If any inconsistencies
      * are detected then get user approval to alter the table(s)

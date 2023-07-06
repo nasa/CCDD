@@ -3385,10 +3385,11 @@ public class CcddMain
     void setFontScaleFactor(String scaleFactor, CcddDialogHandler dialog)
     {
         // Check if the scale factor changed
-        if (!scaleFactor.equals(getProgPrefs().get(FONT_SCALE, "1")))
+        if (!scaleFactor.equals(getProgPrefs().get(FONT_SCALE, "1.0")))
         {
             // Convert the scale factor to a floating point
             float scale = Float.valueOf(scaleFactor);
+            scaleFactor = String.valueOf(scale);
 
             // Check if the scale factor is within an acceptable range
             if (scale >= 0.1 && scale <= 25.0)

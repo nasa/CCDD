@@ -274,7 +274,6 @@ public class CcddImportSupportHandler
         else if (!inputTypeHandler.isInputTypeValid(fieldDefn[FieldsColumn.FIELD_TYPE.ordinal()]))
         {
             isError = true;
-Thread.dumpStack();//TODO
 
             // Check if the error should be ignored or the import canceled
             continueOnError = getErrorResponse(continueOnError,

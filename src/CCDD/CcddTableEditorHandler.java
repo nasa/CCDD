@@ -1438,6 +1438,15 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             }
 
             /**************************************************************************************
+             * Allow the columns to be displayed with the text highlighted
+             *************************************************************************************/
+            @Override
+            protected boolean isColumnHighlight(int column)
+            {
+                return true;
+            }
+
+            /**************************************************************************************
              * Return true if the table data, column order, description, or a data field changes.
              * If the table isn't open in and editor (as when a macro is changed) then the table
              * description and data fields are not applicable
@@ -3180,11 +3189,90 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                 // Check if the paste operation expects the array members to be visible, the table
                 // is allowed to contain arrays, and the arrays are not expanded (the members are
                 // hidden). This is used when restoring a table from a JSON or CSV file, or when
-                // importing a table from a JSON, CSV, XTCE, or EDS file
-                if (isNumHiddenRowsCanChange && isCanHaveArrays() && !isShowArrayMembers)
+                // importing a table from a JSON, CSV, XTCE, or EDS file. If the pasted data
+                // contains an array definition, but no array members, then the arrays are not
+                // expanded
+                if (isNumHiddenRowsCanChange && isCanHaveArrays())
                 {
-                    // Expand any arrays
-                    showHideArrayMembers();
+                    boolean isDefinitionPasted = false;
+                    boolean isMemberPasted = false;
+                    Object variableName = "";
+
+                    // Determine the starting column in view coordinates, then convert it to model
+                    // coordinates
+                    int startColumn = getStartPasteColumn(isStartFirstColumn);
+                    startColumn = convertColumnIndexToModel(startColumn);
+
+                    // Check if the array size is within the pasted data
+                    if (arraySizeIndex >= startColumn && arraySizeIndex < startColumn + numColumns)
+                    {
+                        int arrayOffset = arraySizeIndex - startColumn;
+                        int variableOffset = -1;
+
+                        // Check if the variable name is being pasted
+                        if (variableNameIndex >= startColumn && variableNameIndex < startColumn + numColumns)
+                        {
+                            variableOffset = variableNameIndex - startColumn;
+                        }
+
+                        // Determine the starting row in view model coordinates, then convert it to
+                        // model coordinates
+                        int startRow = getStartPasteRow();
+                        startRow = convertRowIndexToModel(startRow);
+
+                        // Step through each array size being pasted
+                        for (int index = arrayOffset, row = startRow; index < cellData.length; index += numColumns, ++row)
+                        {
+                            // Check if the array size is provided
+                            if (cellData[index] != "")
+                            {
+                                // Check if the variable name is being pasted
+                                if (variableOffset != -1)
+                                {
+                                    variableName = cellData[index - arrayOffset + variableOffset];
+                                }
+                                // The variable name is in the existing table
+                                else
+                                {
+                                    variableName = tableModel.getValueAt(row, variableNameIndex);
+                                }
+
+                                // Check if the variable name is an array member
+                                if (ArrayVariable.isArrayMember(variableName))
+                                {
+                                    isMemberPasted = true;
+                                    break;
+                                }
+                                // This is the array definition
+                                else
+                                {
+                                    isDefinitionPasted = true;
+                                }
+                            }
+                        }
+                    }
+
+                    // Check if there are no array definitions, of if there are that there are no
+                    // array members being pasted
+                    if (!isDefinitionPasted || isMemberPasted)
+                    {
+                        // Expand the arrays if not already expanded
+                        if (!isShowArrayMembers)
+                        {
+                            // Expand any arrays
+                            showHideArrayMembers();
+                        }
+                    }
+                    // Check if there is an array definition, but no members in the pasted data
+                    else if (isDefinitionPasted && !isMemberPasted)
+                    {
+                        // Collapse the arrays if not already collapsed
+                        if (isShowArrayMembers)
+                        {
+                            // Expand any arrays
+                            showHideArrayMembers();
+                        }
+                    }
                 }
 
                 // Paste the table data. If this is a structure table then it will have an array

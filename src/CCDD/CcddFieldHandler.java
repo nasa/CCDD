@@ -161,7 +161,6 @@ public class CcddFieldHandler
         }
     }
 
-
     /**********************************************************************************************
      * Build the data field information from the field definitions stored in the database
      *

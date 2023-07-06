@@ -691,7 +691,6 @@ public class CcddEDSHandler extends CcddImportSupportHandler implements CcddImpo
                                                          parent);
                 }
 
-
                 // Check if a table type definition already exists with this name, but differing properties
                 if (tableTypeHandler.updateTableTypes(tableTypeDefn) == TableTypeUpdate.MISMATCH)
                 {

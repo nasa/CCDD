@@ -76,7 +76,6 @@ import java.util.Map;
 import java.util.Scanner;
 
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -1119,20 +1118,36 @@ public class CcddDialogHandler extends JDialog
         // Hide the file chooser's default buttons
         chooser.setControlButtonsAreShown(false);
 
-        // Create the dialog panel and add the file chooser to it
-        JPanel dialogPanel = new JPanel();
-        dialogPanel.setLayout(new BoxLayout(dialogPanel, BoxLayout.Y_AXIS));
-        dialogPanel.add(chooser);
+        // Set the initial layout manager characteristics
+        GridBagConstraints gbc = new GridBagConstraints(0,
+                                                        0,
+                                                        1,
+                                                        1,
+                                                        1.0,
+                                                        1.0,
+                                                        GridBagConstraints.LINE_START,
+                                                        GridBagConstraints.BOTH,
+                                                        new Insets(0,
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2,
+                                                                   0,
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2),
+                                                        0,
+                                                        0);
+
+        // Create a panel to contain the dialog components
+        JPanel dialogPanel = new JPanel(new GridBagLayout());
+        dialogPanel.setBorder(BorderFactory.createEmptyBorder());
+
+        // Add the path & file chooser to the dialog
+        dialogPanel.add(chooser, gbc);
 
         // Check if a lower panel is provided
         if (lowerPanel != null)
         {
-            // Prevent the lower panel from resizing if the parent is resized
-            lowerPanel.setMaximumSize(new Dimension(Short.MAX_VALUE,
-                                                    lowerPanel.getPreferredSize().height));
-
             // Add the lower panel to the dialog panel
-            dialogPanel.add(lowerPanel);
+            gbc.gridy++;
+            gbc.weighty = 0.0;
+            dialogPanel.add(lowerPanel, gbc);
         }
 
         // Open the file chooser dialog and wait for a button click
@@ -2397,11 +2412,6 @@ public class CcddDialogHandler extends JDialog
             // Set the preferred size so that setRelativeTo call positions other dialogs relative
             // to this one's position when it's no longer visible
             setPreferredSize(getPreferredSize());
-
-            // TODO ISSUE: When scaling for a 4K monitor (using 'gsettings set org.gnome.desktop.interface scaling-factor 2'),
-            // setting the minimum dialog size (height is particular) is causing the dialog size to not include the lower
-            // portion of some dialogs (e.g., database Backup). If setMinimumSize not called then issue goes away... but the
-            // dialog can then be sized to nothing
 
             // Check if the dialog is resizable
             if (resizable)

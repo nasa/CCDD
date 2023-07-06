@@ -4597,7 +4597,7 @@ public class CcddDbTableCommandHandler
                                     // Create the commands to update the internal tables for
                                     // instances of non-array member variables of the prototype
                                     // table
-                                    if (!orgVarPathEsc.contains("[")) // TODO removed this portion:  || orgVarPathEsc.contains("[0"))
+                                    if (!orgVarPathEsc.contains("["))
                                     {
                                         valuesModCmd.append(updateVarNameAndDataType(orgVarPathEsc,
                                                                                      newVariablePath,

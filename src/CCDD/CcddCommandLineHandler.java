@@ -1033,35 +1033,31 @@ public class CcddCommandLineHandler
                                                 false,
                                                 ModifiablePathInfo.SCRIPT_OUTPUT_PATH);
 
+                    // Initialize the script failure array
+                    ccddMain.getScriptHandler().initializeScriptFail(associations.size());
+
                     // Check if the GUI isn't displayed
                     if (ccddMain.isGUIHidden())
                     {
-                        // Execute the script association(s) and log the result
-                        boolean[] isBad = ccddMain.getScriptHandler().getDataAndExecuteScript(null,
-                                                                                              associations,
-                                                                                              null);
-                        ccddMain.getScriptHandler().logScriptCompletionStatus(associations, isBad);
+                        // Execute the script association(s)
+                        ccddMain.getScriptHandler().getDataAndExecuteScript(null,
+                                                                            associations,
+                                                                            null);
 
-                        // Step through the script execution fail flags
-                        for (boolean flag : isBad)
+                        // Log the results ad check if any script failed to complete execution
+                        if (ccddMain.getScriptHandler().logScriptCompletionStatus(associations))
                         {
-                            // Check if the script execution failed
-                            if (flag)
-                            {
-                                throw new Exception();
-                            }
+                            throw new Exception();
                         }
                     }
                     // The GUI is displayed
                     else
                     {
-                        // TODO Doesn't allow for _not_ running in background
+                        // If the GUI is displayed then the script execution is performed in the
+                        // background
                         ccddMain.getScriptHandler().performScriptExecutionInBackground(null,
                                                                                        associations,
                                                                                        ccddMain.getMainFrame());
-//                        ccddMain.getScriptHandler().performScriptExecution(null,
-//                                                                           associations,
-//                                                                           ccddMain.getMainFrame());
                     }
                 }
             }

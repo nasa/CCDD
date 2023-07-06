@@ -486,7 +486,6 @@ public class CcddConvertCStructureToCSV
                                         variableName = nameAndBits[0];
                                         bitLength = getMacros(nameAndBits[1]);
 
-
                                         // Check if the bit length contains a macro
                                         if (bitLength.contains(MACRO_IDENTIFIER))
                                         {
