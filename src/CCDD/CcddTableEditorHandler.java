@@ -2934,30 +2934,19 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             @Override
             protected int insertRowData(int targetRow, Object[] data)
             {
-                // Check if table has rows, and has variable name and array size columns
-                if (targetRow > 0 && targetRow < getRowCount() - 1 && isCanHaveArrays())
+                // Check if table has rows, has variable name and array size columns, and the array
+                // members are set to be displayed
+                if (targetRow > 0
+                    && targetRow < getRowCount() - 1
+                    && isCanHaveArrays()
+                    && isShowArrayMembers)
                 {
-                    // Get the array size value
-                    String arraySize = getExpandedValueAt(targetRow, arraySizeIndex);
-
-                    // Check if the array size is present on this row but not an array member
-                    // (i.e., this is the array definition row)
-                    if (!arraySize.isEmpty()
-                        && !ArrayVariable.isArrayMember(getExpandedValueAt(targetRow, variableNameIndex)))
+                    // While the selection row is on an array member
+                    while (targetRow > 0
+                           && ArrayVariable.isArrayMember(getExpandedValueAt(targetRow, variableNameIndex)))
                     {
-                        // Adjust the row index past the array definition and member rows
+                        // Skip the array member row
                         targetRow--;
-                    }
-                    // Check if the array members are set to be displayed
-                    else if (isShowArrayMembers)
-                    {
-                        // While the selection row is on an array member
-                        while (targetRow > 0
-                               && ArrayVariable.isArrayMember(getExpandedValueAt(targetRow, variableNameIndex)))
-                        {
-                            // Skip the array member row
-                            targetRow--;
-                        }
                     }
                 }
 
