@@ -107,7 +107,7 @@ if (tableNames.length != 0)
 
             // Adjust the minimum column widths based on the column names and
             // data
-            var columnWidths = ccdd.getLongestStrings(tableData, null);
+            var columnWidths = ccdd.getLongestStrings(Java.to(tableData, "java.lang.String[][]"), null);
 
             // Output the table name, type, and description to the output file
             ccdd.writeToFileLn(outputFile, "");

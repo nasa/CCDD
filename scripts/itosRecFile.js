@@ -1478,7 +1478,7 @@ else
     var buttons = [["Big", "Big endian"], ["Big (swap)", "Big endian (word swapped)"], ["Little", "Little endian"], ["Little (swap)", "Little endian (word swapped)"]];
 
     // Get the endianess choice from the user
-    var selected = ccdd.getRadioButtonDialog("Select endianess", buttons);
+    var selected = ccdd.getRadioButtonDialog("Select endianess", Java.to(buttons, "java.lang.String[][]"));
 
     // Check that an endianess was selected
     if (selected)

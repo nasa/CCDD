@@ -16,7 +16,7 @@ importClass(Packages.CCDD.CcddScriptDataAccessHandler);
 var boxes = [ [ "Box 1", " Box 1 description" ], [ "Box 2", "" ] ];
 
 // Display the check box dialog and get the user's selection
-var checked = ccdd.getCheckBoxDialog("Check Box Dialog Test", boxes);
+var checked = ccdd.getCheckBoxDialog("Check Box Dialog Test", Java.to(boxes, "java.lang.String[][]"));
 
 // Check if the Cancel button wasn't selected
 if (checked != null)

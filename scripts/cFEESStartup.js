@@ -96,7 +96,7 @@ function makeESStartupFile(baseFileName)
         }
 
         // Adjust the minimum column widths
-        columnWidth = ccdd.getLongestStrings(startupEntries, columnWidth);
+        columnWidth = ccdd.getLongestStrings(Java.to(startupEntries, "java.lang.String[][]"), columnWidth);
 
         // Build the format strings so that the columns in each row are aligned
         var formatHeader = "/* %-" + columnWidth[MODULE_TYPE] + "s | %-" + columnWidth[PATH_NAME] + "s | %-" + columnWidth[ENTRY_POINT] + "s | %-" + columnWidth[CFE_NAME] + "s | %-" + columnWidth[PRIORITY] + "s | %-" + columnWidth[STACK_SIZE] + "s | %-6s | %s */\n";

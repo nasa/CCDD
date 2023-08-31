@@ -76,7 +76,7 @@ for (var index = 0; index < tableNames.length; index++)
     // Get the maximum column width for each column. These values are used to pad the column values
     // so that the data is aligned vertically
     var columnWidths = [];
-    columnWidths = ccdd.getLongestStrings(tableData, columnWidths);
+    columnWidths = ccdd.getLongestStrings(Java.to(tableData, "java.lang.String[][]"), columnWidths);
 
     // Output the table name, type, and description
     print(Array(80).join("=") + "\nTable       : " + tableName + "\n Type       : " + tableType + "\n Description: " + tableDescription + "\n\n");
@@ -184,7 +184,7 @@ for (var index = 0; index < tableNames.length; index++)
         // Get the maximum column width for each column. These values are used to pad the column
         // values so that the data is aligned vertically
         columnWidths = [];
-        columnWidths = ccdd.getLongestStrings(fieldData, columnWidths);
+        columnWidths = ccdd.getLongestStrings(Java.to(fieldData, "java.lang.String[][]"), columnWidths);
 
         // Step through each data field's data
         for (var row = 0; row < fieldData.length; row++)
