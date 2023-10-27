@@ -222,7 +222,7 @@ public class CcddSchedulerDbIOHandler
         if (message.getVariables().isEmpty())
         {
             // Create a new array for the row
-            String[] msg = new String[TlmSchedulerColumn.values().length];
+            String[] msg = new String[TlmSchedulerColumn.values().length - 1];
 
             // Add the data stream, sub-message name, message ID, and a blank as a placeholder for
             // the rate and variable name
@@ -241,7 +241,7 @@ public class CcddSchedulerDbIOHandler
             for (Variable var : message.getVariables())
             {
                 // Create a new array for the row
-                String[] msg = new String[TlmSchedulerColumn.values().length];
+                String[] msg = new String[TlmSchedulerColumn.values().length - 1];
 
                 // Add the data stream, message name, message ID, and the rate and variable name
                 msg[TlmSchedulerColumn.RATE_NAME.ordinal()] = stream.getRateName();
