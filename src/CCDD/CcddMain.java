@@ -24,17 +24,18 @@
  **************************************************************************************************/
 package CCDD;
 
+import static CCDD.CcddConstants.BACKUP_KEY;
 import static CCDD.CcddConstants.CANCEL_BUTTON;
 import static CCDD.CcddConstants.CCDD_AUTHOR;
 import static CCDD.CcddConstants.CCDD_CONTRIBUTORS;
 import static CCDD.CcddConstants.CCDD_ICON;
 import static CCDD.CcddConstants.DATABASE;
 import static CCDD.CcddConstants.DEFAULT_DATABASE;
+import static CCDD.CcddConstants.DEFAULT_INSTANCE_NODE_NAME;
 import static CCDD.CcddConstants.DEFAULT_POSTGRESQL_HOST;
 import static CCDD.CcddConstants.DEFAULT_POSTGRESQL_PORT;
-import static CCDD.CcddConstants.DEFAULT_SERVER;
-import static CCDD.CcddConstants.DEFAULT_INSTANCE_NODE_NAME;
 import static CCDD.CcddConstants.DEFAULT_PROTOTYPE_NODE_NAME;
+import static CCDD.CcddConstants.DEFAULT_SERVER;
 import static CCDD.CcddConstants.FONT_SCALE;
 import static CCDD.CcddConstants.INIT_WINDOW_HEIGHT;
 import static CCDD.CcddConstants.INIT_WINDOW_WIDTH;
@@ -50,8 +51,8 @@ import static CCDD.CcddConstants.STRING_LIST_TEXT_SEPARATOR;
 import static CCDD.CcddConstants.TABLE_STRINGS;
 import static CCDD.CcddConstants.USER;
 import static CCDD.CcddConstants.WEB_SERVER_PORT;
-import static CCDD.CcddConstants.BACKUP_KEY;
 import static CCDD.CcddConstants.setLaFAdjustments;
+
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
@@ -99,7 +100,9 @@ import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.WindowConstants;
+
 import org.apache.commons.lang3.tuple.ImmutablePair;
+
 import CCDD.CcddClassesDataTable.TableInfo;
 import CCDD.CcddConstants.CommandLinePriority;
 import CCDD.CcddConstants.DbManagerDialogType;
@@ -895,6 +898,10 @@ public class CcddMain
 
         // Read the rate parameters from the project database and sort the list by data stream name
         rateHandler = new CcddRateParameterHandler(CcddMain.this);
+        dbTable.setRateParameterHandler();
+
+        // Get the rate parameters from the project database
+        rateHandler.getRateParameters();
 
         // Read the application parameters from the project database
         appHandler = new CcddApplicationParameterHandler(CcddMain.this);
@@ -943,9 +950,6 @@ public class CcddMain
 
         // Build the command information list
         commandHandler.buildCommandList();
-
-        // Get the rate parameters from the project database
-        rateHandler.getRateParameters();
 
         // Create the list for the message ID name and ID selection input type (note that the
         // message ID class must be fully instantiated before calling the name and ID list build

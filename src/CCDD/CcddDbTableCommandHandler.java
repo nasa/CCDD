@@ -25,7 +25,6 @@
  **************************************************************************************************/
 package CCDD;
 
-import static CCDD.CcddConstants.ROW_NUM_COLUMN_NAME;
 import static CCDD.CcddConstants.ASSN_TABLE_SEPARATOR;
 import static CCDD.CcddConstants.DEFAULT_INSTANCE_NODE_NAME;
 import static CCDD.CcddConstants.DEFAULT_PROTOTYPE_NODE_NAME;
@@ -34,13 +33,14 @@ import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.PATH_IDENT;
 import static CCDD.CcddConstants.REPLACE_INDICATOR;
+import static CCDD.CcddConstants.ROW_NUM_COLUMN_NAME;
 import static CCDD.CcddConstants.TABLE_DESCRIPTION_SEPARATOR;
 import static CCDD.CcddConstants.TABLE_STRINGS;
 import static CCDD.CcddConstants.TLM_SCH_SEPARATOR;
 import static CCDD.CcddConstants.TYPE_COMMAND;
+import static CCDD.CcddConstants.TYPE_ENUM;
 import static CCDD.CcddConstants.TYPE_OTHER;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
-import static CCDD.CcddConstants.TYPE_ENUM;
 import static CCDD.CcddConstants.EventLogMessageType.SUCCESS_MSG;
 import static CCDD.CcddConstants.TableMemberType.TABLES_ONLY;
 
@@ -59,6 +59,7 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
 import org.apache.commons.lang3.tuple.ImmutableTriple;
+
 import CCDD.CcddBackgroundCommand.BackgroundCommand;
 import CCDD.CcddClassesComponent.ArrayListMultiple;
 import CCDD.CcddClassesComponent.ToolTipTreeNode;
@@ -174,14 +175,14 @@ public class CcddDbTableCommandHandler
     }
 
     /**********************************************************************************************
-     * Set the references to the table type, macro, data type, and rate handler classes
+     * Set the references to the table type, macro, data type, variable, command, input type, and
+     * rate handler classes
      *********************************************************************************************/
     protected void setHandlers()
     {
         tableTypeHandler = ccddMain.getTableTypeHandler();
         macroHandler = ccddMain.getMacroHandler();
         dataTypeHandler = ccddMain.getDataTypeHandler();
-        rateHandler = ccddMain.getRateParameterHandler();
         variableHandler = ccddMain.getVariableHandler();
         commandHandler = ccddMain.getCommandHandler();
         inputTypeHandler = ccddMain.getInputTypeHandler();
@@ -193,8 +194,15 @@ public class CcddDbTableCommandHandler
      *********************************************************************************************/
     protected void setTableTypeHandler()
     {
-        // set the table type handler
         tableTypeHandler = ccddMain.getTableTypeHandler();
+    }
+
+    /**********************************************************************************************
+     * Set the rate parameter handler
+     *********************************************************************************************/
+    protected void setRateParameterHandler()
+    {
+        rateHandler = ccddMain.getRateParameterHandler();
     }
 
     /**********************************************************************************************
@@ -6558,7 +6566,7 @@ public class CcddDbTableCommandHandler
                             String targetVar = CcddUtilities.escapePostgreSQLReservedChars(variableHandler.removeDataTypeFromVariablePath(entry));
 
                             // Check if the variable isn't already in the list
-                            if (!targetVars.contains((Object) targetVar))
+                            if (!targetVars.contains(targetVar))
                             {
                                 // Add the before and after variable names to the list for use in
                                 // building the modification commands
