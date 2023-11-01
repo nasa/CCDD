@@ -100,7 +100,7 @@ def makeCopyTableFile()
                 for (def index = 0; index < usedHKNames.size(); index++)
                 {
                     // Check if the message ID name is in the list
-                    if (tlmMsgIDs[index][0] == usedHKNames[index])
+                    if (tlmMsgIDs[msgIndex][0] == usedHKNames[index])
                     {
                         // Set the flag to indicate the name is already in the
                         // list and stop searching
@@ -119,7 +119,7 @@ def makeCopyTableFile()
             }
 
             // Get the copy table entries for this data stream
-            def copyTableEntries = ccdd.getCopyTableEntries(copyTables[copyTable], CCSDS_HEADER_LENGTH, "Message ID Name", true)
+            def copyTableEntries = ccdd.getCopyTableEntries(copyTables[copyTable], CCSDS_HEADER_LENGTH, "Telemetry message name & ID", true)
 
             // Store the copy table entries so they won't have have to be
             // retrieved from CCDD again below

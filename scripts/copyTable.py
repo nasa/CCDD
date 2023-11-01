@@ -91,7 +91,7 @@ def makeCopyTableFile():
                 # Step through the list of names already used
                 for index in range(len(usedHKNames)):
                     # Check if the message ID name is in the list
-                    if tlmMsgIDs[index][0] == usedHKNames[index]:
+                    if tlmMsgIDs[msgIndex][0] == usedHKNames[index]:
                         # Set the flag to indicate the name is already in the
                         # list and stop searching
                         isFound = True
@@ -104,7 +104,7 @@ def makeCopyTableFile():
                     usedHKValues.append(tlmMsgIDs[msgIndex][1])
 
             # Get the copy table entries for this data stream
-            copyTableEntries = ccdd.getCopyTableEntries(copyTables[copyTable], CCSDS_HEADER_LENGTH, "Message ID Name", True)
+            copyTableEntries = ccdd.getCopyTableEntries(copyTables[copyTable], CCSDS_HEADER_LENGTH, "Telemetry message name & ID", True)
 
             # Store the copy table entries so they won't have have to be
             # retrieved from CCDD again below
@@ -114,20 +114,20 @@ def makeCopyTableFile():
             if len(copyTableEntries) > 0:
                 # Adjust the minimum column widths
                 columnWidth = ccdd.getLongestStrings(copyTableEntries, columnWidth)
-                
+
                 # Update the total number of copy table entries
                 totalEntries += len(copyTableEntries)
 
-        # Check if there are unused copy table entries 
+        # Check if there are unused copy table entries
         if totalEntries < HK_COPY_TABLE_ENTRIES:
             # Update the maximum width of the input message ID column
             if columnWidth[INPUT_MSG_ID] < len("HK_UNDEFINED_ENTRY"):
                 columnWidth[INPUT_MSG_ID] = len("HK_UNDEFINED_ENTRY")
-            
+
             # Update the maximum width of the output message ID column
             if columnWidth[OUTPUT_MSG_ID] < len("HK_UNDEFINED_ENTRY"):
                 columnWidth[OUTPUT_MSG_ID] = len("HK_UNDEFINED_ENTRY")
-        
+
         # Write the standard include files to the copy table file
         ccdd.writeToFileLn(copyTableFile, "#include \"cfe.h\"")
         ccdd.writeToFileLn(copyTableFile, "#include \"hk_utils.h\"")
@@ -136,7 +136,7 @@ def makeCopyTableFile():
         ccdd.writeToFileLn(copyTableFile, "#include \"hk_tbldefs.h\"")
         ccdd.writeToFileLn(copyTableFile, "#include \"cfe_tbl_filedef.h\"")
         ccdd.writeToFileLn(copyTableFile, "")
- 
+
         # Get the number of rows for the Includes table data
         numIncludeRows = ccdd.getTableNumRows("Includes")
 
@@ -148,7 +148,7 @@ def makeCopyTableFile():
                 ccdd.writeToFileLn(copyTableFile, ccdd.getTableData("Includes", "includes", row))
 
             ccdd.writeToFileLn(copyTableFile, "")
-        
+
         # Build the format strings so that the columns in each row are aligned
         formatHeader = "/* %-" + str(columnWidth[INPUT_MSG_ID]) + "s| %-" + str(columnWidth[INPUT_OFFSET]) + "s| %-" + str(columnWidth[OUTPUT_MSG_ID]) + "s| %-" + str(columnWidth[OUTPUT_OFFSET]) + "s| %-" + str(columnWidth[VARIABLE_BYTES]) + "s */\n"
         formatBody = "  {%-" + str(columnWidth[INPUT_MSG_ID]) + "s, %" + str(columnWidth[INPUT_OFFSET]) + "s, %-" + str(columnWidth[OUTPUT_MSG_ID]) + "s, %" + str(columnWidth[OUTPUT_OFFSET]) + "s, %" + str(columnWidth[VARIABLE_BYTES]) + "s}%s  /* (%" + str(len(str(HK_COPY_TABLE_ENTRIES))) + "s) %s : %s */\n"
@@ -175,7 +175,7 @@ def makeCopyTableFile():
                         comma = " "
                     else:
                         comma = ","
- 
+
                     # Write the entry to the copy table file
                     ccdd.writeToFileFormat(copyTableFile, formatBody, copyTableEntries[row][INPUT_MSG_ID], copyTableEntries[row][INPUT_OFFSET], copyTableEntries[row][OUTPUT_MSG_ID], copyTableEntries[row][OUTPUT_OFFSET], copyTableEntries[row][VARIABLE_BYTES], comma, str(entryIndex), copyTableEntries[row][VARIABLE_PARENT], copyTableEntries[row][VARIABLE_NAME])
 
@@ -184,10 +184,10 @@ def makeCopyTableFile():
                         # Exit the loop since no more entries can be added to
                         # the copy table
                         break
-                
+
                     # Increment the copy table entry index
                     entryIndex += 1
-    
+
         # Check if there are any unfilled rows in the copy table
         if entryIndex < HK_COPY_TABLE_ENTRIES:
             # Build the format string for the empty entries so that the
