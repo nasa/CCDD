@@ -35,9 +35,9 @@ import static CCDD.CcddConstants.LAF_SCROLL_BAR_WIDTH;
 import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
 import static CCDD.CcddConstants.PAD_VARIABLE_MATCH;
 import static CCDD.CcddConstants.REPLACE_INDICATOR;
+import static CCDD.CcddConstants.TYPE_ENUM;
 import static CCDD.CcddConstants.TYPE_NAME_SEPARATOR;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
-import static CCDD.CcddConstants.TYPE_ENUM;
 import static CCDD.CcddConstants.VARIABLE_PATH_SEPARATOR;
 
 import java.awt.Color;
@@ -1718,7 +1718,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
 
                 // Check if the column for which the cell editor is requested is the data type
                 // column and the bit length cell is not empty
-                if (modelColumn == dataTypeIndex && bitLengthIndex != -1
+                if (modelColumn == dataTypeIndex
+                    && bitLengthIndex != -1
                     && !getExpandedValueAt(modelRow, bitLengthIndex).isEmpty())
                 {
                     // Select the combo box cell editor that displays only integer data types
@@ -2068,7 +2069,9 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                             adjustArrayMember(tableData, arrayDims, arrayDims, row, column);
                         }
                         // Check if this is the rate column and the variable has a bit length value
-                        else if (rateIndex.contains(column) && bitLength != null && dataType != null
+                        else if (rateIndex.contains(column)
+                                 && bitLength != null
+                                 && dataType != null
                                  && !bitLength.isEmpty())
                         {
                             // Adjust the rates of any other bit-wise variables that are packed
@@ -2267,20 +2270,26 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                     int modelColumn = convertColumnIndexToModel(column);
 
                     if (
-                    // Check if this isn't the variable name, data type, array size, bit length,
-                    // rate, or variable path column, and that the cell is not alterable
-                    (modelColumn != variableNameIndex && modelColumn != dataTypeIndex && modelColumn != arraySizeIndex
-                     && modelColumn != bitLengthIndex && modelColumn != variablePathIndex
-                     && !rateIndex.contains(modelColumn) && !isDataAlterable(rowData, row, modelColumn))
+                        // Check if this isn't the variable name, data type, array size, bit length,
+                        // rate, or variable path column, and that the cell is not alterable
+                        (modelColumn != variableNameIndex
+                         && modelColumn != dataTypeIndex
+                         && modelColumn != arraySizeIndex
+                         && modelColumn != bitLengthIndex
+                         && modelColumn != variablePathIndex
+                         && !rateIndex.contains(modelColumn)
+                         && !isDataAlterable(rowData, row, modelColumn))
 
                         // Check if the data type column exists, the data type is a pointer, and
                         // pointers are not allowed for this column
-                        || (dataTypeIndex != -1 && newDataTypeHandler.isPointer(rowData[dataTypeIndex].toString())
+                        || (dataTypeIndex != -1
+                            && newDataTypeHandler.isPointer(rowData[dataTypeIndex].toString())
                             && !typeDefn.isPointerAllowed()[modelColumn])
 
-                    // Check if a data type column exists, this is the bit length column, and the
-                    // data type isn't a primitive
-                        || (dataTypeIndex != -1 && modelColumn == bitLengthIndex
+                        // Check if a data type column exists, this is the bit length column, and the
+                        // data type isn't a primitive
+                        || (dataTypeIndex != -1
+                            && modelColumn == bitLengthIndex
                             && !newDataTypeHandler.isPrimitive(rowData[dataTypeIndex].toString())))
                     {
                         // Clear the contents of the cell
@@ -3020,6 +3029,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             /**************************************************************************************
              * Move the selected column(s) left one column
              *************************************************************************************/
+            @Override
             protected void moveColumnLeft()
             {
                 super.moveColumnLeft();
@@ -3034,6 +3044,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             /**************************************************************************************
              * Move the selected column(s) right one column
              *************************************************************************************/
+            @Override
             protected void moveColumnRight()
             {
                 super.moveColumnRight();
@@ -3241,8 +3252,8 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                         }
                     }
 
-                    // Check if there are no array definitions, of if there are that there are no
-                    // array members being pasted
+                    // Check if there are no array definitions, or if there are array members being
+                    // pasted
                     if (!isDefinitionPasted || isMemberPasted)
                     {
                         // Expand the arrays if not already expanded
@@ -4113,11 +4124,11 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
     {
         int editColumnModel = table.convertColumnIndexToModel(getTable().getEditingColumn());
 
-        return typeDefn.isStructure()
-               && currentTableInfo.isPrototype()
-               && (editColumnModel == arraySizeIndex
-                   || editColumnModel == bitLengthIndex) ? validStructureDataTypes
-                                                         : Arrays.asList(allPrototypeStructureTables);
+        return !typeDefn.isStructure() ? null
+                                       : currentTableInfo.isPrototype()
+                                         && (editColumnModel == arraySizeIndex
+                                             || editColumnModel == bitLengthIndex) ? validStructureDataTypes
+                                                                                   : Arrays.asList(allPrototypeStructureTables);
     }
 
     /**********************************************************************************************
@@ -4332,7 +4343,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
             enumComboBox.enableItemMatching(table);
 
             // Create the data type cell editor for enumerations
-            enumDataTypeCellEditor = new DefaultCellEditor(enumComboBox);
+            enumDataTypeCellEditor = new ComboBoxCellEditor(enumComboBox);
         }
     }
 
@@ -5653,6 +5664,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
          * State change listener. Synchronize the fixed column to the main table's vertical scroll
          * position
          *****************************************************************************************/
+        @Override
         public void stateChanged(ChangeEvent ce)
         {
             JViewport viewport = (JViewport) ce.getSource();
@@ -5662,6 +5674,7 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
         /******************************************************************************************
          * Property change listener. Keep the main and fixed tables' content synchronized
          *****************************************************************************************/
+        @Override
         public void propertyChange(PropertyChangeEvent pce)
         {
             if ("selectionModel".equals(pce.getPropertyName()))

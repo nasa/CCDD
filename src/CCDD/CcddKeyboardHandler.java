@@ -31,9 +31,11 @@ import static CCDD.CcddConstants.ArrowFocusOption.HANDLE_UP_ARROW;
 import static CCDD.CcddConstants.ArrowFocusOption.IGNORE_UP_AND_DOWN_ARROWS;
 import static CCDD.CcddConstants.ArrowFocusOption.USE_DEFAULT_HANDLER;
 
+import java.awt.AWTException;
 import java.awt.Component;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
+import java.awt.Robot;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -176,35 +178,13 @@ public class CcddKeyboardHandler
                         // Not a button; check if this is a table (or a cell in a table)
                         else
                         {
-                            boolean isTable = false;
-                            Component parentComp = comp;
-
-                            // Start with the component and work through its parent component(s)
-                            // until a table is found or the last parent is reached
-                            do
-                            {
-                                // Check if the component is a table
-                                if (parentComp instanceof CcddJTableHandler)
-                                {
-                                    // Set the flag to indicate the component is a table or a cell
-                                    // in a table
-                                    isTable = true;
-                                }
-                                // The component isn't a table
-                                else
-                                {
-                                    // Get the component's parent component
-                                    parentComp = parentComp.getParent();
-                                }
-                            } while (!isTable && parentComp != null);
-
-                            // Check if the component is an editor for a table cell
-                            if (isTable)
-                            {
-                                // Handle the Enter key in the table
-                                handled = tableEditCellHandler(comp);
-                            }
+                            handled = checkTableOrCell(comp, false);
                         }
+                    }
+                    // Check if the Tab key is pressed
+                    else if (ke.getKeyCode() == KeyEvent.VK_TAB)
+                    {
+                        handled = checkTableOrCell(comp, true);
                     }
                     // Check if the space key is pressed
                     else if (ke.getKeyCode() == KeyEvent.VK_SPACE)
@@ -213,7 +193,7 @@ public class CcddKeyboardHandler
                         if (comp instanceof CcddJTableHandler)
                         {
                             // Handle the space key in the table
-                            handled = tableEditCellHandler(comp);
+                            handled = tableEditCellHandler(comp, false);
                         }
                         // Check this is a combo box in a table
                         else if (comp.getParent() instanceof CcddJTableHandler && comp instanceof JComboBox)
@@ -1010,16 +990,65 @@ public class CcddKeyboardHandler
     }
 
     /**********************************************************************************************
-     * Handle Enter and space key press events in a table in order to activate check box controls
-     * and initiate editing for editable fields. The space key would do these without this method;
-     * it is included in order to eliminate the cell background color 'flash' that occurs when a
-     * check box is toggled
+     * Check if the component is a table or table cell, and if so call the method to handle Enter
+     * or Tab key press events
      *
-     * @param comp Reference to the component where the key press event occurred
+     * @param comp     Reference to the component where the key press event occurred
+     *
+     * @param nextCell True to select the next cell prior to initiating editing if the component
+     *                 is a JTable and editing isn't active in the current cell
      *
      * @return True if the key press event is handled by this method; false otherwise
      *********************************************************************************************/
-    private boolean tableEditCellHandler(Component comp)
+    private boolean checkTableOrCell(Component comp, boolean nextCell)
+    {
+        boolean handled = false;
+        boolean isTable = false;
+        Component parentComp = comp;
+
+        // Start with the component and work through its parent component(s)
+        // until a table is found or the last parent is reached
+        do
+        {
+            // Check if the component is a table
+            if (parentComp instanceof CcddJTableHandler)
+            {
+                // Set the flag to indicate the component is a table or a cell
+                // in a table
+                isTable = true;
+            }
+            // The component isn't a table
+            else
+            {
+                // Get the component's parent component
+                parentComp = parentComp.getParent();
+            }
+        } while (!isTable && parentComp != null);
+
+        // Check if the component is an editor for a table cell
+        if (isTable)
+        {
+            // Handle the key in the table
+            handled = tableEditCellHandler(comp, nextCell);
+        }
+
+        return handled;
+    }
+
+    /**********************************************************************************************
+     * Handle Enter, tab, and space key press events in a table in order to activate check box
+     * controls and initiate editing for editable fields. The space key would do these without this
+     * method; it is included in order to eliminate the cell background color 'flash' that occurs
+     * when a check box is toggled
+     *
+     * @param comp     Reference to the component where the key press event occurred
+     *
+     * @param nextCell True to select the next cell prior to initiating editing if the component
+     *                 is a JTable and editing isn't active in the current cell
+     *
+     * @return True if the key press event is handled by this method; false otherwise
+     *********************************************************************************************/
+    private boolean tableEditCellHandler(Component comp, boolean nextCell)
     {
         boolean handled = false;
         CcddJTableHandler table = null;
@@ -1028,6 +1057,21 @@ public class CcddKeyboardHandler
         if (comp instanceof CcddJTableHandler)
         {
             table = (CcddJTableHandler) comp;
+
+            try
+            {
+                // Check if the next cell should be selected prior to initiating editing
+                if (nextCell && !table.isEditing())
+                {
+                    // Move selection to the next cell
+                    Robot rbt = new Robot();
+                    rbt.keyPress(KeyEvent.VK_ENTER);
+                    rbt.keyRelease(KeyEvent.VK_ENTER);
+                }
+             }
+            catch (AWTException ae)
+            {
+            }
 
             // Get the row and column in the table with the focus
             int row = table.getSelectedRow() + table.getSelectedRowCount() - 1;

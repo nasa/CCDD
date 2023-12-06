@@ -27,13 +27,13 @@ package CCDD;
 
 import static CCDD.CcddConstants.ALL_TABLES_GROUP_NODE_NAME;
 import static CCDD.CcddConstants.DEFAULT_INSTANCE_NODE_NAME;
-import static CCDD.CcddConstants.SECONDARY_INSTANCE_NODE_NAME;
 import static CCDD.CcddConstants.DEFAULT_PROTOTYPE_NODE_NAME;
 import static CCDD.CcddConstants.DISABLED_TEXT_COLOR;
 import static CCDD.CcddConstants.INVALID_TEXT_COLOR;
 import static CCDD.CcddConstants.LINKED_VARIABLES_NODE_NAME;
-import static CCDD.CcddConstants.UNLINKED_VARIABLES_NODE_NAME;
+import static CCDD.CcddConstants.SECONDARY_INSTANCE_NODE_NAME;
 import static CCDD.CcddConstants.TYPE_ENUM;
+import static CCDD.CcddConstants.UNLINKED_VARIABLES_NODE_NAME;
 import static CCDD.CcddConstants.TableMemberType.INCLUDE_PRIMITIVES;
 import static CCDD.CcddConstants.TableMemberType.TABLES_ONLY;
 import static CCDD.CcddConstants.TableTreeType.COMMAND_TABLES;
@@ -771,12 +771,14 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                                   boolean isByTypeChanged,
                                   Component parent)
     {
+        allTablesGroupNode = null;
+
         // Check that this tree is not the special pre-loaded group tree, and that it is changed to
         // be filtered by group
-        if ((buildGroupTree == false) && isByGroupChanged && isByGroup)
+        if (!buildGroupTree && isByGroupChanged && isByGroup && !isByType)
         {
             // Grab the pre-loaded group tree root and its 'All Tables' group node
-            root = (ToolTipTreeNode) ccddMain.getGroupTableTreeHandler().getPreLoadedGroupRoot();
+            root = ccddMain.getGroupTableTreeHandler().getPreLoadedGroupRoot();
             allTablesGroupNode = ccddMain.getGroupTableTreeHandler().getAllTablesGroupNode();
 
             setModel(new DefaultTreeModel(root));
@@ -789,10 +791,10 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         }
         // Check that this tree is not the special pre-loaded type tree, and that it is changed to
         // be filtered by type
-        else if ((buildTypeTree == false) && isByTypeChanged && isByType)
+        else if (!buildTypeTree && isByTypeChanged && isByType && !isByGroup)
         {
             // Grab the pre-loaded type tree root
-            root = (ToolTipTreeNode) ccddMain.getTypeTableTreeHandler().getPreLoadedTypeRoot();
+            root = ccddMain.getTypeTableTreeHandler().getPreLoadedTypeRoot();
 
             setModel(new DefaultTreeModel(root));
             setRootVisible(false);
@@ -1381,7 +1383,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         }
 
         HashMap<TableMembers, HashSet<String>> tableMap = new HashMap<>();
-        boolean isOptEngaged = true;
+        boolean isOptEngaged = true; // TODO For tests
 
         if (isOptEngaged)
         {
@@ -1446,10 +1448,6 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                     {
                         boolean isRoot = true;
 
-                        if (tableMap.get(member) != null)
-                        {
-
-                        }
                         // Step through each table
                         for (TableMembers otherMember : tableMembers)
                         {
@@ -1625,7 +1623,7 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                 {
                     // Get the rate value for this variable. Use the prototype's value if the
                     // variable doesn't have a specific rate assigned
-                    int index = rateValues.indexOf((Object) tablePath.toString());
+                    int index = rateValues.indexOf(tablePath.toString());
                     rate = isChildVariable && index != -1 ? rateValues.get(index)[2]
                                                           : thisMember.getRates().get(memIndex)[rateIndex];
                 }
@@ -1694,7 +1692,6 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
             // Remove the node
             parentNode.remove(childNode);
         }
-
     }
 
     /**********************************************************************************************

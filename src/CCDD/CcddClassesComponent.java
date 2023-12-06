@@ -27,6 +27,7 @@ package CCDD;
 
 import static CCDD.CcddConstants.LAF_CHECK_BOX_HEIGHT;
 import static CCDD.CcddConstants.LAF_SCROLL_BAR_WIDTH;
+
 import java.awt.AlphaComposite;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -878,7 +879,13 @@ public class CcddClassesComponent
         protected void updateSelectedItem()
         {
             ComboPopup popup = (ComboPopup) comboBox.getAccessibleContext().getAccessibleChild(0);
-            comboBox.setSelectedItem(popup.getList().getSelectedValue());
+            Object selectedValue = popup.getList().getSelectedValue();
+
+            // Check that an item exists and is selected
+            if (selectedValue != null)
+            {
+                comboBox.setSelectedItem(selectedValue);
+            }
         }
     }
 
@@ -1088,7 +1095,6 @@ public class CcddClassesComponent
          *
          * @param textComp Text component over which to display the pop-up combo box
          *****************************************************************************************/
-        @SuppressWarnings("deprecation")
         private void positionReferencePopup(JTextComponent textComp)
         {
             try

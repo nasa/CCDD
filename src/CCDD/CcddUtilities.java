@@ -1010,8 +1010,8 @@ public class CcddUtilities
             // Step through each row of the array
             for (int row = 0; row < asObject.length; row++)
             {
-                // Store the object as a string
-                asString[row] = asObject[row].toString();
+                // If the value is null then leave it null, else store it as a string
+                asString[row] = asObject[row] == null ? null : asObject[row].toString();
             }
         }
 
@@ -1043,8 +1043,9 @@ public class CcddUtilities
                 // Step through each column of the array
                 for (int column = 0; column < asObject[row].length; column++)
                 {
-                    // Store the object as a string
-                    rowAsString[column] = asObject[row][column].toString();
+                    // If the value is null then leave it null, else store it as a string
+                    rowAsString[column] = asObject[row][column] == null ? null
+                                                                        : asObject[row][column].toString();
                 }
 
                 // Add the converted row to the array

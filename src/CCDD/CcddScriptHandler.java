@@ -1726,7 +1726,7 @@ public class CcddScriptHandler
                         if (haltDlg != null)
                         {
                             // Update the progress bar as each table is loaded
-                            haltDlg.updateProgressBar(null, -1);
+                            haltDlg.updateProgressBar(null);
                         }
 
                         // Read the table and child table data from the database and store the
@@ -1840,8 +1840,7 @@ public class CcddScriptHandler
                 // Update the cancellation dialog progress bar. Use the association name in the
                 // progress bar; if the name is blank then display the script (with full path)
                 haltDlg.updateProgressBar((!assn[AssociationsColumn.NAME.ordinal()].toString().isEmpty() ? assn[AssociationsColumn.NAME.ordinal()].toString()
-                                                                                                         : assn[AssociationsColumn.SCRIPT_FILE.ordinal()].toString()),
-                                          -1);
+                                                                                                         : assn[AssociationsColumn.SCRIPT_FILE.ordinal()].toString()));
             }
 
             // Check that an error didn't occur loading the data for this association
@@ -2017,14 +2016,17 @@ public class CcddScriptHandler
                     break;
                 }
 
-                // Get the script file name with any environment variables expanded
+                // Get the script file name (with any environment variables expanded) and
+                // description
                 String scriptFileName = FileEnvVar.expandEnvVars(assn[AssociationsColumn.SCRIPT_FILE.ordinal()].toString(),
                                                                  envVarMap);
+                String scriptDescription = assn[AssociationsColumn.DESCRIPTION.ordinal()].toString();
 
                 try
                 {
                     // Execute the script using the indicated table data
                     executeScript(scriptFileName,
+                                  scriptDescription,
                                   combinedTableInfo,
                                   groupNames,
                                   linkHandler,
@@ -2189,25 +2191,28 @@ public class CcddScriptHandler
      * and static script data access handlers are bound to the engine so that the public access
      * methods can be utilized
      *
-     * @param scriptFileName   Script file name. The file extension is used to determine the script
-     *                         engine and therefore must conform to standard extension usage
+     * @param scriptFileName    Script file name. The file extension is used to determine the
+     *                          script engine and therefore must conform to standard extension usage
      *
-     * @param tableInformation Array of table information
+     * @param scriptDescription Script description
      *
-     * @param groupNames       List containing the names of any groups referenced in the script
-     *                         association
+     * @param tableInformation  Array of table information
      *
-     * @param linkHandler      Link handler reference
+     * @param groupNames        List containing the names of any groups referenced in the script
+     *                          association
      *
-     * @param groupHandler     Group handler reference
+     * @param linkHandler       Link handler reference
      *
-     * @param parent           GUI component over which to center any error dialog
+     * @param groupHandler      Group handler reference
+     *
+     * @param parent            GUI component over which to center any error dialog
      *
      * @return Reference to the script engine; null if an error occurs
      *
      * @throws CCDDException If an error occurs while attempting to access the script file
      *********************************************************************************************/
     protected ScriptEngine getScriptEngine(String scriptFileName,
+                                           String scriptDescription,
                                            TableInfo[] tableInformation,
                                            CcddLinkHandler linkHandler,
                                            CcddGroupHandler groupHandler,
@@ -2274,6 +2279,7 @@ public class CcddScriptHandler
                                                                 linkHandler,
                                                                 groupHandler,
                                                                 scriptFileName,
+                                                                scriptDescription,
                                                                 groupNames,
                                                                 parent);
                 staticHandler = new CcddScriptDataAccessHandlerStatic(accessHandler);
@@ -2320,6 +2326,8 @@ public class CcddScriptHandler
      * @param scriptFileName   Script file name. The file extension is used to determine the script
      *                         engine and therefore must conform to standard extension usage
      *
+     * @param scriptDescription Script description
+
      * @param tableInformation Array of table information
      *
      * @param groupNames       List containing the names of any groups referenced in the script
@@ -2334,6 +2342,7 @@ public class CcddScriptHandler
      * @throws CCDDException If an error occurs while attempting to access the script file
      *********************************************************************************************/
     private void executeScript(String scriptFileName,
+                               String scriptDescription,
                                TableInfo[] tableInformation,
                                List<String> groupNames,
                                CcddLinkHandler linkHandler,
@@ -2342,6 +2351,7 @@ public class CcddScriptHandler
     {
         // Get the script engine for the supplied script file name and table information
         ScriptEngine scriptEngine = getScriptEngine(scriptFileName,
+                                                    scriptDescription,
                                                     tableInformation,
                                                     linkHandler,
                                                     groupHandler,

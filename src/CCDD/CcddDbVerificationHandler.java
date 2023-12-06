@@ -1056,7 +1056,7 @@ public class CcddDbVerificationHandler
                 }
 
                 // Update the within-step progress value
-                haltDlg.updateProgressBar(null, -1);
+                haltDlg.updateProgressBar(null);
             }
         }
         catch (SQLException se)
@@ -2118,7 +2118,7 @@ public class CcddDbVerificationHandler
                 }
 
                 // Update the within-step progress value
-                haltDlg.updateProgressBar(null, -1);
+                haltDlg.updateProgressBar(null);
             }
 
             tableResult.close();
@@ -2218,17 +2218,19 @@ public class CcddDbVerificationHandler
                                           "Delete duplicate entries",
                                           "DELETE FROM "
                                           + InternalTable.VALUES.getTableName()
-                                          + " v1 USING "
+                                          + " WHERE ctid IN (SELECT ctid FROM "
                                           + InternalTable.VALUES.getTableName()
-                                          + " v2 WHERE v1.ctid < v2.ctid AND v1."
+                                          + " WHERE "
                                           + ValuesColumn.TABLE_PATH.getColumnName()
                                           + " = '"
                                           + duplicateRow[ValuesColumn.TABLE_PATH.ordinal()]
-                                          + "' AND v1."
+                                          + "' AND "
                                           + ValuesColumn.COLUMN_NAME.getColumnName()
                                           + " = '"
                                           + duplicateRow[ValuesColumn.COLUMN_NAME.ordinal()]
-                                          + "'; "));
+                                          + "' ORDER BY ctid LIMIT "
+                                          + (Integer.valueOf(duplicateRow[2]) - 1)
+                                          + "); "));
             }
         }
         catch (SQLException se)
@@ -2474,7 +2476,7 @@ public class CcddDbVerificationHandler
             }
 
             // Update the within-step progress value
-            haltDlg.updateProgressBar(null, -1);
+            haltDlg.updateProgressBar(null);
         }
     }
 

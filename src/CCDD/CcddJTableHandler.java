@@ -1584,21 +1584,18 @@ public abstract class CcddJTableHandler extends JTable
      *********************************************************************************************/
     private class HeaderFontRenderer extends DefaultTableCellRenderer
     {
-        private final DefaultTableCellRenderer renderer;
-
         /******************************************************************************************
          * Table header renderer class constructor
          *****************************************************************************************/
         HeaderFontRenderer()
         {
-            // Get the default table header renderer. This allows manipulation of look & feels that
-            // have specialized header renderers
-            renderer = (DefaultTableCellRenderer) table.getTableHeader().getDefaultRenderer();
+            // Set the renderer's font and horizontal alignment
+            setFont(ModifiableFontInfo.TABLE_HEADER.getFont());
+            setHorizontalAlignment(SwingConstants.CENTER);
         }
 
         /******************************************************************************************
-         * Override the table header renderer so that the font can be set based on the column name
-         * content
+         * Override the table header renderer so that the font is set
          *****************************************************************************************/
         @Override
         public Component getTableCellRendererComponent(JTable jtable,
@@ -1608,23 +1605,10 @@ public abstract class CcddJTableHandler extends JTable
                                                        int row,
                                                        int column)
         {
-            // Get the column index in model coordinates
-            int modelColumn = table.convertColumnIndexToModel(column);
+            // Set the cell to the string representation of the value
+            setText(value == null ? "" : value.toString());
 
-            // Check if the column name contains an HTML line break tag
-            if (columnNames[modelColumn].contains("<br>"))
-            {
-                // Adjust the font smaller
-                getTableHeader().setFont(ModifiableFontInfo.TABLE_HEADER.getFont().deriveFont(Math.max(ModifiableFontInfo.TABLE_HEADER.getFont().getSize() - 3, 9f)));
-            }
-            // The column name appears on a single line
-            else
-            {
-                // Set the column name font
-                getTableHeader().setFont(ModifiableFontInfo.TABLE_HEADER.getFont());
-            }
-
-            return renderer.getTableCellRendererComponent(jtable, value, isSelected, hasFocus, row, column);
+            return this;
         }
     }
 
@@ -1633,20 +1617,34 @@ public abstract class CcddJTableHandler extends JTable
      *********************************************************************************************/
     private void setHeaderRenderer()
     {
-        // Get the reference to the default header renderer to shorten subsequent calls
-        DefaultTableCellRenderer headerRenderer = new HeaderFontRenderer();
+        // Create column header renderers for single and multiple lines
+        DefaultTableCellRenderer singleLineHeaderRenderer = new HeaderFontRenderer();
+        DefaultTableCellRenderer multiLineHeaderRenderer = new HeaderFontRenderer();
 
-        // Center the table column header text
-        headerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+        // Set the column header font based on the renderer
+        singleLineHeaderRenderer.setFont(ModifiableFontInfo.TABLE_HEADER.getFont());
+        multiLineHeaderRenderer.setFont(ModifiableFontInfo.TABLE_HEADER.getFont().deriveFont(Math.max(ModifiableFontInfo.TABLE_HEADER.getFont().getSize() - 3, 9f)));
 
-        // Set the table's column renderers
+        // Step through each column
         for (int column = 0; column < getColumnCount(); column++)
         {
+            // Get the column index in model coordinates
+            int modelColumn = table.convertColumnIndexToModel(column);
+
             // Get the table column to shorten the calls below
             TableColumn tableColumn = getColumnModel().getColumn(column);
 
-            // Set the header renderer
-            tableColumn.setHeaderRenderer(headerRenderer);
+            // Check if the column header has line breaks (i.e., it's multi-line)
+            if (columnNames[modelColumn].contains("<br>"))
+            {
+                // Set the column header's renderer to use the smaller font
+                tableColumn.setHeaderRenderer(multiLineHeaderRenderer);
+            }
+            else
+            {
+                // Set the column header's renderer to use the normal font
+                tableColumn.setHeaderRenderer(singleLineHeaderRenderer);
+            }
         }
     }
 
@@ -4439,7 +4437,29 @@ public abstract class CcddJTableHandler extends JTable
 
                         // Keep the table's current scroll position from changing if possible
                         scrollToCurrent();
-                   }
+
+                        // Create a runnable object to be executed
+                        SwingUtilities.invokeLater(new Runnable()
+                        {
+                            /**********************************************************************
+                             * Execute after all pending Swing events are finished
+                             *********************************************************************/
+                            @Override
+                            public void run()
+                            {
+                                // Highlight the cell that was being edited
+                                int viewRow = table.convertRowIndexToView(editRow);
+                                int viewColumn = table.convertColumnIndexToView(editColumn);
+
+                                setRowSelectionInterval(viewRow, viewRow);
+                                setColumnSelectionInterval(viewColumn, viewColumn);
+                                setSelectedCells(viewRow,
+                                                 viewRow,
+                                                 viewColumn,
+                                                 viewColumn);
+                            }
+                        });
+                    }
                 }
             }
         }

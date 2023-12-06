@@ -2514,7 +2514,7 @@ public class CcddDbTableCommandHandler
                         // variable in the table matches the data type in the path from the custom
                         // values table
                         if (row != -1
-                                && tableInfo.getData().get(row)[dataTypeIndex].equals(variableName.subSequence(variableName.lastIndexOf(",") + 1, varIndex)))
+                            && tableInfo.getData().get(row)[dataTypeIndex].equals(variableName.subSequence(variableName.lastIndexOf(",") + 1, varIndex)))
                         {
                             // Get the index of the column that will have its data replaced
                             int column = typeDefn.getColumnIndexByUserName(rowData.getString(ValuesColumn.COLUMN_NAME.getColumnName()));
@@ -2854,7 +2854,7 @@ public class CcddDbTableCommandHandler
                                                         false,
                                                         parent);
 
-                    // CHek if the table data cannot be loaded
+                    // Check if the table data cannot be loaded
                     if (tableInfo == null)
                     {
                         throw new CCDDException("table " + tableName + " data not found");
@@ -5321,7 +5321,7 @@ public class CcddDbTableCommandHandler
                                               CcddUtilities.removeTrailer(valInsCmd.get(lastIndex),
                                                                           ", "));
                                 valInsCmd.get(lastIndex).append("; ");
-                                valInsCmd.add(insertCmd);
+                                valInsCmd.add(new StringBuilder(insertCmd.toString()));
                             }
                         }
                     }
@@ -8304,9 +8304,9 @@ public class CcddDbTableCommandHandler
                 if (!errorFlag)
                 {
                     errorFlag = storeNonTableTypesInfoTable(InternalTable.FIELDS,
-                                                                   fieldDefinitions,
-                                                                   null,
-                                                                   typeDialog);
+                                                            fieldDefinitions,
+                                                            null,
+                                                            typeDialog);
 
                     if (!errorFlag)
                     {
@@ -10711,7 +10711,7 @@ public class CcddDbTableCommandHandler
                             for (String tableType : tableTypes)
                             {
                                 // Get the names of the prototype tables of this table type
-                                String[] tables = getPrototypeTablesOfType(tableType);
+                                String[] tables = getPrototypeTablesOfTypeName(tableType);
 
                                 // Check if any tables of this type exist
                                 if (tables.length != 0)
@@ -10920,7 +10920,24 @@ public class CcddDbTableCommandHandler
         });
     }
 
-    /**********************************************************************************************
+
+	/**********************************************************************************************
+	 * Get an array containing all prototype tables that have the specified table type name
+	 *
+	 * @param tableTypeName Table type name
+	 *
+	 * @return Array containing all prototype tables that have the specified type name
+	 *********************************************************************************************/
+	protected String[] getPrototypeTablesOfTypeName(String tableTypeName)
+	{
+		String[] tablesOfTypeName = new String[0];
+
+		return CcddUtilities.concatenateArrays(tablesOfTypeName,
+				                               queryTablesOfTypeList(tableTypeName,
+						                       ccddMain.getMainFrame()));
+	}
+
+	/**********************************************************************************************
      * Get an array containing all prototype tables that are of the specified table type (combining
      * all structure and all command tables)
      *

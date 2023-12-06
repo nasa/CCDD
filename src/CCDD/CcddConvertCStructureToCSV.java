@@ -39,8 +39,6 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
-import org.apache.commons.lang3.StringUtils;
-
 import CCDD.CcddClassesComponent.FileEnvVar;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
@@ -70,7 +68,7 @@ public class CcddConvertCStructureToCSV
      *
      * @param ccddMain  Main class
      *
-     * @param   parent  GUI component over which to center any error dialog
+     * @param parent    GUI component over which to center any error dialog
      *
      * @return Files converted to CSV format
      *********************************************************************************************/
@@ -430,7 +428,7 @@ public class CcddConvertCStructureToCSV
                                 {
                                     String ptr = "";
 
-                                    // Initialize the array size, bit length, and description
+                                    // Initialize the array size and bit length
                                     arraySize = "";
                                     bitLength = "";
 
@@ -541,27 +539,6 @@ public class CcddConvertCStructureToCSV
                                                           + "\",\""
                                                           + description
                                                           + "\"");
-
-                                        // Check if the array size is a number (i.e., this is an
-                                        // array definition)
-                                        if (StringUtils.isNumeric(arraySize))
-                                        {
-                                            // Step through each array index
-                                            for (int memIndex = 0; memIndex < Integer.valueOf(arraySize); ++memIndex)
-                                            {
-                                                // Add the array member
-                                                structDataOut.add("\""
-                                                        + dataType
-                                                        + ptr
-                                                        + "\",\""
-                                                        + variableName
-                                                        + "["
-                                                        + memIndex
-                                                        + "]\",\""
-                                                        + arraySize
-                                                        + "\",\"\",\"\"");
-                                            }
-                                        }
 
                                         // If the data type isn't recognized then add  it to the
                                         // list
@@ -812,7 +789,7 @@ public class CcddConvertCStructureToCSV
             // Check if this portion is in variable name format, and isn't the sizeof() call or an
             // existing data type
             if (part.matches(DefaultInputType.ALPHANUMERIC.getInputMatch())
-                && !part.matches("sizeof(")
+                && !part.matches("sizeof\\(")
                 && (dataTypeHandler.getDataTypeByName(part) == null))
             {
                 // Add the macro identifier to the macro name

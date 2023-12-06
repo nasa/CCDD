@@ -646,7 +646,7 @@ public class CcddPaddingVariableHandler
                         StructurePaddingHandler paddingInfo = new StructurePaddingHandler(protoStruct);
 
                         // Update the progress bar text
-                        haltDlg.updateProgressBar(paddingInfo.structureName, -1);
+                        haltDlg.updateProgressBar(paddingInfo.structureName);
 
                         // Check if the table loaded successfully
                         if (paddingInfo.isLoaded())
@@ -679,7 +679,7 @@ public class CcddPaddingVariableHandler
                         if (selectedProtoStructTables.contains(paddingInfo.structureName))
                         {
                             // Update the progress bar text
-                            haltDlg.updateProgressBar(paddingInfo.structureName, -1);
+                            haltDlg.updateProgressBar(paddingInfo.structureName);
 
                             // Remove any existing padding variables from the table
                             paddingInfo.removePadding();
@@ -702,7 +702,7 @@ public class CcddPaddingVariableHandler
                             }
 
                             // Update the progress bar text
-                            haltDlg.updateProgressBar(paddingInfo.structureName, -1);
+                            haltDlg.updateProgressBar(paddingInfo.structureName);
 
                             // Find largest primitive data type referenced in this table's
                             // hierarchy, including those in any child structures, and the
@@ -726,7 +726,7 @@ public class CcddPaddingVariableHandler
                             if (selectedProtoStructTables.contains(paddingInfo.structureName))
                             {
                                 // Update the progress bar text
-                                haltDlg.updateProgressBar(paddingInfo.structureName, -1);
+                                haltDlg.updateProgressBar(paddingInfo.structureName);
 
                                 // Check if the structure contains a variable with a non-zero size
                                 if (paddingInfo.largestDataType != 0)
@@ -755,8 +755,7 @@ public class CcddPaddingVariableHandler
                         if (selectedProtoStructTables.contains(paddingInfo.structureName))
                         {
                             // Update the progress bar text
-                            haltDlg.updateProgressBar
-                            (paddingInfo.structureName, -1);
+                            haltDlg.updateProgressBar(paddingInfo.structureName);
 
                             // Update the table in the project database
                             paddingInfo.updateTable();

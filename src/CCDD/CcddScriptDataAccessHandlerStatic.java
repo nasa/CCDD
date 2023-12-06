@@ -28,15 +28,14 @@ package CCDD;
 import java.io.PrintWriter;
 import java.util.List;
 
-import org.omg.space.xtce.BaseDataType.UnitSet;
-import org.omg.space.xtce.EntryListType;
-import org.omg.space.xtce.EnumeratedDataType.EnumerationList;
-import org.omg.space.xtce.NameDescriptionType;
-import org.omg.space.xtce.SpaceSystemType;
+import org.omg.spec.xtce._20180204.EnumerationListType;
+import org.omg.spec.xtce._20180204.SpaceSystemType;
+import org.omg.spec.xtce._20180204.UnitSetType;
 
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.TableInfo;
-import CCDD.CcddImportSupportHandler.BasePrimitiveDataType;
+import CCDD.CcddImportExportSupportHandler.BasePrimitiveDataType;
+import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /**************************************************************************************************
  * CFS Command and Data Dictionary static script data access class. This class contains static
@@ -61,6 +60,11 @@ public class CcddScriptDataAccessHandlerStatic
     public static String getScriptName()
     {
         return accessHandler.getScriptName();
+    }
+
+    public String getScriptDescription()
+    {
+        return accessHandler.getScriptDescription();
     }
 
     public static String getUser()
@@ -989,57 +993,19 @@ public class CcddScriptDataAccessHandlerStatic
                    classification3);
     }
 
-    public static void xtceAddSpaceSystemHeader(SpaceSystemType spaceSystem,
-                                                String classification,
-                                                String validationStatus,
-                                                String version,
-                                                String date) throws CCDDException
-    {
-        accessHandler.xtceAddSpaceSystemHeader(spaceSystem,
-                                               classification,
-                                               validationStatus,
-                                               version,
-                                               date);
-    }
-
-    public static void xtceCreateTelemetryMetadata(SpaceSystemType spaceSystem)
-    {
-        accessHandler.xtceCreateTelemetryMetadata(spaceSystem);
-    }
-
     public static void xtceAddSpaceSystemParameters(SpaceSystemType spaceSystem,
                                                     String tableName,
                                                     String[][] tableData,
-                                                    int varColumn,
-                                                    int typeColumn,
-                                                    int sizeColumn,
-                                                    int bitColumn,
-                                                    int enumColumn,
-                                                    int descColumn,
-                                                    int unitsColumn,
-                                                    int minColumn,
-                                                    int maxColumn,
-                                                    boolean isTlmHdrTable,
-                                                    String tlmHdrSysPath,
-                                                    boolean isRootStructure,
-                                                    String applicationID) throws CCDDException
+                                                    TypeDefinition typeDefn,
+                                                    String messageFieldName,
+                                                    String messageNameAndID) throws CCDDException
     {
         accessHandler.xtceAddSpaceSystemParameters(spaceSystem,
                                                    tableName,
                                                    tableData,
-                                                   varColumn,
-                                                   typeColumn,
-                                                   sizeColumn,
-                                                   bitColumn,
-                                                   enumColumn,
-                                                   descColumn,
-                                                   unitsColumn,
-                                                   minColumn,
-                                                   maxColumn,
-                                                   isTlmHdrTable,
-                                                   tlmHdrSysPath,
-                                                   isRootStructure,
-                                                   applicationID);
+                                                   typeDefn,
+                                                   messageFieldName,
+                                                   messageNameAndID);
     }
 
     public static void xtceAddParameterAndType(SpaceSystemType spaceSystem,
@@ -1067,17 +1033,6 @@ public class CcddScriptDataAccessHandlerStatic
                                               stringSize);
     }
 
-    public static boolean xtceAddParameterSequenceEntry(SpaceSystemType spaceSystem,
-                                                        String parameterName,
-                                                        String dataType,
-                                                        String arraySize,
-                                                        EntryListType entryList,
-                                                        boolean isTlmHdrRef) throws CCDDException
-    {
-        return accessHandler.xtceAddParameterSequenceEntry(spaceSystem, parameterName, dataType, arraySize, entryList,
-                                                           isTlmHdrRef);
-    }
-
     public static void xtceSetParameterDataType(SpaceSystemType spaceSystem,
                                                 String parameterName,
                                                 String dataType,
@@ -1087,7 +1042,6 @@ public class CcddScriptDataAccessHandlerStatic
                                                 String units,
                                                 String minimum,
                                                 String maximum,
-                                                String description,
                                                 int stringSize) throws CCDDException
     {
         accessHandler.xtceSetParameterDataType(spaceSystem,
@@ -1099,103 +1053,44 @@ public class CcddScriptDataAccessHandlerStatic
                                                units,
                                                minimum,
                                                maximum,
-                                               description,
                                                stringSize);
-    }
-
-    public static void xtceCreateCommandMetadata(SpaceSystemType spaceSystem) throws CCDDException
-    {
-        accessHandler.xtceCreateCommandMetadata(spaceSystem);
     }
 
     protected static void xtceAddSpaceSystemCommands(SpaceSystemType spaceSystem,
                                                      String[][] tableData,
-                                                     int cmdNameColumn,
-                                                     int cmdCodeColumn,
-                                                     int cmdArgumentColumn,
-                                                     int cmdDescColumn,
-                                                     boolean isCmdHeader,
-                                                     String cmdHdrSysPath,
-                                                     String applicationID) throws CCDDException
+                                                     TypeDefinition typeDefn,
+                                                     String messageFieldName,
+                                                     String messageNameAndID) throws CCDDException
     {
         accessHandler.xtceAddSpaceSystemCommands(spaceSystem,
                                                  tableData,
-                                                 cmdNameColumn,
-                                                 cmdCodeColumn,
-                                                 cmdArgumentColumn,
-                                                 cmdDescColumn,
-                                                 isCmdHeader,
-                                                 cmdHdrSysPath,
-                                                 applicationID);
+                                                 typeDefn,
+                                                 messageFieldName,
+                                                 messageNameAndID);
     }
 
     public static void xtceAddCommand(SpaceSystemType spaceSystem,
                                       String commandName,
                                       String cmdFuncCode,
-                                      String applicationID,
                                       String cmdArgStruct,
-                                      boolean isCmdHeader,
                                       String cmdHdrSysPath,
-                                      String[] argumentNames,
-                                      String[] argDataTypes,
-                                      String[] argArraySizes,
-                                      String description) throws CCDDException
+                                      String cmdDescription) throws CCDDException
     {
         accessHandler.xtceAddCommand(spaceSystem,
                                      commandName,
                                      cmdFuncCode,
-                                     applicationID,
                                      cmdArgStruct,
-                                     isCmdHeader,
                                      cmdHdrSysPath,
-                                     argumentNames,
-                                     argDataTypes,
-                                     argArraySizes,
-                                     description);
+                                     cmdDescription);
     }
 
-    public static NameDescriptionType xtceSetArgumentDataType(SpaceSystemType spaceSystem,
-                                                              String argumentName,
-                                                              String dataType,
-                                                              String arraySize,
-                                                              String bitLength,
-                                                              String enumeration,
-                                                              String units,
-                                                              String minimum,
-                                                              String maximum,
-                                                              String description,
-                                                              int stringSize,
-                                                              String uniqueID) throws CCDDException
-    {
-        return accessHandler.xtceSetArgumentDataType(spaceSystem,
-                                                     argumentName,
-                                                     dataType,
-                                                     arraySize,
-                                                     bitLength,
-                                                     enumeration,
-                                                     units,
-                                                     minimum,
-                                                     maximum,
-                                                     description,
-                                                     stringSize,
-                                                     uniqueID);
-    }
-
-    public static void xtceAddContainerReference(String parameterName,
-                                                 String dataType,
-                                                 String arraySize,
-                                                 Object entryList) throws CCDDException
-    {
-        accessHandler.xtceAddContainerReference(parameterName, dataType, arraySize, entryList);
-    }
-
-    public static UnitSet xtceCreateUnitSet(String units)
+    public static UnitSetType xtceCreateUnitSet(String units)
     {
         return accessHandler.xtceCreateUnitSet(units);
     }
 
-    public static EnumerationList xtceCreateEnumerationList(SpaceSystemType spaceSystem,
-                                                            String enumeration)
+    public static EnumerationListType xtceCreateEnumerationList(SpaceSystemType spaceSystem,
+                                                                String enumeration)
     {
         return accessHandler.xtceCreateEnumerationList(spaceSystem, enumeration);
     }

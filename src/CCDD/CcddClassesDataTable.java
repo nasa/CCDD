@@ -33,6 +33,7 @@ import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import javax.swing.JOptionPane;
 
 import org.apache.commons.lang3.StringUtils;
@@ -2623,6 +2624,48 @@ public class CcddClassesDataTable
             }
 
             return totalSize;
+        }
+
+        /******************************************************************************************
+         * Get the linear index of an array member within the array. The linear index is the
+         * position that the array member would occupy in a single dimension array created by
+         * 'flattening' the original multi-dimensional array. For an array with overall dimensions
+         * of [2][3][2] the array indices and corresponding linear indices are:
+         *  Array Index  Linear Index
+         *   [0][0][0]        0
+         *   [0][0][1]        1
+         *   [0][1][0]        2
+         *   [0][1][1]        3
+         *   [0][2][0]        4
+         *   [0][2][1]        5
+         *   [1][0][0]        6
+         *   [1][0][1]        7
+         *   [1][1][0]        8
+         *   [1][1][1]        9
+         *   [1][2][0]       10
+         *   [1][2][1]       11
+         *
+         * @param memberIndex Array of the member variable's dimension(s)
+         *
+         * @param arrayIndex  Array of the overall array dimension(s)
+         *
+         * @return The linear index of the array member within the array
+         *****************************************************************************************/
+        protected static int getLinearArrayIndex(int[] memberIndex, int[] arrayIndex)
+        {
+            int linearIndex = 0;
+            int multiplier = 1;
+
+            if (memberIndex.length == arrayIndex.length)
+            {
+                for (int dim = memberIndex.length - 1; dim >= 0; --dim)
+                {
+                    linearIndex += multiplier * memberIndex[dim];
+                    multiplier *= arrayIndex[dim];
+                }
+            }
+
+            return linearIndex;
         }
 
         /******************************************************************************************

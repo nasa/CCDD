@@ -127,14 +127,13 @@ public class CcddConstants
     protected static final int TYPE_COLUMN_DELTA = 2;
     protected static final int PATH_COLUMN_DELTA = 1;
 
-    // Default table type names
+    // Default table types / type names
     protected static final String TYPE_STRUCTURE = "Structure";
     protected static final String TYPE_COMMAND = "Command";
     protected static final String TYPE_ENUM = "ENUM";
     protected static final String TYPE_OTHER = "Other";
 
-    // Default telemetry and command argument structure reference table type names
-    protected static final String STRUCT_TELEMETRY = "Structure";
+    // Default command argument structure table type name
     protected static final String STRUCT_CMD_ARG_REF = "Structure: Cmd Arg Ref";
 
     // Column names/prefixes
@@ -678,6 +677,14 @@ public class CcddConstants
         DBU_INFO
     }
 
+    // Separator columns
+    protected static enum SeparatorColumns
+    {
+        PATH_SEPARATOR,
+        HIDE_DATA_TYPE,
+        NAME_SEPARATOR
+    }
+
     // Command line priority range
     protected static enum CommandLinePriority
     {
@@ -950,7 +957,7 @@ public class CcddConstants
             font = new ModifiableFont(preferenceKey,
                                       font.getFamily(),
                                       font.getStyle(),
-                                      (int)((float) unscaledSize * scaleFactor));
+                                      (int)(unscaledSize * scaleFactor));
         }
 
         /******************************************************************************************
@@ -3166,7 +3173,7 @@ public class CcddConstants
             String columnDefn = "";
 
             // Build the array of default table types and type names
-            String[][] defTypes = new String[][] {{TYPE_STRUCTURE, STRUCT_TELEMETRY},
+            String[][] defTypes = new String[][] {{TYPE_STRUCTURE, TYPE_STRUCTURE},
                                                   {TYPE_COMMAND, TYPE_COMMAND},
                                                   {TYPE_STRUCTURE, STRUCT_CMD_ARG_REF},
                                                   {TYPE_ENUM, TYPE_ENUM}};
@@ -3181,13 +3188,13 @@ public class CcddConstants
                 // Step through the default columns
                 for (DefaultColumn defCol : DefaultColumn.values())
                 {
-                    // Check if the column common is to all tables, or the table type matches the
+                    // Check if the column is common to all tables, or the table type matches the
                     // current column's type. The rate column is only assigned to the telemetry
                     // structure
                     if (defCol.tableType.isEmpty()
                         || (type[0].equals(defCol.tableType)
                             && (!defCol.inputType.equals(DefaultInputType.RATE)
-                                || type[1].equals(STRUCT_TELEMETRY))))
+                                || type[1].equals(TYPE_STRUCTURE))))
                     {
                         String typeDescription = defCol.description;
 
@@ -3198,7 +3205,7 @@ public class CcddConstants
                         if (defCol.columnName.equals(PRIMARY_KEY.columnName))
                         {
                             // Check if this is a structure table type
-                            if (type[1].equals(STRUCT_TELEMETRY))
+                            if (type[1].equals(TYPE_STRUCTURE))
                             {
                                 // Set the description of the structure table type
                                 typeDescription = "0Telemetry and data structure table definition";
@@ -3275,6 +3282,7 @@ public class CcddConstants
         {
             List<Object[]> typeData = new ArrayList<Object[]>();
             int typeDataIndex = 0;
+
             // Step through the default columns
             for (DefaultColumn defCol : DefaultColumn.values())
             {

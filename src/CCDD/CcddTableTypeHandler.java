@@ -928,11 +928,13 @@ public class CcddTableTypeHandler
      *
      * @param columnIndex Database column index
      *
-     * @return Visible column index based on the database column index
+     * @return Visible column index based on the database column index; -1 if the column doesn't
+     *         exist or is a hidden column
      *********************************************************************************************/
     protected static int getVisibleColumnIndex(int columnIndex)
     {
-        return columnIndex - NUM_HIDDEN_COLUMNS;
+        return columnIndex != -1 && columnIndex >= NUM_HIDDEN_COLUMNS ? columnIndex - NUM_HIDDEN_COLUMNS
+                                                                      : columnIndex;
     }
 
     /**********************************************************************************************

@@ -524,17 +524,19 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
 
                 // Allow editing if:
                 return
-                // This is the column name or description column
-                column == TableTypeEditorColumnInfo.NAME.ordinal()
-                       || column == TableTypeEditorColumnInfo.DESCRIPTION.ordinal() || typeDefinition == null
+                       // This is the column name or description column
+                       column == TableTypeEditorColumnInfo.NAME.ordinal()
+                              || column == TableTypeEditorColumnInfo.DESCRIPTION.ordinal() || typeDefinition == null
 
-                // This isn't the structure allowed column, or it is and the input type is one that
-                // allows the structure allowed property to be changed
-                       || ((column != TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal() || isAllowed)
+                              // This isn't the structure allowed column, or it is and the input
+                              // type is one that allows the structure allowed property to be
+                              // changed
+                              || ((column != TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal() || isAllowed)
 
-                           // ... and this isn't the pointer allowed column, or it is and the input
-                           // type is one that allows the pointer allowed property to be changed
-                           && (column != TableTypeEditorColumnInfo.POINTER_ALLOWED.ordinal() || isAllowed));
+                                  // ... and this isn't the pointer allowed column, or it is and
+                                  // the input type is one that allows the pointer allowed property
+                                  // to be changed
+                                  && (column != TableTypeEditorColumnInfo.POINTER_ALLOWED.ordinal() || isAllowed));
             }
 
             /**************************************************************************************
@@ -868,13 +870,31 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
                                 || inputType.equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.VARIABLE_PATH))
                                 || inputType.equals(inputTypeHandler.getInputTypeByDefaultType(DefaultInputType.RATE))))
                         {
-                            // Set the structure and pointer allowed check boxes based on the
-                            // default column definition
-                            tableModel.setValueAt(typeDefinition.isStructureAllowed()[typeDefinition.getColumnIndexByInputType(inputType)],
+                            Object structAllowedValue = false;
+                            Object ptrAllowedValue = false;
+
+                            // Step through each default column type
+                            for (DefaultColumn defCol : DefaultColumn.values())
+                            {
+                                // Get the input type based on the default input type
+                                InputType colInputType = inputTypeHandler.getInputTypeByDefaultType(defCol.getInputType());
+
+                                // Check if the input type matches that of the new column
+                                if (colInputType.equals(inputType))
+                                {
+                                    // Set the structure and pointer allowed flags
+                                    structAllowedValue = defCol.isStructureAllowed();
+                                    ptrAllowedValue = defCol.isPointerAllowed();
+                                    break;
+                                }
+                            }
+
+                            // Set the structure and pointer allowed check boxes
+                            tableModel.setValueAt(structAllowedValue,
                                                   row,
                                                   TableTypeEditorColumnInfo.STRUCTURE_ALLOWED.ordinal(),
                                                   false);
-                            tableModel.setValueAt(typeDefinition.isPointerAllowed()[typeDefinition.getColumnIndexByInputType(inputType)],
+                            tableModel.setValueAt(ptrAllowedValue,
                                                   row,
                                                   TableTypeEditorColumnInfo.POINTER_ALLOWED.ordinal(),
                                                   false);
@@ -952,7 +972,7 @@ public class CcddTableTypeEditorHandler extends CcddInputFieldPanelHandler
             cmdArgStructureCbx.setVisible(getTypeOfTable().equals(TYPE_STRUCTURE));
         }
 
-        // Add the table and the checkbox to the panel
+        // Add the table and the check box to the panel
         editorPnl.add(scrollPane, gbc);
         gbc.insets.top = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2;
         gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();

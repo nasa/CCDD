@@ -141,9 +141,7 @@ public class CcddTableManagerDialog extends CcddDialogHandler
     private JCheckBox headerBigCBox;
     private JTextField versionFld;
     private JTextField validStatFld;
-    private JTextField class1Fld;
-    private JTextField class2Fld;
-    private JTextField class3Fld;
+    private JTextField classFld;
     private JCheckBox useExternalCBox;
     private JTextField scriptNameFld;
     private JTextField pathFld;
@@ -755,12 +753,8 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                                                                    : null),
                                                                                (validStatFld != null ? validStatFld.getText()
                                                                                                      : null),
-                                                                               (class1Fld != null ? class1Fld.getText()
-                                                                                                  : null),
-                                                                               (class2Fld != null ? class2Fld.getText()
-                                                                                                  : null),
-                                                                               (class3Fld != null ? class3Fld.getText()
-                                                                                                  : null),
+                                                                               (classFld != null ? classFld.getText()
+                                                                                                 : null),
                                                                                (useExternalCBox != null ? useExternalCBox.isSelected() : false),
                                                                                (scriptNameFld != null ? scriptNameFld.getText() : null),
                                                                                CcddTableManagerDialog.this);
@@ -2037,7 +2031,6 @@ public class CcddTableManagerDialog extends CcddDialogHandler
 
                 // Create the panels to hold the XTCE components of the dialog
                 JPanel infoPnl = new JPanel(new GridBagLayout());
-                JPanel classPnl = new JPanel(new GridBagLayout());
 
                 // Create the attributes label
                 JLabel descriptionLbl = new JLabel("XTCE Attributes");
@@ -2072,7 +2065,6 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 JLabel validStatLbl = new JLabel("Validation Status");
                 validStatLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 validStatLbl.setForeground(ModifiableColorInfo.LABEL_TEXT.getColor());
-                gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
                 gbc.weightx = 0.0;
                 gbc.gridx = 0;
                 gbc.gridy++;
@@ -2090,82 +2082,27 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 // Create the classification label
                 JLabel classLbl = new JLabel("Classification");
                 classLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
-                classLbl.setForeground(ModifiableColorInfo.SPECIAL_LABEL_TEXT.getColor());
-                gbc.insets.bottom = 0;
-                gbc.gridx = 0;
-                gbc.gridy++;
-                infoPnl.add(classLbl, gbc);
-
-                // Create the first level classification label
-                JLabel class1Lbl = new JLabel("First level");
-                class1Lbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
-                class1Lbl.setForeground(ModifiableColorInfo.LABEL_TEXT.getColor());
-
-                gbc.weightx = 0.0;
-                gbc.gridx = 0;
-                gbc.gridy++;
-                classPnl.add(class1Lbl, gbc);
-
-                // Create the first classification input fields
-                class1Fld = new JTextField("DOMAIN");
-                class1Fld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
-                class1Fld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
-                class1Fld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
-                class1Fld.setBorder(border);
-                gbc.weightx = 1.0;
-                gbc.gridx++;
-                classPnl.add(class1Fld, gbc);
-
-                // Create the second level classification label
-                JLabel class2Lbl = new JLabel("Second level");
-                class2Lbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
-                class2Lbl.setForeground(ModifiableColorInfo.LABEL_TEXT.getColor());
-                gbc.weightx = 0.0;
-                gbc.gridx = 0;
-                gbc.gridy++;
-                classPnl.add(class2Lbl, gbc);
-
-                // Create the second level classification input fields
-                class2Fld = new JTextField("SYSTEM");
-                class2Fld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
-                class2Fld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
-                class2Fld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
-                class2Fld.setBorder(border);
-                gbc.weightx = 1.0;
-                gbc.gridx++;
-                classPnl.add(class2Fld, gbc);
-
-                // Create the third level classification label
-                JLabel class3Lbl = new JLabel("Third level");
-                class3Lbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
-                class3Lbl.setForeground(ModifiableColorInfo.LABEL_TEXT.getColor());
+                classLbl.setForeground(ModifiableColorInfo.LABEL_TEXT.getColor());
                 gbc.insets.bottom = ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing();
                 gbc.weightx = 0.0;
                 gbc.gridx = 0;
                 gbc.gridy++;
-                classPnl.add(class3Lbl, gbc);
+                infoPnl.add(classLbl, gbc);
 
-                // Create the third level classification input fields
-                class3Fld = new JTextField("INTERFACE");
-                class3Fld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
-                class3Fld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
-                class3Fld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
-                class3Fld.setBorder(border);
-                gbc.weightx = 1.0;
+                // Create the classification input field
+                classFld = new JTextField("DOMAIN");
+                classFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
+                classFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+                classFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
+                classFld.setBorder(border);
                 gbc.gridx++;
-                classPnl.add(class3Fld, gbc);
-
-                // Add the classifications panel to the information panel
-                classPnl.setBorder(BorderFactory.createEtchedBorder());
-                gbc.gridwidth = 2;
-                gbc.gridx = 0;
-                gbc.gridy++;
-                infoPnl.add(classPnl, gbc);
+                infoPnl.add(classFld, gbc);
 
                 // Add the information panel to the dialog panel
                 infoPnl.setBorder(BorderFactory.createEtchedBorder());
                 gbc.insets.bottom = 0;
                 gbc.gridwidth = 1;
+                gbc.gridx = 0;
                 gbc.gridy++;
                 dialogPnl.add(infoPnl, gbc);
             }
@@ -2698,16 +2635,12 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                         // Remove any excess white space
                         versionFld.setText(versionFld.getText().trim());
                         validStatFld.setText(validStatFld.getText().trim());
-                        class1Fld.setText(class1Fld.getText().trim());
-                        class2Fld.setText(class2Fld.getText().trim());
-                        class3Fld.setText(class3Fld.getText().trim());
+                        classFld.setText(classFld.getText().trim());
 
                         // Check if any of the fields is blank
                         if (versionFld.getText().isEmpty()
                             || validStatFld.getText().isEmpty()
-                            || class1Fld.getText().isEmpty()
-                            || class2Fld.getText().isEmpty()
-                            || class3Fld.getText().isEmpty())
+                            || classFld.getText().isEmpty())
                         {
                             // Inform the user that a required field is missing
                             throw new CCDDException("System data field name, version, "

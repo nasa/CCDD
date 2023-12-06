@@ -1154,7 +1154,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                 if (msgTabs[0].getAssignCbx().isSelected())
                 {
                     // Update the progress bar text
-                    haltDlg.updateProgressBar("Message names", -1);
+                    haltDlg.updateProgressBar("Message names");
 
                     // Update the telemetry message names
                     assignTelemetryMessageNames(msgTabs[0]);
@@ -1167,7 +1167,7 @@ public class CcddAssignMessageIDDialog extends CcddDialogHandler
                 if (msgTabs[1].getAssignCbx().isSelected())
                 {
                     // Update the progress bar text
-                    haltDlg.updateProgressBar("Message IDs", -1);
+                    haltDlg.updateProgressBar("Message IDs");
 
                     // Update the telemetry message IDs
                     assignTelemetryMessageIDs(msgTabs[1]);

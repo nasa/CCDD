@@ -176,8 +176,8 @@ public class CcddTelemetrySchedulerInput implements CcddSchedulerInputInterface
         // rate to a dummy value
         List<String> availableRates = Arrays.asList(getAvailableRates());
         selectedRate = availableRates.contains("1") ? "1"
-                                                      : (!availableRates.isEmpty() ? CcddUtilities.removeHTMLTags(availableRates.get(0))
-                                                                                   : "0");
+                                                    : (!availableRates.isEmpty() ? CcddUtilities.removeHTMLTags(availableRates.get(0))
+                                                                                 : "0");
 
         // Build a link tree
         linkTree = new CcddLinkTreeHandler(ccddMain, null, rateName, ccddMain.getMainFrame());

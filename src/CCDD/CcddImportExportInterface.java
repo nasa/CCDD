@@ -24,6 +24,7 @@
  **************************************************************************************************/
 package CCDD;
 
+import java.awt.Component;
 import java.io.IOException;
 import java.util.List;
 
@@ -47,6 +48,55 @@ public interface CcddImportExportInterface
     {
         IMPORT_ALL, FIRST_DATA_ONLY
     }
+
+    /**********************************************************************************************
+     * Load the table data. If the table is an instance (not a prototype) then load the prototype
+     * and use it to flag inherited and overridden table values
+     *
+     * @param tablePath Table name and path
+     *
+     * @return Table information
+     *********************************************************************************************/
+    abstract TableInfo loadTableData(String tablePath);
+
+    /**********************************************************************************************
+     * Load the table data for a JSON or CSV export
+     *
+     * @param tableNames Array of table names to convert
+     *
+     * @return List containing the definition(s) of the table(s) to export
+     *********************************************************************************************/
+    abstract List<TableInfo> loadTablesforJsonOrCsvExport(String[] tableNames);
+
+    /**********************************************************************************************
+     * Create and display the table export progress dialog
+     *
+     * @param numTables Number of tables being exported
+     *
+     * @param parent    Component over which to center the export progress dialog
+     *********************************************************************************************/
+    abstract void createExportProgressDialog(int numTables, Component parent);
+
+    /**********************************************************************************************
+     * Update the table export progress dialog
+     *
+     * @param tableName Name of the table currently being exported
+     *
+     * @throws CCDDException if the user pressed the dialog's Halt button
+     *********************************************************************************************/
+    abstract void updateExportProgress(String tableName) throws CCDDException;
+
+    /**********************************************************************************************
+     * Set the export dialog progress bar maximum value
+     *
+     * @param maximum Progress bar maximum value
+     *********************************************************************************************/
+    abstract void setProgressMaximum(int maximum);
+
+    /**********************************************************************************************
+     * Close the table export progress dialog
+     *********************************************************************************************/
+    abstract void closeExportProgressDialog();
 
     /**********************************************************************************************
      * Get the imported table definitions

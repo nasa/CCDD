@@ -126,9 +126,7 @@ public class CcddCommandLineHandler
     private boolean isHeaderBigEndian;
     private String version;
     private String validationStatus;
-    private String classification1;
-    private String classification2;
-    private String classification3;
+    private String classification;
     private String scriptFileName;
     private String varPathSeparator;
     private String typeNameSeparator;
@@ -453,9 +451,7 @@ public class CcddCommandLineHandler
         isHeaderBigEndian = true;
         version = null;
         validationStatus = null;
-        classification1 = null;
-        classification2 = null;
-        classification3 = null;
+        classification = null;
         scriptFileName = null;
         createName = null;
         createOwner = null;
@@ -1146,7 +1142,7 @@ public class CcddCommandLineHandler
                             || (importFileType == FileExtension.CSV)
                             || (importFileType == FileExtension.C_HEADER))
                         {
-                            if (ccddMain.getFileIOHandler().prepareJSONOrCSVImport(dataFile.toArray(new FileEnvVar[0]),
+                            if (ccddMain.getFileIOHandler().prepareJsonOrCsvImport(dataFile.toArray(new FileEnvVar[0]),
                                                                                    importFullDatabase,
                                                                                    backupFirst,
                                                                                    replaceExistingTables,
@@ -1683,9 +1679,7 @@ public class CcddCommandLineHandler
                                                                          isHeaderBigEndian,
                                                                          version,
                                                                          validationStatus,
-                                                                         classification1,
-                                                                         classification2,
-                                                                         classification3,
+                                                                         classification,
                                                                          scriptFileName != null,
                                                                          scriptFileName,
                                                                          null))
@@ -1725,9 +1719,7 @@ public class CcddCommandLineHandler
                                                                                  isHeaderBigEndian,
                                                                                  version,
                                                                                  validationStatus,
-                                                                                 classification1,
-                                                                                 classification2,
-                                                                                 classification3,
+                                                                                 classification,
                                                                                  scriptFileName != null,
                                                                                  scriptFileName,
                                                                                  ccddMain.getMainFrame());
@@ -2282,54 +2274,20 @@ public class CcddCommandLineHandler
             }
         });
 
-        // Export command - classification level 1
-        exportArgument.add(new CommandHandler("classification1",
-                                              "Classification level 1 (XTCE)",
+        // Export command - classification
+        exportArgument.add(new CommandHandler("classification",
+                                              "Classification (XTCE)",
                                               "text (default: DOMAIN)",
                                               CommandLineType.NAME,
                                               0)
         {
             /**************************************************************************************
-             * Set the level 1 classification
+             * Set the classification
              *************************************************************************************/
             @Override
             protected void doCommand(Object parmVal)
             {
-                classification1 = (String) parmVal;
-            }
-        });
-
-        // Export command - classification level 2
-        exportArgument.add(new CommandHandler("classification2",
-                                              "Classification level 2 (XTCE)",
-                                              "text (default: SYSTEM)",
-                                              CommandLineType.NAME,
-                                              0)
-        {
-            /**************************************************************************************
-             * Set the level 2 classification
-             *************************************************************************************/
-            @Override
-            protected void doCommand(Object parmVal)
-            {
-                classification2 = (String) parmVal;
-            }
-        });
-
-        // Export command - classification level 3
-        exportArgument.add(new CommandHandler("classification3",
-                                              "Classification level 3 (XTCE)",
-                                              "text (default: INTERFACE)",
-                                              CommandLineType.NAME,
-                                              0)
-        {
-            /**************************************************************************************
-             * Set the level 3 classification
-             *************************************************************************************/
-            @Override
-            protected void doCommand(Object parmVal)
-            {
-                classification3 = (String) parmVal;
+                classification = (String) parmVal;
             }
         });
 

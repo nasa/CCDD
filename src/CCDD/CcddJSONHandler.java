@@ -26,10 +26,10 @@
 
 package CCDD;
 
-import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
-import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.EXPORT_MULTIPLE_FILES;
 import static CCDD.CcddConstants.EXPORT_SINGLE_FILE;
+import static CCDD.CcddConstants.NUM_HIDDEN_COLUMNS;
+import static CCDD.CcddConstants.OK_BUTTON;
 
 import java.awt.Component;
 import java.io.BufferedReader;
@@ -66,12 +66,13 @@ import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddClassesDataTable.GroupInformation;
 import CCDD.CcddClassesDataTable.InputType;
 import CCDD.CcddClassesDataTable.ProjectDefinition;
-import CCDD.CcddClassesDataTable.TableInfo;
 import CCDD.CcddClassesDataTable.TableDefinition;
+import CCDD.CcddClassesDataTable.TableInfo;
 import CCDD.CcddClassesDataTable.TableTypeDefinition;
 import CCDD.CcddConstants.ApplicabilityType;
 import CCDD.CcddConstants.AssociationsTableColumnInfo;
 import CCDD.CcddConstants.DataTypeEditorColumnInfo;
+import CCDD.CcddConstants.DatabaseComment;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.FieldEditorColumnInfo;
@@ -86,38 +87,34 @@ import CCDD.CcddConstants.InternalTable.InputTypesColumn;
 import CCDD.CcddConstants.InternalTable.MacrosColumn;
 import CCDD.CcddConstants.InternalTable.TlmSchedulerColumn;
 import CCDD.CcddConstants.InternalTable.TlmSchedulerComments;
+import CCDD.CcddConstants.InternalTable.UsersColumn;
 import CCDD.CcddConstants.JSONTags;
 import CCDD.CcddConstants.MacroEditorColumnInfo;
 import CCDD.CcddConstants.MessageIDSortOrder;
 import CCDD.CcddConstants.MsgIDListColumnIndex;
 import CCDD.CcddConstants.MsgIDTableColumnInfo;
+import CCDD.CcddConstants.RateParameter;
 import CCDD.CcddConstants.ReservedMsgIDEditorColumnInfo;
+import CCDD.CcddConstants.SeparatorColumns;
 import CCDD.CcddConstants.TableTypeEditorColumnInfo;
+import CCDD.CcddConstants.VariablePathTableColumnInfo;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /**************************************************************************************************
  * CFS Command and Data Dictionary JSON handler class
  *************************************************************************************************/
-public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImportExportInterface
+public class CcddJSONHandler extends CcddImportExportSupportHandler implements CcddImportExportInterface
 {
     // Class references
     private final CcddMain ccddMain;
-    private final CcddDbTableCommandHandler dbTable;
-    private final CcddTableTypeHandler tableTypeHandler;
-    private final CcddDbControlHandler dbControl;
     private final CcddDataTypeHandler dataTypeHandler;
     private final CcddFieldHandler fieldHandler;
-    private final CcddMacroHandler macroHandler;
     private final CcddReservedMsgIDHandler rsvMsgIDHandler;
-    private final CcddInputTypeHandler inputTypeHandler;
     private final CcddGroupHandler groupHandler;
     private final CcddScriptHandler scriptHandler;
     private final CcddApplicationParameterHandler appHandler;
     private final CcddRateParameterHandler rateHandler;
     private TableInfo tableInfo;
-
-    // GUI component over which to center any error dialog
-    private final Component parent;
 
     // List containing the imported table, table type, data type, and macro definitions
     private List<TableDefinition> tableDefinitions;
@@ -156,7 +153,6 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
         this.groupHandler = groupHandler;
         rateHandler = ccddMain.getRateParameterHandler();
         appHandler = ccddMain.getApplicationParameterHandler();
-        setMacroHandler(macroHandler);
 
         tableDefinitions = null;
         associations = null;
@@ -364,12 +360,13 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      *
      * @throws Exception     If an unanticipated error occurs
      *********************************************************************************************/
+    @Override
     public void importInternalTables(FileEnvVar importFile,
                                      ImportType importType,
                                      boolean ignoreErrors,
                                      boolean replaceExistingAssociations) throws CCDDException,
-                                                                                 IOException,
-                                                                                 Exception
+                                                                          IOException,
+                                                                          Exception
     {
         BufferedReader br = null;
 
@@ -382,7 +379,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             JSONParser jsonParser = new JSONParser();
             JSONObject jsonObject = (JSONObject) jsonParser.parse(new FileReader(importFile));
 
-            /*************** APPLICATION SCHEDULER ***************/
+            //******************************* APPLICATION SCHEDULER *******************************
             if (importType == ImportType.IMPORT_ALL)
             {
                 Object defn = jsonObject.get(JSONTags.APP_SCHEDULER_COMMENT.getTag());
@@ -433,7 +430,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                     appSchedulerData = appData;
                 }
 
-                /*************** TELEMETRY SCHEDULER ***************/
+                //****************************** TELEMETRY SCHEDULER ******************************
                 // Get the telemetry scheduler table
                 defn = jsonObject.get(JSONTags.TLM_SCHEDULER.getTag());
 
@@ -540,7 +537,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                     }
                 }
 
-                /*************** SCRIPT ASSOCIATION ***************/
+                //****************************** SCRIPT ASSOCIATION *******************************
                 // Get the script associations
                 defn = jsonObject.get(JSONTags.SCRIPT_ASSOCIATION.getTag());
 
@@ -598,8 +595,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                 // Inform the user that the file cannot be closed
                 new CcddDialogHandler().showMessageDialog(parent,
                                                           "<html><b>Cannot close import file '</b>"
-                                                          + importFile.getAbsolutePath()
-                                                          + "<b>'",
+                                                                  + importFile.getAbsolutePath()
+                                                                  + "<b>'",
                                                           "File Warning",
                                                           JOptionPane.WARNING_MESSAGE,
                                                           DialogOption.OK_OPTION);
@@ -619,8 +616,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      * @throws CCDDException  If the parsed json object is not of type JSONObject
      *********************************************************************************************/
     protected void verifyJSONObjectType(FileEnvVar importFile) throws IOException,
-                                                                      ParseException,
-                                                                      CCDDException
+                                                               ParseException,
+                                                               CCDDException
     {
         // Create a JSON parser and use it to parse the import file contents
         JSONParser jsonParser = new JSONParser();
@@ -653,14 +650,15 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      *
      * @throws Exception     If an unanticipated error occurs
      *********************************************************************************************/
+    @Override
     public void importTableInfo(FileEnvVar importFile,
                                 ImportType importType,
                                 boolean ignoreErrors,
                                 boolean replaceExistingMacros,
                                 boolean replaceExistingTables,
                                 boolean importingEntireDatabase) throws CCDDException,
-                                                                        IOException,
-                                                                        Exception
+                                                                 IOException,
+                                                                 Exception
     {
         BufferedReader br = null;
 
@@ -675,7 +673,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             List<TableTypeDefinition> tableTypeDefinitions = new ArrayList<TableTypeDefinition>();
             Object defn = jsonObject.get(JSONTags.TABLE_TYPE_DEFN.getTag());
 
-            /*************** TABLE TYPES ***************/
+            //************************************ TABLE TYPES ************************************
             // Check if the table type definitions exist
             if (defn != null && defn instanceof JSONArray)
             {
@@ -748,11 +746,11 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                                 // ignored or the import canceled
                                 ignoreErrors = getErrorResponse(ignoreErrors,
                                                                 "<html><b>Table type '</b>"
-                                                                + typeName
-                                                                + "<b>' definition has missing or extra "
-                                                                + "input(s) in import file '</b>"
-                                                                + importFile.getAbsolutePath()
-                                                                + "<b>'; continue?",
+                                                                              + typeName
+                                                                              + "<b>' definition has missing or extra "
+                                                                              + "input(s) in import file '</b>"
+                                                                              + importFile.getAbsolutePath()
+                                                                              + "<b>'; continue?",
                                                                 "Table Type Error",
                                                                 "Ignore this table type",
                                                                 "Ignore this and any remaining invalid table types",
@@ -761,7 +759,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                             }
                         }
 
-                        /*************** TABLE TYPE DATA FIELDS ***************/
+                        //************************* TABLE TYPE DATA FIELDS ************************
                         // Get the data fields for this table type
                         Object typeField = getObject(tableTypeJO, JSONTags.TABLE_TYPE_FIELD.getTag());
 
@@ -808,7 +806,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                 tableTypeHandler.updateTableTypes(tableTypeDefinitions);
             }
 
-            /*************** MACROS ***************/
+            //************************************** MACROS ***************************************
             // Check if all definitions are to be loaded
             if (importType == ImportType.IMPORT_ALL)
             {
@@ -845,9 +843,9 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                             // ignored or the import canceled
                             ignoreErrors = getErrorResponse(ignoreErrors,
                                                             "<html><b>Missing or extra macro definition "
-                                                            + "input(s) in import file '</b>"
-                                                            + importFile.getAbsolutePath()
-                                                            + "<b>'; continue?",
+                                                                          + "input(s) in import file '</b>"
+                                                                          + importFile.getAbsolutePath()
+                                                                          + "<b>'; continue?",
                                                             "Macro Error",
                                                             "Ignore this macro",
                                                             "Ignore this and any remaining invalid macros",
@@ -892,10 +890,10 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                         // existing macro values, or cancels the import operation
                         getErrorResponse(continueOnError,
                                          "<html><b>The value for imported macro(s) '</b>"
-                                         + CcddUtilities.convertArrayToStringTruncate(mismatchedMacros.toArray(new String[0]))
-                                         + "<b>' doesn't match the existing definition(s) in import file '</b>"
-                                         + importFile.getAbsolutePath()
-                                         + "<b>'; continue?",
+                                                          + CcddUtilities.convertArrayToStringTruncate(mismatchedMacros.toArray(new String[0]))
+                                                          + "<b>' doesn't match the existing definition(s) in import file '</b>"
+                                                          + importFile.getAbsolutePath()
+                                                          + "<b>'; continue?",
                                          "Macro Value Mismatch",
                                          null,
                                          "Ignore macro value difference(s) (keep existing value(s))", "Stop importing",
@@ -926,8 +924,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                 // Inform the user that the file cannot be closed
                 new CcddDialogHandler().showMessageDialog(parent,
                                                           "<html><b>Cannot close import file '</b>"
-                                                           + importFile.getAbsolutePath()
-                                                           + "<b>'",
+                                                                  + importFile.getAbsolutePath()
+                                                                  + "<b>'",
                                                           "File Warning",
                                                           JOptionPane.WARNING_MESSAGE,
                                                           DialogOption.OK_OPTION);
@@ -953,13 +951,14 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      *
      * @throws Exception     If an unanticipated error occurs
      *********************************************************************************************/
+    @Override
     public void importInputTypes(FileEnvVar importFile,
                                  ImportType importType,
                                  boolean ignoreErrors,
                                  boolean replaceExistingDataTypes,
                                  boolean importingEntireDatabase) throws CCDDException,
-                                                                         IOException,
-                                                                         Exception
+                                                                  IOException,
+                                                                  Exception
     {
         BufferedReader br = null;
 
@@ -975,7 +974,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             List<String[]> inputTypeDefns = new ArrayList<String[]>();
             List<String[]> dataTypeDefns = new ArrayList<String[]>();
 
-            /*************** INPUT TYPES ***************/
+            //************************************ INPUT TYPES ************************************
             // Get the input type definitions JSON object
             Object defn = jsonObject.get(JSONTags.INPUT_TYPE_DEFN.getTag());
 
@@ -1012,9 +1011,9 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                         // or the import canceled
                         ignoreErrors = getErrorResponse(ignoreErrors,
                                                         "<html><b>Missing or extra input type definition "
-                                                        + "input(s) in import file '</b>"
-                                                        + importFile.getAbsolutePath()
-                                                        + "<b>'; continue?",
+                                                                      + "input(s) in import file '</b>"
+                                                                      + importFile.getAbsolutePath()
+                                                                      + "<b>'; continue?",
                                                         "Input Type Error",
                                                         "Ignore this data type",
                                                         "Ignore this and any remaining invalid input types",
@@ -1028,7 +1027,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                 inputTypeHandler.updateInputTypes(inputTypeDefns);
             }
 
-            /*************** DATA TYPES ***************/
+            //************************************ DATA TYPES *************************************
             // Check if all definitions are to be loaded
             if (importType == ImportType.IMPORT_ALL)
             {
@@ -1059,7 +1058,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                             // Check if the data type definition is valid
                             checkDataTypeDefinition(dataTypeDefn);
 
-                            // Add the data type definition (add a blank to represent the row number)
+                            // Add the data type definition (add a blank to represent the row
+                            // number)
                             dataTypeDefns.add(dataTypeDefn);
                         }
                         else
@@ -1068,9 +1068,9 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                             // ignored or the import canceled
                             ignoreErrors = getErrorResponse(ignoreErrors,
                                                             "<html><b>Missing or extra data type definition "
-                                                            + "input(s) in import file '</b>"
-                                                            + importFile.getAbsolutePath()
-                                                            + "<b>'; continue?",
+                                                                          + "input(s) in import file '</b>"
+                                                                          + importFile.getAbsolutePath()
+                                                                          + "<b>'; continue?",
                                                             "Data Type Error", "Ignore this data type",
                                                             "Ignore this and any remaining invalid data types",
                                                             "Stop importing",
@@ -1085,7 +1085,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                     }
                     else
                     {
-                        // Add the data type if it's new or match it to an existing one with the same
+                        // Add the data type if it's new or match it to an existing one with the
+                        // same
                         // name if the type definitions are the same
                         dataTypeHandler.updateDataTypes(dataTypeDefns, replaceExistingDataTypes);
                     }
@@ -1113,8 +1114,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                 // Inform the user that the file cannot be closed
                 new CcddDialogHandler().showMessageDialog(parent,
                                                           "<html><b>Cannot close import file '</b>"
-                                                          + importFile.getAbsolutePath()
-                                                          + "<b>'",
+                                                                  + importFile.getAbsolutePath()
+                                                                  + "<b>'",
                                                           "File Warning",
                                                           JOptionPane.WARNING_MESSAGE,
                                                           DialogOption.OK_OPTION);
@@ -1125,23 +1126,23 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
     /**********************************************************************************************
      * Build the information from the table definition(s) in the current file
      *
-     * @param importFile              Import file reference
+     * @param importFile            Import file reference
      *
-     * @param importType              ImportType.IMPORT_ALL to import the table type, data type,
-     *                                and macro definitions, and the data from all the table
-     *                                definitions; ImportType.FIRST_DATA_ONLY to load only the data
-     *                                for the first table defined
+     * @param importType            ImportType.IMPORT_ALL to import the table type, data type, and
+     *                              macro definitions, and the data from all the table definitions;
+     *                              ImportType.FIRST_DATA_ONLY to load only the data for the first
+     *                              table defined
      *
-     * @param targetTypeDefn          Table type definition of the table in which to import the
-     *                                data; ignored if importing all tables
+     * @param targetTypeDefn        Table type definition of the table in which to import the data;
+     *                              ignored if importing all tables
      *
-     * @param ignoreErrors            True to ignore all errors in the import file
+     * @param ignoreErrors          True to ignore all errors in the import file
      *
-     * @param replaceExistingMacros   True to replace the values for existing macros
+     * @param replaceExistingMacros True to replace the values for existing macros
      *
-     * @param replaceExistingGroups   True to replace existing group definitions
+     * @param replaceExistingGroups True to replace existing group definitions
      *
-     * @param replaceExistingTables   True to replace existing tables or table fields
+     * @param replaceExistingTables True to replace existing tables or table fields
      *
      * @throws CCDDException If a data is missing, extraneous, or in error in the import file
      *
@@ -1157,8 +1158,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                                boolean replaceExistingMacros,
                                boolean replaceExistingGroups,
                                boolean replaceExistingTables) throws CCDDException,
-                                                                     IOException,
-                                                                     Exception
+                                                              IOException,
+                                                              Exception
     {
         // Initialize a buffered reader
         BufferedReader br = null;
@@ -1178,7 +1179,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             // Check if all definitions are to be loaded
             if (importType == ImportType.IMPORT_ALL)
             {
-                /*************** RESERVED MESSAGE IDS ***************/
+                //***************************** RESERVED MESSAGE IDS ******************************
                 List<String[]> reservedMsgIDDefns = new ArrayList<String[]>();
 
                 // Get the reserved message ID definitions JSON object
@@ -1209,9 +1210,9 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                             // ignored or the import canceled
                             ignoreErrors = getErrorResponse(ignoreErrors,
                                                             "<html><b>Missing or extra reserved message ID "
-                                                            + "definition input(s) in import file '</b>"
-                                                            + importFile.getAbsolutePath()
-                                                            + "<b>'; continue?",
+                                                                          + "definition input(s) in import file '</b>"
+                                                                          + importFile.getAbsolutePath()
+                                                                          + "<b>'; continue?",
                                                             "Reserved Message ID Error",
                                                             "Ignore this reserved message ID",
                                                             "Ignore this and any remaining invalid reserved message IDs",
@@ -1224,7 +1225,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                     rsvMsgIDHandler.setReservedMsgIDData(reservedMsgIDDefns);
                 }
 
-                /*************** PROJECT FIELDS ***************/
+                //******************************** PROJECT FIELDS *********************************
                 // Get the data fields for this project
                 defn = jsonObject.get(JSONTags.PROJECT_FIELD.getTag());
 
@@ -1265,7 +1266,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                                                                 fieldHandler.getFieldInformationFromDefinitions(projectDefn.getDataFields()));
                 }
 
-                /*************** GROUPS ***************/
+                //************************************ GROUPS *************************************
                 // Get a list of names for all of the groups currently defined within the database
                 String[] currentGroupNames = groupHandler.getGroupNames(false);
                 List<String> newGroupNames = new ArrayList<String>();
@@ -1326,16 +1327,16 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                             // ignored or the import canceled
                             ignoreErrors = getErrorResponse(ignoreErrors,
                                                             "<html><b>Missing or extra group definition "
-                                                            + "input(s) in import file '</b>"
-                                                            + importFile.getAbsolutePath()
-                                                            + "<b>'; continue?",
+                                                                          + "input(s) in import file '</b>"
+                                                                          + importFile.getAbsolutePath()
+                                                                          + "<b>'; continue?",
                                                             "Group Error", "Ignore this group",
                                                             "Ignore this and any remaining invalid groups",
                                                             "Stop importing",
                                                             parent);
                         }
 
-                        /*************** GROUP FIELDS ***************/
+                        //***************************** GROUP FIELDS ******************************
                         // Get the data fields for this group
                         Object groupField = getObject(groupJO, JSONTags.GROUP_FIELD.getTag());
                         List<FieldInformation> newFieldInformation = new ArrayList<FieldInformation>();
@@ -1364,7 +1365,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                                 newField.setDescription(getString(grpFldJO,
                                                                   FieldEditorColumnInfo.DESCRIPTION.getColumnName()));
                                 newField.setSize(Integer.parseInt(getString(grpFldJO,
-                                                                  FieldEditorColumnInfo.CHAR_SIZE.getColumnName())));
+                                                                            FieldEditorColumnInfo.CHAR_SIZE.getColumnName())));
                                 newField.setInputType(inputType);
                                 newField.setRequired(Boolean.parseBoolean(getString(grpFldJO,
                                                                                     FieldEditorColumnInfo.REQUIRED.getColumnName())));
@@ -1406,7 +1407,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                                               ccddMain.getMainFrame());
                 }
 
-                /*************** DATABASE INFORMATION ***************/
+                //***************************** DATABASE INFORMATION ******************************
                 // Get the database information
                 defn = jsonObject.get(JSONTags.DBU_INFO.getTag());
 
@@ -1423,7 +1424,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                 }
             }
 
-            /*************** TABLE DEFINITIONS ***************/
+            //********************************* TABLE DEFINITIONS *********************************
             // Get the table definitions JSON object
             Object defn = jsonObject.get(JSONTags.TABLE_DEFN.getTag());
 
@@ -1497,12 +1498,12 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                                         // should be ignored or the import canceled
                                         ignoreErrors = getErrorResponse(ignoreErrors,
                                                                         "<html><b>Table '</b>"
-                                                                        + tableName
-                                                                        + "<b>' column name '</b>"
-                                                                        + columnName
-                                                                        + "<b>' unrecognized in import file '</b>"
-                                                                        + importFile.getAbsolutePath()
-                                                                        + "<b>'; continue?",
+                                                                                      + tableName
+                                                                                      + "<b>' column name '</b>"
+                                                                                      + columnName
+                                                                                      + "<b>' unrecognized in import file '</b>"
+                                                                                      + importFile.getAbsolutePath()
+                                                                                      + "<b>'; continue?",
                                                                         "Column Error",
                                                                         "Ignore this invalid column name",
                                                                         "Ignore this and any remaining invalid column names",
@@ -1516,7 +1517,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                             }
                         }
 
-                        /*************** TABLE DEFINITION FIELDS ***************/
+                        //************************ TABLE DEFINITION FIELDS ************************
                         // Check if all definitions are to be loaded and if any data fields are
                         // defined
                         if (dataFieldsJA != null)
@@ -1589,8 +1590,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                 // Inform the user that the file cannot be closed
                 new CcddDialogHandler().showMessageDialog(parent,
                                                           "<html><b>Cannot close import file '</b>"
-                                                          + importFile.getAbsolutePath()
-                                                          + "<b>'",
+                                                                  + importFile.getAbsolutePath()
+                                                                  + "<b>'",
                                                           "File Warning",
                                                           JOptionPane.WARNING_MESSAGE,
                                                           DialogOption.OK_OPTION);
@@ -1657,16 +1658,16 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             {
                 // Output the build information
                 outputJO.put(JSONTags.FILE_DESCRIPTION.getTag(),
-                                     "Created "
-                                     + new Date().toString()
-                                     + " : CCDD version = "
-                                     + ccddMain.getCCDDVersionInformation()
-                                     + " : project = "
-                                     + dbControl.getProjectName()
-                                     + " : host = "
-                                     + dbControl.getServer()
-                                     + " : user = "
-                                     + dbControl.getUser());
+                             "Created "
+                             + new Date().toString()
+                             + " : CCDD version = "
+                             + ccddMain.getCCDDVersionInformation()
+                             + " : project = "
+                             + dbControl.getProjectName()
+                             + " : host = "
+                             + dbControl.getServer()
+                             + " : user = "
+                             + dbControl.getUser());
 
                 // If outputType equals SINGLE_FILE than set includeBuildInformation to false so
                 // that it is not added multiple times
@@ -1677,20 +1678,23 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             }
 
             // Step through each table
-            for (int counter = 0; counter < tableDefs.size() && counter < tableDefs.size(); counter++)
+            for (TableInfo tableDef : tableDefs)
             {
+                // Update the export progress dialog
+                updateExportProgress(tableDef.getTablePath());
+
                 // Use of the JSONObject does not retain the order that the key:value pairs are
                 // stored. This custom JSON object is used so that the stored order is reflected in
                 // the output
                 OrderedJSONObject tableInfoJO = new OrderedJSONObject();
 
                 // Store the table's name, type, description, data, and data fields
-                tableInfoJO.put(JSONTags.TABLE_NAME.getTag(), tableDefs.get(counter).getTablePath());
-                tableInfoJO.put(JSONTags.TABLE_TYPE.getTag(), tableDefs.get(counter).getType());
-                tableInfoJO.put(JSONTags.TABLE_DESCRIPTION.getTag(), tableDefs.get(counter).getDescription());
+                tableInfoJO.put(JSONTags.TABLE_NAME.getTag(), tableDef.getTablePath());
+                tableInfoJO.put(JSONTags.TABLE_TYPE.getTag(), tableDef.getType());
+                tableInfoJO.put(JSONTags.TABLE_DESCRIPTION.getTag(), tableDef.getDescription());
 
                 // Store the table data in a JSONArray
-                JSONArray data = (JSONArray) convertTableData(tableDefs.get(counter),
+                JSONArray data = (JSONArray) convertTableData(tableDef,
                                                               replaceMacros,
                                                               includeVariablePaths,
                                                               variableHandler,
@@ -1698,7 +1702,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                 tableInfoJO.put(JSONTags.TABLE_DATA.getTag(), data);
 
                 // Grab the data field info
-                tableInfoJO = getDataFields(tableDefs.get(counter).getTablePath(),
+                tableInfoJO = getDataFields(tableDef.getTablePath(),
                                             JSONTags.TABLE_FIELD.getTag(),
                                             null,
                                             tableInfoJO);
@@ -1710,29 +1714,29 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                     tableJA.add(tableInfoJO);
 
                     // Get the table type definition based on the type name
-                    TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(tableDefs.get(counter).getType());
+                    TypeDefinition typeDefn = tableTypeHandler.getTypeDefinition(tableDef.getType());
 
                     // Check if variable paths are to be output and if this table represents a
                     // structure
                     if (includeVariablePaths && typeDefn.isStructure())
                     {
                         // Step through each row in the table
-                        for (int row = 0; row < tableDefs.get(counter).getData().size(); row++)
+                        for (int row = 0; row < tableDef.getData().size(); row++)
                         {
                             // Get the variable path
-                            String variablePath = tableDefs.get(counter).getTablePath()
+                            String variablePath = tableDef.getTablePath()
                                                   + ","
-                                                  + tableDefs.get(counter).getData().get(row)[typeDefn.getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT)]
+                                                  + tableDef.getData().get(row)[typeDefn.getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT)]
                                                   + "."
-                                                  + tableDefs.get(counter).getData().get(row)[typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE)];
+                                                  + tableDef.getData().get(row)[typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE)];
 
                             // Add the path, in both application and user-defined formats, to the
                             // list to be output
                             variablePaths.add(new String[] {variablePath,
                                                             variableHandler.getFullVariableName(variablePath,
-                                                                                                separators[0],
-                                                                                                Boolean.parseBoolean(separators[1]),
-                                                                                                separators[2])});
+                                                                                                separators[SeparatorColumns.PATH_SEPARATOR.ordinal()],
+                                                                                                Boolean.parseBoolean(separators[SeparatorColumns.HIDE_DATA_TYPE.ordinal()]),
+                                                                                                separators[SeparatorColumns.NAME_SEPARATOR.ordinal()])});
                         }
                     }
                 }
@@ -1807,8 +1811,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                 // Inform the user that the data file cannot be closed
                 new CcddDialogHandler().showMessageDialog(parent,
                                                           "<html><b>Cannot close export file '</b>"
-                                                          + exportFile.getAbsolutePath()
-                                                          + "<b>'",
+                                                                  + exportFile.getAbsolutePath()
+                                                                  + "<b>'",
                                                           "File Warning",
                                                           JOptionPane.WARNING_MESSAGE,
                                                           DialogOption.OK_OPTION);
@@ -1844,8 +1848,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                 // Inform the user that the data file cannot be closed
                 new CcddDialogHandler().showMessageDialog(parent,
                                                           "<html><b>Cannot export file '</b>"
-                                                          + exportFile.getAbsolutePath()
-                                                          + "<b>'",
+                                                                  + exportFile.getAbsolutePath()
+                                                                  + "<b>'",
                                                           "File Warning",
                                                           JOptionPane.WARNING_MESSAGE,
                                                           DialogOption.OK_OPTION);
@@ -1960,9 +1964,9 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                                     // Add the formatted path in the 'Variable Path' column
                                     columnJO.put("Variable Path",
                                                  variableHandler.getFullVariableName(variablePath,
-                                                                                     separators[0],
-                                                                                     Boolean.valueOf(separators[1]),
-                                                                                     separators[2]));
+                                                                                     separators[SeparatorColumns.PATH_SEPARATOR.ordinal()],
+                                                                                     Boolean.valueOf(separators[SeparatorColumns.HIDE_DATA_TYPE.ordinal()]),
+                                                                                     separators[SeparatorColumns.NAME_SEPARATOR.ordinal()]));
                                 }
                             }
                         }
@@ -2053,8 +2057,9 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                     for (int column = NUM_HIDDEN_COLUMNS; column < tableInfo.getData().get(row).length; column++)
                     {
                         // Check if a cell isn't blank
-                        if (!tableInfo.getData().get(row)[column].toString().isEmpty()
-                            || booleanColumns.contains(column))
+                        if (tableInfo.getData().get(row)[column] != null
+                            && (!tableInfo.getData().get(row)[column].toString().isEmpty()
+                                || booleanColumns.contains(column)))
                         {
                             if (booleanColumns.contains(column))
                             {
@@ -2071,7 +2076,9 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                             // Check if the table represents a structure, that the variable path
                             // column is to be included, and that a variable handler and path
                             // separators are supplied
-                            if (typeDefn.isStructure() && includeVariablePaths && variableHandler != null
+                            if (typeDefn.isStructure()
+                                && includeVariablePaths
+                                && variableHandler != null
                                 && separators != null)
                             {
                                 // Get the variable's data type
@@ -2090,9 +2097,9 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                                     // Add the formatted path in the 'Variable Path' column
                                     columnJO.put("Variable Path",
                                                  variableHandler.getFullVariableName(variablePath,
-                                                                                     separators[0],
-                                                                                     Boolean.valueOf(separators[1]),
-                                                                                     separators[2]));
+                                                                                     separators[SeparatorColumns.PATH_SEPARATOR.ordinal()],
+                                                                                     Boolean.valueOf(separators[SeparatorColumns.HIDE_DATA_TYPE.ordinal()]),
+                                                                                     separators[SeparatorColumns.NAME_SEPARATOR.ordinal()]));
                                 }
                             }
                         }
@@ -2226,22 +2233,22 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             OrderedJSONObject DBUInfoJO = new OrderedJSONObject();
 
             // Export the database name
-            DBUInfoJO.put("Database Name", comment[1]);
+            DBUInfoJO.put("Database Name", comment[DatabaseComment.PROJECT_NAME.ordinal()]);
 
             // Export the user access level information
             String[][] usersAndAcessLevel = dbTable.retrieveInformationTable(InternalTable.USERS,
                                                                              true,
                                                                              ccddMain.getMainFrame())
-                                                   .toArray(new String[0][0]);
+                    .toArray(new String[0][0]);
             String usersAndAcessLevelDataToExport = "";
 
             // Each user will be added with their individual access level in the format of
             // "user1:accessLevel,user2:accessLevel"
             for (int index = 0; index < usersAndAcessLevel.length; index++)
             {
-                usersAndAcessLevelDataToExport += usersAndAcessLevel[index][0]
+                usersAndAcessLevelDataToExport += usersAndAcessLevel[index][UsersColumn.USER_NAME.ordinal()]
                                                   + ":"
-                                                  + usersAndAcessLevel[index][1];
+                                                  + usersAndAcessLevel[index][UsersColumn.ACCESS_LEVEL.ordinal()];
 
                 if (index != usersAndAcessLevel.length - 1)
                 {
@@ -2252,7 +2259,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             DBUInfoJO.put("Database Users", usersAndAcessLevelDataToExport);
 
             // Export the database description
-            DBUInfoJO.put("Database Description", comment[3]);
+            DBUInfoJO.put("Database Description", comment[DatabaseComment.DESCRIPTION.ordinal()]);
             DBUInfoJA.add(DBUInfoJO);
 
             // Check if any data field exists
@@ -2283,6 +2290,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      *
      * @throws Exception     If an unanticipated error occurs
      *********************************************************************************************/
+    @Override
     public void exportInternalCCDDData(boolean[] includes,
                                        CcddConstants.exportDataTypes[] dataTypes,
                                        FileEnvVar exportFile,
@@ -2381,7 +2389,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                             break;
 
                         case APPSCHEDULER:
-                            if (outputType .contentEquals(EXPORT_MULTIPLE_FILES))
+                            if (outputType.contentEquals(EXPORT_MULTIPLE_FILES))
                             {
                                 fw = new FileWriter(exportFile + "/" + FileNames.APP_SCHEDULER.JSON(), false);
                                 bw = new BufferedWriter(fw);
@@ -2449,20 +2457,6 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                                 pw = new PrintWriter(bw);
                             }
 
-//                            if (!getDBUInfo(outputJO).isEmpty())
-//                            {
-//                                if (outputType.contentEquals(EXPORT_MULTIPLE_FILES))
-//                                {
-//                                    fw = new FileWriter(exportFile + "/" + FileNames.DBU_INFO.JSON(), false);
-//                                    bw = new BufferedWriter(fw);
-//                                    pw = new PrintWriter(bw);
-//                                    outputJO = new OrderedJSONObject();
-//                                }
-//
-//                                // Get the project data fields data
-//                                outputJO = getDBUInfo(outputJO);
-//                            }
-
                             break;
                     }
 
@@ -2519,8 +2513,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                             // Inform the user that the data file cannot be closed
                             new CcddDialogHandler().showMessageDialog(parent,
                                                                       "<html><b>Cannot close export file '</b>"
-                                                                      + exportFile.getAbsolutePath()
-                                                                      + "<b>'",
+                                                                              + exportFile.getAbsolutePath()
+                                                                              + "<b>'",
                                                                       "File Warning",
                                                                       JOptionPane.WARNING_MESSAGE,
                                                                       DialogOption.OK_OPTION);
@@ -2587,8 +2581,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                     // Inform the user that the data file cannot be closed
                     new CcddDialogHandler().showMessageDialog(parent,
                                                               "<html><b>Cannot close export file '</b>"
-                                                              + exportFile.getAbsolutePath()
-                                                              + "<b>'",
+                                                                      + exportFile.getAbsolutePath()
+                                                                      + "<b>'",
                                                               "File Warning",
                                                               JOptionPane.WARNING_MESSAGE,
                                                               DialogOption.OK_OPTION);
@@ -2621,6 +2615,7 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
      * @throws Exception     If an unanticipated error occurs
      *********************************************************************************************/
 
+    @Override
     public void exportTableInfoDefinitions(FileEnvVar exportFile,
                                            boolean includeTableTypes,
                                            boolean includeInputTypes,
@@ -2734,8 +2729,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                 // Inform the user that the data file cannot be closed
                 new CcddDialogHandler().showMessageDialog(parent,
                                                           "<html><b>Cannot close export file '</b>"
-                                                          + exportFile.getAbsolutePath()
-                                                          + "<b>'",
+                                                                  + exportFile.getAbsolutePath()
+                                                                  + "<b>'",
                                                           "File Warning",
                                                           JOptionPane.WARNING_MESSAGE,
                                                           DialogOption.OK_OPTION);
@@ -2797,15 +2792,15 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
                 // Create the file creation comment
                 tableInformation.put(JSONTags.FILE_DESCRIPTION.getTag(),
                                      "Created "
-                                     + new Date().toString()
-                                     + " : CCDD version = "
-                                     + ccddMain.getCCDDVersionInformation()
-                                     + " : project = "
-                                     + dbControl.getProjectName()
-                                     + " : host = "
-                                     + dbControl.getServer()
-                                     + " : user = "
-                                     + dbControl.getUser());
+                                                                         + new Date().toString()
+                                                                         + " : CCDD version = "
+                                                                         + ccddMain.getCCDDVersionInformation()
+                                                                         + " : project = "
+                                                                         + dbControl.getProjectName()
+                                                                         + " : host = "
+                                                                         + dbControl.getServer()
+                                                                         + " : user = "
+                                                                         + dbControl.getUser());
             }
 
             // Store the table's name, type, description, data, and data fields
@@ -3250,7 +3245,8 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
             {
                 // Store the variable path in application and user-defined formats
                 OrderedJSONObject pathJO = new OrderedJSONObject();
-                pathJO.put(variablePath[0], variablePath[1]);
+                pathJO.put(variablePath[VariablePathTableColumnInfo.APP_FORMAT.ordinal()],
+                           variablePath[VariablePathTableColumnInfo.USER_FORMAT.ordinal()]);
 
                 // Add the variable path to the array
                 variablePathJA.add(pathJO);
@@ -3883,9 +3879,12 @@ public class CcddJSONHandler extends CcddImportSupportHandler implements CcddImp
 
             // There are three parameters that will be required by each rate; add them to the
             // output
-            tlmSchCommentJO.put(JSONTags.MAXIMUM_SECONDS_PER_MESSAGE.getTag(), comments[0]);
-            tlmSchCommentJO.put(JSONTags.MAXIMUM_MESSAGES_PER_SECOND.getTag(), comments[1]);
-            tlmSchCommentJO.put(JSONTags.INCLUDE_UNEVEN_RATES.getTag(), comments[2]);
+            tlmSchCommentJO.put(JSONTags.MAXIMUM_SECONDS_PER_MESSAGE.getTag(),
+                                comments[RateParameter.MAXIMUM_SECONDS_PER_MESSAGE.ordinal()]);
+            tlmSchCommentJO.put(JSONTags.MAXIMUM_MESSAGES_PER_SECOND.getTag(),
+                                comments[RateParameter.MAXIMUM_MESSAGES_PER_SECOND.ordinal()]);
+            tlmSchCommentJO.put(JSONTags.INCLUDE_UNEVEN_RATES.getTag(),
+                                comments[RateParameter.INCLUDE_UNEVEN_RATES.ordinal()]);
 
             // Check if there is any rate information stored in the table comment
             if (comments.length > 3)

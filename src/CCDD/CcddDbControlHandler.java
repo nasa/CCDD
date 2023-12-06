@@ -25,11 +25,16 @@
  **************************************************************************************************/
 package CCDD;
 
+import static CCDD.CcddConstants.BACKUP_KEY;
 import static CCDD.CcddConstants.CCDD_PROJECT_IDENTIFIER;
 import static CCDD.CcddConstants.DATABASE;
 import static CCDD.CcddConstants.DATABASE_ADMIN_SEPARATOR;
 import static CCDD.CcddConstants.DATABASE_COMMENT_SEPARATOR;
 import static CCDD.CcddConstants.DATABASE_DRIVER;
+import static CCDD.CcddConstants.DB_PLACEHOLDER_ADMINS;
+import static CCDD.CcddConstants.DB_PLACEHOLDER_DESC;
+import static CCDD.CcddConstants.DB_PLACEHOLDER_LOCK;
+import static CCDD.CcddConstants.DB_PLACEHOLDER_NAME;
 import static CCDD.CcddConstants.DEFAULT_DATABASE;
 import static CCDD.CcddConstants.DEFAULT_POSTGRESQL_HOST;
 import static CCDD.CcddConstants.DEFAULT_POSTGRESQL_PORT;
@@ -43,17 +48,12 @@ import static CCDD.CcddConstants.POSTGRESQL_SERVER_SSL;
 import static CCDD.CcddConstants.PROJECT_STRINGS;
 import static CCDD.CcddConstants.TYPE_STRUCTURE;
 import static CCDD.CcddConstants.USER;
+import static CCDD.CcddConstants.USER_PLACEHOLDER_ADMIN_USER;
 import static CCDD.CcddConstants.ConnectionType.NO_CONNECTION;
 import static CCDD.CcddConstants.ConnectionType.TO_DATABASE;
 import static CCDD.CcddConstants.ConnectionType.TO_SERVER_ONLY;
 import static CCDD.CcddConstants.EventLogMessageType.COMMAND_MSG;
 import static CCDD.CcddConstants.EventLogMessageType.SUCCESS_MSG;
-import static CCDD.CcddConstants.DB_PLACEHOLDER_NAME;
-import static CCDD.CcddConstants.DB_PLACEHOLDER_LOCK;
-import static CCDD.CcddConstants.DB_PLACEHOLDER_ADMINS;
-import static CCDD.CcddConstants.DB_PLACEHOLDER_DESC;
-import static CCDD.CcddConstants.USER_PLACEHOLDER_ADMIN_USER;
-import static CCDD.CcddConstants.BACKUP_KEY;
 
 import java.awt.Component;
 import java.io.BufferedReader;
@@ -1364,7 +1364,7 @@ public class CcddDbControlHandler
     }
 
     /**********************************************************************************************
-     * Build the command to create the database comment and updated the internal table _dub_info.
+     * Build the command to create the database comment and update the internal table _dbu_info.
      * Delimit the text so that special characters (e.g., single quotes) can be placed in the
      * description
      *
@@ -2889,7 +2889,7 @@ public class CcddDbControlHandler
                 // Update the database's description
                 dbCommand.executeDbUpdate(new StringBuilder(buildDatabaseCommentCommandAndUpdateInternalTable(newProject,
                                                                                                               administrator,
-                                                                                                              false,
+                                                                                                              getDatabaseLockStatus(oldDatabase),
                                                                                                               description)),
                                           ccddMain.getMainFrame());
             }
@@ -2905,7 +2905,7 @@ public class CcddDbControlHandler
                                                                               .append("; ")
                                                                               .append(buildDatabaseCommentCommandAndUpdateInternalTable(newProject,
                                                                                                                                         administrator,
-                                                                                                                                        false,
+                                                                                                                                        getDatabaseLockStatus(oldDatabase),
                                                                                                                                         description)),
                                           ccddMain.getMainFrame());
 

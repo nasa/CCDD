@@ -666,6 +666,7 @@ public class CcddDataTypeHandler
             {
                 // Add the data type
                 dataTypes.add(typeDefn);
+                update = true;
             }
             // The data type exists; check if the type information provided matches the existing
             // type information

@@ -27,11 +27,11 @@ package CCDD;
 import static CCDD.CcddConstants.DEFAULT_INSTANCE_NODE_NAME;
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.PATH_COLUMN_DELTA;
+import static CCDD.CcddConstants.STRUCT_CMD_ARG_REF;
 import static CCDD.CcddConstants.TYPE_COLUMN_DELTA;
 import static CCDD.CcddConstants.TYPE_COMMAND;
-import static CCDD.CcddConstants.TYPE_STRUCTURE;
-import static CCDD.CcddConstants.STRUCT_CMD_ARG_REF;
 import static CCDD.CcddConstants.TYPE_ENUM;
+import static CCDD.CcddConstants.TYPE_STRUCTURE;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -57,11 +57,9 @@ import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
 import javax.xml.bind.JAXBException;
 
-import org.omg.space.xtce.BaseDataType.UnitSet;
-import org.omg.space.xtce.EntryListType;
-import org.omg.space.xtce.EnumeratedDataType.EnumerationList;
-import org.omg.space.xtce.NameDescriptionType;
-import org.omg.space.xtce.SpaceSystemType;
+import org.omg.spec.xtce._20180204.EnumerationListType;
+import org.omg.spec.xtce._20180204.SpaceSystemType;
+import org.omg.spec.xtce._20180204.UnitSetType;
 
 import CCDD.CcddClassesComponent.ArrayListMultiple;
 import CCDD.CcddClassesComponent.FileEnvVar;
@@ -86,7 +84,7 @@ import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiablePathInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.TablePathType;
-import CCDD.CcddImportSupportHandler.BasePrimitiveDataType;
+import CCDD.CcddImportExportSupportHandler.BasePrimitiveDataType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /**************************************************************************************************
@@ -122,8 +120,9 @@ public class CcddScriptDataAccessHandler
     // Calling GUI component
     private final Component parent;
 
-    // Name of the script file being executed
+    // Name and description of the script file being executed
     private final String scriptFileName;
+    private final String scriptDescription;
 
     // List of group names references in the script association
     private final List<String> groupNames;
@@ -134,24 +133,26 @@ public class CcddScriptDataAccessHandler
     /**********************************************************************************************
      * Script data access class constructor
      *
-     * @param ccddMain         Main class
+     * @param ccddMain          Main class
      *
-     * @param scriptEngine     Script engine reference
+     * @param scriptEngine      Script engine reference
      *
-     * @param tableInformation Array of table information
+     * @param tableInformation  Array of table information
      *
-     * @param linkHandler      Link handler reference
+     * @param linkHandler       Link handler reference
      *
-     * @param groupHandler     Group handler reference
+     * @param groupHandler      Group handler reference
      *
-     * @param scriptFileName   Name of the script file being executed
+     * @param scriptFileName    Name of the script file being executed
      *
-     * @param groupNames       List containing the names of any groups referenced in the script
-     *                         association
+     * @param scriptDescription Description of the script file being executed
      *
-     * @param parent           Reference to the GUI component from which this class was generated
-     *                         (script dialog if executing from within the CCDD application; main
-     *                         window frame if executing from the command line)
+     * @param groupNames        List containing the names of any groups referenced in the script
+     *                          association
+     *
+     * @param parent            Reference to the GUI component from which this class was generated
+     *                          (script dialog if executing from within the CCDD application; main
+     *                          window frame if executing from the command line)
      *********************************************************************************************/
     CcddScriptDataAccessHandler(CcddMain ccddMain,
                                 ScriptEngine scriptEngine,
@@ -159,6 +160,7 @@ public class CcddScriptDataAccessHandler
                                 CcddLinkHandler linkHandler,
                                 CcddGroupHandler groupHandler,
                                 String scriptFileName,
+                                String scriptDescription,
                                 List<String> groupNames,
                                 Component parent)
     {
@@ -168,6 +170,7 @@ public class CcddScriptDataAccessHandler
         this.linkHandler = linkHandler;
         this.groupHandler = groupHandler;
         this.scriptFileName = scriptFileName;
+        this.scriptDescription = scriptDescription;
         this.groupNames = groupNames;
         this.parent = parent;
         dbTable = ccddMain.getDbTableCommandHandler();
@@ -247,6 +250,16 @@ public class CcddScriptDataAccessHandler
     public String getScriptName()
     {
         return scriptFileName;
+    }
+
+    /**********************************************************************************************
+     * Get the description of the script file being executed
+     *
+     * @return Description of the script file being executed
+     *********************************************************************************************/
+    public String getScriptDescription()
+    {
+        return scriptDescription;
     }
 
     /**********************************************************************************************
@@ -362,7 +375,7 @@ public class CcddScriptDataAccessHandler
     public Integer[] getLongestStrings(List<List<String>> strgList, List<Integer> minWidths)
     {
         return getLongestStrings(CcddUtilities.convertListToArray2D(strgList, String.class),
-                                 CcddUtilities.convertListToArray1D(minWidths, Integer.class));
+                                 (minWidths == null ? null : CcddUtilities.convertListToArray1D(minWidths, Integer.class)));
     }
 
     /**********************************************************************************************
@@ -378,7 +391,7 @@ public class CcddScriptDataAccessHandler
      *********************************************************************************************/
     public Integer[] getLongestStrings(String[][] strgArray, Integer[] minWidths)
     {
-        // Check if the string array contains at least one row and column, and that either no
+       // Check if the string array contains at least one row and column, and that either no
         // initial minimum widths are specified or that the number of minimum widths is greater
         // than or equal to the number of string columns
         if (strgArray.length != 0 && strgArray[0].length != 0
@@ -5124,109 +5137,28 @@ public class CcddScriptDataAccessHandler
     }
 
     /**********************************************************************************************
-     * Set the space system header attributes
-     *
-     * @param spaceSystem      Space system reference
-     *
-     * @param classification   Classification attribute
-     *
-     * @param validationStatus Validation status attribute
-     *
-     * @param version          Version attribute
-     *
-     * @param date             Export creation time and date
-     *
-     * @throws CCDDException If an error occurs executing an external (script) method
-     *********************************************************************************************/
-    public void xtceAddSpaceSystemHeader(SpaceSystemType spaceSystem,
-                                         String classification,
-                                         String validationStatus,
-                                         String version,
-                                         String date) throws CCDDException
-    {
-        // Check if the XTCE handler exists
-        if (xtceHandler != null)
-        {
-            xtceHandler.addSpaceSystemHeader(spaceSystem,
-                                             classification,
-                                             validationStatus,
-                                             version,
-                                             date);
-        }
-    }
-
-    /**********************************************************************************************
-     * Create the space system telemetry metadata
-     *
-     * @param spaceSystem Space system reference
-     *********************************************************************************************/
-    public void xtceCreateTelemetryMetadata(SpaceSystemType spaceSystem)
-    {
-        // Check if the XTCE handler exists
-        if (xtceHandler != null)
-        {
-            xtceHandler.createTelemetryMetadata(spaceSystem);
-        }
-    }
-
-    /**********************************************************************************************
      * Add a structure table's parameters to the telemetry meta data
      *
-     * @param spaceSystem     Space system to which the table belongs
+     * @param spaceSystem      Space system to which the table belongs
      *
-     * @param tableName       Table name
+     * @param tableName        Table name
      *
-     * @param tableData       Array containing the table's data
+     * @param tableData        Array containing the table's data
      *
-     * @param varColumn       Variable (parameter) name column index
+     * @param typeDefn         Table type definition
      *
-     * @param typeColumn      Parameter data type column index
+     * @param messageFieldName Message name and ID field name; null if not present or not applicable
      *
-     * @param sizeColumn      Parameter array size column index
-     *
-     * @param bitColumn       Parameter bit length column index
-     *
-     * @param enumColumn      Parameter enumeration column index; -1 if no the table has no
-     *                        enumeration column
-     *
-     * @param descColumn      Parameter description column index; -1 if no the table has no
-     *                        description column
-     *
-     * @param unitsColumn     Parameter units column index; -1 if no the table has no units column
-     *
-     * @param minColumn       Minimum parameter value column index; -1 if no the table has no
-     *                        minimum column
-     *
-     * @param maxColumn       Maximum parameter value column index; -1 if no the table has no
-     *                        maximum column
-     *
-     * @param isTlmHdrTable   True if this table represents the telemetry header or one of its
-     *                        descendants
-     *
-     * @param tlmHdrSysPath   Telemetry header table system path; null or blank is none
-     *
-     * @param isRootStructure True if the table is a root structure table
-     *
-     * @param applicationID   Telemetry header application ID
+     * @param messageNameAndID Message name and ID; null if not present or not applicable
      *
      * @throws CCDDException If an error occurs executing an external (script) method
      *********************************************************************************************/
     public void xtceAddSpaceSystemParameters(SpaceSystemType spaceSystem,
                                              String tableName,
                                              String[][] tableData,
-                                             int varColumn,
-                                             int typeColumn,
-                                             int sizeColumn,
-                                             int bitColumn,
-                                             int enumColumn,
-                                             int descColumn,
-                                             int unitsColumn,
-                                             int minColumn,
-                                             int maxColumn,
-                                             boolean isTlmHdrTable,
-                                             String tlmHdrSysPath,
-                                             boolean isRootStructure,
-                                             String applicationID) throws CCDDException
+                                             TypeDefinition typeDefn,
+                                             String messageFieldName,
+                                             String messageNameAndID) throws CCDDException
     {
         // Check if the XTCE handler exists
         if (xtceHandler != null)
@@ -5234,19 +5166,9 @@ public class CcddScriptDataAccessHandler
             xtceHandler.addSpaceSystemParameters(spaceSystem,
                                                  tableName,
                                                  tableData,
-                                                 varColumn,
-                                                 typeColumn,
-                                                 sizeColumn,
-                                                 bitColumn,
-                                                 enumColumn,
-                                                 descColumn,
-                                                 unitsColumn,
-                                                 minColumn,
-                                                 maxColumn,
-                                                 isTlmHdrTable,
-                                                 tlmHdrSysPath,
-                                                 isRootStructure,
-                                                 applicationID);
+                                                 typeDefn,
+                                                 messageFieldName,
+                                                 messageNameAndID);
         }
     }
 
@@ -5308,49 +5230,6 @@ public class CcddScriptDataAccessHandler
     }
 
     /**********************************************************************************************
-     * Add the parameter to the sequence container entry list
-     *
-     * @param spaceSystem   Reference to the space system to which the parameter belongs
-     *
-     * @param parameterName Parameter name
-     *
-     * @param dataType      Data type
-     *
-     * @param arraySize     Array size
-     *
-     * @param entryList     Reference to the entry list into which to place the parameter (for a
-     *                      primitive data type) or container (for a structure data type) reference
-     *
-     * @param isTlmHdrRef   True if this table represents the telemetry header or one of its
-     *                      descendants
-     *
-     * @return True if the parameter's data type references the telemetry header or one of its
-     *         descendants; otherwise return the flag status unchanged
-     *
-     * @throws CCDDException If an error occurs executing an external (script) method
-     *********************************************************************************************/
-    public boolean xtceAddParameterSequenceEntry(SpaceSystemType spaceSystem,
-                                                 String parameterName,
-                                                 String dataType,
-                                                 String arraySize,
-                                                 EntryListType entryList,
-                                                 boolean isTlmHdrRef) throws CCDDException
-    {
-        // Check if the XTCE handler exists
-        if (xtceHandler != null)
-        {
-            isTlmHdrRef = xtceHandler.addParameterSequenceEntry(spaceSystem,
-                                                                parameterName,
-                                                                dataType,
-                                                                arraySize,
-                                                                entryList,
-                                                                isTlmHdrRef);
-        }
-
-        return isTlmHdrRef;
-    }
-
-    /**********************************************************************************************
      * Create the telemetry parameter data type and set the specified attributes
      *
      * @param spaceSystem   Space system reference
@@ -5371,8 +5250,6 @@ public class CcddScriptDataAccessHandler
      *
      * @param maximum       Maximum parameter value; null to not specify
      *
-     * @param description   Parameter description; null to not specify
-     *
      * @param stringSize    Size, in characters, of a string parameter; ignored if not a string or
      *                      character
      *
@@ -5387,7 +5264,6 @@ public class CcddScriptDataAccessHandler
                                          String units,
                                          String minimum,
                                          String maximum,
-                                         String description,
                                          int stringSize) throws CCDDException
     {
         // Check if the XTCE handler exists
@@ -5402,114 +5278,65 @@ public class CcddScriptDataAccessHandler
                                              units,
                                              minimum,
                                              maximum,
-description,
                                              stringSize);
-        }
-    }
-
-    /**********************************************************************************************
-     * Create the space system command metadata
-     *
-     * @param spaceSystem Space system reference
-     *
-     * @throws CCDDException If an error occurs executing an external (script) method
-     *********************************************************************************************/
-    public void xtceCreateCommandMetadata(SpaceSystemType spaceSystem) throws CCDDException
-    {
-        // Check if the XTCE handler exists
-        if (xtceHandler != null)
-        {
-            xtceHandler.createCommandMetadata(spaceSystem);
         }
     }
 
     /**********************************************************************************************
      * Add the command(s) from a table to the specified space system
      *
-     * @param spaceSystem       Space system reference
+     * @param spaceSystem      Space system reference
      *
-     * @param tableData         Table data array
+     * @param tableData        Table data array
      *
-     * @param cmdNameColumn     Command name column index
+     * @param typeDefn         Table type definition
      *
-     * @param cmdCodeColumn     Command code column index
+     * @param messageFieldName Message name and ID field name; null if not present or not applicable
      *
-     * @param cmdArgumentColumn Command argument structure column index
-     *
-     * @param cmdDescColumn     Command description column index
-     *
-     * @param isCmdHeader       True if this table represents the command header
-     *
-     * @param cmdHdrSysPath     Command header table system path
-     *
-     * @param applicationID     Application ID
+     * @param messageNameAndID Message name and ID; null if not present or not applicable
      *
      * @throws CCDDException If an error occurs executing an external (script) method
      *********************************************************************************************/
     protected void xtceAddSpaceSystemCommands(SpaceSystemType spaceSystem,
                                               String[][] tableData,
-                                              int cmdNameColumn,
-                                              int cmdCodeColumn,
-                                              int cmdArgumentColumn,
-                                              int cmdDescColumn,
-                                              boolean isCmdHeader,
-                                              String cmdHdrSysPath,
-                                              String applicationID) throws CCDDException
+                                              TypeDefinition typeDefn,
+                                              String messageFieldName,
+                                              String messageNameAndID) throws CCDDException
     {
         // Check if the XTCE handler exists
         if (xtceHandler != null)
         {
             xtceHandler.addSpaceSystemCommands(spaceSystem,
                                                tableData,
-                                               cmdNameColumn,
-                                               cmdCodeColumn,
-                                               cmdArgumentColumn,
-                                               cmdDescColumn,
-                                               isCmdHeader,
-                                               cmdHdrSysPath,
-                                               applicationID);
+                                               typeDefn,
+                                               messageFieldName,
+                                               messageNameAndID);
         }
     }
 
     /**********************************************************************************************
      * Add a command to the command metadata set
      *
-     * @param spaceSystem   Space system reference
+     * @param spaceSystem    Space system reference
      *
-     * @param commandName   Command name
+     * @param commandName    Command name
      *
-     * @param cmdFuncCode   Command code
+     * @param cmdFuncCode    Command code
      *
-     * @param applicationID Application ID
+     * @param cmdArgStruct   Command argument structure name
      *
-     * @param cmdArgStruct  Command argument structure name
+     * @param cmdHdrSysPath  Command header table system path
      *
-     * @param isCmdHeader   True if this table represents the command header
-     *
-     * @param cmdHdrSysPath Command header table system path
-     *
-     * @param argumentNames List of command argument names
-     *
-     * @param argDataTypes  List of of command argument data types
-     *
-     * @param argArraySizes List of of command argument array sizes; the list item is null or blank
-     *                      if the corresponding argument isn't an array
-     *
-     * @param description   Description of the command
+     * @param cmdDescription Description of the command
      *
      * @throws CCDDException If an error occurs executing an external (script) method
      *********************************************************************************************/
     public void xtceAddCommand(SpaceSystemType spaceSystem,
                                String commandName,
                                String cmdFuncCode,
-                               String applicationID,
                                String cmdArgStruct,
-                               boolean isCmdHeader,
                                String cmdHdrSysPath,
-                               String[] argumentNames,
-                               String[] argDataTypes,
-                               String[] argArraySizes,
-                               String description) throws CCDDException
+                               String cmdDescription) throws CCDDException
     {
         // Check if the XTCE handler exists
         if (xtceHandler != null)
@@ -5517,111 +5344,8 @@ description,
             xtceHandler.addCommand(spaceSystem,
                                    commandName,
                                    cmdFuncCode,
-                                   applicationID,
                                    cmdArgStruct,
-                                   isCmdHeader,
-                                   cmdHdrSysPath,
-                                   argumentNames,
-                                   argDataTypes,
-                                   argArraySizes,
-                                   description);
-        }
-    }
-
-    /**********************************************************************************************
-     * Set the command argument data type and set the specified attributes
-     *
-     * @param spaceSystem  Space system reference
-     *
-     * @param argumentName Command argument name; null to not specify
-     *
-     * @param dataType     Command argument data type; null to not specify
-     *
-     * @param arraySize    Command argument array size; null or blank if the argument isn't an
-     *                     array
-     *
-     * @param bitLength    Command argument bit length
-     *
-     * @param enumeration  {@literal command argument enumeration in the format <enum label>|<enum value>[|...][,...]; null to not specify}
-     *
-     * @param units        Command argument units; null to not specify
-     *
-     * @param minimum      Minimum parameter value; null to not specify
-     *
-     * @param maximum      Maximum parameter value; null to not specify
-     *
-     * @param description  Command argument description ; null to not specify
-     *
-     * @param stringSize   String size in bytes; ignored if the command argument does not have a
-     *                     string data type
-     *
-     * @param uniqueID     Text used to uniquely identify data types with the same name; blank if
-     *                     the data type has no name conflict
-     *
-     * @return Command description of the type corresponding to the primitive data type with the
-     *         specified attributes set
-     *
-     * @throws CCDDException If an error occurs executing an external (script) method
-     *********************************************************************************************/
-    public NameDescriptionType xtceSetArgumentDataType(SpaceSystemType spaceSystem,
-                                                       String argumentName,
-                                                       String dataType,
-                                                       String arraySize,
-                                                       String bitLength,
-                                                       String enumeration,
-                                                       String units,
-                                                       String minimum,
-                                                       String maximum,
-                                                       String description,
-                                                       int stringSize,
-                                                       String uniqueID) throws CCDDException
-    {
-        NameDescriptionType commandDescription = null;
-
-        // Check if the XTCE handler exists
-        if (xtceHandler != null)
-        {
-            commandDescription = xtceHandler.setArgumentDataType(spaceSystem,
-                                                                 argumentName,
-                                                                 dataType,
-                                                                 arraySize,
-                                                                 bitLength,
-                                                                 enumeration,
-                                                                 units,
-                                                                 minimum,
-                                                                 maximum,
-                                                                 description,
-                                                                 stringSize,
-                                                                 uniqueID);
-        }
-
-        return commandDescription;
-    }
-
-    /**********************************************************************************************
-     * Add a container reference(s) for the telemetry or command parameter or parameter array to
-     * the specified entry list
-     *
-     * @param entryList     Reference to the telemetry or command entry list into which to place
-     *                      the parameter or parameter array container reference(s)
-     *
-     * @param parameterName Parameter name
-     *
-     * @param dataType      Data type
-     *
-     * @param arraySize     Parameter array size; null or blank if the parameter isn't an array
-     *
-     * @throws CCDDException If an error occurs executing an external (script) method
-     *********************************************************************************************/
-    public void xtceAddContainerReference(String parameterName,
-                                          String dataType,
-                                          String arraySize,
-                                          Object entryList) throws CCDDException
-    {
-        // Check if the XTCE handler exists
-        if (xtceHandler != null)
-        {
-            xtceHandler.addContainerReference(parameterName, dataType, arraySize, entryList);
+                                   cmdDescription);
         }
     }
 
@@ -5632,9 +5356,9 @@ description,
      *
      * @return Unit set for the supplied units string; an empty unit set if no units are supplied
      *********************************************************************************************/
-    public UnitSet xtceCreateUnitSet(String units)
+    public UnitSetType xtceCreateUnitSet(String units)
     {
-        UnitSet unitSet = null;
+        UnitSetType unitSet = null;
 
         // Check if the XTCE handler exists
         if (xtceHandler != null)
@@ -5654,9 +5378,9 @@ description,
      *
      * @return Enumeration list for the supplied enumeration string
      *********************************************************************************************/
-    public EnumerationList xtceCreateEnumerationList(SpaceSystemType spaceSystem, String enumeration)
+    public EnumerationListType xtceCreateEnumerationList(SpaceSystemType spaceSystem, String enumeration)
     {
-        EnumerationList enumList = null;
+        EnumerationListType enumList = null;
 
         // Check if the XTCE handler exists
         if (xtceHandler != null)
@@ -5677,7 +5401,7 @@ description,
      *********************************************************************************************/
     public BasePrimitiveDataType xmlGetBaseDataType(String dataType)
     {
-        return CcddImportSupportHandler.getBaseDataType(dataType, dataTypeHandler);
+        return CcddImportExportSupportHandler.getBaseDataType(dataType, dataTypeHandler);
     }
 
     /**********************************************************************************************
@@ -5691,7 +5415,7 @@ description,
      *********************************************************************************************/
     public String xmlCleanSystemPath(String path)
     {
-        return CcddImportSupportHandler.cleanSystemPath(path);
+        return CcddImportExportSupportHandler.cleanSystemPath(path);
     }
 
     /**********************************************************************************************

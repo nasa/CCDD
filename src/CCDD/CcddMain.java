@@ -1614,13 +1614,16 @@ public class CcddMain
             if (!jarFileName.endsWith(".jar"))
             {
                 jarFileName = new File(ClassLoader.getSystemClassLoader().getResource(".").getPath()).getAbsolutePath();
-                jarFileName = jarFileName + "/CCDD.jar";
+                jarFileName = jarFileName + File.separator + "CCDD.jar";
             }
 
             // Check if the .jar file name exists. This is false if the application is executed
             // from within the IDE
             if (jarFileName != null && jarFileName.endsWith(".jar"))
             {
+                //Replace instances of %20 with a space in case running in Windows
+                jarFileName = jarFileName.replaceAll("%20", " ");
+
                 // Get the manifest in the .jar file
                 JarFile jar = new JarFile(jarFileName);
                 Manifest manifest = jar.getManifest();
@@ -1641,6 +1644,7 @@ public class CcddMain
         {
             // Ignore the exception if an I/O exception occurs accessing the manifest in the .jar
             // file
+            e.printStackTrace();
         }
 
         // Check if no version number or build date was found in the manifest

@@ -657,7 +657,7 @@ public class CcddSchedulerHandler
                                 removedVars.remove(0);
 
                                 // Update the within-step progress value
-                                haltDlg.updateProgressBar(null, -1);
+                                haltDlg.updateProgressBar(null);
                             }
                         }
                     }
