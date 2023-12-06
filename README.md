@@ -17,6 +17,33 @@ _Note: The master branch contains_ **CCDD version 1**_, which is superseded by_ 
 
 * Beginning with CCDD version 2.1.2 Python 3 is supported
 
+*** Version 2.1.5 has been released **
+
+Below is a brief description of what has changed in version 2.1.5
+* Added a progress dialog when exporting tables
+* Updated the XTCE import/export code to the latest XTCE schema (version 1.2)
+* Updated the EDS import/export code to the latest EDS schema (2020 version)
+* Added script data access method to get the script description
+* Corrected insertion of a row into a table when the insertion point is at an array definition
+* Corrected a bug with the Verify command's duplicate __values table row removal that deleted all of the duplicate rows, instead of leaving one
+* Corrected an exception condition when adding a new column definition to a table type and the new row makes the type a structure table type
+* Changed the CcddJtableHandler table header renderer to set the font size outside the getTableCellRendererComponent method (which caused an infinite loop)
+* Added a second progress bar to the import dialog. The upper one shows the file being processed, and the lower one shows the table being created
+* Corrected bugs in the table tree handler:
+    * The exception condition that occurs when "Filter by group" is selected, then "Filter by type" is selected, then "Filter by type" is deselected
+    * The incorrect filtering when both "Filter by group" and "Filter by type" are selected (result also differs based on which filter is selected first)
+* Corrected an exception if the enter key is pressed when an empty combo box is being edited
+* Added the Tab key as a method to move to the next table cell and initiate editing, similar to the Enter key. The difference is that if editing is not active in the current cell then the next cell is selected and editing initiated
+* Corrected loss of cell focus when a cell is altered and the Escape key is pressed (ending editing). The cell now retains focus
+* Changed the data type combo box cell editor for rows with enumerations to use the CombBoxCellEditor; this allows selection via arrow and Enter keys
+* Corrected regular expression used during C header import
+* Corrected array variable creation during C header import
+* Corrected a null pointer exception when attempting to insert a macro into a non-structure table cell
+* Changed CcddTableTypeHandler.getVisibleColumnIndex() to return -1 if the column doesn't exist
+* Added method to collect prototype tables by table type name (versus just the type). When updating an input type the list by type returns tables that do not apply
+* Corrected a bug in the telemetry scheduler file output for the number of columns output
+* Changed so that rate parameters are determined prior to building the internal postgreSQL functions
+
 *** Version 2.1.4 has been released **
 
 Below is a brief description of what has changed in version 2.1.4
