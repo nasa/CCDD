@@ -1609,20 +1609,13 @@ public class CcddMain
             String jarFileName = URLDecoder.decode(new File(CcddMain.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getAbsolutePath(),
                                                    "UTF-8");
 
-            // Sometimes the name of the jar is not appended. Attempt to add it if the name does
-            // not end with '.jar'
-            if (!jarFileName.endsWith(".jar"))
+            if (jarFileName != null)
             {
-                jarFileName = new File(ClassLoader.getSystemClassLoader().getResource(".").getPath()).getAbsolutePath();
-                jarFileName = jarFileName + File.separator + "CCDD.jar";
-            }
-
-            // Check if the .jar file name exists. This is false if the application is executed
-            // from within the IDE
-            if (jarFileName != null && jarFileName.endsWith(".jar"))
-            {
-                //Replace instances of %20 with a space in case running in Windows
-                jarFileName = jarFileName.replaceAll("%20", " ");
+                // Add the .jar file name if not present
+                if (!jarFileName.endsWith(".jar"))
+                {
+                    jarFileName = jarFileName + File.separator + System.getProperty("sun.java.command");
+                }
 
                 // Get the manifest in the .jar file
                 JarFile jar = new JarFile(jarFileName);
@@ -1642,9 +1635,7 @@ public class CcddMain
         }
         catch (Exception e)
         {
-            // Ignore the exception if an I/O exception occurs accessing the manifest in the .jar
-            // file
-            e.printStackTrace();
+            // Ignore the exception if an I/O exception occurs
         }
 
         // Check if no version number or build date was found in the manifest
