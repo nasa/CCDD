@@ -8709,7 +8709,7 @@ public class CcddDbTableCommandHandler
                         if (command.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                         {
                             commands.add(command);
-                            command.setLength(0);
+                            command = new StringBuilder();
                         }
                     }
 
@@ -8767,7 +8767,7 @@ public class CcddDbTableCommandHandler
                         if (command.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                         {
                             commands.add(command);
-                            command.setLength(0);
+                            command = new StringBuilder();
                         }
                     }
 
@@ -8788,7 +8788,7 @@ public class CcddDbTableCommandHandler
                         if (command.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                         {
                             commands.add(command);
-                            command.setLength(0);
+                            command = new StringBuilder();
                         }
                     }
 
@@ -8813,7 +8813,7 @@ public class CcddDbTableCommandHandler
                         if (command.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                         {
                             commands.add(command);
-                            command.setLength(0);
+                            command = new StringBuilder();
                         }
                     }
                 }
@@ -8933,7 +8933,7 @@ public class CcddDbTableCommandHandler
                         if (command.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                         {
                             commands.add(command);
-                            command.setLength(0);
+                            command = new StringBuilder();
                         }
                     }
 
@@ -8977,7 +8977,7 @@ public class CcddDbTableCommandHandler
                             if (command.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                             {
                                 commands.add(command);
-                                command.setLength(0);
+                                command = new StringBuilder();
                             }
                         }
 
@@ -9047,7 +9047,7 @@ public class CcddDbTableCommandHandler
                                     if (command.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                                     {
                                         commands.add(command);
-                                        command.setLength(0);
+                                        command = new StringBuilder();
                                     }
                                 }
                                 // The new rate name is already in use
@@ -9079,7 +9079,7 @@ public class CcddDbTableCommandHandler
                         if (command.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                         {
                             commands.add(command);
-                            command.setLength(0);
+                            command = new StringBuilder();
                         }
 
                         // Check if the table type represents a structure and a rate column is
@@ -9105,7 +9105,7 @@ public class CcddDbTableCommandHandler
                             if (command.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                             {
                                 commands.add(command);
-                                command.setLength(0);
+                                command = new StringBuilder();
                             }
                         }
                     }
@@ -9333,7 +9333,7 @@ public class CcddDbTableCommandHandler
                                 if (command.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
                                 {
                                     commands.add(command);
-                                    command.setLength(0);
+                                    command = new StringBuilder();
                                 }
                             }
                         }
