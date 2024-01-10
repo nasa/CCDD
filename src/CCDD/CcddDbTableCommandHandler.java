@@ -8690,20 +8690,18 @@ public class CcddDbTableCommandHandler
                     // Get the database form of the table name
                     String dbTable = dbControl.getQuotedName(protoName);
 
-                    // Step through each addition
-                    for (String add[] : typeAdditions)
+                    // Step through each deletion
+                    for (String[] del : typeDeletions)
                     {
                         // Get the column name in database form
-                        String dbColumn = tableTypeHandler.convertVisibleToDatabase(add[0],
-                                                                                    add[1],
-                                                                                    isStructure);
+                        String dbColumn = tableTypeHandler.convertVisibleToDatabase(del[0], del[1], isStructure);
 
-                        // Append the add command
+                        // Append the delete command
                         command.append("ALTER TABLE ")
                                .append(dbTable)
-                               .append(" ADD COLUMN ")
+                               .append(" DROP COLUMN ")
                                .append(dbColumn)
-                               .append(" text DEFAULT ''; ");
+                               .append("; ");
 
                         // Check if the length of the command string has reached the limit
                         if (command.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
@@ -8771,18 +8769,20 @@ public class CcddDbTableCommandHandler
                         }
                     }
 
-                    // Step through each deletion
-                    for (String[] del : typeDeletions)
+                    // Step through each addition
+                    for (String add[] : typeAdditions)
                     {
                         // Get the column name in database form
-                        String dbColumn = tableTypeHandler.convertVisibleToDatabase(del[0], del[1], isStructure);
+                        String dbColumn = tableTypeHandler.convertVisibleToDatabase(add[0],
+                                                                                    add[1],
+                                                                                    isStructure);
 
-                        // Append the delete command
+                        // Append the add command
                         command.append("ALTER TABLE ")
                                .append(dbTable)
-                               .append(" DROP COLUMN ")
+                               .append(" ADD COLUMN ")
                                .append(dbColumn)
-                               .append("; ");
+                               .append(" text DEFAULT ''; ");
 
                         // Check if the length of the command string has reached the limit
                         if (command.length() >= ModifiableSizeInfo.MAX_SQL_COMMAND_LENGTH.getSize())
