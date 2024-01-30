@@ -107,6 +107,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     private JMenuItem mntmFindReplace;
     private JMenuItem mntmCloseActive;
     private JMenuItem mntmCloseAll;
+    private JMenu mnRecentTables;
     private JMenuItem[] mntmRecentTables;
     private JMenuItem mntmUndo;
     private JMenuItem mntmRedo;
@@ -239,13 +240,13 @@ public class CcddTableEditorDialog extends CcddFrameHandler
     }
 
     /**********************************************************************************************
-     * Get the reference to the Files menu
+     * Get the reference to the Recent tables menu
      *
-     * @return Reference to the Files menu
+     * @return Reference to the Recent tables menu
      *********************************************************************************************/
-    protected JMenu getFilesMenu()
+    protected JMenu getRecentTablesMenu()
     {
-        return mnFile;
+        return mnRecentTables;
     }
 
     /**********************************************************************************************
@@ -605,7 +606,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                                            "Open one or more data tables for editing");
         mntmEditPrototype = ccddMain.createMenuItem(mnFile,
                                                     "Edit prototype",
-                                                    KeyEvent.VK_T, 2,
+                                                    KeyEvent.VK_Y, 1,
                                                     "Open the prototype for the current table");
         mnFile.addSeparator();
         mntmStore = ccddMain.createMenuItem(mnFile,
@@ -670,6 +671,7 @@ public class CcddTableEditorDialog extends CcddFrameHandler
                                                KeyEvent.VK_A, 1,
                                                "Close all tables in this editor");
         mnFile.addSeparator();
+        mnRecentTables = ccddMain.createSubMenu(mnFile, "Recent tables", KeyEvent.VK_T, 1, null);
 
         // Create the Edit menu and menu items
         JMenu mnEdit = ccddMain.createMenu(menuBar, "Edit", KeyEvent.VK_E, 1, null);

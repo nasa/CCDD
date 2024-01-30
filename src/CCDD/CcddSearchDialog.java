@@ -405,7 +405,7 @@ public class CcddSearchDialog extends CcddFrameHandler
                 for (int index = NUM_HIDDEN_COLUMNS; index < typeDefn.getColumnCountDatabase(); ++index)
                 {
                     // Check if the column name isn't already in the list
-                    if (!columns.contains((Object) typeDefn.getColumnNamesUser()[index]))
+                    if (!columns.contains(typeDefn.getColumnNamesUser()[index]))
                     {
                         // Add the visible column name, its corresponding database name, and the
                         // column description to the list
@@ -1078,12 +1078,15 @@ public class CcddSearchDialog extends CcddFrameHandler
                 searchPattern = CcddSearchHandler.createSearchPattern(searchFld.getText(),
                                                                       (searchDlgType == SearchDialogType.LOG ? ignoreCaseCb.isSelected()
                                                                                                              : false),
-                                                                      allowRegexCb.isSelected(), CcddSearchDialog.this);
+                                                                      allowRegexCb.isSelected(),
+                                                                      false,
+                                                                      CcddSearchDialog.this);
                 highlightPattern = searchDlgType == SearchDialogType.LOG
                                    || !ignoreCaseCb.isSelected() ? searchPattern
                                                                  : CcddSearchHandler.createSearchPattern(searchFld.getText(),
                                                                                                          ignoreCaseCb.isSelected(),
                                                                                                          allowRegexCb.isSelected(),
+                                                                                                         false,
                                                                                                          CcddSearchDialog.this);
 
                 // Check if the search pattern is valid

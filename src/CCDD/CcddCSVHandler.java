@@ -51,6 +51,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 import CCDD.CcddClassesComponent.FileEnvVar;
+import CCDD.CcddClassesDataTable.ArrayVariable;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddClassesDataTable.GroupInformation;
@@ -104,6 +105,10 @@ public class CcddCSVHandler extends CcddImportExportSupportHandler implements Cc
     // List of original and new script associations
     private List<String[]> associations;
 
+    // Scheduler data storage
+    private List<String[]> tlmSchedulerData;
+    private List<String[]> appSchedulerData;
+
     /**********************************************************************************************
      * CSV data type tags
      *********************************************************************************************/
@@ -125,10 +130,8 @@ public class CcddCSVHandler extends CcddImportExportSupportHandler implements Cc
         DBU_INFO("_dbu_info_", null),
         GROUP_DATA_FIELD("_group_data_field_", "_group_data_fields_"),
         SCRIPT_ASSOCIATION("_script_association_", null),
-        APP_SCHEDULER_OLD("_app_sched_", null),
         APP_SCHEDULER_DATA("_app_sched_data_", null),
         APP_SCHEDULER_COMMENTS("_app_sched_comments_", null),
-        TELEM_SCHEDULER_OLD("_telem_sched_", null),
         TELEM_SCHEDULER_COMMENTS("_telem_sched_comments_", null),
         TELEM_SCHEDULER_DATA("_telem_sched_data_", null),
         RATE_INFO("_rate_info_", null),
@@ -292,7 +295,7 @@ public class CcddCSVHandler extends CcddImportExportSupportHandler implements Cc
     @Override
     public List<String[]> getTlmSchedulerData()
     {
-        return null;
+        return tlmSchedulerData;
     }
 
     /**********************************************************************************************
@@ -304,7 +307,7 @@ public class CcddCSVHandler extends CcddImportExportSupportHandler implements Cc
     @Override
     public List<String[]> getAppSchedulerData()
     {
-        return null;
+        return appSchedulerData;
     }
 
     /**********************************************************************************************
@@ -372,25 +375,53 @@ public class CcddCSVHandler extends CcddImportExportSupportHandler implements Cc
             StringBuilder content = new StringBuilder(new String(Files.readAllBytes(Paths.get(importFile.getPath()))));
 
             //******************************* APPLICATION SCHEDULER *******************************
-            StringBuilder incomingData = retrieveCSVData(CSVTags.APP_SCHEDULER_COMMENTS.getTag(),
-                                                         content);
+            StringBuilder incomingData = retrieveCSVData(CSVTags.APP_SCHEDULER_DATA.getTag(), content);
 
             if (incomingData.length() != 0)
             {
                 String data = incomingData.toString();
 
-                if (data.contains(CSVTags.APP_SCHEDULER_COMMENTS.getTag()))
+                // Remove the application scheduler data tag
+                data = data.replace(CSVTags.APP_SCHEDULER_DATA.getTag()
+                                    + Chars.NEW_LINE.getValue(),
+                                    Chars.EMPTY_STRING.getValue());
+
+                // Split the data into the individual rows
+                String[] rows = data.split(Chars.NEW_LINE.getValue());
+
+                List<String[]> appData = new ArrayList<String[]>();
+
+                // Step through each application scheduler entry
+                for (String row : rows)
                 {
-                    data = data.replace(CSVTags.APP_SCHEDULER_COMMENTS.getTag()
-                                        + Chars.NEW_LINE.getValue(),
-                                        Chars.EMPTY_STRING.getValue());
+                    // Remove all bounding double quotes
+                    row = removeAllBoundingQuotes(row);
+
+                    // Separate the application scheduler columns
+                    String[] Columns = row.split(Chars.COMMA.getValue(),
+                                                 AppSchedulerColumn.values().length - 1);
+
+                    if (Columns.length == AppSchedulerColumn.values().length - 1)
+                    {
+                        appData.add(new String[] {Columns[AppSchedulerColumn.TIME_SLOT.ordinal()],
+                                                  Columns[AppSchedulerColumn.APP_INFO.ordinal()]});
+                    }
                 }
-                else
-                {
-                    data = data.replace(CSVTags.APP_SCHEDULER_OLD.getTag()
-                                        + Chars.NEW_LINE.getValue(),
-                                        Chars.EMPTY_STRING.getValue());
-                }
+
+                // Store the data in the actual list
+                appSchedulerData = appData;
+            }
+
+            incomingData = retrieveCSVData(CSVTags.APP_SCHEDULER_COMMENTS.getTag(), content);
+
+            if (incomingData.length() != 0)
+            {
+                String data = incomingData.toString();
+
+                // Remove the application scheduler comments tag
+                data = data.replace(CSVTags.APP_SCHEDULER_COMMENTS.getTag()
+                                    + Chars.NEW_LINE.getValue(),
+                                    Chars.EMPTY_STRING.getValue());
 
                 // Strip any remaining new line characters
                 data = data.replace(Chars.NEW_LINE.getValue(), Chars.EMPTY_STRING.getValue());
@@ -416,23 +447,53 @@ public class CcddCSVHandler extends CcddImportExportSupportHandler implements Cc
             }
 
             //******************************** TELEMETRY SCHEDULER ********************************
+            incomingData = retrieveCSVData(CSVTags.TELEM_SCHEDULER_DATA.getTag(), content);
+
+            if (incomingData.length() != 0)
+            {
+                String data = incomingData.toString();
+
+                // Remove the telemetry scheduler data tag
+                data = data.replace(CSVTags.TELEM_SCHEDULER_DATA.getTag(),
+                                    Chars.EMPTY_STRING.getValue());
+
+                // Split the data into the individual rows
+                String[] rows = data.split(Chars.NEW_LINE.getValue());
+
+                List<String[]> tlmData = new ArrayList<String[]>();
+
+                // Step through each telemetry scheduler entry
+                for (String row : rows)
+                {
+                    // Remove all bounding double quotes
+                    row = removeAllBoundingQuotes(row);
+
+                    // Separate the telemetry scheduler columns
+                    String[] Columns = row.split(Chars.COMMA.getValue(),
+                                                 TlmSchedulerColumn.values().length - 1);
+
+                    if (Columns.length == TlmSchedulerColumn.values().length - 1)
+                    {
+                        tlmData.add(new String[] {Columns[TlmSchedulerColumn.RATE_NAME.ordinal()],
+                                                  Columns[TlmSchedulerColumn.MESSAGE_NAME.ordinal()],
+                                                  Columns[TlmSchedulerColumn.MESSAGE_ID.ordinal()],
+                                                  Columns[TlmSchedulerColumn.MEMBER.ordinal()]});
+                    }
+                }
+
+                // Store the data in the actual list
+                tlmSchedulerData = tlmData;
+            }
+
             incomingData = retrieveCSVData(CSVTags.TELEM_SCHEDULER_COMMENTS.getTag(), content);
 
             if (incomingData.length() != 0)
             {
                 String data = incomingData.toString();
 
-                // Remove the telem sched tag
-                if (data.contains(CSVTags.TELEM_SCHEDULER_COMMENTS.getTag()))
-                {
-                    data = data.replace(CSVTags.TELEM_SCHEDULER_COMMENTS.getTag(),
-                                        Chars.EMPTY_STRING.getValue());
-                }
-                else
-                {
-                    data = data.replace(CSVTags.TELEM_SCHEDULER_OLD.getTag(),
-                                        Chars.EMPTY_STRING.getValue());
-                }
+                // Remove the telemetry scheduler comments tag
+                data = data.replace(CSVTags.TELEM_SCHEDULER_COMMENTS.getTag(),
+                                    Chars.EMPTY_STRING.getValue());
 
                 // Remove the rate info tag
                 data = data.replace(CSVTags.RATE_INFO.getTag(), Chars.COMMA.getValue());
@@ -823,7 +884,7 @@ public class CcddCSVHandler extends CcddImportExportSupportHandler implements Cc
                                                                       JOptionPane.QUESTION_MESSAGE,
                                                                       DialogOption.OK_CANCEL_OPTION) != OK_BUTTON)
                         {
-                            throw new CCDDException("Duplicate macros detected in the input file, user Cancelled");
+                            throw new CCDDException("Duplicate macros detected in the input file, user canceled");
                         }
                     }
 
@@ -1159,13 +1220,12 @@ public class CcddCSVHandler extends CcddImportExportSupportHandler implements Cc
                     {
                         // Check if the error should be ignored or the import canceled
                         ignoreErrors = getErrorResponse(ignoreErrors,
-                                                        "<html><b>Group definition has missing "
-                                                        + "or extra input(s) in import file '</b>"
+                                                        "<html><b>Missing or extra group definition "
+                                                        + "input(s) in import file '</b>"
                                                         + importFile.getAbsolutePath()
                                                         + "<b>'; continue?",
-                                                        "Group Error",
-                                                        "Ignore this invalid group",
-                                                        "Ignore this and any remaining invalid group definitions",
+                                                        "Group Error", "Ignore this group",
+                                                        "Ignore this and any remaining invalid groups",
                                                         "Stop importing",
                                                         parent);
                     }
@@ -1465,6 +1525,7 @@ public class CcddCSVHandler extends CcddImportExportSupportHandler implements Cc
                     usersAndAcessLevelDataToExport += usersAndAcessLevel[index][UsersColumn.USER_NAME.ordinal()]
                                                       + Chars.COLON.getValue()
                                                       + usersAndAcessLevel[index][UsersColumn.ACCESS_LEVEL.ordinal()];
+
                     if (index != usersAndAcessLevel.length - 1)
                     {
                         usersAndAcessLevelDataToExport += Chars.COMMA.getValue();
@@ -1529,6 +1590,20 @@ public class CcddCSVHandler extends CcddImportExportSupportHandler implements Cc
         boolean readingDataField = false;
         boolean isOtherTag = false;
 
+        // Initialize the variables needed to populate missing array members
+        String variableNameColumn = null;
+        int variableNameColumnIndex = -1;
+        int visibleVarNameColIndex = -1;
+        String arraySizeColumn = null;
+        int arraySizeColumnIndex = -1;
+        String variableName = null;
+        boolean isArrayDefnRow = false;
+        String[] arrayDefn = null;
+        int arrayMemberCount = 0;
+        int arraySizeTotal = 0;
+        int[] currentIndices = null;
+        int[] totalDims = null;
+
         // Initialize the table information
         int numColumns = 0;
 
@@ -1559,6 +1634,8 @@ public class CcddCSVHandler extends CcddImportExportSupportHandler implements Cc
             {
                 String lineWithoutCommas = line.replace(Chars.COMMA.getValue(), Chars.EMPTY_STRING.getValue());
 
+                boolean previousReadingColumnData = readingColumnData;
+
                 for (CSVTags tag : CSVTags.values())
                 {
                     if (lineWithoutCommas.equals(tag.getTag()))
@@ -1583,12 +1660,6 @@ public class CcddCSVHandler extends CcddImportExportSupportHandler implements Cc
                         {
                             readingDataField = true;
                             line = br.readLine();
-
-                            // If this is the line that lists the name of the columns then skip it
-                            if (line.contains(FieldsColumn.FIELD_NAME.getColumnName()))
-                            {
-                                line = br.readLine();
-                            }
                         }
                         else if (tag.getTag().equals(CSVTags.DESCRIPTION.getTag()))
                         {
@@ -1612,6 +1683,27 @@ public class CcddCSVHandler extends CcddImportExportSupportHandler implements Cc
                     }
                 }
 
+                // Check is the last action was reading table column data and is not something else
+                if (previousReadingColumnData && !readingColumnData)
+                {
+                    // If the last row is an array definition then add the remaining missing array
+                    // members, if any
+                    addRemainingArrayMembers(arrayMemberCount,
+                                             tableDefn,
+                                             arrayDefn,
+                                             visibleVarNameColIndex,
+                                             currentIndices,
+                                             totalDims);
+
+                    // Initialize the variables needed to populate missing array members
+                    variableName = null;
+                    isArrayDefnRow = false;
+                    arrayDefn = null;
+                    arrayMemberCount = 0;
+                    arraySizeTotal = 0;
+                    currentIndices = null;
+                    totalDims = null;
+                }
                 // Check if this line doesn't represent data for another tag type
                 if (!isOtherTag)
                 {
@@ -1653,6 +1745,20 @@ public class CcddCSVHandler extends CcddImportExportSupportHandler implements Cc
                             // Get the number of expected columns (the hidden columns, primary key
                             // and row index, should not be included in the CSV file)
                             numColumns = typeDefn.getColumnCountVisible();
+
+                            // Get the column names containing the variable name and array size, if
+                            // present
+                            variableNameColumn = typeDefn.getColumnNameByInputType(DefaultInputType.VARIABLE);
+                            arraySizeColumn = typeDefn.getColumnNameByInputType(DefaultInputType.ARRAY_INDEX);
+
+                            // Initialize the variables needed to populate missing array members
+                            variableName = null;
+                            isArrayDefnRow = false;
+                            arrayDefn = null;
+                            arrayMemberCount = 0;
+                            arraySizeTotal = 0;
+                            currentIndices = null;
+                            totalDims = null;
                         }
                         // Incorrect number of inputs
                         else
@@ -1668,8 +1774,13 @@ public class CcddCSVHandler extends CcddImportExportSupportHandler implements Cc
                             // Number of columns in an import file that match the target table
                             int numValidColumns = 0;
 
+                            // Check if the column names haven't been read
                             if (!columnsCounted)
                             {
+                                variableNameColumnIndex = -1;
+                                visibleVarNameColIndex = -1;
+                                arraySizeColumnIndex = -1;
+
                                 // Create storage for the column indices
                                 visibleColIndex = new int[columnValues.length];
 
@@ -1678,6 +1789,18 @@ public class CcddCSVHandler extends CcddImportExportSupportHandler implements Cc
                                 {
                                     // Get the index for this column name
                                     visibleColIndex[index] = typeDefn.getVisibleColumnIndexByUserName(columnValues[index]);
+
+                                    // Get the index containing the variable name, if present
+                                    if (columnValues[index].equals(variableNameColumn))
+                                    {
+                                        variableNameColumnIndex = index;
+                                        visibleVarNameColIndex = visibleColIndex[index];
+                                    }
+                                    // Get the index containing the array size, if present
+                                    else if (columnValues[index].equals(arraySizeColumn))
+                                    {
+                                        arraySizeColumnIndex = index;
+                                    }
 
                                     // Check if the column name in the file matches that of a
                                     // column in the table
@@ -1716,12 +1839,57 @@ public class CcddCSVHandler extends CcddImportExportSupportHandler implements Cc
 
                                 columnsCounted = true;
                             }
+                            // Column names have been read; read in column data
                             else
                             {
                                 // Create storage for the row of cell data and initialize the
                                 // values to nulls
                                 String[] rowData = new String[numColumns];
                                 Arrays.fill(rowData, null);
+
+                                // Check if the table is a structure
+                                if (typeDefn.isStructure())
+                                {
+                                    // Get the variable name and array size for this row
+                                    variableName = columnValues[variableNameColumnIndex];
+
+                                    // Check if the array size is provided
+                                    if (arraySizeColumnIndex < columnValues.length)
+                                    {
+                                        String arraySize = columnValues[arraySizeColumnIndex];
+
+                                        // Check if this is an array definition: the array size is
+                                        // not empty of blank and the variable name has no array
+                                        // index
+                                        if (arraySize != null
+                                            && !arraySize.isEmpty()
+                                            && variableName != null
+                                            && !ArrayVariable.isArrayMember(variableName))
+                                        {
+                                            // If the previous row is an array definition (so no
+                                            // members were defined) then add the missing array
+                                            // members
+                                            addRemainingArrayMembers(arrayMemberCount,
+                                                                     tableDefn,
+                                                                     arrayDefn,
+                                                                     visibleVarNameColIndex,
+                                                                     currentIndices,
+                                                                     totalDims);
+
+                                            isArrayDefnRow = true;
+
+                                            // Store the total number of members expected for this
+                                            // array
+                                            String arraySizeExp = macroHandler.getMacroExpansion(arraySize);
+                                            arrayMemberCount = ArrayVariable.getNumMembersFromArraySize(arraySizeExp);
+                                            arraySizeTotal = arrayMemberCount;
+
+                                            // Get the array size as an array of integers
+                                            totalDims = ArrayVariable.getArrayIndexFromSize(arraySizeExp);
+                                            currentIndices = new int[totalDims.length];
+                                        }
+                                    }
+                                }
 
                                 // Step through each column in the row
                                 for (int index = 0; index < columnValues.length; index++)
@@ -1734,6 +1902,78 @@ public class CcddCSVHandler extends CcddImportExportSupportHandler implements Cc
                                         // Store the cell data in the column matching the one in
                                         // the target table
                                         rowData[visibleColIndex[index]] = columnValues[index];
+                                    }
+                                }
+
+                                // Check if this row is an array definition
+                                if (isArrayDefnRow)
+                                {
+                                    // Store the array definition column values. These are used to
+                                    // populate missing array member rows
+                                    arrayDefn = new String[numColumns];
+
+                                    // Step through each array in the list
+                                    for (int column = 0; column < rowData.length; column++)
+                                    {
+                                        arrayDefn[column] = rowData[column];
+                                    }
+
+                                    isArrayDefnRow = false;
+                                }
+                                // Check if an array member is expected
+                                else if (arrayMemberCount > 0)
+                                {
+                                    // Check if the row is for an array member
+                                    if (ArrayVariable.isArrayMember(variableName))
+                                    {
+                                        boolean isNext = false;
+
+                                        while (!isNext)
+                                        {
+                                            String memberIndex = ArrayVariable.getVariableArrayIndex(variableName);
+                                            int index = ArrayVariable.getLinearArrayIndex(ArrayVariable.getArrayIndexFromSize(memberIndex), totalDims);
+
+                                            // Check if the member is not the expected one (i.e., a
+                                            // member is missing and needs to be created)
+                                            if (index != arraySizeTotal - arrayMemberCount)
+                                            {
+                                                // Create any missing members and update the next
+                                                // expected index
+                                                currentIndices = addArrayMember(tableDefn,
+                                                                                arrayDefn,
+                                                                                visibleVarNameColIndex,
+                                                                                currentIndices,
+                                                                                totalDims);
+                                            }
+                                            // The member is the expected one
+                                            else
+                                            {
+                                                isNext = true;
+                                            }
+
+                                            --arrayMemberCount;
+                                        }
+                                    }
+                                    // The row is not for an array member; the remainder of the
+                                    // array members are missing
+                                    else
+                                    {
+                                        // Add the remaining missing array members, if any
+                                        addRemainingArrayMembers(arrayMemberCount,
+                                                                 tableDefn,
+                                                                 arrayDefn,
+                                                                 visibleVarNameColIndex,
+                                                                 currentIndices,
+                                                                 totalDims);
+                                        arrayMemberCount = 0;
+                                    }
+
+                                    // Check if this wasn't the last array member (no need to
+                                    // calculate the index for a member after the last one)
+                                    if (arrayMemberCount != 0)
+                                    {
+                                        // Update the next expected array index
+                                        currentIndices = getNextArrayIndex(currentIndices, totalDims);
                                     }
                                 }
 
@@ -1779,6 +2019,15 @@ public class CcddCSVHandler extends CcddImportExportSupportHandler implements Cc
 
             line = br.readLine();
         }
+
+        // If the last row is an array definition then add the remaining missing array members, if
+        // any
+        addRemainingArrayMembers(arrayMemberCount,
+                                 tableDefn,
+                                 arrayDefn,
+                                 visibleVarNameColIndex,
+                                 currentIndices,
+                                 totalDims);
 
         // Check if a table definition was created that hasn't been stored above
         if (tableDefn.getName() != null)
@@ -1979,9 +2228,7 @@ public class CcddCSVHandler extends CcddImportExportSupportHandler implements Cc
                 // outputData represents the data that will be written to the file
                 StringBuilder outputData = new StringBuilder();
 
-                if (tableDef
-                             .getTablePath()
-                             .compareToIgnoreCase(tableDef.getTablePath()) == 0)
+                if (tableDef.getTablePath().compareToIgnoreCase(tableDef.getTablePath()) == 0)
                 {
                     // Check if the build information is to be output
                     if (includeBuildInformation)
@@ -2039,6 +2286,13 @@ public class CcddCSVHandler extends CcddImportExportSupportHandler implements Cc
                               .append(Chars.NEW_LINE.getValue())
                               .append(CcddUtilities.addEmbeddedQuotesAndCommas(columnNames));
 
+                    // Get the variable name and array size column indices (these equal -1 if not
+                    // present)
+                    int variableNameIndex = typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE);
+                    int arraySizeIndex = typeDefn.getColumnIndexByInputType(DefaultInputType.ARRAY_INDEX);
+                    int arrayDefnRow = -1;
+                    boolean hasUnique = true;
+
                     // Step through each row in the table
                     for (int row = 0; row < tableDef.getData().size(); row++)
                     {
@@ -2055,40 +2309,85 @@ public class CcddCSVHandler extends CcddImportExportSupportHandler implements Cc
                             }
                         }
 
-                        // Output the table row data, skipping the hidden columns
-                        outputData.append(Chars.NEW_LINE.getValue())
-                                  .append(CcddUtilities.addEmbeddedQuotesAndCommas(Arrays.copyOfRange(CcddUtilities.convertObjectToString(tableDef.getData().get(row)),
-                                                                                                      NUM_HIDDEN_COLUMNS,
-                                                                                                      tableDef.getData().get(row).length)));
-
-                        // Step through each column in the row
-                        for (int column = 0; column < columnNames.length; column++)
+                        // Check if this is a structure
+                        if (typeDefn.isStructure())
                         {
-                            List<Integer> dataTypeColumns = new ArrayList<Integer>();
-
-                            // Get the column indices for all columns that can contain a primitive
-                            // data type
-                            dataTypeColumns.addAll(typeDefn.getColumnIndicesByInputType(DefaultInputType.PRIM_AND_STRUCT));
-                            dataTypeColumns.addAll(typeDefn.getColumnIndicesByInputType(DefaultInputType.PRIMITIVE));
-
-                            // Check if variable paths are to be output and if this table
-                            // represents a structure
-                            if (includeVariablePaths && typeDefn.isStructure())
+                            // Check if this is not an array member
+                            if (!ArrayVariable.isArrayMember(tableDef.getData().get(row)[variableNameIndex]))
                             {
-                                // Get the variable path
-                                String variablePath = tableDef.getTablePath()
-                                                      + Chars.COMMA.getValue()
-                                                      + tableDef.getData().get(row)[typeDefn.getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT)]
-                                                      + Chars.PERIOD.getValue()
-                                                      + tableDef.getData().get(row)[typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE)];
+                                hasUnique = true;
 
-                                // Add the path, in both application and user-defined formats, to
-                                // the list to be output
-                                variablePaths.add(new String[] {variablePath,
-                                                                variableHandler.getFullVariableName(variablePath,
-                                                                                                    separators[SeparatorColumns.PATH_SEPARATOR.ordinal()],
-                                                                                                    Boolean.parseBoolean(separators[SeparatorColumns.HIDE_DATA_TYPE.ordinal()]),
-                                                                                                    separators[SeparatorColumns.NAME_SEPARATOR.ordinal()])});
+                                // Check if this is an array definition row
+                                if (!tableDef.getData().get(row)[arraySizeIndex].toString().isEmpty())
+                                {
+                                    arrayDefnRow = row;
+                                }
+                            }
+                            // This is an array member
+                            else
+                            {
+                                hasUnique = false;
+
+                                // Step through each column and compare the value to the array
+                                // definition
+                                for (int column = NUM_HIDDEN_COLUMNS; column < tableDef.getData().get(row).length; column++)
+                                {
+                                    String arrayDefnCol = tableDef.getData().get(arrayDefnRow)[column] == null ? null
+                                                                                                               : tableDef.getData().get(arrayDefnRow)[column].toString();
+
+                                    // Check if the member's column differs from the definition's
+                                    // column
+                                    if (column != variableNameIndex
+                                        && tableDef.getData().get(row)[column] != null
+                                        && !tableDef.getData().get(row)[column].toString().isEmpty()
+                                        && !tableDef.getData().get(row)[column].toString().equals(arrayDefnCol))
+                                    {
+                                        // Set the flag to indicate this array member should be
+                                        // exported, and stop searching
+                                        hasUnique = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        // Check if the data should be exported
+                        if (hasUnique)
+                        {
+                            // Output the table row data, skipping the hidden columns
+                            outputData.append(Chars.NEW_LINE.getValue())
+                                      .append(CcddUtilities.addEmbeddedQuotesAndCommas(Arrays.copyOfRange(CcddUtilities.convertObjectToString(tableDef.getData().get(row)),
+                                                                                                          NUM_HIDDEN_COLUMNS,
+                                                                                                          tableDef.getData().get(row).length)));
+                            // Step through each column in the row
+                            for (int column = 0; column < columnNames.length; column++)
+                            {
+                                List<Integer> dataTypeColumns = new ArrayList<Integer>();
+
+                                // Get the column indices for all columns that can contain a
+                                // primitive data type
+                                dataTypeColumns.addAll(typeDefn.getColumnIndicesByInputType(DefaultInputType.PRIM_AND_STRUCT));
+                                dataTypeColumns.addAll(typeDefn.getColumnIndicesByInputType(DefaultInputType.PRIMITIVE));
+
+                                // Check if variable paths are to be output and if this table
+                                // represents a structure
+                                if (includeVariablePaths && typeDefn.isStructure())
+                                {
+                                    // Get the variable path
+                                    String variablePath = tableDef.getTablePath()
+                                                          + Chars.COMMA.getValue()
+                                                          + tableDef.getData().get(row)[typeDefn.getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT)]
+                                                          + Chars.PERIOD.getValue()
+                                                          + tableDef.getData().get(row)[typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE)];
+
+                                    // Add the path, in both application and user-defined formats,
+                                    // to the list to be output
+                                    variablePaths.add(new String[] {variablePath,
+                                                                    variableHandler.getFullVariableName(variablePath,
+                                                                                                        separators[SeparatorColumns.PATH_SEPARATOR.ordinal()],
+                                                                                                        Boolean.parseBoolean(separators[SeparatorColumns.HIDE_DATA_TYPE.ordinal()]),
+                                                                                                        separators[SeparatorColumns.NAME_SEPARATOR.ordinal()])});
+                                }
                             }
                         }
                     }
@@ -2111,9 +2410,7 @@ public class CcddCSVHandler extends CcddImportExportSupportHandler implements Cc
                     {
                         // Output the data field marker and field column names
                         outputData.append(Chars.NEW_LINE.getValue())
-                                  .append(CSVTags.DATA_FIELD.getTag())
-                                  .append(Chars.NEW_LINE.getValue())
-                                  .append(CcddUtilities.addEmbeddedQuotesAndCommas(fieldColumnNames));
+                                  .append(CSVTags.DATA_FIELD.getTag());
 
                         // Step through each data field
                         for (FieldInformation fieldInfo : fieldInformation)
@@ -2234,7 +2531,7 @@ public class CcddCSVHandler extends CcddImportExportSupportHandler implements Cc
                 {
                     // Inform the user that the data file cannot be closed
                     new CcddDialogHandler().showMessageDialog(parent,
-                                                              "<html><b>Cannot export file '</b>"
+                                                              "<html><b>Cannot close export file '</b>"
                                                               + exportFile.getAbsolutePath()
                                                               + "<b>'",
                                                               "File Warning",
@@ -2332,25 +2629,28 @@ public class CcddCSVHandler extends CcddImportExportSupportHandler implements Cc
                         // Store each parameter with their corresponding value
                         switch (rateInfo)
                         {
-                            case 0:
+                            case 0: // Rate column name
                                 dataToReturn.append(Chars.DOUBLE_QUOTE.getValue())
                                             .append(comments[count].substring(1, comments[count].length() - 1))
                                             .append(Chars.DOUBLE_QUOTE_AND_COMMA.getValue());
                                 count++;
                                 break;
-                            case 1:
+
+                            case 1: // Data stream name
                                 dataToReturn.append(Chars.DOUBLE_QUOTE.getValue())
                                             .append(comments[count].substring(1, comments[count].length() - 1))
                                             .append(Chars.DOUBLE_QUOTE_AND_COMMA.getValue());
                                 count++;
                                 break;
-                            case 2:
+
+                            case 2: // Maximum messages per cycle
                                 dataToReturn.append(Chars.DOUBLE_QUOTE.getValue())
                                             .append(comments[count])
                                             .append(Chars.DOUBLE_QUOTE_AND_COMMA.getValue());
                                 count++;
                                 break;
-                            case 3:
+
+                            case 3: // Maximum bytes per second
                                 dataToReturn.append(Chars.DOUBLE_QUOTE.getValue())
                                             .append(comments[count])
                                             .append(Chars.DOUBLE_QUOTE.getValue())
@@ -2362,6 +2662,7 @@ public class CcddCSVHandler extends CcddImportExportSupportHandler implements Cc
                 }
             }
         }
+
         return dataToReturn.toString();
     }
 
@@ -3024,8 +3325,9 @@ public class CcddCSVHandler extends CcddImportExportSupportHandler implements Cc
                 || searchKey == CSVTags.MACRO.getTag()
                 || searchKey == CSVTags.GROUP.getTag()
                 || searchKey == CSVTags.SCRIPT_ASSOCIATION.getTag()
-                || searchKey == CSVTags.TELEM_SCHEDULER_OLD.getTag()
+                || searchKey == CSVTags.TELEM_SCHEDULER_DATA.getTag()
                 || searchKey == CSVTags.TELEM_SCHEDULER_COMMENTS.getTag()
+                || searchKey == CSVTags.APP_SCHEDULER_DATA.getTag()
                 || searchKey == CSVTags.APP_SCHEDULER_COMMENTS.getTag()
                 || searchKey == CSVTags.RESERVED_MSG_IDS.getTag()
                 || searchKey == CSVTags.PROJECT_DATA_FIELD.getTag()
@@ -3111,8 +3413,7 @@ public class CcddCSVHandler extends CcddImportExportSupportHandler implements Cc
                             endIndex = data.toString().indexOf("\n_", nextIndex);
                         }
                     }
-                    else if (searchKey == CSVTags.TELEM_SCHEDULER_COMMENTS.getTag()
-                             || searchKey == CSVTags.TELEM_SCHEDULER_OLD.getTag())
+                    else if (searchKey == CSVTags.TELEM_SCHEDULER_COMMENTS.getTag())
                     {
                         int nextIndex = data.toString().indexOf(CSVTags.RATE_INFO.getTag() + "\n",
                                                                 endIndex + 1);

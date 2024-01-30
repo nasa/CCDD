@@ -36,6 +36,7 @@ import static CCDD.CcddConstants.TYPE_STRUCTURE;
 
 import java.awt.Component;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -56,6 +57,7 @@ import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import CCDD.CcddClassesComponent.FileEnvVar;
+import CCDD.CcddClassesDataTable.ArrayVariable;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddClassesDataTable.GroupInformation;
@@ -845,6 +847,129 @@ public class CcddImportExportSupportHandler
                                    String messageNameAndID) throws CCDDException
     {
         // Placeholder
+    }
+
+    /**********************************************************************************************
+     * Add any remaining array members
+     *
+     * @param arrayMemberCount        Number of array members to add
+     *
+     * @param tableDefn               Table definition
+     *
+     * @param arrayDefn               Array definition column data
+     *
+     * @param variableNameColumnIndex Index of the column in the row data containing the variable
+     *                                name
+     *
+     * @param currentIndices          Array of integers representing the next expected array
+     *                                member's array index
+     *
+     * @param totalDims               Array of integers representing the total size of the array
+     *                                variable
+     *********************************************************************************************/
+    protected void addRemainingArrayMembers(int arrayMemberCount,
+                                            TableDefinition tableDefn,
+                                            String[] arrayDefn,
+                                            int variableNameColumnIndex,
+                                            int[] currentIndices,
+                                            int[] totalDims)
+    {
+        // Loop in order to add any remaining array members
+        while (arrayMemberCount > 0)
+        {
+            // Create any missing members and update the next expected index
+            currentIndices = addArrayMember(tableDefn,
+                                            arrayDefn,
+                                            variableNameColumnIndex,
+                                            currentIndices,
+                                            totalDims);
+
+            --arrayMemberCount;
+        }
+    }
+
+    /**********************************************************************************************
+     * Add an array member to a table definition and update the next expected array variable index
+     *
+     * @param tableDefn               Table definition
+     *
+     * @param arrayDefn               Array definition column data
+     *
+     * @param variableNameColumnIndex Index of the column in the row data containing the variable
+     *                                name
+     *
+     * @param currentIndices          Array of integers representing the next expected array
+     *                                member's array index
+     *
+     * @param totalDims               Array of integers representing the total size of the array
+     *                                variable
+     *
+     * @return Array of integers representing the next expected array member's array index
+     *********************************************************************************************/
+    protected int[] addArrayMember(TableDefinition tableDefn,
+                                   String[] arrayDefn,
+                                   int variableNameColumnIndex,
+                                   int[] currentIndices,
+                                   int[] totalDims)
+    {
+        // Create storage for the row of cell data
+        String[] memberData = new String[arrayDefn.length];
+
+        // Initialize the column values to blanks
+        Arrays.fill(memberData, null);
+
+        // Step through each array definition column
+        for (int column = 0; column < arrayDefn.length; column++)
+        {
+            // Copy the array definition column to the array member. Append the array dimension(s)
+            // to the variable name
+            memberData[column] = arrayDefn[column];
+        }
+
+        // Add the array dimensions to the variable name
+        memberData[variableNameColumnIndex] = arrayDefn[variableNameColumnIndex]
+                                              + ArrayVariable.formatArrayIndex(currentIndices);
+
+        // Add the row of data read in from the file to the cell data list
+        tableDefn.addData(memberData);
+
+        // Update the next expected array variable index
+        return getNextArrayIndex(currentIndices, totalDims);
+    }
+
+    /**********************************************************************************************
+     * Update the next expected array variable index
+     *
+     * @param currentIndices Array of integers representing the next expected array member's array
+     *                       index
+     *
+     * @param totalDims      Array of integers representing the total size of the array variable
+     *
+     * @return Array of integers representing the next expected array member's array index
+     *********************************************************************************************/
+    protected int[] getNextArrayIndex(int[] currentIndices, int[] totalDims)
+    {
+        // Step through the array indices so that the next array index can be created
+        for (int subIndex = currentIndices.length - 1; subIndex >= 0; subIndex--)
+        {
+            // Increment the index
+            currentIndices[subIndex]++;
+
+            // Check if the maximum index of this dimension is reached
+            if (currentIndices[subIndex] == totalDims[subIndex])
+            {
+                // Reset the index for this dimension
+                currentIndices[subIndex] = 0;
+            }
+            // The maximum index for this dimension hasn't been reached
+            else
+            {
+                // Exit the loop; the array index is set for the next member
+                break;
+            }
+        }
+
+        return currentIndices;
     }
 
     /**********************************************************************************************

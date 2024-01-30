@@ -552,6 +552,7 @@ public class CcddVariableDialog extends CcddDialogHandler
                                 filterPattern = CcddSearchHandler.createSearchPattern(filterFld.getText(),
                                                                                       ignoreCaseCb.isSelected(),
                                                                                       allowRegexCb.isSelected(),
+                                                                                      false,
                                                                                       CcddVariableDialog.this);
                             }
 

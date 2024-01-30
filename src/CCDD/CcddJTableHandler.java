@@ -71,6 +71,7 @@ import javax.swing.DefaultCellEditor;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JEditorPane;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
@@ -109,7 +110,6 @@ import CCDD.CcddConstants.TableInsertionPoint;
 import CCDD.CcddConstants.TableSelectionMode;
 import CCDD.CcddUndoHandler.UndoableTableColumnModel;
 import CCDD.CcddUndoHandler.UndoableTableModel;
-import javax.swing.JDialog;
 
 /**************************************************************************************************
  * CFS Command and Data Dictionary custom Swing table handler class
@@ -4744,8 +4744,8 @@ public abstract class CcddJTableHandler extends JTable
             else
             {
                 new CcddDialogHandler().showMessageDialog(parent,
-                                                          "<html><b>No Printer Detected!",
-                                                          "Print Log",
+                                                          "<html><b>No printer detected",
+                                                          "Print Table",
                                                           JOptionPane.WARNING_MESSAGE,
                                                           DialogOption.OK_OPTION);
             }
@@ -4785,6 +4785,7 @@ public abstract class CcddJTableHandler extends JTable
             pages.add(pp);
         }
 
+        @Override
         public int print(Graphics g, PageFormat pf, int pageIndex) throws PrinterException
         {
             if (pageIndex >= pages.size())

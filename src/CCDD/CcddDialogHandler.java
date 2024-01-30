@@ -128,8 +128,9 @@ public class CcddDialogHandler extends JDialog
     // Text field containing the file name(s) chosen by the user
     private JTextField nameField;
 
-    // Check boxes generated from user-supplied list
+    // Check boxes and descriptions generated from user-supplied list
     private JCheckBox[] checkBox;
+    private MultilineLabel[] checkBoxDescFld;
 
     // Component that initially has the focus; null to set the focus to the first (default)
     // component
@@ -368,6 +369,16 @@ public class CcddDialogHandler extends JDialog
     protected JCheckBox[] getCheckBoxes()
     {
         return checkBox;
+    }
+
+    /**********************************************************************************************
+     * Get the reference to the check box description array
+     *
+     * @return Reference to the check box description array
+     *********************************************************************************************/
+    protected MultilineLabel[] getCheckBoxDescriptions()
+    {
+        return checkBoxDescFld;
     }
 
     /**********************************************************************************************
@@ -1875,7 +1886,7 @@ public class CcddDialogHandler extends JDialog
             int maxCBoxWidth = 0;
             int maxDescWidth = 0;
             int numWrappedRows = 0;
-            MultilineLabel[] descriptionFld = null;
+            checkBoxDescFld = null;
             boolean isDescriptions = false;
 
             // Create a copy of the layout constraints and update them
@@ -1951,7 +1962,7 @@ public class CcddDialogHandler extends JDialog
                 {
                     // Create storage for the description labels, set the flag indicating
                     // descriptions are provided, and stop searching
-                    descriptionFld = new MultilineLabel[itemInformation.length];
+                    checkBoxDescFld = new MultilineLabel[itemInformation.length];
                     isDescriptions = true;
                     break;
                 }
@@ -2002,12 +2013,12 @@ public class CcddDialogHandler extends JDialog
                     gbc.weightx = 1.0;
                     gbc.weighty = 1.0;
                     gbc.gridx++;
-                    descriptionFld[index] = new MultilineLabel(itemInformation[index][1]);
-                    descriptionFld[index].setBackground(UIManager.getColor("Label.background"));
-                    descriptionFld[index].setFont(isDescItalic ? ModifiableFontInfo.LABEL_ITALIC.getFont()
-                                                               : ModifiableFontInfo.LABEL_PLAIN.getFont());
-                    descriptionFld[index].setBorder(emptyBorder);
-                    cboxGridPnl.add(descriptionFld[index], gbc);
+                    checkBoxDescFld[index] = new MultilineLabel(itemInformation[index][1]);
+                    checkBoxDescFld[index].setBackground(UIManager.getColor("Label.background"));
+                    checkBoxDescFld[index].setFont(isDescItalic ? ModifiableFontInfo.LABEL_ITALIC.getFont()
+                                                                : ModifiableFontInfo.LABEL_PLAIN.getFont());
+                    checkBoxDescFld[index].setBorder(emptyBorder);
+                    cboxGridPnl.add(checkBoxDescFld[index], gbc);
                     gbc.weightx = 0.0;
                     gbc.weighty = 0.0;
                 }
@@ -2037,13 +2048,13 @@ public class CcddDialogHandler extends JDialog
                 for (int index = 0; index < itemInformation.length; index++)
                 {
                     // Check if a description exists for this item
-                    if (descriptionFld[index] != null)
+                    if (checkBoxDescFld[index] != null)
                     {
                         // Get the number of rows required to displayed the description text (in
                         // case it wraps or has line-feeds) and add it to the total row count.
                         // Subtract 1 since the initial row counter is set to the total number of
                         // items
-                        numWrappedRows += descriptionFld[index].getNumDisplayRows(maxDescWidth) - 1;
+                        numWrappedRows += checkBoxDescFld[index].getNumDisplayRows(maxDescWidth) - 1;
                     }
                 }
             }

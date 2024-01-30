@@ -744,9 +744,9 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
 
                                     if (isRowDiff && isNewNameSame)
                                     {
-                                        throw new CCDDException("Type Name \""
+                                        throw new CCDDException("Data type name \""
                                                                 + newValueS
-                                                                + "\" already in use. Please use a unique Type Name");
+                                                                + "\" already in use");
                                     }
                                 }
 
@@ -754,9 +754,9 @@ public class CcddDataTypeEditorDialog extends CcddDialogHandler
                                 // database
                                 if (dbTable.isTableExists(newValueS, ccddMain.getMainFrame()))
                                 {
-                                    throw new CCDDException("Type Name \""
+                                    throw new CCDDException("Data type name \""
                                                             + newValueS
-                                                            + "\" already in use. Please use a unique Type Name");
+                                                            + "\" already in use");
                                 }
 
                             }

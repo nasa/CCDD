@@ -601,8 +601,10 @@ public class CcddServerPropertyDialog extends CcddDialogHandler
         catch (CCDDException ce)
         {
             // Inform the user that the input value is invalid
-            new CcddDialogHandler().showMessageDialog(CcddServerPropertyDialog.this, "<html><b>" + ce.getMessage(),
-                                                      "Invalid Input", JOptionPane.WARNING_MESSAGE,
+            new CcddDialogHandler().showMessageDialog(CcddServerPropertyDialog.this,
+                                                      "<html><b>" + ce.getMessage(),
+                                                      "Invalid Input",
+                                                      JOptionPane.WARNING_MESSAGE,
                                                       DialogOption.OK_OPTION);
 
             // Set the flag to indicate the dialog input is invalid

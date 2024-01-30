@@ -55,16 +55,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
-import javax.xml.bind.JAXBException;
-
-import org.omg.spec.xtce._20180204.EnumerationListType;
-import org.omg.spec.xtce._20180204.SpaceSystemType;
-import org.omg.spec.xtce._20180204.UnitSetType;
 
 import CCDD.CcddClassesComponent.ArrayListMultiple;
-import CCDD.CcddClassesComponent.FileEnvVar;
 import CCDD.CcddClassesDataTable.ArrayVariable;
-import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddClassesDataTable.GroupInformation;
 import CCDD.CcddClassesDataTable.RateInformation;
@@ -74,7 +67,6 @@ import CCDD.CcddConstants.BaseDataTypeInfo;
 import CCDD.CcddConstants.CopyTableEntry;
 import CCDD.CcddConstants.DefaultInputType;
 import CCDD.CcddConstants.DialogOption;
-import CCDD.CcddConstants.EndianType;
 import CCDD.CcddConstants.EventLogMessageType;
 import CCDD.CcddConstants.InputTypeFormat;
 import CCDD.CcddConstants.InternalTable.DataTypesColumn;
@@ -84,7 +76,6 @@ import CCDD.CcddConstants.ModifiableFontInfo;
 import CCDD.CcddConstants.ModifiablePathInfo;
 import CCDD.CcddConstants.ModifiableSpacingInfo;
 import CCDD.CcddConstants.TablePathType;
-import CCDD.CcddImportExportSupportHandler.BasePrimitiveDataType;
 import CCDD.CcddTableTypeHandler.TypeDefinition;
 
 /**************************************************************************************************
@@ -111,11 +102,7 @@ public class CcddScriptDataAccessHandler
     private CcddCopyTableHandler copyHandler;
     private final CcddVariableHandler variableHandler;
     private final CcddCommandHandler commandHandler;
-    private CcddXTCEHandler xtceHandler;
     private final CcddInputTypeHandler inputTypeHandler;
-
-    // Reference to the script engine
-    private final ScriptEngine scriptEngine;
 
     // Calling GUI component
     private final Component parent;
@@ -165,7 +152,6 @@ public class CcddScriptDataAccessHandler
                                 Component parent)
     {
         this.ccddMain = ccddMain;
-        this.scriptEngine = scriptEngine;
         this.tableInformation = tableInformation;
         this.linkHandler = linkHandler;
         this.groupHandler = groupHandler;
@@ -187,7 +173,6 @@ public class CcddScriptDataAccessHandler
         commandHandler = ccddMain.getCommandHandler();
         tableTree = variableHandler.getVariableTree();
         copyHandler = null;
-        xtceHandler = null;
     }
 
     /**********************************************************************************************
@@ -5050,372 +5035,6 @@ public class CcddScriptDataAccessHandler
     public String formatArrayIndex(int[] arrayIndex)
     {
         return ArrayVariable.formatArrayIndex(arrayIndex);
-    }
-
-    /**********************************************************************************************
-     * Export the tables in XTCE XML format to the specified file. This is the main entry point
-     * when using a script association to perform the export. It calls the internal method to set
-     * up and parse the tables for export
-     *
-     * @param outputFileName    Output file name
-     *
-     * @param isBigEndian       True if the data is big endian
-     *
-     * @param isHeaderBigEndian True if the telemetry and command headers big endian
-     *
-     * @param version           Version attribute (for the space system headers)
-     *
-     * @param validationStatus  Validation status attribute (for the space system headers)
-     *
-     * @param classification1   First level classification attribute (for the space system headers)
-     *
-     * @param classification2   Second level classification attribute (for the space system
-     *                          headers)
-     *
-     * @param classification3   Third level classification attribute (for the space system headers)
-     *
-     * @return True if an error occurred preventing exporting the project to the file
-     *********************************************************************************************/
-    public boolean xtceExport(String outputFileName,
-                              boolean isBigEndian,
-                              boolean isHeaderBigEndian,
-                              String version,
-                              String validationStatus,
-                              String classification1,
-                              String classification2,
-                              String classification3)
-    {
-        boolean errorFlag = false;
-
-        try
-        {
-            // Create the XTCE handler
-            xtceHandler = new CcddXTCEHandler(ccddMain, scriptEngine, parent);
-
-            List<TableInfo> tableDefs = new ArrayList<TableInfo>();
-
-            for (String tablePath : getTableNames())
-            {
-                tableDefs.add(new TableInfo(tablePath));
-            }
-
-            // Export the specified tables to the specified output file in XTCE XML format
-            xtceHandler.exportTables(new FileEnvVar(outputFileName),
-                                     tableDefs,
-                                     true,
-                                     true, // unused for XTCE export
-                                     false, // unused for XTCE export
-                                     null, // unused for XTCE export
-                                     null, // unused for XTCE export
-                                     null, // unused for XTCE export
-                                     (isBigEndian ? EndianType.BIG_ENDIAN : EndianType.LITTLE_ENDIAN),
-                                     isHeaderBigEndian,
-                                     version,
-                                     validationStatus,
-                                     classification1,
-                                     classification2,
-                                     classification3);
-        }
-        catch (JAXBException | CCDDException jce)
-        {
-            // Inform the user that an error occurred
-            new CcddDialogHandler().showMessageDialog(parent,
-                                                      "<html><b>" + jce.getMessage(),
-                                                      "Export Error",
-                                                      JOptionPane.ERROR_MESSAGE,
-                                                      DialogOption.OK_OPTION);
-            errorFlag = true;
-        }
-        catch (Exception e)
-        {
-            // Display a dialog providing details on the unanticipated error
-            CcddUtilities.displayException(e, parent);
-            errorFlag = true;
-        }
-
-        return errorFlag;
-    }
-
-    /**********************************************************************************************
-     * Add a structure table's parameters to the telemetry meta data
-     *
-     * @param spaceSystem      Space system to which the table belongs
-     *
-     * @param tableName        Table name
-     *
-     * @param tableData        Array containing the table's data
-     *
-     * @param typeDefn         Table type definition
-     *
-     * @param messageFieldName Message name and ID field name; null if not present or not applicable
-     *
-     * @param messageNameAndID Message name and ID; null if not present or not applicable
-     *
-     * @throws CCDDException If an error occurs executing an external (script) method
-     *********************************************************************************************/
-    public void xtceAddSpaceSystemParameters(SpaceSystemType spaceSystem,
-                                             String tableName,
-                                             String[][] tableData,
-                                             TypeDefinition typeDefn,
-                                             String messageFieldName,
-                                             String messageNameAndID) throws CCDDException
-    {
-        // Check if the XTCE handler exists
-        if (xtceHandler != null)
-        {
-            xtceHandler.addSpaceSystemParameters(spaceSystem,
-                                                 tableName,
-                                                 tableData,
-                                                 typeDefn,
-                                                 messageFieldName,
-                                                 messageNameAndID);
-        }
-    }
-
-    /**********************************************************************************************
-     * Add a parameter with a primitive data type to the parameter set and parameter type set
-     *
-     * @param spaceSystem   Space system reference
-     *
-     * @param parameterName Parameter name
-     *
-     * @param dataType      Parameter primitive data type
-     *
-     * @param arraySize     Parameter array size; null or blank if the parameter isn't an array
-     *
-     * @param bitLength     Parameter bit length; null or blank if not a bit-wise parameter
-     *
-     * @param enumeration   {@literal enumeration in the format <enum label>|<enum value>[|...][,...]; null to not specify}
-     *
-     * @param units         Parameter units
-     *
-     * @param minimum       Minimum parameter value
-     *
-     * @param maximum       Maximum parameter value
-     *
-     * @param description   Parameter description
-     *
-     * @param stringSize    Size, in characters, of a string parameter; ignored if not a string or
-     *                      character
-     *
-     * @throws CCDDException If an error occurs executing an external (script) method
-     *********************************************************************************************/
-    public void xtceAddParameterAndType(SpaceSystemType spaceSystem,
-                                        String parameterName,
-                                        String dataType,
-                                        String arraySize,
-                                        String bitLength,
-                                        String enumeration,
-                                        String units,
-                                        String minimum,
-                                        String maximum,
-                                        String description,
-                                        int stringSize) throws CCDDException
-    {
-        // Check if the XTCE handler exists
-        if (xtceHandler != null)
-        {
-            xtceHandler.addParameterAndType(spaceSystem,
-                                            parameterName,
-                                            dataType,
-                                            arraySize,
-                                            bitLength,
-                                            enumeration,
-                                            units,
-                                            minimum,
-                                            maximum,
-                                            description,
-                                            stringSize);
-        }
-    }
-
-    /**********************************************************************************************
-     * Create the telemetry parameter data type and set the specified attributes
-     *
-     * @param spaceSystem   Space system reference
-     *
-     * @param parameterName Parameter name; null to not specify
-     *
-     * @param dataType      Data type; null to not specify
-     *
-     * @param arraySize     Parameter array size; null or blank if the parameter isn't an array
-     *
-     * @param bitLength     Parameter bit length; null or empty if not a bit-wise parameter
-     *
-     * @param enumeration   {@literal enumeration in the format <enum label>|<enum value>[|...][,...]; null to not specify}
-     *
-     * @param units         Parameter units; null to not specify
-     *
-     * @param minimum       Minimum parameter value; null to not specify
-     *
-     * @param maximum       Maximum parameter value; null to not specify
-     *
-     * @param stringSize    Size, in characters, of a string parameter; ignored if not a string or
-     *                      character
-     *
-     * @throws CCDDException If an error occurs executing an external (script) method
-     *********************************************************************************************/
-    public void xtceSetParameterDataType(SpaceSystemType spaceSystem,
-                                         String parameterName,
-                                         String dataType,
-                                         String arraySize,
-                                         String bitLength,
-                                         String enumeration,
-                                         String units,
-                                         String minimum,
-                                         String maximum,
-                                         int stringSize) throws CCDDException
-    {
-        // Check if the XTCE handler exists
-        if (xtceHandler != null)
-        {
-            xtceHandler.setParameterDataType(spaceSystem,
-                                             parameterName,
-                                             dataType,
-                                             arraySize,
-                                             bitLength,
-                                             enumeration,
-                                             units,
-                                             minimum,
-                                             maximum,
-                                             stringSize);
-        }
-    }
-
-    /**********************************************************************************************
-     * Add the command(s) from a table to the specified space system
-     *
-     * @param spaceSystem      Space system reference
-     *
-     * @param tableData        Table data array
-     *
-     * @param typeDefn         Table type definition
-     *
-     * @param messageFieldName Message name and ID field name; null if not present or not applicable
-     *
-     * @param messageNameAndID Message name and ID; null if not present or not applicable
-     *
-     * @throws CCDDException If an error occurs executing an external (script) method
-     *********************************************************************************************/
-    protected void xtceAddSpaceSystemCommands(SpaceSystemType spaceSystem,
-                                              String[][] tableData,
-                                              TypeDefinition typeDefn,
-                                              String messageFieldName,
-                                              String messageNameAndID) throws CCDDException
-    {
-        // Check if the XTCE handler exists
-        if (xtceHandler != null)
-        {
-            xtceHandler.addSpaceSystemCommands(spaceSystem,
-                                               tableData,
-                                               typeDefn,
-                                               messageFieldName,
-                                               messageNameAndID);
-        }
-    }
-
-    /**********************************************************************************************
-     * Add a command to the command metadata set
-     *
-     * @param spaceSystem    Space system reference
-     *
-     * @param commandName    Command name
-     *
-     * @param cmdFuncCode    Command code
-     *
-     * @param cmdArgStruct   Command argument structure name
-     *
-     * @param cmdHdrSysPath  Command header table system path
-     *
-     * @param cmdDescription Description of the command
-     *
-     * @throws CCDDException If an error occurs executing an external (script) method
-     *********************************************************************************************/
-    public void xtceAddCommand(SpaceSystemType spaceSystem,
-                               String commandName,
-                               String cmdFuncCode,
-                               String cmdArgStruct,
-                               String cmdHdrSysPath,
-                               String cmdDescription) throws CCDDException
-    {
-        // Check if the XTCE handler exists
-        if (xtceHandler != null)
-        {
-            xtceHandler.addCommand(spaceSystem,
-                                   commandName,
-                                   cmdFuncCode,
-                                   cmdArgStruct,
-                                   cmdDescription);
-        }
-    }
-
-    /**********************************************************************************************
-     * Build a unit set from the supplied units string
-     *
-     * @param units Parameter or command argument units; null to not specify
-     *
-     * @return Unit set for the supplied units string; an empty unit set if no units are supplied
-     *********************************************************************************************/
-    public UnitSetType xtceCreateUnitSet(String units)
-    {
-        UnitSetType unitSet = null;
-
-        // Check if the XTCE handler exists
-        if (xtceHandler != null)
-        {
-            unitSet = xtceHandler.createUnitSet(units);
-        }
-
-        return unitSet;
-    }
-
-    /**********************************************************************************************
-     * Build an enumeration list from the supplied enumeration string
-     *
-     * @param spaceSystem Space system reference
-     *
-     * @param enumeration {@literal enumeration in the format <enum value><enum value separator><enum label>[<enum value separator>...][<enum pair separator>...]}
-     *
-     * @return Enumeration list for the supplied enumeration string
-     *********************************************************************************************/
-    public EnumerationListType xtceCreateEnumerationList(SpaceSystemType spaceSystem, String enumeration)
-    {
-        EnumerationListType enumList = null;
-
-        // Check if the XTCE handler exists
-        if (xtceHandler != null)
-        {
-            enumList = xtceHandler.createEnumerationList(spaceSystem, enumeration);
-        }
-
-        return enumList;
-    }
-
-    /**********************************************************************************************
-     * Convert the primitive data type into the base equivalent
-     *
-     * @param dataType Data type
-     *
-     * @return Base primitive data type corresponding to the specified primitive data type; null if
-     *         no match
-     *********************************************************************************************/
-    public BasePrimitiveDataType xmlGetBaseDataType(String dataType)
-    {
-        return CcddImportExportSupportHandler.getBaseDataType(dataType, dataTypeHandler);
-    }
-
-    /**********************************************************************************************
-     * Replace each invalid character with an underscore and move any leading underscores to the
-     * end of each path segment
-     *
-     * @param path {@literal system path in the form <</>path1</path2<...>>}
-     *
-     * @return Path with each invalid character replaced with an underscore and any leading
-     *         underscores moved to the end of each path segment
-     *********************************************************************************************/
-    public String xmlCleanSystemPath(String path)
-    {
-        return CcddImportExportSupportHandler.cleanSystemPath(path);
     }
 
     /**********************************************************************************************

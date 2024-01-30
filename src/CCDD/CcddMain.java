@@ -108,6 +108,7 @@ import CCDD.CcddConstants.CommandLinePriority;
 import CCDD.CcddConstants.DbManagerDialogType;
 import CCDD.CcddConstants.DialogOption;
 import CCDD.CcddConstants.EventLogMessageType;
+import CCDD.CcddConstants.FileExtension;
 import CCDD.CcddConstants.GUIUpdateType;
 import CCDD.CcddConstants.InternalTable;
 import CCDD.CcddConstants.ManagerDialogType;
@@ -193,6 +194,7 @@ public class CcddMain
     private JMenuItem mntmVerifyDatabase;
     private JMenuItem mntmManageUsers;
     private JMenuItem mntmChangeDbOwner;
+    private JMenu mnRecentProjects;
     private JMenuItem[] mntmRecentProjects;
     private JMenu mnData;
     private JMenuItem mntmNewTable;
@@ -224,6 +226,7 @@ public class CcddMain
     private JMenuItem mntmShowVariables;
     private JMenuItem mntmShowCommands;
     private JMenuItem mntmSearchTable;
+    private JMenu mnRecentTables;
     private JMenuItem[] mntmRecentTables;
     private JMenuItem mntmManageLinks;
     private JMenuItem mntmManageTlm;
@@ -1692,15 +1695,8 @@ public class CcddMain
                 }
 
                 // Remove the menu item
-                mnProject.remove(mntmRecentProjects[index]);
+                mnRecentProjects.remove(mntmRecentProjects[index]);
             }
-        }
-        // Check if at least one recently opened project's name was retrieved from the program
-        // preferences
-        else if (!recent.isEmpty())
-        {
-            // Add the separator to the menu that precedes the recently opened project items
-            mnProject.addSeparator();
         }
 
         // Check if at least one recently opened project's name was retrieved from the program
@@ -1721,7 +1717,7 @@ public class CcddMain
                 for (int index = 0; index < recentProjectNames.size(); index++)
                 {
                     // Create the new recently opened project menu item
-                    mntmRecentProjects[index] = createMenuItem(mnProject,
+                    mntmRecentProjects[index] = createMenuItem(mnRecentProjects,
                                                                (index + 1) + " " + recentProjectNames.get(index),
                                                                KeyEvent.VK_1 + (index == 9 ? -1 : index), 1,
                                                                "Open project " + recentProjectNames.get(index));
@@ -1780,15 +1776,8 @@ public class CcddMain
                 }
 
                 // Remove the menu item
-                mnData.remove(mntmRecentTables[index]);
+                mnRecentTables.remove(mntmRecentTables[index]);
             }
-        }
-        // Check if at least one recently opened table's name was retrieved from the program
-        // preferences
-        else if (!recent.isEmpty())
-        {
-            // Add the separator to the menu that precedes the recently opened tables items
-            mnData.addSeparator();
         }
 
         // Next update each table editor window command menu. Step through each open table editor
@@ -1808,7 +1797,7 @@ public class CcddMain
                     }
 
                     // Remove the menu item
-                    editorDlg.getFilesMenu().remove(editorDlg.getRecentTableMenuItems()[index]);
+                    editorDlg.getRecentTablesMenu().remove(editorDlg.getRecentTableMenuItems()[index]);
                 }
             }
         }
@@ -1842,7 +1831,7 @@ public class CcddMain
 
                     // Create the new recently opened table menu item in the main window command
                     // menu
-                    mntmRecentTables[index] = createMenuItem(mnData,
+                    mntmRecentTables[index] = createMenuItem(mnRecentTables,
                                                              (index + 1) + " "
                                                                      + (protoVar.equals(root) ? protoVar
                                                                                               : root + ": " + protoVar),
@@ -1868,7 +1857,7 @@ public class CcddMain
                     {
                         // Create the new recently opened table menu item in the table editor
                         // command menu
-                        editorDlg.getRecentTableMenuItems()[index] = createMenuItem(editorDlg.getFilesMenu(),
+                        editorDlg.getRecentTableMenuItems()[index] = createMenuItem(editorDlg.getRecentTablesMenu(),
                                                                                     (index + 1)
                                                                                     + " "
                                                                                     + (protoVar.equals(root) ? protoVar
@@ -2016,6 +2005,8 @@ public class CcddMain
                                            "Change owner of an existing project database");
         mntmManageUsers = createMenuItem(mnProject, "Manage users", KeyEvent.VK_M, 1,
                                          "Open the user access level manager");
+        mnProject.addSeparator();
+        mnRecentProjects = createSubMenu(mnProject, "Recent projects", KeyEvent.VK_T, 1, null);
 
         // Update the recently opened projects command menu items
         updateRecentProjectsMenu();
@@ -2047,7 +2038,7 @@ public class CcddMain
                                              "Open the data type manager");
         mntmManageInputTypes = createMenuItem(mnData, "Manage input types", KeyEvent.VK_U, 1,
                                               "Open the input type manager");
-        mntmManageMacros = createMenuItem(mnData, "Manage macros", KeyEvent.VK_A, 1, "Open the macro manager");
+        mntmManageMacros = createMenuItem(mnData, "Manage macros", KeyEvent.VK_M, 2, "Open the macro manager");
         mnData.addSeparator();
         JMenu mnMessageID = createSubMenu(mnData, "Message IDs", KeyEvent.VK_M, 1, null);
         mntmAssignMsgID = createMenuItem(mnMessageID, "Assign IDs", KeyEvent.VK_A, 1, "Auto-assign message ID numbers");
@@ -2069,6 +2060,8 @@ public class CcddMain
         mnData.addSeparator();
         mntmSearchTable = createMenuItem(mnData, "Search tables", KeyEvent.VK_S, 1,
                                          "Search the project database data and internal tables");
+        mnData.addSeparator();
+        mnRecentTables = createSubMenu(mnData, "Recent tables", KeyEvent.VK_T, 1, null);
 
         // Update the recently opened tables command menu items in the main window and table editor
         // dialogs
@@ -2379,7 +2372,7 @@ public class CcddMain
                                              null,
                                              frameCCDD))
                 {
-                    fileIOHandler.restoreDatabaseFromDBU();
+                    fileIOHandler.restoreDatabase(FileExtension.DBU, null, null, null, null);
                 }
             }
         });
@@ -2401,11 +2394,7 @@ public class CcddMain
                                              null,
                                              frameCCDD))
                 {
-                    fileIOHandler.restoreDatabaseFromJSONOrCSV(ManagerDialogType.IMPORT_JSON,
-                                                               null,
-                                                               null,
-                                                               null,
-                                                               null);
+                    fileIOHandler.restoreDatabase(FileExtension.JSON, null, null, null, null);
                 }
             }
         });
@@ -2427,11 +2416,7 @@ public class CcddMain
                                              null,
                                              frameCCDD))
                 {
-                    fileIOHandler.restoreDatabaseFromJSONOrCSV(ManagerDialogType.IMPORT_CSV,
-                                                               null,
-                                                               null,
-                                                               null,
-                                                               null);
+                    fileIOHandler.restoreDatabase(FileExtension.CSV, null, null, null, null);
                 }
             }
         });
@@ -3294,7 +3279,7 @@ public class CcddMain
                         // Log an error
                         getSessionEventLog().logFailEvent(getMainFrame(),
                                                           "Failed to acquire a semaphore upon program termination",
-                                                          "<html><b>Failed to acquire a semaphore</b>");
+                                                          "<html><b>Failed to acquire program termination semaphore</b>");
                     }
                 }
             }

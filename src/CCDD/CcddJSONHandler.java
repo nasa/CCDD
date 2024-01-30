@@ -61,6 +61,7 @@ import org.json.simple.parser.ParseException;
 
 import CCDD.CcddClassesComponent.FileEnvVar;
 import CCDD.CcddClassesComponent.OrderedJSONObject;
+import CCDD.CcddClassesDataTable.ArrayVariable;
 import CCDD.CcddClassesDataTable.CCDDException;
 import CCDD.CcddClassesDataTable.FieldInformation;
 import CCDD.CcddClassesDataTable.GroupInformation;
@@ -122,8 +123,8 @@ public class CcddJSONHandler extends CcddImportExportSupportHandler implements C
     // List of original and new script associations
     private List<String[]> associations;
 
+    // Scheduler data storage
     private List<String[]> tlmSchedulerData;
-
     private List<String[]> appSchedulerData;
 
     /**********************************************************************************************
@@ -372,9 +373,10 @@ public class CcddJSONHandler extends CcddImportExportSupportHandler implements C
 
         try
         {
-            // Detect the type of the parsed JSON file and only accept JSONObjects This will throw
+            // Detect the type of the parsed JSON file and only accept JSONObjects. This will throw
             // an exception if it is incorrect
             verifyJSONObjectType(importFile);
+
             // Create a JSON parser and use it to parse the import file contents
             JSONParser jsonParser = new JSONParser();
             JSONObject jsonObject = (JSONObject) jsonParser.parse(new FileReader(importFile));
@@ -382,12 +384,31 @@ public class CcddJSONHandler extends CcddImportExportSupportHandler implements C
             //******************************* APPLICATION SCHEDULER *******************************
             if (importType == ImportType.IMPORT_ALL)
             {
-                Object defn = jsonObject.get(JSONTags.APP_SCHEDULER_COMMENT.getTag());
+                // Get the application scheduler table
+                Object defn = jsonObject.get(JSONTags.APP_SCHEDULER.getTag());
+
+                // Check if the application scheduler data exists
+                if (defn != null && defn instanceof JSONArray)
+                {
+                    List<String[]> appData = new ArrayList<String[]>();
+
+                    // Step through each stored column
+                    for (JSONObject appSchJO : parseJSONArray(defn))
+                    {
+                        // Add the data to the list
+                        appData.add(new String[] {getString(appSchJO, AppSchedulerColumn.TIME_SLOT.getColumnName()),
+                                                  getString(appSchJO, AppSchedulerColumn.APP_INFO.getColumnName())});
+                    }
+
+                    // Store the data in the actual list
+                    appSchedulerData = appData;
+                }
+
+                defn = jsonObject.get(JSONTags.APP_SCHEDULER_COMMENT.getTag());
 
                 // Check if the table comment exists
                 if (defn != null && defn instanceof JSONArray)
                 {
-
                     // Step through each parameter stored in the comment
                     for (JSONObject appSchJO : parseJSONArray(defn))
                     {
@@ -408,26 +429,6 @@ public class CcddJSONHandler extends CcddImportExportSupportHandler implements C
                                                             numberOfTimeSlots,
                                                             parent);
                     }
-                }
-
-                // Get the application scheduler table
-                defn = jsonObject.get(JSONTags.APP_SCHEDULER.getTag());
-
-                // Check if the application scheduler data exists
-                if (defn != null && defn instanceof JSONArray)
-                {
-                    List<String[]> appData = new ArrayList<String[]>();
-
-                    // Step through each stored column
-                    for (JSONObject appSchJO : parseJSONArray(defn))
-                    {
-                        // Add the data to the dummy list
-                        appData.add(new String[] {getString(appSchJO, AppSchedulerColumn.APP_INFO.getColumnName()),
-                                                  getString(appSchJO, AppSchedulerColumn.TIME_SLOT.getColumnName())});
-                    }
-
-                    // Store the data in the actual list
-                    appSchedulerData = appData;
                 }
 
                 //****************************** TELEMETRY SCHEDULER ******************************
@@ -626,9 +627,7 @@ public class CcddJSONHandler extends CcddImportExportSupportHandler implements C
         // Detect the type of the parsed JSON file and only accept JSONObjects
         if (jsonParser.parse(jsonReader).getClass() != JSONObject.class)
         {
-            throw new CCDDException(" The file contains an unexpected json format. Please ensure that the json"
-                                    + " file contains data exported from CCDD. \nNote: json files generated through the CCDD"
-                                    + " scripting functionality are not expected to be imported into CCDD");
+            throw new CCDDException("The file contains an unexpected json format");
         }
 
         return;
@@ -870,7 +869,7 @@ public class CcddJSONHandler extends CcddImportExportSupportHandler implements C
                                                                       JOptionPane.QUESTION_MESSAGE,
                                                                       DialogOption.OK_CANCEL_OPTION) != OK_BUTTON)
                         {
-                            throw new CCDDException("Duplicate macros detected in the input file, user Cancelled");
+                            throw new CCDDException("Duplicate macros detected in the input file, user canceled");
                         }
                     }
 
@@ -890,10 +889,10 @@ public class CcddJSONHandler extends CcddImportExportSupportHandler implements C
                         // existing macro values, or cancels the import operation
                         getErrorResponse(continueOnError,
                                          "<html><b>The value for imported macro(s) '</b>"
-                                                          + CcddUtilities.convertArrayToStringTruncate(mismatchedMacros.toArray(new String[0]))
-                                                          + "<b>' doesn't match the existing definition(s) in import file '</b>"
-                                                          + importFile.getAbsolutePath()
-                                                          + "<b>'; continue?",
+                                         + CcddUtilities.convertArrayToStringTruncate(mismatchedMacros.toArray(new String[0]))
+                                         + "<b>' doesn't match the existing definition(s) in import file '</b>"
+                                         + importFile.getAbsolutePath()
+                                         + "<b>'; continue?",
                                          "Macro Value Mismatch",
                                          null,
                                          "Ignore macro value difference(s) (keep existing value(s))", "Stop importing",
@@ -924,8 +923,8 @@ public class CcddJSONHandler extends CcddImportExportSupportHandler implements C
                 // Inform the user that the file cannot be closed
                 new CcddDialogHandler().showMessageDialog(parent,
                                                           "<html><b>Cannot close import file '</b>"
-                                                                  + importFile.getAbsolutePath()
-                                                                  + "<b>'",
+                                                          + importFile.getAbsolutePath()
+                                                          + "<b>'",
                                                           "File Warning",
                                                           JOptionPane.WARNING_MESSAGE,
                                                           DialogOption.OK_OPTION);
@@ -1467,6 +1466,27 @@ public class CcddJSONHandler extends CcddImportExportSupportHandler implements C
                         // row index, should not be included in the JSON file)
                         int numColumns = typeDefn.getColumnCountVisible();
 
+                        // Get the column name and index containing the variable name, if present
+                        String variableNameColumn = typeDefn.getColumnNameByInputType(DefaultInputType.VARIABLE);
+                        int variableNameColumnIndex = -1;
+
+                        if (variableNameColumn != null)
+                        {
+                            variableNameColumnIndex = typeDefn.getVisibleColumnIndexByUserName(variableNameColumn);
+                        }
+
+                        // Get the column name containing the array size, if present
+                        String arraySizeColumn = typeDefn.getColumnNameByInputType(DefaultInputType.ARRAY_INDEX);
+
+                        // Initialize the variables needed to populate missing array members
+                        String variableName = null;
+                        boolean isArrayDefnRow = false;
+                        String[] arrayDefn = null;
+                        int arrayMemberCount = 0;
+                        int arraySizeTotal = 0;
+                        int[] currentIndices = null;
+                        int[] totalDims = null;
+
                         if (tableDataJA != null)
                         {
                             // Create storage for the row of cell data
@@ -1477,6 +1497,50 @@ public class CcddJSONHandler extends CcddImportExportSupportHandler implements C
                             {
                                 // Initialize the column values to blanks
                                 Arrays.fill(rowData, null);
+
+                                // Check if the table is a structure
+                                if (typeDefn.isStructure())
+                                {
+                                    // Get the variable name for this row
+                                    variableName = rowDataJO.get(variableNameColumn).toString();
+
+                                    // Check if the array size is provided
+                                    if (rowDataJO.get(arraySizeColumn) != null)
+                                    {
+                                        String arraySize = rowDataJO.get(arraySizeColumn).toString();
+
+                                        // Check if this is an array definition: the array size is
+                                        // not empty of blank and the variable name has no array
+                                        // index
+                                        if (arraySize != null
+                                            && !arraySize.isEmpty()
+                                            && variableName != null
+                                            && !ArrayVariable.isArrayMember(variableName))
+                                        {
+                                            // If the previous row is an array definition (so no
+                                            // members were defined) then add the missing array
+                                            // members
+                                            addRemainingArrayMembers(arrayMemberCount,
+                                                                     tableDefn,
+                                                                     arrayDefn,
+                                                                     variableNameColumnIndex,
+                                                                     currentIndices,
+                                                                     totalDims);
+
+                                            isArrayDefnRow = true;
+
+                                            // Store the total number of members expected for this
+                                            // array
+                                            String arraySizeExp = macroHandler.getMacroExpansion(arraySize);
+                                            arrayMemberCount = ArrayVariable.getNumMembersFromArraySize(arraySizeExp);
+                                            arraySizeTotal = arrayMemberCount;
+
+                                            // Get the array size as an array of integers
+                                            totalDims = ArrayVariable.getArrayIndexFromSize(arraySizeExp);
+                                            currentIndices = new int[totalDims.length];
+                                        }
+                                    }
+                                }
 
                                 // Step through each key (column name)
                                 for (Object columnName : rowDataJO.keySet())
@@ -1491,6 +1555,7 @@ public class CcddJSONHandler extends CcddImportExportSupportHandler implements C
                                         // blank if a value for this column doesn't exist
                                         rowData[column] = getString(rowDataJO,
                                                                     typeDefn.getColumnNamesVisible()[column]);
+
                                     }
                                     else
                                     {
@@ -1498,12 +1563,12 @@ public class CcddJSONHandler extends CcddImportExportSupportHandler implements C
                                         // should be ignored or the import canceled
                                         ignoreErrors = getErrorResponse(ignoreErrors,
                                                                         "<html><b>Table '</b>"
-                                                                                      + tableName
-                                                                                      + "<b>' column name '</b>"
-                                                                                      + columnName
-                                                                                      + "<b>' unrecognized in import file '</b>"
-                                                                                      + importFile.getAbsolutePath()
-                                                                                      + "<b>'; continue?",
+                                                                        + tableName
+                                                                        + "<b>' column name '</b>"
+                                                                        + columnName
+                                                                        + "<b>' unrecognized in import file '</b>"
+                                                                        + importFile.getAbsolutePath()
+                                                                        + "<b>'; continue?",
                                                                         "Column Error",
                                                                         "Ignore this invalid column name",
                                                                         "Ignore this and any remaining invalid column names",
@@ -1512,9 +1577,90 @@ public class CcddJSONHandler extends CcddImportExportSupportHandler implements C
                                     }
                                 }
 
+                                // Check if this row is an array definition
+                                if (isArrayDefnRow)
+                                {
+                                    // Store the array definition column values. These are used to
+                                    // populate missing array member rows
+                                    arrayDefn = new String[numColumns];
+
+                                    // Step through each array in the list
+                                    for (int column = 0; column < rowData.length; column++)
+                                    {
+                                        arrayDefn[column] = rowData[column];
+                                    }
+
+                                    isArrayDefnRow = false;
+                                }
+                                // Check if an array member is expected
+                                else if (arrayMemberCount > 0)
+                                {
+                                    // Check if the row is for an array member
+                                    if (ArrayVariable.isArrayMember(variableName))
+                                    {
+                                        boolean isNext = false;
+
+                                        while (!isNext)
+                                        {
+                                            String memberIndex = ArrayVariable.getVariableArrayIndex(variableName);
+                                            int index = ArrayVariable.getLinearArrayIndex(ArrayVariable.getArrayIndexFromSize(memberIndex), totalDims);
+
+                                            // Check if the member is not the expected one (i.e., a
+                                            // member is missing and needs to be created)
+                                            if (index != arraySizeTotal - arrayMemberCount)
+                                            {
+                                                // Create any missing members and update the next
+                                                // expected index
+                                                currentIndices = addArrayMember(tableDefn,
+                                                                                arrayDefn,
+                                                                                variableNameColumnIndex,
+                                                                                currentIndices,
+                                                                                totalDims);
+                                            }
+                                            // The member is the expected one
+                                            else
+                                            {
+                                                isNext = true;
+                                            }
+
+                                            --arrayMemberCount;
+                                        }
+                                    }
+                                    // The row is not for an array member; the remainder of the
+                                    // array members are missing
+                                    else
+                                    {
+                                        // Add the remaining missing array members, if any
+                                        addRemainingArrayMembers(arrayMemberCount,
+                                                                 tableDefn,
+                                                                 arrayDefn,
+                                                                 variableNameColumnIndex,
+                                                                 currentIndices,
+                                                                 totalDims);
+                                        arrayMemberCount = 0;
+                                    }
+
+                                    // Check if this wasn't the last array member (no need to
+                                    // calculate the index for a member after the last one)
+                                    if (arrayMemberCount != 0)
+                                    {
+                                        // Update the next expected array index
+                                        currentIndices = getNextArrayIndex(currentIndices, totalDims);
+                                    }
+                                }
+
                                 // Add the row of data read in from the file to the cell data list
                                 tableDefn.addData(rowData);
                             }
+
+                            // If the last row is an array definition then add the remaining
+                            // missing array members, if any
+                            addRemainingArrayMembers(arrayMemberCount,
+                                                     tableDefn,
+                                                     arrayDefn,
+                                                     variableNameColumnIndex,
+                                                     currentIndices,
+                                                     totalDims);
                         }
 
                         //************************ TABLE DEFINITION FIELDS ************************
@@ -2048,66 +2194,119 @@ public class CcddJSONHandler extends CcddImportExportSupportHandler implements C
                 String[] columnNames = typeDefn.getColumnNamesUser();
                 List<Integer> booleanColumns = typeDefn.getColumnIndicesByInputType(DefaultInputType.BOOLEAN);
 
+                // Get the variable name and array size column indices (these equal -1 if not
+                // present)
+                int variableNameIndex = typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE);
+                int arraySizeIndex = typeDefn.getColumnIndexByInputType(DefaultInputType.ARRAY_INDEX);
+                int arrayDefnRow = -1;
+                boolean hasUnique = true;
+
                 // Step through each table row
                 for (int row = 0; row < tableInfo.getData().size(); row++)
                 {
-                    columnJO = new OrderedJSONObject();
-
-                    // Step through each table column
-                    for (int column = NUM_HIDDEN_COLUMNS; column < tableInfo.getData().get(row).length; column++)
+                    // Check if this is a structure
+                    if (typeDefn.isStructure())
                     {
-                        // Check if a cell isn't blank
-                        if (tableInfo.getData().get(row)[column] != null
-                            && (!tableInfo.getData().get(row)[column].toString().isEmpty()
-                                || booleanColumns.contains(column)))
+                        // Check if this is not an array member
+                        if (!ArrayVariable.isArrayMember(tableInfo.getData().get(row)[variableNameIndex]))
                         {
-                            if (booleanColumns.contains(column))
-                            {
-                                // Add the column name and value to the cell object
-                                columnJO.put(columnNames[column],
-                                             Boolean.parseBoolean(tableInfo.getData().get(row)[column].toString()));
-                            }
-                            else
-                            {
-                                // Add the column name and value to the cell object
-                                columnJO.put(columnNames[column], tableInfo.getData().get(row)[column]);
-                            }
+                            hasUnique = true;
 
-                            // Check if the table represents a structure, that the variable path
-                            // column is to be included, and that a variable handler and path
-                            // separators are supplied
-                            if (typeDefn.isStructure()
-                                && includeVariablePaths
-                                && variableHandler != null
-                                && separators != null)
+                            // Check if this is an array definition row
+                            if (!tableInfo.getData().get(row)[arraySizeIndex].toString().isEmpty())
                             {
-                                // Get the variable's data type
-                                String dataType = tableInfo.getData().get(row)[typeDefn.getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT)].toString();
+                                arrayDefnRow = row;
+                            }
+                        }
+                        // This is an array member
+                        else
+                        {
+                            hasUnique = false;
 
-                                // Check if the data type is a primitive
-                                if (dataTypeHandler.isPrimitive(dataType))
+                            // Step through each column and compare the value to the array
+                            // definition
+                            for (int column = NUM_HIDDEN_COLUMNS; column < tableInfo.getData().get(row).length; column++)
+                            {
+                                String arrayDefnCol = tableInfo.getData().get(arrayDefnRow)[column] == null ? null
+                                                                                                            : tableInfo.getData().get(arrayDefnRow)[column].toString();
+
+                                // Check if the member's column differs from the definition's
+                                // column
+                                if (column != variableNameIndex
+                                    && tableInfo.getData().get(row)[column] != null
+                                    && !tableInfo.getData().get(row)[column].toString().isEmpty()
+                                    && !tableInfo.getData().get(row)[column].toString().equals(arrayDefnCol))
                                 {
-                                    // Build the variable's full path
-                                    String variablePath = tableInfo.getTablePath()
-                                                          + ","
-                                                          + dataType
-                                                          + "."
-                                                          + tableInfo.getData().get(row)[typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE)];
-
-                                    // Add the formatted path in the 'Variable Path' column
-                                    columnJO.put("Variable Path",
-                                                 variableHandler.getFullVariableName(variablePath,
-                                                                                     separators[SeparatorColumns.PATH_SEPARATOR.ordinal()],
-                                                                                     Boolean.valueOf(separators[SeparatorColumns.HIDE_DATA_TYPE.ordinal()]),
-                                                                                     separators[SeparatorColumns.NAME_SEPARATOR.ordinal()]));
+                                    // Set the flag to indicate this array member should be
+                                    // exported, and stop searching
+                                    hasUnique = true;
+                                    break;
                                 }
                             }
                         }
                     }
 
-                    // Add the column values to the data array. An array is used to preserve the
-                    // order of the rows
-                    tableDataJA.add(columnJO);
+                    // Check if the data should be exported
+                    if (hasUnique)
+                    {
+                        columnJO = new OrderedJSONObject();
+
+                        // Step through each table column
+                        for (int column = NUM_HIDDEN_COLUMNS; column < tableInfo.getData().get(row).length; column++)
+                        {
+                            // Check if a cell isn't blank
+                            if (tableInfo.getData().get(row)[column] != null
+                                && (!tableInfo.getData().get(row)[column].toString().isEmpty()
+                                    || booleanColumns.contains(column)))
+                            {
+                                if (booleanColumns.contains(column))
+                                {
+                                    // Add the column name and value to the cell object
+                                    columnJO.put(columnNames[column],
+                                                 Boolean.parseBoolean(tableInfo.getData().get(row)[column].toString()));
+                                }
+                                else
+                                {
+                                    // Add the column name and value to the cell object
+                                    columnJO.put(columnNames[column], tableInfo.getData().get(row)[column]);
+                                }
+
+                                // Check if the table represents a structure, that the variable
+                                // path column is to be included, and that a variable handler and
+                                // path separators are supplied
+                                if (typeDefn.isStructure()
+                                    && includeVariablePaths
+                                    && variableHandler != null
+                                    && separators != null)
+                                {
+                                    // Get the variable's data type
+                                    String dataType = tableInfo.getData().get(row)[typeDefn.getColumnIndexByInputType(DefaultInputType.PRIM_AND_STRUCT)].toString();
+
+                                    // Check if the data type is a primitive
+                                    if (dataTypeHandler.isPrimitive(dataType))
+                                    {
+                                        // Build the variable's full path
+                                        String variablePath = tableInfo.getTablePath()
+                                                              + ","
+                                                              + dataType
+                                                              + "."
+                                                              + tableInfo.getData().get(row)[typeDefn.getColumnIndexByInputType(DefaultInputType.VARIABLE)];
+
+                                        // Add the formatted path in the 'Variable Path' column
+                                        columnJO.put("Variable Path",
+                                                     variableHandler.getFullVariableName(variablePath,
+                                                                                         separators[SeparatorColumns.PATH_SEPARATOR.ordinal()],
+                                                                                         Boolean.valueOf(separators[SeparatorColumns.HIDE_DATA_TYPE.ordinal()]),
+                                                                                         separators[SeparatorColumns.NAME_SEPARATOR.ordinal()]));
+                                    }
+                                }
+                            }
+                        }
+
+                        // Add the column values to the data array. An array is used to preserve
+                        // the order of the rows
+                        tableDataJA.add(columnJO);
+                    }
                 }
             }
 
@@ -4054,7 +4253,9 @@ public class CcddJSONHandler extends CcddImportExportSupportHandler implements C
             || searchKey == JSONTags.MACRO_DEFN.getTag()
             || searchKey == JSONTags.GROUP.getTag()
             || searchKey == JSONTags.SCRIPT_ASSOCIATION.getTag()
+            || searchKey == JSONTags.TLM_SCHEDULER.getTag()
             || searchKey == JSONTags.TLM_SCHEDULER_COMMENT.getTag()
+            || searchKey == JSONTags.APP_SCHEDULER.getTag()
             || searchKey == JSONTags.APP_SCHEDULER_COMMENT.getTag()
             || searchKey == JSONTags.RESERVED_MSG_ID_DEFN.getTag()
             || searchKey == JSONTags.PROJECT_FIELD.getTag()

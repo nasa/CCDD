@@ -1965,10 +1965,10 @@ public class CcddTableEditorHandler extends CcddInputFieldPanelHandler
                                 && !isDataAlterable(tableData.get(row), row, column))
                             {
                                 throw new CCDDException("Invalid characters in table '</b>"
-                                        + currentTableInfo.getTablePath()
-                                        + "<b>' for column '</b>"
-                                        + typeDefn.getColumnNamesUser()[column]
-                                        + "<b>'; '[' and ']' not allowed in variable name");
+                                                        + currentTableInfo.getTablePath()
+                                                        + "<b>' for column '</b>"
+                                                        + typeDefn.getColumnNamesUser()[column]
+                                                        + "<b>'; '[' and ']' not allowed in variable name");
                             }
 
                             // Check if the data type is a reference to this structure table or one

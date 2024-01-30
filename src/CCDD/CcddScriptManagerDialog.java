@@ -28,6 +28,7 @@ package CCDD;
 import static CCDD.CcddConstants.ASSN_TABLE_SEPARATOR;
 import static CCDD.CcddConstants.CHANGE_INDICATOR;
 import static CCDD.CcddConstants.CLOSE_ICON;
+import static CCDD.CcddConstants.DEFAULT_INSTANCE_NODE_NAME;
 import static CCDD.CcddConstants.DELETE_ICON;
 import static CCDD.CcddConstants.DOWN_ICON;
 import static CCDD.CcddConstants.EXECUTE_ICON;
@@ -192,7 +193,10 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
     {
         // Check if there are any open editors with uncommitted changes and if so check that the
         // user confirms ignoring the changes
-        if (ccddMain.ignoreUncommittedChanges("Script Manager", "Ignore changes?", false, null,
+        if (ccddMain.ignoreUncommittedChanges("Script Manager",
+                                              "Ignore changes?",
+                                              false,
+                                              null,
                                               ccddMain.getMainFrame()))
         {
             // Build the script association manager dialog in the background
@@ -381,8 +385,17 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
                                         // The name refers to a table
                                         else
                                         {
-                                            // Get the node in the table tree for this table name
-                                            node = tableTree.getNodeByNodePath(tableName);
+                                            // Get the node in the root and child portion of the
+                                            // table tree for this table name
+                                            node = tableTree.getNodeByNodePath(tableName, tableTree.getNodeByNodeName(DEFAULT_INSTANCE_NODE_NAME));
+
+                                            // Check if the table isn't a root or child table
+                                            if (node == null)
+                                            {
+                                                // Get the node in the prototype portion of the
+                                                // table tree for this table name
+                                                node = tableTree.getNodeByNodePath(tableName);
+                                            }
                                         }
 
                                         // Check if the table name is in the tree
@@ -1022,7 +1035,7 @@ public class CcddScriptManagerDialog extends CcddFrameHandler
             // Add the selected table names, skipping child tables if an ancestor of the table is
             // selected (when the association is executed and a table's data is read it
             // automatically reads all of its descendant's data, so there's no need to include the
-            // descendants in the association))
+            // descendants in the association)
             members.addAll(tableTree.getSelectedTablesWithoutChildren());
 
             // Get a file descriptor for the script file name

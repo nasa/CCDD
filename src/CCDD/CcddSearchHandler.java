@@ -911,6 +911,9 @@ public class CcddSearchHandler extends CcddDialogHandler
      *
      * @param allowRegEx True if the search text can contain a regular expression
      *
+     * @param strict     True to create the regular expression so that an exact match is required;
+     *                   false to allow for a partial match
+     *
      * @param parent     GUI component over which to center any error dialog; null to not display
      *                   an error dialog if the search pattern is invalid
      *
@@ -920,6 +923,7 @@ public class CcddSearchHandler extends CcddDialogHandler
     protected static Pattern createSearchPattern(String searchText,
                                                  boolean ignoreCase,
                                                  boolean allowRegEx,
+                                                 boolean strict,
                                                  Component parent)
     {
         Pattern searchPattern = null;
@@ -936,12 +940,12 @@ public class CcddSearchHandler extends CcddDialogHandler
                                             + ":"
                                             + (allowRegEx ? searchText.replaceAll("\\\\", "\\\\\\\\\\\\")
                                                           : searchText.replaceAll("([\\[\\]\\(\\)\\{\\}\\.\\+\\^\\$\\|\\-\\\\])",
-                                                                                  "\\\\\\\\\\\\$1")
+                                                                                  "\\\\$1")
                                                                       .replaceAll("\\\\\\?", WILD_CARD_MARKER)
                                                                       .replaceAll("\\?", ".")
                                                                       .replaceAll(WILD_CARD_MARKER, "\\\\?")
                                                                       .replaceAll("\\\\\\*", WILD_CARD_MARKER)
-                                                                      .replaceAll("\\*", ".*?")
+                                                                      .replaceAll("\\*", strict ? ".*" : ".*?")
                                                                       .replaceAll(WILD_CARD_MARKER, "\\\\*"))
                              + ")");
         }

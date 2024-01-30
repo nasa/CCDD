@@ -57,6 +57,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -1383,15 +1384,11 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
         }
 
         HashMap<TableMembers, HashSet<String>> tableMap = new HashMap<>();
-        boolean isOptEngaged = true; // TODO For tests
 
-        if (isOptEngaged)
+        // Put the data type of each member into the hash table
+        for (TableMembers member : tableMembers)
         {
-            // Put the data type of each member into the hash table
-            for (TableMembers member : tableMembers)
-            {
-                tableMap.put(member, new HashSet<>(member.getDataTypes()));
-            }
+            tableMap.put(member, new HashSet<>(member.getDataTypes()));
         }
 
         // Step through each table
@@ -1454,33 +1451,19 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
                             // Check if the current table has this table as a member, that the
                             // table isn't referencing itself, and, if the tree is filtered by
                             // group, that this table is a member of the group
-                            if (isOptEngaged)
+                            if (!member.equals(otherMember))
                             {
-                                if (!member.equals(otherMember))
-                                {
-                                    HashSet<String> memberDatatypes = tableMap.get(otherMember);
+                                HashSet<String> memberDatatypes = tableMap.get(otherMember);
 
-                                    if (memberDatatypes != null)
-                                    {
-                                        if (memberDatatypes.contains(member.getTableName()))
-                                        {
-                                            // Clear the flag indicating this is a root table and
-                                            // stop searching
-                                            isRoot = false;
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                if (otherMember.getDataTypes().contains(member.getTableName())
-                                    && !member.equals(otherMember))
+                                if (memberDatatypes != null)
                                 {
-                                    // Clear the flag indicating this is a root table and stop
-                                    // searching
-                                    isRoot = false;
-                                    break;
+                                    if (memberDatatypes.contains(member.getTableName()))
+                                    {
+                                        // Clear the flag indicating this is a root table and
+                                        // stop searching
+                                        isRoot = false;
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -2254,49 +2237,82 @@ public class CcddTableTreeHandler extends CcddCommonTreeHandler
     }
 
     /**********************************************************************************************
-     * Get a list of the tables (with their paths) represented by the selected nodes. If a header
-     * node (i.e., a non-table node one level above a table node, such as a group or type node) is
-     * selected then its descendants are checked, recursively, until the level containing tables is
-     * found; these tables are added to the list. If a selected node isn't a header node then
-     * ignore the node if it has a selected ancestor node. HTML tags are removed from the returned
-     * table path+names
+     * Get a list of the tables (with their paths) represented by the selected nodes. Eliminate any
+     * tables from the list that are children of another selected table. If a header node (i.e., a
+     * non-table node one level above a table node, such as a group or type node) is selected then
+     * its descendants are checked, recursively, until the level containing tables is found; these
+     * tables are added to the list. If a selected node isn't a header node then ignore the node if
+     * it has a selected ancestor node. HTML tags are removed from the returned table path+names
      *
-     * @return List containing the table path+names of the selected node(s) with any HTML tags
-     *         removed
+     * @return List containing the table path+names of the selected node(s) (minus any children of
+     *         the selected nodes) with any HTML tags removed
      *********************************************************************************************/
     protected List<String> getSelectedTablesWithoutChildren()
     {
         // Create storage for the table names
         List<String> tables = new ArrayList<String>();
 
+        // Get an array of the paths of the selected tree items. The array is in the order that the
+        // items were selected
+        int[] selectedRows = getSelectionRows();
+
         // Check if any tables are selected in the table tree
-        if (getSelectionPaths() != null)
+        if (selectedRows.length != 0)
         {
+            List<ToolTipTreeNode> nodes = new ArrayList<ToolTipTreeNode>();
+
+            // Sort the selected rows into numerical order
+            Arrays.sort(selectedRows);
+
             // Step through each selected table in the tree
-            for (TreePath path : getSelectionPaths())
+            for (int row : selectedRows)
             {
                 // Get the selected node
-                ToolTipTreeNode node = (ToolTipTreeNode) path.getLastPathComponent();
+                ToolTipTreeNode node = (ToolTipTreeNode) getPathForRow(row).getLastPathComponent();
 
-                // Check if the table isn't already in the list
-                if (node.getLevel() >= getHeaderNodeLevel() && !tables.contains(node.getUserObject().toString()))
+                // Check if this is a header node (not a table)
+                if (node.getLevel() >= getHeaderNodeLevel())
                 {
-                    // Add the selected table to the list
-                    tables.add(CcddUtilities.removeHTMLTags(getFullVariablePath(node.getPath())));
-                }
+                    boolean isNotDescendant = true;
 
-                // Step through all of the tables that are descendants of this node (excluding any
-                // duplicates and any children of a table already added to the list)
-                for (String table : getTablesWithoutChildren(node))
-                {
-                    // Check if the table isn't already in the list
-                    if (!tables.contains(table))
+                    // Step through the nodes that have already been added
+                    for (ToolTipTreeNode prevNode : nodes)
                     {
-                        // Add the tables that are descendants of this node to the list
-                        tables.add(table);
+                        // Check if this a child of a table already added
+                        if (prevNode.isNodeDescendant(node))
+                        {
+                            isNotDescendant = false;
+                            break;
+                        }
+                    }
+
+                    // The table isn't a child of a previously added table
+                    if (isNotDescendant)
+                    {
+                        nodes.add(node);
+
+                        // Add the selected table to the list
+                        tables.add(CcddUtilities.removeHTMLTags(getFullVariablePath(node.getPath())));
+                    }
+                }
+                // This is a table node
+                else
+                {
+                    // Step through all of the tables that are descendants of this node (excluding any
+                    // duplicates and any children of a table already added to the list)
+                    for (String table : getTablesWithoutChildren(node))
+                    {
+                        // Check if the table isn't already in the list
+                        if (!tables.contains(table))
+                        {
+                            // Add the tables that are descendants of this node to the list
+                            tables.add(table);
+                        }
                     }
                 }
             }
+
+            nodes.clear();
         }
 
         return tables;

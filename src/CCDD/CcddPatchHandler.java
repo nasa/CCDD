@@ -25,11 +25,11 @@
  **************************************************************************************************/
 package CCDD;
 
+import static CCDD.CcddConstants.COL_VALUE;
+import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.ROW_NUM_COLUMN_NAME;
 import static CCDD.CcddConstants.ROW_NUM_COLUMN_TYPE;
-import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.TYPE_ENUM;
-import static CCDD.CcddConstants.COL_VALUE;
 
 import java.io.File;
 import java.sql.ResultSet;
@@ -287,7 +287,7 @@ public class CcddPatchHandler
                 eventLog.logEvent(EventLogMessageType.SUCCESS_MSG,
                                   new StringBuilder("Project '").append(dbControl.getProjectName())
                                                                 .append("' primary key input type update complete"));
-}
+            }
         }
         catch (Exception e)
         {
@@ -681,7 +681,7 @@ public class CcddPatchHandler
                 // Check if the user interface is not displayed
                 if (ccddMain.isGUIHidden())
                 {
-                    // The GUI is hidden and  automatically patching is disabled, so do not proceed
+                    // The GUI is hidden and automatically patching is disabled, so do not proceed
                     throw new CCDDException("Invalid command line combination: Please re-run with "
                                             + "the -patch flag or with the GUI enabled ("
                                             + patchId

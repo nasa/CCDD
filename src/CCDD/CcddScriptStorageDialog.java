@@ -27,6 +27,7 @@ package CCDD;
 
 import static CCDD.CcddConstants.OK_BUTTON;
 import static CCDD.CcddConstants.SCRIPTS_ICON;
+import static CCDD.CcddConstants.SEARCH_ICON;
 
 import java.awt.Color;
 import java.awt.GridBagConstraints;
@@ -36,6 +37,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -75,6 +78,9 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
     // Array of file references containing the selected script file(s) (store) or the selected
     // script file path (retrieve)
     private FileEnvVar[] scriptFile;
+
+    // Script name filter field
+    private JTextField filterFld;
 
     // Path selection field
     private JTextField pathFld;
@@ -229,9 +235,13 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
                                 // Step through each script name check box
                                 for (JCheckBox scriptCb : getCheckBoxes())
                                 {
-                                    // Set the check box selection status to match the Select All
-                                    // check box selection status
-                                    scriptCb.setSelected(selectAllCb.isSelected());
+                                    // CHeck that the script isn't hidden due to the filter
+                                    if (scriptCb.isVisible())
+                                    {
+                                        // Set the check box selection status to match the Select
+                                        // All check box selection status
+                                        scriptCb.setSelected(selectAllCb.isSelected());
+                                    }
                                 }
                             }
                         });
@@ -276,6 +286,11 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
                             });
                         }
                     }
+
+                    // Add the script name filter selection components to the dialog
+                    gbc.gridy++;
+                    gbc.insets.bottom = 0;
+                    dialogPnl.add(createScriptNameFilterPanel(), gbc);
 
                     // Check if one or more scripts is to be retrieved
                     if (dialogType == ScriptIOType.RETRIEVE)
@@ -358,6 +373,116 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
     }
 
     /**********************************************************************************************
+     * Create the script name filter panel
+     *
+     * @return JPanel containing the script name filter panel
+     *********************************************************************************************/
+    private JPanel createScriptNameFilterPanel()
+    {
+        // Set the initial layout manager characteristics
+        GridBagConstraints gbc = new GridBagConstraints(0,
+                                                        0,
+                                                        1,
+                                                        1,
+                                                        1.0,
+                                                        0.0,
+                                                        GridBagConstraints.LINE_START,
+                                                        GridBagConstraints.BOTH,
+                                                        new Insets(ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                   0,
+                                                                   ModifiableSpacingInfo.LABEL_VERTICAL_SPACING.getSpacing() / 2,
+                                                                   ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing()),
+                                                        0,
+                                                        0);
+
+        // Create a panel for the filter selection components
+        JPanel filterPnl = new JPanel(new GridBagLayout());
+
+        // Create the filter selection dialog labels and fields
+        JLabel scriptLbl = new JLabel("Enter script name filter");
+        scriptLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
+        filterPnl.add(scriptLbl, gbc);
+
+        // Add the wild card character explanation label
+        final JLabel wildCardLbl = new JLabel("? = character, * = string, \\ for literal ? or *");
+        wildCardLbl.setFont(ModifiableFontInfo.LABEL_ITALIC.getFont());
+        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
+        gbc.insets.top = 0;
+        gbc.gridy++;
+        filterPnl.add(wildCardLbl, gbc);
+
+        // Create a text field for entering and displaying the script name filter
+        filterFld = new JTextField("");
+        filterFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
+        filterFld.setEditable(true);
+        filterFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
+        filterFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
+        filterFld.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED,
+                                                                                               Color.LIGHT_GRAY,
+                                                                                               Color.GRAY),
+                                                               BorderFactory.createEmptyBorder(ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                               ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                               ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing(),
+                                                                                               ModifiableSpacingInfo.INPUT_FIELD_PADDING.getSpacing())));
+        gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing();
+        gbc.gridy++;
+        filterPnl.add(filterFld, gbc);
+
+        // Create a button for choosing a script name filter
+        JButton btnApplyFilter = CcddButtonPanelHandler.createButton("Apply",
+                                                                     SEARCH_ICON,
+                                                                     KeyEvent.VK_A,
+                                                                     "Apply the script name filter");
+
+        // Add a listener for the apply filter button
+        btnApplyFilter.addActionListener(new ActionListener()
+        {
+            /**************************************************************************************
+             * Select a script name filter
+             *************************************************************************************/
+            @Override
+            public void actionPerformed(ActionEvent ae)
+            {
+                // Create a match pattern
+                Pattern pattern = CcddSearchHandler.createSearchPattern(filterFld.getText(),
+                                                                        true,
+                                                                        false,
+                                                                        true,
+                                                                        CcddScriptStorageDialog.this);
+
+                // Step through each script check box
+                for (int index = 0; index < getCheckBoxes().length; ++index)
+                {
+                    // Create the pattern matcher from the pattern
+                    Matcher matcher = pattern.matcher(getCheckBoxes()[index].getText());
+
+                    // Determine if the script name matches the pattern
+                    boolean isVisible = matcher.matches();
+
+                    // Set the check box and description visibility based on the match
+                    getCheckBoxes()[index].setVisible(isVisible);
+                    getCheckBoxDescriptions()[index].setVisible(isVisible);
+
+                    // Check if the script name doesn't match the pattern
+                    if (!isVisible)
+                    {
+                        // Deselect the script
+                        getCheckBoxes()[index].setSelected(false);
+                    }
+                }
+            }
+        });
+
+        // Add the Apply filter button to the dialog
+        gbc.weightx = 0.0;
+        gbc.insets.right = 0;
+        gbc.gridx++;
+        filterPnl.add(btnApplyFilter, gbc);
+
+        return filterPnl;
+    }
+
+    /**********************************************************************************************
      * Create the path selection panel
      *
      * @return JPanel containing the script selection panel
@@ -388,7 +513,7 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
         scriptLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
         pathPnl.add(scriptLbl, gbc);
 
-        // Create a text field for entering & displaying the script path
+        // Create a text field for entering and displaying the script path
         pathFld = new JTextField(ModifiablePathInfo.SCRIPT_PATH.getPath().replaceAll("\\" + File.separator + "\\.$",
                                                                                      ""));
         pathFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
@@ -438,7 +563,7 @@ public class CcddScriptStorageDialog extends CcddDialogHandler
             }
         });
 
-        // Add the select script button to the dialog
+        // Add the Select script button to the dialog
         gbc.weightx = 0.0;
         gbc.insets.right = 0;
         gbc.gridx++;

@@ -17,6 +17,26 @@ _Note: The master branch contains_ **CCDD version 1**_, which is superseded by_ 
 
 * Beginning with CCDD version 2.1.2 Python 3 is supported
 
+*** Version 2.1.6 has been released **
+
+Below is a brief description of what has changed in version 2.1.6
+* Changed the JSON and CSV exports to eliminate array members that have no 'unique values; i.e., values that are not inherited from the array definition. This reduces the size of the export file(s). The JSON and CSV import methods automatically insert any 'missing' array members. Note that this mimics the behavior of EDS and XTCE export/import
+* Corrected JSON and CSV importing and exporting of application and telemetry scheduler data
+* Updated the XTCE export to include tags required by the schema (these 'extra' tags/fields are ignored by CCDD when importing). Also, certain name fields do not allow characters that are part of table paths and parameter names. The export operation converts these to a format accepted by the schema; when importing the reverse conversion is done to restore the paths/names. The CCDD XTCE export files successfully validate against the schema
+* Corrected a bug that prevented adding columns to a table type definition for larger databases
+* Changed the order in which table type column definition updates are applied (from additions, modifications, deletions to deletions, modifications, additions - this matches how table row changes are handled). Deletions must be made before modifications since otherwise, in certain circumstances, the deletions are handled as column name changes, resulting in database errors
+* Added default XTCE parameter values for command line export
+* Corrected an XTCE export parameter omission when exporting to multiple files in the file I/O handler
+* Removed the external XTCE export script hooks
+* The recent projects and recent tables menu items have been moved to sub-menus. This prevents a long name making the main menu extremely wide
+* Changed the Restore CSV and Restore JSON command behavior to mimic that of the Restore DBU command. This means that '_restored' is appended to the original project database name, and if the a database already exists with that name then a sequence number is also appended to make the name unique
+* When a script association is selected in the Script Manager dialog the table tree highlights the association's table(s). Formerly, the first reference to the table is highlighted (i.e., the prototype, even if the table also is a root). This is changed: For a root table, the table is highlighted in the Parents & Children portion of the table; the table is not highlighted in the Prototypes portion of the tree. If the table is only a prototype (not a root or child table) then the table is highlighted in the Prototypes portion of the table tree
+* Corrected the method for obtaining a list of selected tables, without the child tables, from a table tree
+* Corrected the wildcard pattern match to handle special characters
+* Made the path to the user's guide (accessible from the Help menu) a user-definable setting in the program Preferences dialog
+* Removed storing/retrieving the data table data field column names in CSV exports files
+* Updated the User's Guide
+
 *** Version 2.1.5 has been released **
 
 Below is a brief description of what has changed in version 2.1.5

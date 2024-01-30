@@ -1840,13 +1840,13 @@ public class CcddConstants
     // Modifiable path information
     protected static enum ModifiablePathInfo
     {
+        USERS_GUIDE_FILE_PATH("User's guide", "File path for the user's guide", "UsersGuideFilePath"),
         SESSION_LOG_FILE_PATH("Session event log", "File path for the session event log", "SessionLogFilePath"),
         READ_LOG_FILE_PATH("Read event log", "File path for reading previous event logs", "ReadLogFilePath"),
         DATABASE_BACKUP_PATH("Project back-up", "File path for project back-ups", "DatabaseBackupPath"),
         TABLE_EXPORT_PATH("Table export", "File path for exporting tables", "TableExportPath"),
         SCRIPT_PATH("Script location", "File path for scripts", "ScriptPath"),
-        SCRIPT_OUTPUT_PATH("Script output", "File path for script output", "ScriptOutputPath"),
-        XTCE_EXPORT_SCRIPT("XTCE export script location", "File path for XTCE export external methods", "XTCEExportScript");
+        SCRIPT_OUTPUT_PATH("Script output", "File path for script output", "ScriptOutputPath");
 
         private final String name;
         private final String description;
@@ -1948,7 +1948,7 @@ public class CcddConstants
     {
         PYTHON_COMMAND_NAME("Python command name", "Python script command name (when using Py4J)", "PythonCommandName", "python"),
         EDS_SCHEMA_LOCATION_URL("EDS schema location", "URL for the EDS schema location", "EDSSchemaLocationURL", "http://www.ccsds.org/schema/sois seds.xsd"),
-        XTCE_SCHEMA_LOCATION_URL("XTCE schema location", "URL for the XTCE schema location", "XTCESchemaLocationURL", "http://www.omg.org/spec/XTCE/20061101 06-11-06.xsd"),
+        XTCE_SCHEMA_LOCATION_URL("XTCE schema location", "URL for the XTCE schema location", "XTCESchemaLocationURL", "http://www.omg.org/spec/XTCE/20180204 SpaceSystem.xsd"),
         ENV_VAR_OVERRIDE("Environment variable override", "Override values for environment variables when executing script associations", "EnvironmentVariableOverride", "");
 
         private final String name;
@@ -6470,8 +6470,8 @@ public class CcddConstants
                        + INTERNAL_TABLE_PREFIX
                        + "') alias1) alias2 ORDER BY description ASC;"),
 
-        // Get the list of table name, data type, and variable names for the specified table
-        // type(s) in the format tableName,dataType.variableName
+        // Get the list of table name, data type, and variable names for the specified structure
+        // table type(s) in the format tableName,dataType.variableName
         TABLE_DATA_VAR_NAMES("SELECT * from find_command_arguments('{_table_types_}');"),
 
         // Get the list of stored scripts, sorted alphabetically

@@ -29,7 +29,6 @@ import static CCDD.CcddConstants.EXPORT_ICON;
 import static CCDD.CcddConstants.INTERNAL_TABLE_PREFIX;
 import static CCDD.CcddConstants.MAX_SQL_NAME_LENGTH;
 import static CCDD.CcddConstants.OK_BUTTON;
-import static CCDD.CcddConstants.SCRIPTS_ICON;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -142,8 +141,6 @@ public class CcddTableManagerDialog extends CcddDialogHandler
     private JTextField versionFld;
     private JTextField validStatFld;
     private JTextField classFld;
-    private JCheckBox useExternalCBox;
-    private JTextField scriptNameFld;
     private JTextField pathFld;
 
     // Group selection change in progress flag
@@ -755,8 +752,6 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                                                                                                      : null),
                                                                                (classFld != null ? classFld.getText()
                                                                                                  : null),
-                                                                               (useExternalCBox != null ? useExternalCBox.isSelected() : false),
-                                                                               (scriptNameFld != null ? scriptNameFld.getText() : null),
                                                                                CcddTableManagerDialog.this);
                             }
 
@@ -1680,12 +1675,12 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 gbc.gridx++;
                 includePnl.add(includeAssociationsCb, gbc);
 
-                // Create the table definitions inclusion check box
-                includeTlmSchedCB = new JCheckBox("Tlm Scheduler");
+                // Create the telemetry scheduler inclusion check box
+                includeTlmSchedCB = new JCheckBox("Telemetry scheduler");
                 includeTlmSchedCB.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 includeTlmSchedCB.setBorder(emptyBorder);
 
-                // This checkbox is only usable during a JSON export
+                // This check box is only usable during a JSON export
                 if ((fileExtn != FileExtension.JSON) && (fileExtn != FileExtension.CSV))
                 {
                     includeTlmSchedCB.setEnabled(false);
@@ -1698,12 +1693,12 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 gbc.gridy++;
                 includePnl.add(includeTlmSchedCB, gbc);
 
-                // Create the table definitions inclusion check box
-                includeAppSchedCB = new JCheckBox("App Scheduler");
+                // Create the application scheduler inclusion check box
+                includeAppSchedCB = new JCheckBox("Application scheduler");
                 includeAppSchedCB.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 includeAppSchedCB.setBorder(emptyBorder);
 
-                // This checkbox is only usable during a JSON export
+                // This check box is only usable during a JSON export
                 if ((fileExtn != FileExtension.JSON) && (fileExtn != FileExtension.CSV))
                 {
                     includeAppSchedCB.setEnabled(false);
@@ -1719,8 +1714,8 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                 includeBuildInfoCb = new JCheckBox("Build information");
                 includeBuildInfoCb.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
                 includeBuildInfoCb.setBorder(emptyBorder);
-                includeBuildInfoCb.setToolTipText(CcddUtilities.wrapText("If checked, the build information will be "
-                                                                         + "added to each file",
+                includeBuildInfoCb.setToolTipText(CcddUtilities.wrapText("If checked, the build information will "
+                                                                         + "be added to each file",
                                                                          ModifiableSizeInfo.MAX_TOOL_TIP_LENGTH.getSize()));
                 gbc.gridx = 0;
                 gbc.gridy++;
@@ -1932,103 +1927,6 @@ public class CcddTableManagerDialog extends CcddDialogHandler
             // Check if exporting in XTCE XML format
             if (dialogType == ManagerDialogType.EXPORT_XTCE)
             {
-                // Create a panel to contain the script file components
-                JPanel scriptPnl = new JPanel(new GridBagLayout());
-
-                // Create the use external (script) methods check box
-                useExternalCBox = new JCheckBox("Use external methods");
-                useExternalCBox.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
-                useExternalCBox.setBorder(emptyBorder);
-                gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2;
-                gbc.insets.right = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2;
-                scriptPnl.add(useExternalCBox, gbc);
-
-                final JLabel scriptNameLbl = new JLabel("Enter script file name");
-                scriptNameLbl.setFont(ModifiableFontInfo.LABEL_BOLD.getFont());
-                scriptNameLbl.setEnabled(false);
-                gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() * 3;
-                gbc.gridx++;
-                scriptPnl.add(scriptNameLbl, gbc);
-                scriptNameFld = new JTextField(ccddMain.getProgPrefs().get(ModifiablePathInfo.XTCE_EXPORT_SCRIPT.getPreferenceKey(), ""), 10);
-                scriptNameFld.setFont(ModifiableFontInfo.INPUT_TEXT.getFont());
-                scriptNameFld.setEditable(true);
-                scriptNameFld.setForeground(ModifiableColorInfo.INPUT_TEXT.getColor());
-                scriptNameFld.setBackground(ModifiableColorInfo.INPUT_BACK.getColor());
-                scriptNameFld.setBorder(border);
-                scriptNameFld.setEnabled(false);
-                gbc.insets.left = ModifiableSpacingInfo.LABEL_HORIZONTAL_SPACING.getSpacing() / 2;
-                gbc.fill = GridBagConstraints.BOTH;
-                gbc.weightx = 1.0;
-                gbc.gridx++;
-                scriptPnl.add(scriptNameFld, gbc);
-
-                // Create a button for choosing an output script
-                final JButton btnSelectScript = CcddButtonPanelHandler.createButton("Select...",
-                                                                                    SCRIPTS_ICON,
-                                                                                    KeyEvent.VK_S,
-                                                                                    "Open the script selection dialog");
-                btnSelectScript.setEnabled(false);
-
-                // Add a listener for the Select script button
-                btnSelectScript.addActionListener(new ActionListener()
-                {
-                    /******************************************************************************
-                     * Select a script
-                     *****************************************************************************/
-                    @Override
-                    public void actionPerformed(ActionEvent ae)
-                    {
-                        // Allow the user to select the script file path + name
-                        FileEnvVar[] scriptFile = new CcddDialogHandler().choosePathFile(ccddMain,
-                                                                                         CcddTableManagerDialog.this,
-                                                                                         null,
-                                                                                         "script",
-                                                                                         ccddMain.getScriptHandler().getExtensions(),
-                                                                                         false,
-                                                                                         "Select Script",
-                                                                                         ccddMain.getProgPrefs().get(ModifiablePathInfo.SCRIPT_PATH.getPreferenceKey(),
-                                                                                                                     null),
-                                                                                         DialogOption.OK_CANCEL_OPTION);
-
-                        // Check if a script file is selected
-                        if (scriptFile != null && scriptFile[0] != null)
-                        {
-                            // Display the file name in the script name field
-                            scriptNameFld.setText(scriptFile[0].getAbsolutePathWithEnvVars());
-
-                            // Store the XTCE export script file name
-                            ccddMain.getProgPrefs().put(ModifiablePathInfo.XTCE_EXPORT_SCRIPT.getPreferenceKey(),
-                                                        scriptNameFld.getText());
-                        }
-                    }
-                });
-
-                // Add the select script button to the dialog
-                gbc.weightx = 0.0;
-                gbc.gridx++;
-                scriptPnl.add(btnSelectScript, gbc);
-
-                // Add a listener for the variable paths check box selection changes
-                useExternalCBox.addActionListener(new ActionListener()
-                {
-                    /******************************************************************************
-                     * Respond to changes in selection of the include variable paths check box
-                     *****************************************************************************/
-                    @Override
-                    public void actionPerformed(ActionEvent ae)
-                    {
-                        // Enable/disable the separator inputs based on the inclusion check box
-                        // state
-                        scriptNameLbl.setEnabled(((JCheckBox) ae.getSource()).isSelected());
-                        scriptNameFld.setEnabled(((JCheckBox) ae.getSource()).isSelected());
-                        btnSelectScript.setEnabled(((JCheckBox) ae.getSource()).isSelected());
-                    }
-                });
-
-                gbc.gridx = 0;
-                gbc.gridy++;
-                dialogPnl.add(scriptPnl, gbc);
-
                 // Create the panels to hold the XTCE components of the dialog
                 JPanel infoPnl = new JPanel(new GridBagLayout());
 
@@ -2646,20 +2544,6 @@ public class CcddTableManagerDialog extends CcddDialogHandler
                             throw new CCDDException("System data field name, version, "
                                                     + "validation status, and/or "
                                                     + "classification missing");
-                        }
-
-                        // Check if external (script) methods are to be used
-                        if (useExternalCBox.isSelected())
-                        {
-                            // Remove any excess white space
-                            scriptNameFld.setText(scriptNameFld.getText().trim());
-
-                            // Check if the script file name field is blank
-                            if (scriptNameFld.getText().isEmpty())
-                            {
-                                // Inform the user that the script file name is missing
-                                throw new CCDDException("Script file name missing");
-                            }
                         }
                     }
                     break;

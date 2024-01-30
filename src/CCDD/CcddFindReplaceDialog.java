@@ -604,6 +604,7 @@ public class CcddFindReplaceDialog extends CcddDialogHandler
             searchPattern = CcddSearchHandler.createSearchPattern(searchFld.getText(),
                                                                   ignoreCaseCb.isSelected(),
                                                                   allowRegexCb.isSelected(),
+                                                                  false,
                                                                   CcddFindReplaceDialog.this);
 
             // Highlight the matching text in the table cells

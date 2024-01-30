@@ -7123,11 +7123,12 @@ public class CcddDbTableCommandHandler
         {
             // Inform the user that the database command failed
             eventLog.logFailEvent(parent,
-                                  "SQL command failed cause "
+                                  "SQL command to update message name and ID references failed; cause '"
                                   + se.getMessage()
-                                  + ".",
-                                  "<html><b>SQL command failed</b>");
+                                  + "'",
+                                  "<html><b>SQL command to update message name and ID references failed</b>");
         }
+
         return result;
     }
 
@@ -7695,12 +7696,12 @@ public class CcddDbTableCommandHandler
         {
             // Inform the user that storing the internal table comment failed
             eventLog.logFailEvent(parent,
-                                  "Failed to store internal table '"
+                                  "Cannot store internal table '"
                                   + tableName
                                   + "'; cause '"
                                   + se.getMessage()
                                   + "'",
-                                  "<html><b>Failed to store internal table '</b>"
+                                  "<html><b>Cannot store internal table '</b>"
                                   + tableName
                                   + "<b>'");
             errorFlag = true;
@@ -7809,12 +7810,12 @@ public class CcddDbTableCommandHandler
         {
             // Inform the user that storing the internal table comment failed
             eventLog.logFailEvent(parent,
-                                  "Failed to store internal table '"
+                                  "Cannot store internal table '"
                                   + InternalTable.TABLE_TYPES.getTableName()
                                   + "'; cause '"
                                   + se.getMessage()
                                   + "'",
-                                  "<html><b>Failed to store internal table '</b>"
+                                  "<html><b>Cannot store internal table '</b>"
                                   + InternalTable.TABLE_TYPES.getTableName()
                                   + "<b>'");
             errorFlag = true;

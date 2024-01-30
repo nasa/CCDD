@@ -389,7 +389,7 @@ public class CcddEDSHandler extends CcddImportExportSupportHandler implements Cc
 
             if (!(jaxbElement.getValue() instanceof DataSheetType))
             {
-                throw new CCDDException("No dataSheet found in EDS file");
+                throw new CCDDException("No DataSheet found in EDS file");
             }
 
             // Get the data sheet reference
@@ -1513,11 +1513,12 @@ public class CcddEDSHandler extends CcddImportExportSupportHandler implements Cc
      *
      * @param typeDefn         Table type definition
      *
-     * @param tablePath        Table path and name
+     * @param tablePath        Table path and name (not used for EDS)
      *
      * @param tableName        Table name
      *
-     * @param messageFieldName Message name and ID field name; null if not present or not applicable
+     * @param messageFieldName Message name and ID field name; null if not present or not
+     *                         applicable
      *
      * @param messageNameAndID Message name and ID; null if not present or not applicable
      *
@@ -1700,7 +1701,8 @@ public class CcddEDSHandler extends CcddImportExportSupportHandler implements Cc
                         && (rowData[enumColumn] == null || !rowData[enumColumn].isEmpty()))
                     {
                         // Store the enumeration in the short description
-                        enumerationInfo = rowData[enumColumn] == null ? new String[] {""} : cleanUpEnumeration(rowData[enumColumn]);
+                        enumerationInfo = rowData[enumColumn] == null ? new String[] {""}
+                                                                      : cleanUpEnumeration(rowData[enumColumn]);
                         setKeyValuePair(parameter, ENUMERATION_KEY, enumerationInfo[0]);
                     }
 
@@ -1793,7 +1795,8 @@ public class CcddEDSHandler extends CcddImportExportSupportHandler implements Cc
      *
      * @param arraySize       Parameter array size
      *
-     * @param enumerationInfo String array where the first member is the {@literal enumeration in the format <enum value><enum value separator><enum label>[<enum value separator>...][<enum pair separator>...]},
+     * @param enumerationInfo String array where the first member is the enumeration in the format
+     *                        {@literal <enum value><enum value separator><enum label>[<enum value separator>...][<enum pair separator>...]},
      *                        the second member is the value separator character(s), and the third
      *                        member is the value pair separator character(s) (null if only a
      *                        single pair is provided)

@@ -696,6 +696,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
             Pattern searchPattern = CcddSearchHandler.createSearchPattern(searchText,
                                                                           false,
                                                                           Boolean.valueOf(allowRegEx),
+                                                                          false,
                                                                           null);
 
             // Check if the search pattern is valid
@@ -1094,7 +1095,7 @@ public class CcddWebDataAccessHandler extends AbstractHandler
                     for (String tableName : getTableList())
                     {
                         // Locate the table's prototype in the list
-                        int index = protoNamesAndTableTypes.indexOf((Object) tableName.replaceFirst(",.*$", ""));
+                        int index = protoNamesAndTableTypes.indexOf(tableName.replaceFirst(",.*$", ""));
 
                         // Check if the root table name matches that in the types list
                         if (type.equalsIgnoreCase(protoNamesAndTableTypes.get(index)[2]))

@@ -2453,8 +2453,8 @@ public class CcddDbControlHandler
                                       "<html><b>Cannot connect to "
                                       + (activeDatabase.equals(DEFAULT_DATABASE) ? "server"
                                                                                  : "project '</b>"
-                                      + projectName
-                                      + "<b>'"));
+                                                                                    + projectName
+                                                                                    + "<b>'"));
             }
 
             errorFlag = true;
@@ -3221,8 +3221,8 @@ public class CcddDbControlHandler
                                       "<html><b>Cannot close "
                                       + (activeDatabase.equals(DEFAULT_DATABASE) ? "server connection"
                                                                                  : "project '</b>"
-                                      + activeProject
-                                      + "<b>'"));
+                                                                                   + activeProject
+                                                                                   + "<b>'"));
             }
         }
 
@@ -3271,8 +3271,8 @@ public class CcddDbControlHandler
     protected void backupDatabaseInBackground(final String projectName, final FileEnvVar backupFile)
     {
 
-        // Try Acquire the semaphore here outside of the worker thread. This is because the program
-        // may exit before the thread actually begins to run
+        // Try to acquire the semaphore here outside of the worker thread. This is because the
+        // program may exit before the thread actually begins to run
         try
         {
             ImmutablePair<Semaphore, Integer> pair = ccddMain.getSemMap().get(BACKUP_KEY);
@@ -3280,7 +3280,7 @@ public class CcddDbControlHandler
             if (!pair.left.tryAcquire(pair.right, TimeUnit.SECONDS))
             {
                 ccddMain.getSessionEventLog().logFailEvent(ccddMain.getMainFrame(),
-                                                           "Backup Operation Failed: Cause - Failed to "
+                                                           "Backup operation failed: Cause - Failed to "
                                                            + "acquire the backup task semaphore",
                                                            "<html><b>Failed to acquire the backup task semaphore</b>");
                 return;
@@ -3450,9 +3450,9 @@ public class CcddDbControlHandler
         String errorType = "";
 
         // Create the names for the restored project and database
-        String restoreProjectName = projectName + (overwriteExisting ? "" : "_restored");
-        String restoreDatabaseName = convertProjectNameToDatabase(projectName)
-                                     + (overwriteExisting ? "" : "_restored");
+        String names[] = getRestoreNames(projectName, overwriteExisting);
+        String restoreProjectName = names[0];
+        String restoreDatabaseName = names[1];
 
         // Get the list of available databases
         String[] databases = queryDatabaseList(ccddMain.getMainFrame());
@@ -3577,6 +3577,63 @@ public class CcddDbControlHandler
                                   + projectName
                                   + "<b>' restore failed");
         }
+    }
+
+    /**********************************************************************************************
+     * Get the project and database names when restoring a database. If overwriteExisting is false
+     * then check if the server already has a database matching the project name. If so, indicate
+     * that this is a restored database and, if needed, amend the name so that it is unique
+     *
+     * @param projectName       Name of the project to restore (preserving case and special
+     *                          characters)
+     *
+     * @param overwriteExisting True to overwrite the existing project database; false to create a
+     *                          new database ion which to restore the backup file contents
+     *********************************************************************************************/
+    protected String[] getRestoreNames(String projectName, boolean overwriteExisting)
+    {
+        // Create the names for the restored project and database
+        String restoreProjectName = projectName + (overwriteExisting ? "" : "_restored");
+        String restoreDatabaseName = convertProjectNameToDatabase(projectName)
+                                     + (overwriteExisting ? "" : "_restored");
+
+        // Get the list of available databases
+        String[] databases = queryDatabaseList(ccddMain.getMainFrame());
+
+        boolean isMatch = !overwriteExisting;
+        int seqNum = 0;
+        String seqName = "";
+
+        // Continue to check for name matches until the restored database name is unique
+        while (isMatch)
+        {
+            isMatch = false;
+
+            // Step through each existing database name
+            for (String name : databases)
+            {
+                // Check if the name of the restored database name matches that of another database
+                if ((restoreDatabaseName + seqName).equals(name.split(DATABASE_COMMENT_SEPARATOR, 2)[0]))
+                {
+                    // Increment the sequence number and set the flag to indicate a match was
+                    // found. Repeat the process in case this amended name is also a match
+                    seqNum++;
+                    seqName = "_" + seqNum;
+                    isMatch = true;
+                    break;
+                }
+            }
+        }
+
+        // Check if a sequence number is needed to differentiate the database name
+        if (!seqName.isEmpty())
+        {
+            // Add the sequence number to the names
+            restoreProjectName += seqName;
+            restoreDatabaseName += seqName;
+        }
+
+        return new String[] {restoreProjectName, restoreDatabaseName};
     }
 
     /**********************************************************************************************

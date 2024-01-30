@@ -57,7 +57,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.SQLException;
@@ -70,7 +69,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import javax.script.ScriptEngine;
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
@@ -141,7 +139,6 @@ public class CcddFileIOHandler
     private List<CcddTableEditorDialog> tableEditorDlgs;
     private final CcddEventLogDialog eventLog;
     private CcddHaltDialog haltDlg;
-    private boolean errorFlag;
 
     // Regular expression match for acceptable file name characters
     private String allowedFileChars = "[^a-zA-Z0-9_\\.]";
@@ -178,9 +175,10 @@ public class CcddFileIOHandler
     }
 
     /**********************************************************************************************
-     * Display the user's guide. The guide file must be located in the same folder as the .jar
-     * file. This command is executed in a separate thread since it may take a noticeable amount
-     * time to complete, and by using a separate thread the GUI is allowed to continue to update
+     * Display the user's guide. The default location checked for the guide file is the same folder
+     * as the .jar file. The path cab be set in the program Preferences dialog.This command is
+     * executed in a separate thread since it may take a noticeable amount time to complete, and by
+     * using a separate thread the GUI is allowed to continue to update
      *********************************************************************************************/
     protected void displayUsersGuide()
     {
@@ -202,19 +200,13 @@ public class CcddFileIOHandler
                         throw new CCDDException("Desktop class unsupported");
                     }
 
-                    // Get the path+name of the .jar file in a format acceptable to all OS's. The
-                    // user's guide is expected to be found in the same folder as the .jar file
-                    String path = URLDecoder.decode(new File(CcddMain.class.getProtectionDomain()
-                                                                           .getCodeSource()
-                                                                           .getLocation()
-                                                                           .getPath()).getAbsolutePath(), "UTF-8");
+                    File guide = new File(ModifiablePathInfo.USERS_GUIDE_FILE_PATH.getPath()
+                                          + File.separator
+                                          + USERS_GUIDE);
 
                     // Display the user's guide - replace the .jar file name with the user's guide
                     // name
-                    Desktop.getDesktop().open(new File(path.substring(0,
-                                                                      path.lastIndexOf(File.separator) + 1)
-                                                       + "Docs/"
-                                                       + USERS_GUIDE));
+                    Desktop.getDesktop().open(guide);
                 }
                 catch (Exception e)
                 {
@@ -404,17 +396,10 @@ public class CcddFileIOHandler
     }
 
     /**********************************************************************************************
-     * Restore a project's database from a user-selected backup file. The backup is a plain text
-     * file containing the PostgreSQL commands necessary to rebuild the database
-     *********************************************************************************************/
-    protected void restoreDatabaseFromDBU()
-    {
-        restoreDatabaseFromDBU(null, null, null, null);
-    }
-
-    /**********************************************************************************************
      * Restore a project's database from a specified or user-selected backup file. The backup is a
      * plain text file containing the PostgreSQL commands necessary to rebuild the database
+     *
+     * @param restoreFileType    Restore file type (CSV, DBU, or JSON)
      *
      * @param restoreFileName    Name of the backup file to restore; null to allow the user to
      *                           choose a file
@@ -428,10 +413,11 @@ public class CcddFileIOHandler
      * @param projectDescription Description of the project to restore; null to extract the
      *                           description from the backup file's database comment
      *********************************************************************************************/
-    protected void restoreDatabaseFromDBU(String restoreFileName,
-                                          String projectName,
-                                          String projectOwner,
-                                          String projectDescription)
+    protected void restoreDatabase(FileExtension restoreFileType,
+                                   String restoreFileName,
+                                   String projectName,
+                                   String projectOwner,
+                                   String projectDescription)
     {
         // Check if a blank backup file name is provided
         if (restoreFileName != null && restoreFileName.isEmpty())
@@ -463,7 +449,6 @@ public class CcddFileIOHandler
         // blank)
         if (isPasswordSet)
         {
-            File tempFile = null;
             FileEnvVar[] dataFile = null;
 
             // Check if the name of the backup file name to restore isn't provided
@@ -474,9 +459,9 @@ public class CcddFileIOHandler
                                                                   ccddMain.getMainFrame(),
                                                                   null,
                                                                   null,
-                                                                  new FileNameExtensionFilter[] {new FileNameExtensionFilter(FileExtension.DBU.getDescription(),
-                                                                                                                             FileExtension.DBU.getExtensionName())},
-                                                                  false,
+                                                                  new FileNameExtensionFilter[] {new FileNameExtensionFilter(restoreFileType.getDescription(),
+                                                                                                                             restoreFileType.getExtensionName())},
+                                                                  (restoreFileType == FileExtension.DBU ? false : true),
                                                                   "Restore Project",
                                                                   ccddMain.getProgPrefs().get(ModifiablePathInfo.DATABASE_BACKUP_PATH.getPreferenceKey(), null),
                                                                   DialogOption.RESTORE_OPTION);
@@ -491,32 +476,9 @@ public class CcddFileIOHandler
             // Check if a file was chosen
             if (dataFile != null && dataFile[0] != null)
             {
-                boolean isProjectNameValid = projectName != null && !projectName.isEmpty();
-                boolean isProjectDescValid = projectDescription != null && !projectDescription.isEmpty();
-                boolean nameDescProvided = isProjectNameValid && isProjectDescValid;
-                boolean commentFound = false;
-                boolean backupDBUInfoFound = false;
-                String backupDBUInfo = "";
-                BufferedReader br = null;
-                BufferedWriter bw = null;
-
-                try
+                // Check if the file exists
+                if (dataFile[0].exists())
                 {
-                    // Check if the file doesn't exist
-                    if (!dataFile[0].exists())
-                    {
-                        throw new CCDDException("Cannot locate backup file '</b>"
-                                                + dataFile[0].getAbsolutePath()
-                                                + "'");
-                    }
-
-                    boolean inComment = false;
-                    boolean inBackupDatabaseInfoTable = false;
-                    boolean inUsers = false;
-                    boolean isOwnerAdmin = false;
-                    String line = null;
-                    String commentText = "";
-
                     // Check if no project owner is provided
                     if (projectOwner == null)
                     {
@@ -524,325 +486,402 @@ public class CcddFileIOHandler
                         projectOwner = dbControl.getUser();
                     }
 
-                    // Create a temporary file in which to copy the backup file contents
-                    tempFile = File.createTempFile(dataFile[0].getName(), "");
-
-                    // Create a buffered reader to read the file and a buffered writer to write the
-                    // file
-                    br = new BufferedReader(new FileReader(dataFile[0]));
-                    bw = new BufferedWriter(new FileWriter(tempFile));
-
-                    // Read each line in the backup file
-                    while ((line = br.readLine()) != null)
+                    // Check if this is a DBU backup file
+                    if (restoreFileType == FileExtension.DBU)
                     {
-                        // Check if this line is not a continuance of the database comment
-                        if (!inComment && !inBackupDatabaseInfoTable)
-                        {
-                            // Check if this line creates the plpgsql language
-                            if (line.equals("CREATE PROCEDURAL LANGUAGE plpgsql;")
-                                || line.equals("CREATE OR REPLACE PROCEDURAL LANGUAGE plpgsql;"))
-                            {
-                                // Add the command to first drop the language. This allows backups
-                                // created from PostgreSQL versions 8.4 and earlier to be restored
-                                // in version 9.0 and subsequent without generating an error
-                                line = "DROP LANGUAGE IF EXISTS plpgsql;\nCREATE PROCEDURAL LANGUAGE plpgsql;";
-
-                                // Check if the PostgeSQL version is 9 or higher
-                                if (dbControl.getPostgreSQLMajorVersion() > 8)
-                                {
-                                    // Add the command to drop the language extension; this is
-                                    // necessary in order for the language to be dropped in
-                                    // PostgreSQL 9+
-                                    line = "DROP EXTENSION plpgsql;\n" + line;
-                                }
-                            }
-                            // Check if this line adds a comment to the plpgsql language
-                            else if (line.startsWith("COMMENT ON EXTENSION plpgsql"))
-                            {
-                                // Ignore the comment; this can cause an ownership error and the
-                                // comment isn't needed
-                                line = "";
-                            }
-                            // Check if this is the beginning of the command to populate the user
-                            // access level table
-                            else if (line.matches("COPY (?:[^\\.]+\\.)?" + InternalTable.USERS.getTableName() + " .+"))
-                            {
-                                // Set the flag to indicate the following lines contain the user
-                                // access level information
-                                inUsers = true;
-                            }
-                            // Check if this line follows the command to populate the user access
-                            // level table
-                            else if (inUsers)
-                            {
-                                // Check if this line defines a user's access level
-                                if (line.matches("[^\\s]+\\s+.+"))
-                                {
-                                    if (line.matches(projectOwner + "+\\s+.+"))
-                                    {
-                                        // Set the flag to indicate the project owner is already in
-                                        // the user access level table
-                                        isOwnerAdmin = true;
-
-                                        // Make the project owner an administrator for the restored
-                                        // project
-                                        line.replaceFirst("(.+\\s+).+$", "$1" + AccessLevel.ADMIN.getDisplayName());
-                                    }
-                                }
-                                // The last user access level definition was reached
-                                else
-                                {
-                                    // Set the flag so that subsequent lines are not considered a
-                                    // user access level definition
-                                    inUsers = false;
-
-                                    // Check if the owner for the restored project is not in the
-                                    // user access level table
-                                    if (!isOwnerAdmin)
-                                    {
-                                        // Add the project owner as an administrator for the
-                                        // restored project
-                                        line = projectOwner
-                                               + "\t"
-                                               + AccessLevel.ADMIN.getDisplayName()
-                                               + "\n"
-                                               + line;
-                                    }
-                                }
-                            }
-                            // Check if this line is a SQL command that revokes permissions for an
-                            // owner other than PUBLIC
-                            else if (line.matches("REVOKE .+ FROM .+;\\s*")
-                                     && !line.matches("REVOKE .+ FROM PUBLIC;\\s*"))
-                            {
-                                // Change the original owner to the current user
-                                line = line.replaceFirst("FROM .+;", "FROM " + projectOwner + ";");
-                            }
-                            // Check if this line is a SQL command that grants permissions to an
-                            // owner other than PUBLIC
-                            else if (line.matches("GRANT .+ TO .+;\\s*")
-                                     && !line.matches("GRANT .+ TO PUBLIC;\\s*"))
-                            {
-                                // Change the original owner to the current user
-                                line = line.replaceFirst("TO .+;", "TO " + projectOwner + ";");
-                            }
-
-                            // Check if the database comment hasn't been found already and that the
-                            // line contains the comment information
-                            if (!commentFound
-                                && line.matches("COMMENT ON DATABASE .+ IS '"
-                                                + CCDD_PROJECT_IDENTIFIER
-                                                + ".+"))
-                            {
-                                commentFound = true;
-                                inComment = true;
-                            }
-                            else if (!commentFound && line.matches("COPY public.__dbu_info .+"))
-                            {
-                                // Here is where I look for dbu info
-                                inBackupDatabaseInfoTable = true;
-                            }
-                        }
-
-                        if (inBackupDatabaseInfoTable && !line.matches("COPY public.__dbu_info .+"))
-                        {
-                            backupDBUInfo = line;
-                            inBackupDatabaseInfoTable = false;
-                            backupDBUInfoFound = true;
-                        }
-
-                        // Check if this line is the beginning or a continuance of the database
-                        // comment
-                        if (inComment)
-                        {
-                            // Begin, or append the continuance of the database description, to the
-                            // database comment command text
-                            commentText += (commentText.isEmpty() ? "" : "\n") + line;
-
-                            // Insert a comment indicator into the file so that this line isn't
-                            // executed when the database is restored
-                            line = "-- " + line;
-
-                            // Set the flag to true if the comment continues to the next line
-                            inComment = !line.endsWith(";");
-                        }
-
-                        // Write the line to the temporary file
-                        if ((!line.matches("SET lock_timeout .+"))
-                            && (!line.matches("-- Dumped .+"))
-                            && (!line.matches("SET idle_in_transaction_session_timeout .+"))
-                            && (!line.matches("SET xmloption.+"))
-                            && (!line.matches("SET row_security .+"))
-                            && (!line.matches("    AS integer")))
-                        {
-                            bw.write(line + "\n");
-                        }
+                        restoreDatabaseFromDBU(dataFile,
+                                               (restoreFileName != null),
+                                               projectName,
+                                               projectOwner,
+                                               projectDescription);
                     }
-
-                    // Check if the project name and description exist
-                    if (commentFound || nameDescProvided || backupDBUInfoFound)
-                    {
-                        String projectAdministrator = "";
-
-                        // Flush the output file buffer so that none of the contents are lost
-                        bw.flush();
-
-                        // Check if the database name and description aren't provided explicitly,
-                        // and a comment was extracted from the backup file
-                        if (!nameDescProvided && commentFound)
-                        {
-                            // Extract the database name from the comment
-                            String databaseName = commentText.replaceAll("(?s)COMMENT ON DATABASE (.+) IS '"
-                                                                         + CCDD_PROJECT_IDENTIFIER + ".+",
-                                                                         "$1");
-                            commentText = commentText.replaceAll("(?s)COMMENT ON DATABASE .+ IS '"
-                                                                 + CCDD_PROJECT_IDENTIFIER + "(.+)';$",
-                                                                 "$1");
-
-                            // Split the line read from the file in order to get the project name
-                            // and description
-                            String[] comment = dbControl.parseDatabaseComment(databaseName, commentText);
-
-                            // Extract the project name (with case preserved) and description, and
-                            // set the flag indicating the comment is located
-                            projectName = comment[DatabaseComment.PROJECT_NAME.ordinal()];
-                            projectAdministrator = comment[DatabaseComment.ADMINS.ordinal()];
-                            projectDescription = comment[DatabaseComment.DESCRIPTION.ordinal()];
-                        }
-                        else if (!nameDescProvided && backupDBUInfoFound)
-                        {
-                            // Split the line read from the file in order to get the project
-                            // information
-                            String[] comment = new String[4];
-                            String[] temp = backupDBUInfo.replace("\n", "").split("\t");
-                            System.arraycopy(temp, 0, comment, 0, 4);
-
-                            // Extract the project name (with case preserved) and description, and
-                            // set the flag indicating the comment is located
-                            projectName = comment[DatabaseComment.PROJECT_NAME.ordinal()];
-                            projectAdministrator = comment[DatabaseComment.ADMINS.ordinal()];
-                            projectDescription = comment[DatabaseComment.DESCRIPTION.ordinal()];
-                        }
-
-                        // Check if the project owner isn't in the administrator list embedded in
-                        // the database comment
-                        if (!projectAdministrator.matches("(?:^|,)" + projectOwner + "(?:,|$)"))
-                        {
-                            // Add the project owner as an administrator
-                            projectAdministrator += (projectAdministrator.isEmpty() ? "" : ",")
-                                                    + projectOwner;
-                        }
-
-                        // Check if the backup file is restored via the command line
-                        if (restoreFileName != null)
-                        {
-                            // Restore the database from the temporary file. This file has the line
-                            // that disables creation of the database comment, which is handled
-                            // when the restored database is created
-                            dbControl.restoreDatabase(projectName,
-                                                      projectOwner,
-                                                      projectAdministrator,
-                                                      projectDescription,
-                                                      tempFile,
-                                                      true);
-                        }
-                        // The the backup file is restored via the GUI
-                        else
-                        {
-                            // Restore the database from the temporary file as a background
-                            // process. This file has the line that disables creation of the
-                            // database comment, which is handled when the restored database is
-                            // created
-                            dbControl.restoreDatabaseInBackground(projectName,
-                                                                  projectOwner,
-                                                                  projectAdministrator,
-                                                                  projectDescription,
-                                                                  tempFile,
-                                                                  false);
-                        }
-
-                        // Store the data file path in the program preferences backing store
-                        storePath(ccddMain,
-                                  dataFile[0].getAbsolutePathWithEnvVars(),
-                                  true,
-                                  ModifiablePathInfo.DATABASE_BACKUP_PATH);
-                    }
+                    // This is a CSV or JSON backup file
                     else
                     {
-                        // The project owner, name, and description don't exist
-                        throw new CCDDException("File '</b>"
-                                                + dataFile[0].getAbsolutePath()
-                                                + "'<b> is not a backup file");
+                        restoreDatabaseFromJSONOrCSV(dataFile,
+                                                     restoreFileType,
+                                                     projectName,
+                                                     projectOwner,
+                                                     projectOwner,
+                                                     projectDescription);
                     }
                 }
-                catch (CCDDException ce)
+                // The file doesn't exist
+                else
                 {
                     // Inform the user that the backup file error occurred
                     new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                              "<html><b>"
-                                                              + ce.getMessage(),
-                                                              "File Error",
-                                                              ce.getMessageType(),
-                                                              DialogOption.OK_OPTION);
-                }
-                catch (Exception e)
-                {
-                    // Inform the user that the backup file cannot be read
-                    new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                              "<html><b>Cannot read backup file '</b>"
+                                                              "<html><b>Cannot locate backup file '</b>"
                                                               + dataFile[0].getAbsolutePath()
-                                                              + "<b>'; cause '</b>"
-                                                              + e.getMessage()
-                                                              + "<b>'",
+                                                              + "'",
                                                               "File Error",
                                                               JOptionPane.ERROR_MESSAGE,
                                                               DialogOption.OK_OPTION);
                 }
-                finally
+            }
+        }
+    }
+
+    /**********************************************************************************************
+     * Restore a project's database from a specified or user-selected database backup (DBU) file.
+     * The backup is a plain text file containing the PostgreSQL commands necessary to rebuild the database
+     *
+     * @param dataFile           Restore file
+     *
+     * @param isCmdLine          True if the restore is initiated via a command line command
+     *
+     * @param projectName        Name of the project to restore; null to extract the project name
+     *                           from the backup file's database comment
+     *
+     * @param projectOwner       Owner of the project to restore; null to use the current user as
+     *                           the owner
+     *
+     * @param projectDescription Description of the project to restore; null to extract the
+     *                           description from the backup file's database comment
+     *********************************************************************************************/
+    private void restoreDatabaseFromDBU(FileEnvVar[] dataFile,
+                                        boolean isCmdLine,
+                                        String projectName,
+                                        String projectOwner,
+                                        String projectDescription)
+    {
+        File tempFile = null;
+
+        boolean isProjectNameValid = projectName != null && !projectName.isEmpty();
+        boolean isProjectDescValid = projectDescription != null && !projectDescription.isEmpty();
+        boolean nameDescProvided = isProjectNameValid && isProjectDescValid;
+        boolean commentFound = false;
+        boolean backupDBUInfoFound = false;
+        String backupDBUInfo = "";
+        BufferedReader br = null;
+        BufferedWriter bw = null;
+
+        try
+        {
+            boolean inComment = false;
+            boolean inBackupDatabaseInfoTable = false;
+            boolean inUsers = false;
+            boolean isOwnerAdmin = false;
+            String line = null;
+            String commentText = "";
+
+            // Create a temporary file in which to copy the backup file contents
+            tempFile = File.createTempFile(dataFile[0].getName(), "");
+
+            // Create a buffered reader to read the file and a buffered writer to write the
+            // file
+            br = new BufferedReader(new FileReader(dataFile[0]));
+            bw = new BufferedWriter(new FileWriter(tempFile));
+
+            // Read each line in the backup file
+            while ((line = br.readLine()) != null)
+            {
+                // Check if this line is not a continuance of the database comment
+                if (!inComment && !inBackupDatabaseInfoTable)
                 {
-                    try
+                    // Check if this line creates the plpgsql language
+                    if (line.equals("CREATE PROCEDURAL LANGUAGE plpgsql;")
+                        || line.equals("CREATE OR REPLACE PROCEDURAL LANGUAGE plpgsql;"))
                     {
-                        // Check if the input file is open
-                        if (br != null)
+                        // Add the command to first drop the language. This allows backups
+                        // created from PostgreSQL versions 8.4 and earlier to be restored
+                        // in version 9.0 and subsequent without generating an error
+                        line = "DROP LANGUAGE IF EXISTS plpgsql;\nCREATE PROCEDURAL LANGUAGE plpgsql;";
+
+                        // Check if the PostgeSQL version is 9 or higher
+                        if (dbControl.getPostgreSQLMajorVersion() > 8)
                         {
-                            // Close the input file
-                            br.close();
+                            // Add the command to drop the language extension; this is
+                            // necessary in order for the language to be dropped in
+                            // PostgreSQL 9+
+                            line = "DROP EXTENSION plpgsql;\n" + line;
                         }
                     }
-                    catch (IOException ioe)
+                    // Check if this line adds a comment to the plpgsql language
+                    else if (line.startsWith("COMMENT ON EXTENSION plpgsql"))
                     {
-                        // Inform the user that the input file cannot be closed
-                        new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                                  "<html><b>Cannot close backup file '</b>"
-                                                                  + dataFile[0].getAbsolutePath()
-                                                                  + "<b>'",
-                                                                  "File Warning",
-                                                                  JOptionPane.WARNING_MESSAGE,
-                                                                  DialogOption.OK_OPTION);
+                        // Ignore the comment; this can cause an ownership error and the
+                        // comment isn't needed
+                        line = "";
                     }
-                    finally
+                    // Check if this is the beginning of the command to populate the user
+                    // access level table
+                    else if (line.matches("COPY (?:[^\\.]+\\.)?" + InternalTable.USERS.getTableName() + " .+"))
                     {
-                        try
+                        // Set the flag to indicate the following lines contain the user
+                        // access level information
+                        inUsers = true;
+                    }
+                    // Check if this line follows the command to populate the user access
+                    // level table
+                    else if (inUsers)
+                    {
+                        // Check if this line defines a user's access level
+                        if (line.matches("[^\\s]+\\s+.+"))
                         {
-                            // Check if the output file is open
-                            if (bw != null)
+                            if (line.matches(projectOwner + "+\\s+.+"))
                             {
-                                // Close the output file
-                                bw.close();
+                                // Set the flag to indicate the project owner is already in
+                                // the user access level table
+                                isOwnerAdmin = true;
+
+                                // Make the project owner an administrator for the restored
+                                // project
+                                line.replaceFirst("(.+\\s+).+$", "$1" + AccessLevel.ADMIN.getDisplayName());
                             }
                         }
-                        catch (IOException ioe)
+                        // The last user access level definition was reached
+                        else
                         {
-                            // Inform the user that the output file cannot be closed
-                            new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                       "<html><b>Cannot close backup file '</b>"
-                                                       + tempFile.getAbsolutePath()
-                                                       + "<b>'",
-                                                       "File Warning",
-                                                       JOptionPane.WARNING_MESSAGE,
-                                                       DialogOption.OK_OPTION);
+                            // Set the flag so that subsequent lines are not considered a
+                            // user access level definition
+                            inUsers = false;
+
+                            // Check if the owner for the restored project is not in the
+                            // user access level table
+                            if (!isOwnerAdmin)
+                            {
+                                // Add the project owner as an administrator for the
+                                // restored project
+                                line = projectOwner
+                                       + "\t"
+                                       + AccessLevel.ADMIN.getDisplayName()
+                                       + "\n"
+                                       + line;
+                            }
                         }
                     }
+                    // Check if this line is a SQL command that revokes permissions for an
+                    // owner other than PUBLIC
+                    else if (line.matches("REVOKE .+ FROM .+;\\s*")
+                             && !line.matches("REVOKE .+ FROM PUBLIC;\\s*"))
+                    {
+                        // Change the original owner to the current user
+                        line = line.replaceFirst("FROM .+;", "FROM " + projectOwner + ";");
+                    }
+                    // Check if this line is a SQL command that grants permissions to an
+                    // owner other than PUBLIC
+                    else if (line.matches("GRANT .+ TO .+;\\s*")
+                             && !line.matches("GRANT .+ TO PUBLIC;\\s*"))
+                    {
+                        // Change the original owner to the current user
+                        line = line.replaceFirst("TO .+;", "TO " + projectOwner + ";");
+                    }
+
+                    // Check if the database comment hasn't been found already and that the
+                    // line contains the comment information
+                    if (!commentFound
+                        && line.matches("COMMENT ON DATABASE .+ IS '"
+                                        + CCDD_PROJECT_IDENTIFIER
+                                        + ".+"))
+                    {
+                        commentFound = true;
+                        inComment = true;
+                    }
+                    else if (!commentFound && line.matches("COPY public.__dbu_info .+"))
+                    {
+                        // Here is where I look for dbu info
+                        inBackupDatabaseInfoTable = true;
+                    }
+                }
+
+                if (inBackupDatabaseInfoTable && !line.matches("COPY public.__dbu_info .+"))
+                {
+                    backupDBUInfo = line;
+                    inBackupDatabaseInfoTable = false;
+                    backupDBUInfoFound = true;
+                }
+
+                // Check if this line is the beginning or a continuance of the database
+                // comment
+                if (inComment)
+                {
+                    // Begin, or append the continuance of the database description, to the
+                    // database comment command text
+                    commentText += (commentText.isEmpty() ? "" : "\n") + line;
+
+                    // Insert a comment indicator into the file so that this line isn't
+                    // executed when the database is restored
+                    line = "-- " + line;
+
+                    // Set the flag to true if the comment continues to the next line
+                    inComment = !line.endsWith(";");
+                }
+
+                // Write the line to the temporary file
+                if ((!line.matches("SET lock_timeout .+"))
+                    && (!line.matches("-- Dumped .+"))
+                    && (!line.matches("SET idle_in_transaction_session_timeout .+"))
+                    && (!line.matches("SET xmloption.+"))
+                    && (!line.matches("SET row_security .+"))
+                    && (!line.matches("    AS integer")))
+                {
+                    bw.write(line + "\n");
+                }
+            }
+
+            // Check if the project name and description exist
+            if (commentFound || nameDescProvided || backupDBUInfoFound)
+            {
+                String projectAdministrator = "";
+
+                // Flush the output file buffer so that none of the contents are lost
+                bw.flush();
+
+                // Check if the database name and description aren't provided explicitly,
+                // and a comment was extracted from the backup file
+                if (!nameDescProvided && commentFound)
+                {
+                    // Extract the database name from the comment
+                    String databaseName = commentText.replaceAll("(?s)COMMENT ON DATABASE (.+) IS '"
+                                                                 + CCDD_PROJECT_IDENTIFIER + ".+",
+                                                                 "$1");
+                    commentText = commentText.replaceAll("(?s)COMMENT ON DATABASE .+ IS '"
+                                                         + CCDD_PROJECT_IDENTIFIER + "(.+)';$",
+                                                         "$1");
+
+                    // Split the line read from the file in order to get the project name
+                    // and description
+                    String[] comment = dbControl.parseDatabaseComment(databaseName, commentText);
+
+                    // Extract the project name (with case preserved) and description, and
+                    // set the flag indicating the comment is located
+                    projectName = comment[DatabaseComment.PROJECT_NAME.ordinal()];
+                    projectAdministrator = comment[DatabaseComment.ADMINS.ordinal()];
+                    projectDescription = comment[DatabaseComment.DESCRIPTION.ordinal()];
+                }
+                else if (!nameDescProvided && backupDBUInfoFound)
+                {
+                    // Split the line read from the file in order to get the project
+                    // information
+                    String[] comment = new String[4];
+                    String[] temp = backupDBUInfo.replace("\n", "").split("\t");
+                    System.arraycopy(temp, 0, comment, 0, 4);
+
+                    // Extract the project name (with case preserved) and description, and
+                    // set the flag indicating the comment is located
+                    projectName = comment[DatabaseComment.PROJECT_NAME.ordinal()];
+                    projectAdministrator = comment[DatabaseComment.ADMINS.ordinal()];
+                    projectDescription = comment[DatabaseComment.DESCRIPTION.ordinal()];
+                }
+
+                // Check if the project owner isn't in the administrator list embedded in
+                // the database comment
+                if (!projectAdministrator.matches("(?:^|,)" + projectOwner + "(?:,|$)"))
+                {
+                    // Add the project owner as an administrator
+                    projectAdministrator += (projectAdministrator.isEmpty() ? "" : ",")
+                                            + projectOwner;
+                }
+
+                // Check if the backup file is restored via the command line
+                if (isCmdLine)
+                {
+                    // Restore the database from the temporary file. This file has the line
+                    // that disables creation of the database comment, which is handled
+                    // when the restored database is created
+                    dbControl.restoreDatabase(projectName,
+                                              projectOwner,
+                                              projectAdministrator,
+                                              projectDescription,
+                                              tempFile,
+                                              true);
+                }
+                // The the backup file is restored via the GUI
+                else
+                {
+                    // Restore the database from the temporary file as a background
+                    // process. This file has the line that disables creation of the
+                    // database comment, which is handled when the restored database is
+                    // created
+                    dbControl.restoreDatabaseInBackground(projectName,
+                                                          projectOwner,
+                                                          projectAdministrator,
+                                                          projectDescription,
+                                                          tempFile,
+                                                          false);
+                }
+
+                // Store the data file path in the program preferences backing store
+                storePath(ccddMain,
+                          dataFile[0].getAbsolutePathWithEnvVars(),
+                          true,
+                          ModifiablePathInfo.DATABASE_BACKUP_PATH);
+            }
+            else
+            {
+                // The project owner, name, and description don't exist
+                throw new CCDDException("File '</b>"
+                                        + dataFile[0].getAbsolutePath()
+                                        + "'<b> is not a backup file");
+            }
+        }
+        catch (CCDDException ce)
+        {
+            // Inform the user that the backup file error occurred
+            new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                      "<html><b>"
+                                                      + ce.getMessage(),
+                                                      "File Error",
+                                                      ce.getMessageType(),
+                                                      DialogOption.OK_OPTION);
+        }
+        catch (Exception e)
+        {
+            // Inform the user that the backup file cannot be read
+            new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                      "<html><b>Cannot read backup file '</b>"
+                                                      + dataFile[0].getAbsolutePath()
+                                                      + "<b>'; cause '</b>"
+                                                      + e.getMessage()
+                                                      + "<b>'",
+                                                      "File Error",
+                                                      JOptionPane.ERROR_MESSAGE,
+                                                      DialogOption.OK_OPTION);
+        }
+        finally
+        {
+            try
+            {
+                // Check if the input file is open
+                if (br != null)
+                {
+                    // Close the input file
+                    br.close();
+                }
+            }
+            catch (IOException ioe)
+            {
+                // Inform the user that the input file cannot be closed
+                new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                          "<html><b>Cannot close backup file '</b>"
+                                                          + dataFile[0].getAbsolutePath()
+                                                          + "<b>'",
+                                                          "File Warning",
+                                                          JOptionPane.WARNING_MESSAGE,
+                                                          DialogOption.OK_OPTION);
+            }
+            finally
+            {
+                try
+                {
+                    // Check if the output file is open
+                    if (bw != null)
+                    {
+                        // Close the output file
+                        bw.close();
+                    }
+                }
+                catch (IOException ioe)
+                {
+                    // Inform the user that the output file cannot be closed
+                    new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                               "<html><b>Cannot close backup file '</b>"
+                                               + tempFile.getAbsolutePath()
+                                               + "<b>'",
+                                               "File Warning",
+                                               JOptionPane.WARNING_MESSAGE,
+                                               DialogOption.OK_OPTION);
                 }
             }
         }
@@ -874,6 +913,8 @@ public class CcddFileIOHandler
     /**********************************************************************************************
      * Restore a project's database from a specified or user-selected JSON or CSV file(s)
      *
+     * @param dataFile          Restore file
+     *
      * @param restoreFileType   Restore file type (JSON or CSV)
      *
      * @param createName        Project name
@@ -884,21 +925,18 @@ public class CcddFileIOHandler
      *
      * @param createRestore     Backup file name
      *********************************************************************************************/
-    protected void restoreDatabaseFromJSONOrCSV(ManagerDialogType restoreFileType,
-                                                String createName,
-                                                String createOwner,
-                                                String createDescription,
-                                                String createRestore)
+    private void restoreDatabaseFromJSONOrCSV(FileEnvVar[] dataFile,
+                                              FileExtension restoreFileType,
+                                              String createName,
+                                              String createOwner,
+                                              String createDescription,
+                                              String createRestore)
     {
         try
         {
-            CcddJSONHandler jsonHandler = null;
-            CcddCSVHandler csvHandler = null;
             FileEnvVar dbuInfoFile = null;
-            FileEnvVar[] dataFile = null;
             String fileName = "";
-            String fileDescription = "";
-            FileExtension fileExtension = null;
+            ManagerDialogType importType = null;
             List<String[]> usersAndAccessLevel = new ArrayList<String[]>();
             boolean cancelExecution = false;
             boolean useDefaultValues = false;
@@ -906,125 +944,76 @@ public class CcddFileIOHandler
             String dbuInfoDescription = "";
 
             // Create the correct handler and file variables
-            if (restoreFileType == ManagerDialogType.IMPORT_JSON)
+            if (restoreFileType == FileExtension.JSON)
             {
-                jsonHandler = new CcddJSONHandler(ccddMain, null, ccddMain.getMainFrame());
                 fileName = FileNames.DBU_INFO.JSON();
-                fileDescription = FileExtension.JSON.getDescription();
-                fileExtension = FileExtension.JSON;
+                importType = ManagerDialogType.IMPORT_JSON;
             }
             else
             {
-                csvHandler = new CcddCSVHandler(ccddMain, null, ccddMain.getMainFrame());
                 fileName = FileNames.DBU_INFO.CSV();
-                fileDescription = FileExtension.CSV.getDescription();
-                fileExtension = FileExtension.CSV;
+                importType = ManagerDialogType.IMPORT_CSV;
             }
 
-            // Set the flag if the current user's password is non-blank. Depending on the
-            // authentication set-up and operating system, the password may still be required by
-            // the psql command even if the authentication method is 'trust'. If the restore is
-            // initiated from the command line with the GUI hidden then the password is assumed to
-            // be already set
-            boolean isPasswordSet = dbControl.isPasswordNonBlank() || (ccddMain.isGUIHidden());
-
-            // Check if no password is set
-            if (!isPasswordSet)
+            // Check that the GUI is not in headless state
+            if (!ccddMain.isGUIHidden())
             {
-                // Display the password dialog and obtain the password. Note that the user can
-                // enter a blank password (which may be valid)
-                CcddServerPropertyDialog dialog = new CcddServerPropertyDialog(ccddMain,
-                                                                               ServerPropertyDialogType.PASSWORD);
+                // Store the restore file path in the backing store
+                CcddFileIOHandler.storePath(ccddMain,
+                                            dataFile[0].getAbsolutePath(),
+                                            true,
+                                            ModifiablePathInfo.DATABASE_BACKUP_PATH);
 
-                // Set the flag if the user selected the Okay button in the password dialog
-                isPasswordSet = dialog.isPasswordSet();
-                cancelExecution = !isPasswordSet;
-            }
-
-            // Check if the user's database password is set (either non-blank or explicitly set to
-            // blank)
-            if (isPasswordSet)
-            {
-                // Allow the user to select the backup file path + name to load from
-                dataFile = new CcddDialogHandler().choosePathFile(ccddMain,
-                                                                  ccddMain.getMainFrame(),
-                                                                  null,
-                                                                  null,
-                                                                  new FileNameExtensionFilter[] {new FileNameExtensionFilter(fileDescription,
-                                                                                                                             fileExtension.getExtensionName())},
-                                                                  true,
-                                                                  "Restore Project",
-                                                                  ccddMain.getProgPrefs().get(ModifiablePathInfo.DATABASE_BACKUP_PATH.getPreferenceKey(),
-                                                                                              null),
-                                                                  DialogOption.RESTORE_OPTION);
-
-                // Check that the GUI is not in headless state
-                if (!ccddMain.isGUIHidden())
+                // Multi-file import
+                if (dataFile.length > 1)
                 {
-                    if (dataFile != null)
+                    // Look for the dbu_info file
+                    for (int index = 0; index < dataFile.length; index++)
                     {
-                        // Store the restore file path in the backing store
-                        CcddFileIOHandler.storePath(ccddMain,
-                                                    dataFile[0].getAbsolutePath(),
-                                                    true,
-                                                    ModifiablePathInfo.DATABASE_BACKUP_PATH);
+                        if (dataFile[index].getName().contentEquals(fileName))
+                        {
+                            // Indicate that the file was found and break out of the loop
+                            dbuInfoFile = dataFile[index];
+                            break;
+                        }
+                    }
+                    // Single file import
+                }
+                else if (dataFile.length == 1)
+                {
+                    dbuInfoFile = dataFile[0];
+                }
+            }
+            else
+            {
+                // GUI is in headless state
+                FileEnvVar path = new FileEnvVar(createRestore);
 
-                        // Multi-file import
-                        if (dataFile.length > 1)
-                        {
-                            // Look for the dbu_info file
-                            for (int index = 0; index < dataFile.length; index++)
-                            {
-                                if (dataFile[index].getName().contentEquals(fileName))
-                                {
-                                    // Indicate that the file was found and break out of the loop
-                                    dbuInfoFile = dataFile[index];
-                                    break;
-                                }
-                            }
-                            // Single file import
-                        }
-                        else if (dataFile.length == 1)
-                        {
-                            dbuInfoFile = dataFile[0];
-                        }
-                    }
-                    else
+                // Check if the provided path belongs to a directory
+                if (path.isDirectory())
+                {
+                    // If we are working with a directory then place all of the files within
+                    // the directory within a list of type FileEnvVar
+                    File[] files = path.listFiles();
+                    FileEnvVar[] tempFiles = new FileEnvVar[files.length];
+
+                    // Cast all of the files to type FileEnvVar
+                    for (int index = 0; index < files.length; index++)
                     {
-                        cancelExecution = true;
+                        tempFiles[index] = new FileEnvVar(files[index].getAbsolutePath());
+
+                        if (tempFiles[index].getName().contentEquals(fileName))
+                        {
+                            dbuInfoFile = tempFiles[index];
+                        }
                     }
+
+                    dataFile = tempFiles;
                 }
                 else
                 {
-                    // GUI is in headless state
-                    FileEnvVar path = new FileEnvVar(createRestore);
-
-                    // Check if the provided path belongs to a directory
-                    if (path.isDirectory())
-                    {
-                        // If we are working with a directory then place all of the files within
-                        // the directory within a list of type FileEnvVar
-                        File[] files = path.listFiles();
-                        FileEnvVar[] tempFiles = new FileEnvVar[files.length];
-
-                        // Cast all of the files to type FileEnvVar
-                        for (int index = 0; index < files.length; index++)
-                        {
-                            tempFiles[index] = new FileEnvVar(files[index].getAbsolutePath());
-
-                            if (tempFiles[index].getName().contentEquals(fileName))
-                            {
-                                dbuInfoFile = tempFiles[index];
-                            }
-                        }
-
-                        dataFile = tempFiles;
-                    }
-                    else
-                    {
-                        dbuInfoFile = new FileEnvVar(createRestore);
-                        dataFile = new FileEnvVar[] {dbuInfoFile};
-                    }
+                    dbuInfoFile = new FileEnvVar(createRestore);
+                    dataFile = new FileEnvVar[] {dbuInfoFile};
                 }
             }
 
@@ -1051,7 +1040,7 @@ public class CcddFileIOHandler
 
                     if (!useDefaultValues)
                     {
-                        if (restoreFileType == ManagerDialogType.IMPORT_JSON)
+                        if (restoreFileType == FileExtension.JSON)
                         {
                             // Detect the type of the parsed JSON file and only accept JSONObjects.
                             // This will throw an exception if it is incorrect
@@ -1075,7 +1064,7 @@ public class CcddFileIOHandler
                                 }
                             }
 
-                            // Check to see that the user has not cancelled the process
+                            // Check to see that the user has not canceled the process
                             if (!cancelExecution)
                             {
                                 // Check if the DBU info exist
@@ -1101,6 +1090,7 @@ public class CcddFileIOHandler
                                 }
                             }
                         }
+                        // CSV file
                         else
                         {
                             boolean dbuInfoFound = false;
@@ -1126,7 +1116,7 @@ public class CcddFileIOHandler
 
                             // Let the user know that no DBU_Info data was found unless we are
                             // running in headless state
-                            if (dbuInfoFound == false && !ccddMain.isGUIHidden())
+                            if (!dbuInfoFound && !ccddMain.isGUIHidden())
                             {
                                 if (displayDbuInfoWarningDialog())
                                 {
@@ -1138,26 +1128,32 @@ public class CcddFileIOHandler
                                 }
                             }
 
-                            // Check to see that the user has not cancelled the process
+                            // Check to see that the user has not canceled the process
                             if (!cancelExecution)
                             {
                                 String[] columnValues = csvHandler.trimLine(line, br);
 
                                 // Check if the DBU info exist
-                                if (columnValues != null && columnValues.length == 3)
+                                if (columnValues != null)
                                 {
-                                    // Get the project description
-                                    dbuInfoDescription = columnValues[2];
-
                                     // Get the project name
                                     dbuInfoName = columnValues[0];
 
-                                    // Get the project users
-                                    String[] projectUsers = columnValues[1].split(",");
-
-                                    for (int index = 0; index < projectUsers.length; index++)
+                                    if (columnValues.length > 1)
                                     {
-                                        usersAndAccessLevel.add(projectUsers[index].split(":"));
+                                        // Get the project users
+                                        String[] projectUsers = columnValues[1].split(",");
+
+                                        for (int index = 0; index < projectUsers.length; index++)
+                                        {
+                                            usersAndAccessLevel.add(projectUsers[index].split(":"));
+                                        }
+                                    }
+
+                                    if (columnValues.length > 2)
+                                    {
+                                        // Get the project description
+                                        dbuInfoDescription = columnValues[2];
                                     }
                                 }
                             }
@@ -1211,6 +1207,10 @@ public class CcddFileIOHandler
                             projectName = createName;
                         }
 
+                        // Create the name for the restored project
+                        String names[] = dbControl.getRestoreNames(projectName, false);
+                        projectName = names[0];
+
                         boolean createSuccess = false;
 
                         // Create a new project
@@ -1254,14 +1254,14 @@ public class CcddFileIOHandler
                                                        true,
                                                        false,
                                                        true,
-                                                       fileExtension,
                                                        restoreFileType,
+                                                       importType,
                                                        usersAndAccessLevel,
                                                        ccddMain.getMainFrame());
                             }
                             else
                             {
-                                createSnapshot2Directory(ccddMain.getMainFrame());
+                                boolean errorFlag = createSnapshot2Directory(ccddMain.getMainFrame());
 
                                 // Step through the array of files and ensure that all files
                                 // starting with '_' are placed at the start of the list. The order
@@ -1292,11 +1292,13 @@ public class CcddFileIOHandler
                                                                    true,
                                                                    true,
                                                                    false,
-                                                                   fileExtension,
                                                                    restoreFileType,
+                                                                   importType,
                                                                    ccddMain.getMainFrame());
 
-                                if (usersAndAccessLevel != null && usersAndAccessLevel.size() > 0)
+                                if (!errorFlag
+                                    && usersAndAccessLevel != null
+                                    && usersAndAccessLevel.size() > 0)
                                 {
                                     // Execute the database update for users and access levels
                                     dbTable.storeNonTableTypesInfoTable(InternalTable.USERS,
@@ -1365,27 +1367,25 @@ public class CcddFileIOHandler
      * @param parent                      GUI component over which to center any error dialog
      *
      * @param usersAndAccessLevel         List of users and their access levels
-     *
-     * @return True if an error occurred while importing
      *********************************************************************************************/
-    protected boolean importFileInBackground(final FileEnvVar[] dataFile,
-                                             final boolean importingEntireDatabase,
-                                             final boolean backupFirst,
-                                             final boolean replaceExistingTables,
-                                             final boolean appendExistingFields,
-                                             final boolean useExistingFields,
-                                             final boolean openEditor,
-                                             final boolean ignoreErrors,
-                                             final boolean replaceExistingMacros,
-                                             final boolean replaceExistingGroups,
-                                             final boolean replaceExistingAssociations,
-                                             final boolean deleteNonExistingTables,
-                                             final boolean replaceExistingDataTypes,
-                                             final FileExtension importFileType,
-                                             final ManagerDialogType dialogType,
-                                             final List<String[]> usersAndAccessLevel,
-                                             final Component parent)
-    {
+    protected void importFileInBackground(final FileEnvVar[] dataFile,
+                                          final boolean importingEntireDatabase,
+                                          final boolean backupFirst,
+                                          final boolean replaceExistingTables,
+                                          final boolean appendExistingFields,
+                                          final boolean useExistingFields,
+                                          final boolean openEditor,
+                                          final boolean ignoreErrors,
+                                          final boolean replaceExistingMacros,
+                                          final boolean replaceExistingGroups,
+                                          final boolean replaceExistingAssociations,
+                                          final boolean deleteNonExistingTables,
+                                          final boolean replaceExistingDataTypes,
+                                          final FileExtension importFileType,
+                                          final ManagerDialogType dialogType,
+                                          final List<String[]> usersAndAccessLevel,
+                                          final Component parent)
+{
         // Execute the import operation in the background
         CcddBackgroundCommand.executeInBackground(ccddMain, parent, new BackgroundCommand()
         {
@@ -1412,24 +1412,26 @@ public class CcddFileIOHandler
                     || (importFileType == FileExtension.CSV)
                     || (importFileType == FileExtension.C_HEADER))
                 {
-                    errorFlag = prepareJsonOrCsvImport(dataFile,
-                                                       importingEntireDatabase,
-                                                       backupFirst,
-                                                       replaceExistingTables,
-                                                       appendExistingFields,
-                                                       useExistingFields,
-                                                       openEditor,
-                                                       ignoreErrors,
-                                                       replaceExistingMacros,
-                                                       replaceExistingAssociations,
-                                                       replaceExistingGroups,
-                                                       replaceExistingDataTypes,
-                                                       deleteNonExistingTables,
-                                                       importFileType,
-                                                       dialogType,
-                                                       parent);
+                    boolean errorFlag = prepareJsonOrCsvImport(dataFile,
+                                                               importingEntireDatabase,
+                                                               backupFirst,
+                                                               replaceExistingTables,
+                                                               appendExistingFields,
+                                                               useExistingFields,
+                                                               openEditor,
+                                                               ignoreErrors,
+                                                               replaceExistingMacros,
+                                                               replaceExistingAssociations,
+                                                               replaceExistingGroups,
+                                                               replaceExistingDataTypes,
+                                                               deleteNonExistingTables,
+                                                               importFileType,
+                                                               dialogType,
+                                                               parent);
 
-                    if (usersAndAccessLevel != null && usersAndAccessLevel.size() > 0)
+                    if (!errorFlag
+                        && usersAndAccessLevel != null
+                        && usersAndAccessLevel.size() > 0)
                     {
                         // Execute the database update for users and access levels
                         dbTable.storeNonTableTypesInfoTable(InternalTable.USERS,
@@ -1500,7 +1502,6 @@ public class CcddFileIOHandler
         });
 
         haltDlg = null;
-        return errorFlag;
     }
 
     /**********************************************************************************************
@@ -1612,6 +1613,8 @@ public class CcddFileIOHandler
         // Process the files to be imported
         try
         {
+            boolean macrosUpdated = false;
+
             // Create a save point in case an error occurs while creating or modifying a table
             dbCommand.createSavePoint(parent);
 
@@ -1685,6 +1688,22 @@ public class CcddFileIOHandler
                                                   replaceExistingMacros,
                                                   replaceExistingTables,
                                                   importingEntireDatabase);
+
+                        // Check if the user elected to enable replacement of existing macro values
+                        if (replaceExistingMacros)
+                        {
+                            // Verify that the new macro values are valid for the current instances
+                            // of the macros
+                            macroHandler.validateMacroUsage(parent);
+
+                            // Update the usage of the macros in the tables
+                            macroHandler.updateExistingMacroUsage(parent);
+                        }
+
+                        // Set the macro data to the updated macro list
+                        macroHandler.setMacroData();
+
+                        macrosUpdated = true;
                     }
                     else if (fileName.equals(FileNames.TABLE_INFO.No_Extension()))
                     {
@@ -1778,6 +1797,7 @@ public class CcddFileIOHandler
                                         openEditor,
                                         groupHandler,
                                         ignoreErrors,
+                                        macrosUpdated,
                                         parent);
 
             // Check if any new application scheduler data has been added
@@ -2179,6 +2199,8 @@ public class CcddFileIOHandler
      *
      * @param ignoreErrors          Should errors be ignored
      *
+     * @param macrosUpdated         True if macros have already been processed (CSV or JSON files)
+     *
      * @param parent                GUI component over which to center any error dialog
      *
      * @throws CCDDException If the table path name is invalid or the table cannot be created from
@@ -2190,6 +2212,7 @@ public class CcddFileIOHandler
                                              boolean openEditor,
                                              CcddGroupHandler groupHandler,
                                              boolean ignoreErrors,
+                                             boolean macrosUpdated,
                                              final Component parent) throws CCDDException
     {
         boolean prototypesOnly = true;
@@ -2215,18 +2238,23 @@ public class CcddFileIOHandler
                                                                   null,
                                                                   parent);
 
-        // Check if the user elected to enable replacement of existing macro values
-        if (replaceExistingMacros)
+        // Check if the macros have not already been updated. THis applied for XTCE and EDS files;
+        // the macros are updated earlier for JSON and CSV files
+        if (!macrosUpdated)
         {
-            // Verify that the new macro values are valid for the current instances of the macros
-            macroHandler.validateMacroUsage(parent);
+            // Check if the user elected to enable replacement of existing macro values
+            if (replaceExistingMacros)
+            {
+                // Verify that the new macro values are valid for the current instances of the macros
+                macroHandler.validateMacroUsage(parent);
 
-            // Update the usage of the macros in the tables
-            macroHandler.updateExistingMacroUsage(parent);
+                // Update the usage of the macros in the tables
+                macroHandler.updateExistingMacroUsage(parent);
+            }
+
+            // Set the macro data to the updated macro list
+            macroHandler.setMacroData();
         }
-
-        // Set the macro data to the updated macro list
-        macroHandler.setMacroData();
 
         // Reorder the table definitions so that those referenced by a table as a data type or in a
         // sizeof() call appear in the list before the table
@@ -2860,10 +2888,10 @@ public class CcddFileIOHandler
                                                               dialogPanel);
 
             // Get the state of the check-boxes for later use
-            Boolean overwriteChkBxSelected = ((JCheckBox) dialogPanel.getComponent(overwriteExistingCbIndex)).isSelected();
-            Boolean appendToExistingDataCbSelected = ((JCheckBox) dialogPanel.getComponent(appendToExistingDataCbIndex)).isSelected();
-            Boolean ignoreErrorsCbSelected = ((JCheckBox) dialogPanel.getComponent(ignoreErrorsCbIndex)).isSelected();
-            Boolean keepDataFieldsCbSelected = ((JCheckBox) dialogPanel.getComponent(keepDataFieldsCbIndex)).isSelected();
+            boolean overwriteChkBxSelected = ((JCheckBox) dialogPanel.getComponent(overwriteExistingCbIndex)).isSelected();
+            boolean appendToExistingDataCbSelected = ((JCheckBox) dialogPanel.getComponent(appendToExistingDataCbIndex)).isSelected();
+            boolean ignoreErrorsCbSelected = ((JCheckBox) dialogPanel.getComponent(ignoreErrorsCbIndex)).isSelected();
+            boolean keepDataFieldsCbSelected = ((JCheckBox) dialogPanel.getComponent(keepDataFieldsCbIndex)).isSelected();
 
             // Check if a file was chosen
             if (dataFile != null && dataFile[0] != null)
@@ -2890,6 +2918,10 @@ public class CcddFileIOHandler
                                                                           importFileType,
                                                                           false,
                                                                           ccddMain.getMainFrame());
+                    if (snapshotFiles == null)
+                    {
+                       throw new CCDDException();
+                    }
 
                     // Check to see if the files are identical
                     if (!snapshotFiles.isEmpty())
@@ -2939,7 +2971,7 @@ public class CcddFileIOHandler
                     // Check if any data fields were provided and if we are appending
                     if ((appendToExistingDataCbSelected
                          && (dialogType == ManagerDialogType.IMPORT_JSON
-                             || dialogType == ManagerDialogType.IMPORT_JSON))
+                             || dialogType == ManagerDialogType.IMPORT_CSV))
                         || (keepDataFieldsCbSelected))
                     {
                         List<String[]> importedDataFieldInfo = new ArrayList<String[]>(tableDefn.getDataFields());
@@ -3242,45 +3274,35 @@ public class CcddFileIOHandler
      *
      * @param classification          Classification attribute (XTCE only)
      *
-     * @param useExternal             True to use external (script) methods in place of the
-     *                                internal ones (XTCE only)
-     *
-     * @param scriptFileName          Name of the script file containing the external (script)
-     *                                methods (XTCE only); ignored if useExternal is false
-     *
      * @param parent                  GUI component over which to center any error dialog
-     *
-     * @return True if an error occurred while exporting
      *********************************************************************************************/
-    protected boolean exportSelectedTablesInBackground(final String filePath,
-                                                       final String[] tablePaths,
-                                                       final boolean overwriteFile,
-                                                       final boolean singleFile,
-                                                       final boolean includeBuildInformation,
-                                                       final boolean replaceMacros,
-                                                       final boolean deleteTargetDirectory,
-                                                       final boolean includeAllTableTypes,
-                                                       final boolean includeAllDataTypes,
-                                                       final boolean includeAllInputTypes,
-                                                       final boolean includeAllMacros,
-                                                       final boolean includeReservedMsgIDs,
-                                                       final boolean includeProjectFields,
-                                                       final boolean includeGroups,
-                                                       final boolean includeAssociations,
-                                                       final boolean includeTlmSched,
-                                                       final boolean includeAppSched,
-                                                       final boolean includeVariablePaths,
-                                                       final CcddVariableHandler variableHandler,
-                                                       final String[] separators,
-                                                       final FileExtension fileExtn,
-                                                       final EndianType endianess,
-                                                       final boolean isHeaderBigEndian,
-                                                       final String version,
-                                                       final String validationStatus,
-                                                       final String classification,
-                                                       final boolean useExternal,
-                                                       final String scriptFileName,
-                                                       final Component parent)
+    protected void exportSelectedTablesInBackground(final String filePath,
+                                                    final String[] tablePaths,
+                                                    final boolean overwriteFile,
+                                                    final boolean singleFile,
+                                                    final boolean includeBuildInformation,
+                                                    final boolean replaceMacros,
+                                                    final boolean deleteTargetDirectory,
+                                                    final boolean includeAllTableTypes,
+                                                    final boolean includeAllDataTypes,
+                                                    final boolean includeAllInputTypes,
+                                                    final boolean includeAllMacros,
+                                                    final boolean includeReservedMsgIDs,
+                                                    final boolean includeProjectFields,
+                                                    final boolean includeGroups,
+                                                    final boolean includeAssociations,
+                                                    final boolean includeTlmSched,
+                                                    final boolean includeAppSched,
+                                                    final boolean includeVariablePaths,
+                                                    final CcddVariableHandler variableHandler,
+                                                    final String[] separators,
+                                                    final FileExtension fileExtn,
+                                                    final EndianType endianess,
+                                                    final boolean isHeaderBigEndian,
+                                                    final String version,
+                                                    final String validationStatus,
+                                                    final String classification,
+                                                    final Component parent)
     {
         // Execute the export operation in the background
         CcddBackgroundCommand.executeInBackground(ccddMain, parent, new BackgroundCommand()
@@ -3292,35 +3314,33 @@ public class CcddFileIOHandler
             protected void execute()
             {
                 // Export the selected table(s)
-                errorFlag = exportSelectedTables(filePath,
-                                                 tablePaths,
-                                                 overwriteFile,
-                                                 singleFile,
-                                                 includeBuildInformation,
-                                                 replaceMacros,
-                                                 deleteTargetDirectory,
-                                                 includeAllTableTypes,
-                                                 includeAllDataTypes,
-                                                 includeAllInputTypes,
-                                                 includeAllMacros,
-                                                 includeReservedMsgIDs,
-                                                 includeProjectFields,
-                                                 includeGroups,
-                                                 includeAssociations,
-                                                 includeTlmSched,
-                                                 includeAppSched,
-                                                 includeVariablePaths,
-                                                 variableHandler,
-                                                 separators,
-                                                 fileExtn,
-                                                 endianess,
-                                                 isHeaderBigEndian,
-                                                 version,
-                                                 validationStatus,
-                                                 classification,
-                                                 useExternal,
-                                                 scriptFileName,
-                                                 parent);
+                exportSelectedTables(filePath,
+                                     tablePaths,
+                                     overwriteFile,
+                                     singleFile,
+                                     includeBuildInformation,
+                                     replaceMacros,
+                                     deleteTargetDirectory,
+                                     includeAllTableTypes,
+                                     includeAllDataTypes,
+                                     includeAllInputTypes,
+                                     includeAllMacros,
+                                     includeReservedMsgIDs,
+                                     includeProjectFields,
+                                     includeGroups,
+                                     includeAssociations,
+                                     includeTlmSched,
+                                     includeAppSched,
+                                     includeVariablePaths,
+                                     variableHandler,
+                                     separators,
+                                     fileExtn,
+                                     endianess,
+                                     isHeaderBigEndian,
+                                     version,
+                                     validationStatus,
+                                     classification,
+                                     parent);
             }
 
             /**************************************************************************************
@@ -3337,8 +3357,6 @@ public class CcddFileIOHandler
                 }
             }
         });
-
-        return errorFlag;
     }
 
     /**********************************************************************************************
@@ -3419,12 +3437,6 @@ public class CcddFileIOHandler
      *
      * @param classification          Classification attribute (XTCE only)
      *
-     * @param useExternal             True to use external (script) methods in place of the
-     *                                internal ones (XTCE only)
-     *
-     * @param scriptFileName          Name of the script file containing the external (script)
-     *                                methods (XTCE only); ignored if useExternal is false
-     *
      * @param parent                  GUI component over which to center any error dialog
      *
      * @return True if the export completes successfully
@@ -3455,8 +3467,6 @@ public class CcddFileIOHandler
                                            final String version,
                                            final String validationStatus,
                                            final String classification,
-                                           final boolean useExternal,
-                                           final String scriptFileName,
                                            final Component parent)
     {
         // Initialize local variables
@@ -3464,7 +3474,6 @@ public class CcddFileIOHandler
         FileEnvVar file = null;
         CcddImportExportInterface ioHandler = null;
         List<String> skippedTables = new ArrayList<String>();
-        ScriptEngine scriptEngine = null;
 
         // Are we writing to a single file or multiple files?
         String outputType = "";
@@ -3485,44 +3494,6 @@ public class CcddFileIOHandler
 
         // Remove the trailing period if present
         String path = CcddUtilities.removeTrailer(filePath, ".");
-
-        // Check if external (script) methods are to be used
-        if (useExternal)
-        {
-            try
-            {
-                // The table information isn't provided to the script data access handler when
-                // creating the script engine below. Therefore, not all script data access methods
-                // are available (i.e., those that refer to the table names, rows, data, etc.).
-                // Barring an extensive rewrite of the export methods, in order to provide the
-                // information the tables would have to be read twice, once to create the script
-                // handler format (where tables of the same type are combined) and again in the
-                // XTCE handler. Performing the export operation via a script association does
-                // allow access to all of the methods (and entails loading each table twice). The
-                // link and group handlers aren't provided in the script engine call below either,
-                // but these are loaded if an access method requiring them is called
-
-                // Get the script engine for the supplied script file name
-                scriptEngine = ccddMain.getScriptHandler().getScriptEngine(scriptFileName,
-                                                                           "XTCE external (script) methods",
-                                                                           new TableInfo[0],
-                                                                           null,
-                                                                           null,
-                                                                           null, parent);
-            }
-            catch (CCDDException ce)
-            {
-                // Inform the user that an error occurred accessing the script file
-                new CcddDialogHandler().showMessageDialog(parent,
-                                                          "<html><b>Cannot use external methods - using "
-                                                          + "internal methods instead; cause '</b>"
-                                                          + ce.getMessage()
-                                                          + "<b>'",
-                                                          "Export Error",
-                                                          JOptionPane.WARNING_MESSAGE,
-                                                          DialogOption.OK_OPTION);
-            }
-        }
 
         try
         {
@@ -3567,7 +3538,7 @@ public class CcddFileIOHandler
             }
             else if (fileExtn == FileExtension.XTCE)
             {
-                ioHandler = new CcddXTCEHandler(ccddMain, scriptEngine, parent);
+                ioHandler = new CcddXTCEHandler(ccddMain, parent);
             }
 
             // Delete the contents of the directory
@@ -3687,6 +3658,8 @@ public class CcddFileIOHandler
                                                    variableHandler,
                                                    separators,
                                                    outputType,
+                                                   endianess,
+                                                   isHeaderBigEndian,
                                                    version,
                                                    validationStatus,
                                                    classification);
@@ -4359,7 +4332,7 @@ public class CcddFileIOHandler
      *
      * @param parent               GUI component over which to center any error dialog
      *
-     * @return List of files in snapshot directory
+     * @return List of files in snapshot directory; null if an error occurred
      *********************************************************************************************/
     private List<File> compareToSnapshotDirectory(String[] tablePaths,
                                                   boolean exportEntireDatabase,
@@ -4367,6 +4340,8 @@ public class CcddFileIOHandler
                                                   boolean singleFile,
                                                   Component parent)
     {
+        boolean errorFlag = false;
+
         try
         {
             // Check if the .snapshot directory exists
@@ -4397,38 +4372,39 @@ public class CcddFileIOHandler
             errorFlag = true;
         }
 
-        // Backup current database state to .snapshot directory before import
-        exportSelectedTables(SNAP_SHOT_FILE_PATH, // filePath
-                             tablePaths, // tablePaths
-                             true, // overwriteFile
-                             false, // singleFile
-                             false, // includeBuildInformation
-                             false, // replaceMacros
-                             false, // deleteTargetDirectory
-                             exportEntireDatabase, // includeAllTableTypes
-                             exportEntireDatabase, // includeAllDataTypes
-                             exportEntireDatabase, // includeAllInputTypes
-                             exportEntireDatabase, // includeAllMacros
-                             true, // includeReservedMsgIDs
-                             true, // includeProjectFields
-                             exportEntireDatabase, // includeGroups
-                             exportEntireDatabase, // includeAssociations
-                             exportEntireDatabase, // includeTlmSched
-                             exportEntireDatabase, // includeAppSched
-                             false, // includeVariablePaths
-                             ccddMain.getVariableHandler(), // variableHandler
-                             null, // separators
-                             importFileType, // fileExtn
-                             null, // endianess
-                             false, // isHeaderBigEndian
-                             null, // version
-                             null, // validationStatus
-                             null, // classification
-                             false, // useExternal
-                             null, // scriptFileName
-                             null); // parent
+        if (!errorFlag)
+        {
+            // Backup current database state to .snapshot directory before import
+            errorFlag = exportSelectedTables(SNAP_SHOT_FILE_PATH, // filePath
+                                             tablePaths, // tablePaths
+                                             true, // overwriteFile
+                                             false, // singleFile
+                                             false, // includeBuildInformation
+                                             false, // replaceMacros
+                                             false, // deleteTargetDirectory
+                                             exportEntireDatabase, // includeAllTableTypes
+                                             exportEntireDatabase, // includeAllDataTypes
+                                             exportEntireDatabase, // includeAllInputTypes
+                                             exportEntireDatabase, // includeAllMacros
+                                             true, // includeReservedMsgIDs
+                                             true, // includeProjectFields
+                                             exportEntireDatabase, // includeGroups
+                                             exportEntireDatabase, // includeAssociations
+                                             exportEntireDatabase, // includeTlmSched
+                                             exportEntireDatabase, // includeAppSched
+                                             false, // includeVariablePaths
+                                             ccddMain.getVariableHandler(), // variableHandler
+                                             null, // separators
+                                             importFileType, // fileExtn
+                                             null, // endianess
+                                             false, // isHeaderBigEndian
+                                             null, // version
+                                             null, // validationStatus
+                                             null, // classification
+                                             null); // parent
+        }
 
-        return new ArrayList<>(Arrays.asList(new File(SNAP_SHOT_FILE_PATH).listFiles()));
+        return errorFlag ? null : new ArrayList<>(Arrays.asList(new File(SNAP_SHOT_FILE_PATH).listFiles()));
     }
 
     /**********************************************************************************************
@@ -4436,9 +4412,13 @@ public class CcddFileIOHandler
      * that are spawned when a single file that represents an entire database is imported
      *
      * @param parent CCDD component that called this function
+     *
+     * @return True if an error occurred while creating the directory
      *********************************************************************************************/
-    protected void createSnapshot2Directory(Component parent)
+    protected boolean createSnapshot2Directory(Component parent)
     {
+        boolean errorFlag = false;
+
         try
         {
             // Check if the .snapshot2 directory exists
@@ -4469,6 +4449,8 @@ public class CcddFileIOHandler
 
             errorFlag = true;
         }
+
+        return errorFlag;
     }
 
     /**********************************************************************************************
@@ -4510,8 +4492,6 @@ public class CcddFileIOHandler
                                                       "File Error",
                                                       JOptionPane.ERROR_MESSAGE,
                                                       DialogOption.OK_OPTION);
-
-            errorFlag = true;
         }
     }
 
@@ -4729,146 +4709,158 @@ public class CcddFileIOHandler
                                                                           false,
                                                                           parent);
 
-                    // Step through each file selected to import
-                    for (FileEnvVar dataFile : dataFiles)
+                    if (snapshotFiles != null)
                     {
-                        // Only import files that end with the correct file extension
-                        if (dataFile.getName().endsWith(importFileType.getExtension()))
+                        // Step through each file selected to import
+                        for (FileEnvVar dataFile : dataFiles)
                         {
-                            importFiles.add(dataFile);
-                        }
-                    }
-
-                    List<File> deletedFiles = new ArrayList<>(snapshotFiles);
-
-                    // Ignore any line in a JSON files that contains the build information. This
-                    // information contains the file's build time stamp, so every file would show a
-                    // change even though the remaining content is identical
-                    String ignoreIfContains = dialogType == ManagerDialogType.IMPORT_JSON ? "\""
-                                                                                            + JSONTags.FILE_DESCRIPTION.getTag()
-                                                                                            + "\":"
-                                                                                          : "";
-
-                    // Step through each file in the deleted files array
-                    for (int index = 0; index < deletedFiles.size(); index++)
-                    {
-                        for (int index2 = 0; index2 < importFiles.size(); index2++)
-                        {
-                            // Do the filenames equal each other? Or, is the deletedFile element in
-                            // question not of the correct extension?
-                            if (deletedFiles.get(index).getName().equals(importFiles.get(index2).getName()))
+                            // Only import files that end with the correct file extension
+                            if (dataFile.getName().endsWith(importFileType.getExtension()))
                             {
-                                // Compare the two files
-                                if (compareFiles(importFiles.get(index2),
-                                                 deletedFiles.get(index),
-                                                 ignoreIfContains))
-                                {
-                                    // The files are the same so nothing will be done with this
-                                    // file. Remove it from the importFiles list
-                                    importFiles.remove(index2);
-                                }
-
-                                // The file exists so remove it from the deletedFiles list and
-                                // adjust the index since the list is now shorter
-                                deletedFiles.remove(index);
-                                index--;
-
-                                break;
+                                importFiles.add(dataFile);
                             }
                         }
-                    }
 
-                    // Check if non-existing tables are to be deleted
-                    if (deleteNonExistingTables)
-                    {
-                        // Check to see if the files that are going to be deleted are the reserved
-                        // message IDs and project fields. If so then ignore them
+                        List<File> deletedFiles = new ArrayList<>(snapshotFiles);
+
+                        // Ignore any line in a JSON files that contains the build information.
+                        // This information contains the file's build time stamp, so every file
+                        // would show a change even though the remaining content is identical
+                        String ignoreIfContains = dialogType == ManagerDialogType.IMPORT_JSON ? "\""
+                                                                                                + JSONTags.FILE_DESCRIPTION.getTag()
+                                                                                                + "\":"
+                                                                                              : "";
+
+                        // Step through each file in the deleted files array
                         for (int index = 0; index < deletedFiles.size(); index++)
                         {
-                            if (deletedFiles.get(index).getPath().endsWith(FileNames.PROJECT_DATA_FIELD.JSON())
-                                || deletedFiles.get(index).getPath().endsWith(FileNames.RESERVED_MSG_ID.JSON())
-                                || deletedFiles.get(index).getPath().endsWith(FileNames.PROJECT_DATA_FIELD.CSV())
-                                || deletedFiles.get(index).getPath().endsWith(FileNames.RESERVED_MSG_ID.CSV()))
+                            for (int index2 = 0; index2 < importFiles.size(); index2++)
                             {
-                                // Remove it from the deletedFiles list
-                                deletedFiles.remove(index);
-                                index--;
+                                // Do the filenames equal each other? Or, is the deletedFile
+                                // element in question not of the correct extension?
+                                if (deletedFiles.get(index).getName().equals(importFiles.get(index2).getName()))
+                                {
+                                    // Compare the two files
+                                    if (compareFiles(importFiles.get(index2),
+                                                     deletedFiles.get(index),
+                                                     ignoreIfContains))
+                                    {
+                                        // The files are the same so nothing will be done with this
+                                        // file. Remove it from the importFiles list
+                                        importFiles.remove(index2);
+                                    }
+
+                                    // The file exists so remove it from the deletedFiles list and
+                                    // adjust the index since the list is now shorter
+                                    deletedFiles.remove(index);
+                                    index--;
+
+                                    break;
+                                }
                             }
                         }
 
-                        // Check if there are any tables to potentially delete
-                        if (deletedFiles.size() != 0)
+                        // Check if non-existing tables are to be deleted
+                        if (deleteNonExistingTables)
                         {
-                            List<String> deletePathList = new ArrayList<String>();
-
-                            // Get a list of all table paths
-                            List<String> pathList = tableTree.getTableTreePathList(null);
-
-                            // Check if there are paths in the table tree that correspond to the
-                            // deleted filenames. Add them to a list
-                            for (String path : pathList)
+                            // Check to see if the files that are going to be deleted are the
+                            // reserved message IDs and project fields. If so then ignore them
+                            for (int index = 0; index < deletedFiles.size(); index++)
                             {
-                                // Check if the path is a prototype table
-                                if (!path.contains(","))
+                                if (deletedFiles.get(index).getPath().endsWith(FileNames.PROJECT_DATA_FIELD.JSON())
+                                    || deletedFiles.get(index).getPath().endsWith(FileNames.RESERVED_MSG_ID.JSON())
+                                    || deletedFiles.get(index).getPath().endsWith(FileNames.PROJECT_DATA_FIELD.CSV())
+                                    || deletedFiles.get(index).getPath().endsWith(FileNames.RESERVED_MSG_ID.CSV()))
                                 {
-                                    for (File fileToDelete : deletedFiles)
+                                    // Remove it from the deletedFiles list
+                                    deletedFiles.remove(index);
+                                    index--;
+                                }
+                            }
+
+                            // Check if there are any tables to potentially delete
+                            if (deletedFiles.size() != 0)
+                            {
+                                List<String> deletePathList = new ArrayList<String>();
+
+                                // Get a list of all table paths
+                                List<String> pathList = tableTree.getTableTreePathList(null);
+
+                                // Check if there are paths in the table tree that correspond to
+                                // the deleted filenames. Add them to a list
+                                for (String path : pathList)
+                                {
+                                    // Check if the path is a prototype table
+                                    if (!path.contains(","))
                                     {
-                                        // Check if the file name, minus the extension, matches the path
-                                        if ((fileToDelete.getName().replace(importFileType.getExtension(), "")).equals(path))
+                                        for (File fileToDelete : deletedFiles)
                                         {
-                                            deletePathList.add(path);
+                                            // Check if the file name, minus the extension,
+                                            // matches the path
+                                            if ((fileToDelete.getName().replace(importFileType.getExtension(), "")).equals(path))
+                                            {
+                                                deletePathList.add(path);
+                                            }
                                         }
                                     }
                                 }
-                            }
 
-                            if (deletePathList.size() != 0)
-                            {
-                                // Delete the unused prototypes
-                                 dbTable.deleteTable(deletePathList.toArray(new String[deletePathList.size()]),
-                                                    true,
-                                                    parent);
+                                if (deletePathList.size() != 0)
+                                {
+                                    // Delete the unused prototypes
+                                     dbTable.deleteTable(deletePathList.toArray(new String[deletePathList.size()]),
+                                                        true,
+                                                        parent);
 
-                                // If tables were deleted then that means the database has been altered
-                                dataWasChanged = true;
+                                    // If tables were deleted then that means the database has been
+                                     // altered
+                                    dataWasChanged = true;
+                                }
                             }
                         }
                     }
+                    else
+                    {
+                        errorFlag = true;
+                    }
                 }
 
-                // Import any files remaining after removing any unchanged files
-                if (importFiles.size() != 0)
+                if (!errorFlag)
                 {
-                    // Import the file(s) into database
-                    importFiles(importFiles,
-                                backupFirst,
-                                importingEntireDatabase,
-                                replaceExistingTables,
-                                appendExistingFields,
-                                useExistingFields,
-                                openEditor,
-                                ignoreErrors,
-                                replaceExistingMacros,
-                                replaceExistingAssociations,
-                                replaceExistingGroups,
-                                replaceExistingDataTypes,
-                                dialogType,
-                                parent);
+                    // Import any files remaining after removing any unchanged files
+                    if (importFiles.size() != 0)
+                    {
+                        // Import the file(s) into the database
+                        errorFlag = importFiles(importFiles,
+                                                backupFirst,
+                                                importingEntireDatabase,
+                                                replaceExistingTables,
+                                                appendExistingFields,
+                                                useExistingFields,
+                                                openEditor,
+                                                ignoreErrors,
+                                                replaceExistingMacros,
+                                                replaceExistingAssociations,
+                                                replaceExistingGroups,
+                                                replaceExistingDataTypes,
+                                                dialogType,
+                                                parent);
 
-                    dataWasChanged = true;
-                }
+                        dataWasChanged = true;
+                    }
 
-                // Check if no changes were made to the database
-                if (!dataWasChanged)
-                {
-                    // Inform the user that there are no changes to the files relative to current
-                    // database state
-                    new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                              "<html><b>The selected folder/file(s) "
-                                                              + "does not contain any updates</b>",
-                                                              "No Changes Made",
-                                                              JOptionPane.INFORMATION_MESSAGE,
-                                                              DialogOption.OK_OPTION);
+                    // Check if no changes were made to the database
+                    if (!errorFlag && !dataWasChanged)
+                    {
+                        // Inform the user that there are no changes to the files relative to
+                        // current database state
+                        new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
+                                                                  "<html><b>The selected folder/file(s) "
+                                                                  + "does not contain any updates</b>",
+                                                                  "No Changes Made",
+                                                                  JOptionPane.INFORMATION_MESSAGE,
+                                                                  DialogOption.OK_OPTION);
+                    }
                 }
             }
         }
@@ -4876,7 +4868,7 @@ public class CcddFileIOHandler
         {
             // Inform the user that file import preparation failed
             new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                                      "<html><b>Error preparing/importing "
+                                                      "<html><b>Error preparing "
                                                       + importFileType.getExtension()
                                                       + " table(s) for import",
                                                       "File Error",
@@ -4964,7 +4956,7 @@ public class CcddFileIOHandler
 
             if (!outputData.isEmpty())
             {
-                filePath = SNAP_SHOT_FILE_PATH_2 + File.separator + FileNames.TABLE_INFO.JSON();
+                filePath = SNAP_SHOT_FILE_PATH_2 + FileNames.TABLE_INFO.JSON();
                 file = new FileEnvVar(filePath);
                 dataFiles.add(file);
                 writeToJsonOrCsvFile("{\n  " + outputData + "\n}\n", filePath);
@@ -4976,7 +4968,7 @@ public class CcddFileIOHandler
             if (!tagData.isEmpty())
             {
                 outputData = "{\n  " + tagData + "\n  ]\n}\n";
-                filePath = SNAP_SHOT_FILE_PATH_2 + File.separator + FileNames.MACROS.JSON();
+                filePath = SNAP_SHOT_FILE_PATH_2 + FileNames.MACROS.JSON();
                 file = new FileEnvVar(filePath);
                 dataFiles.add(file);
                 writeToJsonOrCsvFile(outputData, filePath);
@@ -4988,7 +4980,7 @@ public class CcddFileIOHandler
             if (!tagData.isEmpty())
             {
                 outputData = "{\n  " + tagData + "\n  ]\n}\n";
-                filePath = SNAP_SHOT_FILE_PATH_2 + File.separator + FileNames.GROUPS.JSON();
+                filePath = SNAP_SHOT_FILE_PATH_2 + FileNames.GROUPS.JSON();
                 file = new FileEnvVar(filePath);
                 dataFiles.add(file);
                 writeToJsonOrCsvFile(outputData, filePath);
@@ -5000,34 +4992,74 @@ public class CcddFileIOHandler
             if (!tagData.isEmpty())
             {
                 outputData = "{\n  " + tagData + "\n  ]\n}\n";
-                filePath = SNAP_SHOT_FILE_PATH_2 + File.separator + FileNames.SCRIPT_ASSOCIATION.JSON();
+                filePath = SNAP_SHOT_FILE_PATH_2 + FileNames.SCRIPT_ASSOCIATION.JSON();
                 file = new FileEnvVar(filePath);
                 dataFiles.add(file);
                 writeToJsonOrCsvFile(outputData, filePath);
             }
 
             //*********************************** TLM SCHEDULER ***********************************
+            tagData = jsonHandler.retrieveJSONData(JSONTags.TLM_SCHEDULER.getTag(), content).toString();
+
+            if (!tagData.isEmpty())
+            {
+                outputData = tagData + "\n  ]";
+            }
+            else
+            {
+                outputData = "";
+            }
+
             tagData = jsonHandler.retrieveJSONData(JSONTags.TLM_SCHEDULER_COMMENT.getTag(), content).toString();
 
             if (!tagData.isEmpty())
             {
-                outputData = "{\n  " + tagData + "\n  ]\n}\n";
-                filePath = SNAP_SHOT_FILE_PATH_2 + File.separator + FileNames.TELEM_SCHEDULER.JSON();
+                if (!outputData.isEmpty())
+                {
+                    outputData += ",\n  ";
+                }
+
+                outputData += tagData + "\n  ]";
+            }
+
+            if (!outputData.isEmpty())
+            {
+                filePath = SNAP_SHOT_FILE_PATH_2 + FileNames.TELEM_SCHEDULER.JSON();
                 file = new FileEnvVar(filePath);
                 dataFiles.add(file);
-                writeToJsonOrCsvFile(outputData, filePath);
+                writeToJsonOrCsvFile("{\n  " + outputData + "\n}\n", filePath);
             }
 
             //*********************************** APP SCHEDULER ***********************************
+            tagData = jsonHandler.retrieveJSONData(JSONTags.APP_SCHEDULER.getTag(), content).toString();
+
+            if (!tagData.isEmpty())
+            {
+                outputData = tagData + "\n  ]";
+            }
+            else
+            {
+                outputData = "";
+            }
+
             tagData = jsonHandler.retrieveJSONData(JSONTags.APP_SCHEDULER_COMMENT.getTag(), content).toString();
 
             if (!tagData.isEmpty())
             {
-                outputData = "{\n  " + tagData + "\n  ]\n}\n";
-                filePath = SNAP_SHOT_FILE_PATH_2 + File.separator + FileNames.APP_SCHEDULER.JSON();
+                if (!outputData.isEmpty())
+                {
+                    outputData += ",\n  ";
+                }
+
+                outputData += tagData + "\n  ]";
+            }
+
+            if (!outputData.isEmpty())
+            {
+                filePath = SNAP_SHOT_FILE_PATH_2 + FileNames.APP_SCHEDULER.JSON();
                 file = new FileEnvVar(filePath);
                 dataFiles.add(file);
-                writeToJsonOrCsvFile(outputData, filePath);
+                writeToJsonOrCsvFile("{\n  " + outputData + "\n}\n", filePath);
             }
 
             //******************************* RESERVED MESSAGE IDS ********************************
@@ -5036,7 +5068,7 @@ public class CcddFileIOHandler
             if (!tagData.isEmpty())
             {
                 outputData = "{\n  " + tagData + "\n  ]\n}\n";
-                filePath = SNAP_SHOT_FILE_PATH_2 + File.separator + FileNames.RESERVED_MSG_ID.JSON();
+                filePath = SNAP_SHOT_FILE_PATH_2 + FileNames.RESERVED_MSG_ID.JSON();
                 file = new FileEnvVar(filePath);
                 dataFiles.add(file);
                 writeToJsonOrCsvFile(outputData, filePath);
@@ -5048,7 +5080,7 @@ public class CcddFileIOHandler
             if (!tagData.isEmpty())
             {
                 outputData = "{\n  " + tagData + "\n  ]\n}\n";
-                filePath = SNAP_SHOT_FILE_PATH_2 + File.separator + FileNames.PROJECT_DATA_FIELD.JSON();
+                filePath = SNAP_SHOT_FILE_PATH_2 + FileNames.PROJECT_DATA_FIELD.JSON();
                 file = new FileEnvVar(filePath);
                 dataFiles.add(file);
                 writeToJsonOrCsvFile(outputData, filePath);
@@ -5060,7 +5092,7 @@ public class CcddFileIOHandler
             if (!tagData.isEmpty())
             {
                 outputData = "{\n  " + tagData + "\n  ]\n}\n";
-                filePath = SNAP_SHOT_FILE_PATH_2 + File.separator + FileNames.DBU_INFO.JSON();
+                filePath = SNAP_SHOT_FILE_PATH_2 + FileNames.DBU_INFO.JSON();
                 file = new FileEnvVar(filePath);
                 dataFiles.add(file);
                 writeToJsonOrCsvFile(outputData, filePath);
@@ -5201,7 +5233,7 @@ public class CcddFileIOHandler
 
             if (!outputData.isEmpty())
             {
-                filePath = SNAP_SHOT_FILE_PATH_2 + File.separator + FileNames.TABLE_INFO.CSV();
+                filePath = SNAP_SHOT_FILE_PATH_2 + FileNames.TABLE_INFO.CSV();
                 file = new FileEnvVar(filePath);
                 dataFiles.add(file);
                 writeToJsonOrCsvFile(outputData, filePath);
@@ -5210,7 +5242,7 @@ public class CcddFileIOHandler
             //*************** MACROS ***************
             outputData = "\n" + csvHandler.retrieveCSVData(CSVTags.MACRO.getTag(), content).toString();
 
-            filePath = SNAP_SHOT_FILE_PATH_2 + File.separator + FileNames.MACROS.CSV();
+            filePath = SNAP_SHOT_FILE_PATH_2 + FileNames.MACROS.CSV();
             file = new FileEnvVar(filePath);
             dataFiles.add(file);
             writeToJsonOrCsvFile(outputData, filePath);
@@ -5312,7 +5344,7 @@ public class CcddFileIOHandler
 
             if (!outputData.isEmpty())
             {
-                filePath = SNAP_SHOT_FILE_PATH_2 + File.separator + FileNames.TABLE_INFO.CSV();
+                filePath = SNAP_SHOT_FILE_PATH_2 + FileNames.TABLE_INFO.CSV();
                 file = new FileEnvVar(filePath);
                 dataFiles.add(file);
                 writeToJsonOrCsvFile(outputData, filePath);
@@ -5321,7 +5353,7 @@ public class CcddFileIOHandler
             //************************************** MACROS ***************************************
             outputData = "\n" + csvHandler.retrieveCSVData(CSVTags.MACRO.getTag(), content).toString();
 
-            filePath = SNAP_SHOT_FILE_PATH_2 + File.separator + FileNames.MACROS.CSV();
+            filePath = SNAP_SHOT_FILE_PATH_2 + FileNames.MACROS.CSV();
             file = new FileEnvVar(filePath);
             dataFiles.add(file);
 
@@ -5330,7 +5362,7 @@ public class CcddFileIOHandler
             //************************************** GROUPS ***************************************
             outputData = "\n" + csvHandler.retrieveCSVData(CSVTags.GROUP.getTag(), content).toString();
 
-            filePath = SNAP_SHOT_FILE_PATH_2 + File.separator + FileNames.GROUPS.CSV();
+            filePath = SNAP_SHOT_FILE_PATH_2 + FileNames.GROUPS.CSV();
             file = new FileEnvVar(filePath);
             dataFiles.add(file);
 
@@ -5340,45 +5372,35 @@ public class CcddFileIOHandler
             outputData = "\n" + csvHandler.retrieveCSVData(CSVTags.SCRIPT_ASSOCIATION.getTag(),
                                                            content).toString();
 
-            filePath = SNAP_SHOT_FILE_PATH_2 + File.separator + FileNames.SCRIPT_ASSOCIATION.CSV();
+            filePath = SNAP_SHOT_FILE_PATH_2 + FileNames.SCRIPT_ASSOCIATION.CSV();
             file = new FileEnvVar(filePath);
             dataFiles.add(file);
 
             writeToJsonOrCsvFile(outputData + "\n", filePath);
 
             //*********************************** TLM SCHEDULER ***********************************
-            if (outputData.contains(CSVTags.TELEM_SCHEDULER_OLD.getTag()))
-            {
-                outputData = "\n"
-                             + csvHandler.retrieveCSVData(CSVTags.TELEM_SCHEDULER_OLD.getTag(),
-                                                          content).toString();
-            }
-            else
-            {
-                outputData = "\n" + csvHandler.retrieveCSVData(CSVTags.TELEM_SCHEDULER_COMMENTS.getTag(),
-                                                               content).toString();
-            }
+            outputData = "\n" + csvHandler.retrieveCSVData(CSVTags.TELEM_SCHEDULER_DATA.getTag(),
+                                                           content).toString()
+                         + "\n"
+                         + csvHandler.retrieveCSVData(CSVTags.TELEM_SCHEDULER_COMMENTS.getTag(),
+                                                      content).toString();
 
-            filePath = SNAP_SHOT_FILE_PATH_2 + File.separator + FileNames.TELEM_SCHEDULER.CSV();
+
+            filePath = SNAP_SHOT_FILE_PATH_2 + FileNames.TELEM_SCHEDULER.CSV();
             file = new FileEnvVar(filePath);
             dataFiles.add(file);
 
             writeToJsonOrCsvFile(outputData + "\n", filePath);
 
             //*********************************** APP SCHEDULER ***********************************
-            if (outputData.contains(CSVTags.APP_SCHEDULER_OLD.getTag()))
-            {
-                outputData = "\n" + csvHandler.retrieveCSVData(CSVTags.APP_SCHEDULER_OLD.getTag(),
-                                                               content).toString();
-            }
-            else
-            {
-                outputData = "\n"
-                             + csvHandler.retrieveCSVData(CSVTags.APP_SCHEDULER_COMMENTS.getTag(),
-                                                          content).toString();
-            }
+            outputData = "\n"
+                         + csvHandler.retrieveCSVData(CSVTags.APP_SCHEDULER_DATA.getTag(),
+                                                      content).toString()
+                         + "\n"
+                         + csvHandler.retrieveCSVData(CSVTags.APP_SCHEDULER_COMMENTS.getTag(),
+                                                      content).toString();
 
-            filePath = SNAP_SHOT_FILE_PATH_2 + File.separator + FileNames.APP_SCHEDULER.CSV();
+            filePath = SNAP_SHOT_FILE_PATH_2 + FileNames.APP_SCHEDULER.CSV();
             file = new FileEnvVar(filePath);
             dataFiles.add(file);
 
@@ -5392,7 +5414,7 @@ public class CcddFileIOHandler
             {
                 outputData = "\n" + outputData;
 
-                filePath = SNAP_SHOT_FILE_PATH_2 + File.separator + FileNames.RESERVED_MSG_ID.CSV();
+                filePath = SNAP_SHOT_FILE_PATH_2 + FileNames.RESERVED_MSG_ID.CSV();
                 file = new FileEnvVar(filePath);
                 dataFiles.add(file);
 
@@ -5407,7 +5429,7 @@ public class CcddFileIOHandler
             {
                 outputData = "\n" + outputData;
 
-                filePath = SNAP_SHOT_FILE_PATH_2 + File.separator + FileNames.PROJECT_DATA_FIELD.CSV();
+                filePath = SNAP_SHOT_FILE_PATH_2 + FileNames.PROJECT_DATA_FIELD.CSV();
                 file = new FileEnvVar(filePath);
                 dataFiles.add(file);
 
@@ -5452,7 +5474,7 @@ public class CcddFileIOHandler
             {
                 outputData = "\n" + outputData;
 
-                filePath = SNAP_SHOT_FILE_PATH_2 + File.separator + FileNames.DBU_INFO.CSV();
+                filePath = SNAP_SHOT_FILE_PATH_2 + FileNames.DBU_INFO.CSV();
                 file = new FileEnvVar(filePath);
                 dataFiles.add(file);
 
@@ -5495,16 +5517,16 @@ public class CcddFileIOHandler
         {
             // Inform the user that the output file cannot be written to
             new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                       "<html><b>Cannot write to "
-                                       + filePath.substring(filePath.lastIndexOf(".") + 1)
-                                       + " output file '</b>"
-                                       + filePath
-                                       + "<b>'; cause '<\b>"
-                                       + e.getMessage()
-                                       + "<b>'",
-                                       "File Warning",
-                                       JOptionPane.WARNING_MESSAGE,
-                                       DialogOption.OK_OPTION);
+                                                      "<html><b>Cannot write to "
+                                                      + filePath.substring(filePath.lastIndexOf(".") + 1)
+                                                      + " output file '</b>"
+                                                      + filePath
+                                                      + "<b>'; cause '<\b>"
+                                                      + e.getMessage()
+                                                      + "<b>'",
+                                                      "File Warning",
+                                                      JOptionPane.WARNING_MESSAGE,
+                                                      DialogOption.OK_OPTION);
         }
         finally
         {
@@ -5535,7 +5557,9 @@ public class CcddFileIOHandler
             {
                 // Inform the user that the output file cannot be closed
                 new CcddDialogHandler().showMessageDialog(ccddMain.getMainFrame(),
-                                           "<html><b>Cannot close JSON output file '</b>"
+                                           "<html><b>Cannot close "
+                                           + filePath.substring(filePath.lastIndexOf(".") + 1)
+                                           + " output file '</b>"
                                            + filePath
                                            + "<b>'; cause '<\b>"
                                            + ioe.getMessage()
@@ -5558,10 +5582,10 @@ public class CcddFileIOHandler
      *
      * @param parent        GUI component over which to center any error dialog
      *********************************************************************************************/
-    public void cleanExportDirectory(FileExtension fileExt,
-                                     String directoryPath,
-                                     boolean singleFile,
-                                     Component parent)
+    private void cleanExportDirectory(FileExtension fileExt,
+                                      String directoryPath,
+                                      boolean singleFile,
+                                      Component parent)
     {
         // Delete the specified contents of the directory
         try
@@ -5605,7 +5629,6 @@ public class CcddFileIOHandler
         catch (Exception e)
         {
             CcddUtilities.displayException(e, parent);
-            errorFlag = true;
         }
     }
 
