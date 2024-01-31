@@ -462,6 +462,12 @@ public class CcddPatchHandler
                                String tableName,
                                String scriptName) throws SQLException
     {
+        // Get the internal table contents, sorted by OID
+        List<String[]> tableData = dbTable.queryDatabase(new StringBuilder("SELECT * FROM "
+                                                                           + tableName
+                                                                           + " ORDER BY OID;"),
+                                                         ccddMain.getMainFrame());
+
         // Remove the OID column and add the new row index column
         dbCommand.executeDbCommand(new StringBuilder("ALTER TABLE ").append(tableName)
                                                                     .append(" SET WITHOUT OIDS; ALTER TABLE ")
@@ -472,12 +478,6 @@ public class CcddPatchHandler
                                                                     .append(ROW_NUM_COLUMN_TYPE)
                                                                     .append(";"),
                                    ccddMain.getMainFrame());
-
-        // Get the internal table contents
-        List<String[]> tableData = dbTable.retrieveInformationTable(intTable,
-                                                                    false,
-                                                                    scriptName,
-                                                                    ccddMain.getMainFrame());
 
         // Check if the table is a script
         if (intTable == InternalTable.SCRIPT)
@@ -490,7 +490,7 @@ public class CcddPatchHandler
                                        ccddMain.getMainFrame());
         }
 
-        // Rewrite the internal table
+        // Rewrite the internal table with the row numbers
         dbTable.storeNonTableTypesInfoTable(intTable,
                                             tableData,
                                             scriptName,

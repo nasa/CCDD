@@ -36,6 +36,7 @@ Below is a brief description of what has changed in version 2.1.6
 * Made the path to the user's guide (accessible from the Help menu) a user-definable setting in the program Preferences dialog
 * Removed storing/retrieving the data table data field column names in CSV exports files
 * Updated the User's Guide
+* Corrected the patch handler to retain internal table row order
 
 *** Version 2.1.5 has been released **
 
