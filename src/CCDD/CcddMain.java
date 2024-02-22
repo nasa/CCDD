@@ -421,15 +421,19 @@ public class CcddMain
                 // target database)
                 String projectName = dbControl.getProjectName();
 
+                // Store the command line handler reference. Opening the database sets the
+                // reference to null; however, the handler is needed again below
+                CcddCommandLineHandler tempCmdLnHandler = cmdLnHandler;
+
                 // Open the specified database and execute post-opening command line commands. Set
                 // the error flag if no database can be opened (including the default), or if the
                 // default database was successfully opened but was not the database specified
                 // (failure to open a database results in the default being opened)
                 boolean errorFlag = dbControl.openDatabase(projectName)
-                                    || !projectName.equals(DEFAULT_DATABASE);
+                                    || !projectName.equalsIgnoreCase(dbControl.getProjectName());
 
                 // Perform any clean-up steps and exit the application
-                cmdLnHandler.postCommandCleanUp(errorFlag ? 1 : 0);
+                tempCmdLnHandler.postCommandCleanUp(errorFlag ? 1 : 0);
             }
         }
 
