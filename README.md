@@ -17,6 +17,11 @@ _Note: The master branch contains_ **CCDD version 1**_, which is superseded by_ 
 
 * Beginning with CCDD version 2.1.2 Python 3 is supported
 
+*** Version 2.1.7 has been released **
+
+Below is a brief description of what has changed in version 2.1.7
+* Corrected an exception when starting with the GUI hidden
+ 
 *** Version 2.1.6 has been released **
 
 Below is a brief description of what has changed in version 2.1.6
