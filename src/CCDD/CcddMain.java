@@ -66,7 +66,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileInputStream;
-import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1612,18 +1611,11 @@ public class CcddMain
 
         try
         {
-            // Get the path+name of the .jar file in a format acceptable to all OS's
-            String jarFileName = URLDecoder.decode(new File(CcddMain.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getAbsolutePath(),
-                                                   "UTF-8");
+            // Get the path+name of the .jar file in a format acceptable to the OS
+            String jarFileName = System.getProperty("sun.java.command");
 
             if (jarFileName != null)
             {
-                // Add the .jar file name if not present
-                if (!jarFileName.endsWith(".jar"))
-                {
-                    jarFileName = jarFileName + File.separator + System.getProperty("sun.java.command");
-                }
-
                 // Get the manifest in the .jar file
                 JarFile jar = new JarFile(jarFileName);
                 Manifest manifest = jar.getManifest();
