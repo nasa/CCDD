@@ -17,6 +17,12 @@ _Note: The master branch contains_ **CCDD version 1**_, which is superseded by_ 
 
 * Beginning with CCDD version 2.1.2 Python 3 is supported
 
+*** Version 2.1.8 has been released **
+
+Below is a brief description of what has changed in version 2.1.8
+* Corrected handling of macro searches when multiple macro names are involved
+* Updated version and build date extraction from the jar file
+ 
 *** Version 2.1.7 has been released **
 
 Below is a brief description of what has changed in version 2.1.7

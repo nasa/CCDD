@@ -1059,16 +1059,16 @@ public class CcddMacroHandler
 
     /**********************************************************************************************
      * Get a list containing the search results in the project database for tables that reference
-     * the specified macro name. Include references in the custom values table
+     * the specified macro name(s). Include references in the custom values table
      *
-     * @param macroName Macro name for which to search
+     * @param macroNames Macro name(s) for which to search, separated by '|'
      *
-     * @param parent    GUI component over which to center any error dialog
+     * @param parent     GUI component over which to center any error dialog
      *
      * @return List containing the search results in the project database for tables that reference
      *         the specified macro name
      *********************************************************************************************/
-    protected String[] searchMacroReferences(String macroName, Component parent)
+    protected String[] searchMacroReferences(String macroNames, Component parent)
     {
         List<String> matches = new ArrayList<String>();
 
@@ -1082,11 +1082,19 @@ public class CcddMacroHandler
                                                                                                             parent)));
         }
 
+        // Separate the individual macro names
+        String[] names = macroNames.split("\\|");
+
+        // Find the references containing the target macro name(s)
         for (String row : allMacroReferences)
         {
-            if (row.contains(macroName))
+            for (String name : names)
             {
-                matches.add(row);
+                if (row.contains(name))
+                {
+                    matches.add(row);
+                    break;
+                }
             }
         }
 
