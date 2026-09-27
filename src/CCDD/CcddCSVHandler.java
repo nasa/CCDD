@@ -3324,20 +3324,20 @@ public class CcddCSVHandler extends CcddImportExportSupportHandler implements Cc
     {
         StringBuilder outData = new StringBuilder();
 
-        if (searchKey == CSVTags.INPUT_TYPE.getTag()
-                || searchKey == CSVTags.TABLE_TYPE.getTag()
-                || searchKey == CSVTags.DATA_TYPE.getTag()
-                || searchKey == CSVTags.MACRO.getTag()
-                || searchKey == CSVTags.GROUP.getTag()
-                || searchKey == CSVTags.SCRIPT_ASSOCIATION.getTag()
-                || searchKey == CSVTags.TELEM_SCHEDULER_DATA.getTag()
-                || searchKey == CSVTags.TELEM_SCHEDULER_COMMENTS.getTag()
-                || searchKey == CSVTags.APP_SCHEDULER_DATA.getTag()
-                || searchKey == CSVTags.APP_SCHEDULER_COMMENTS.getTag()
-                || searchKey == CSVTags.RESERVED_MSG_IDS.getTag()
-                || searchKey == CSVTags.PROJECT_DATA_FIELD.getTag()
-                || searchKey == CSVTags.NAME_TYPE.getTag()
-                || searchKey == CSVTags.DBU_INFO.getTag())
+        if (CSVTags.INPUT_TYPE.getTag().equals(searchKey)
+                || CSVTags.TABLE_TYPE.getTag().equals(searchKey)
+                || CSVTags.DATA_TYPE.getTag().equals(searchKey)
+                || CSVTags.MACRO.getTag().equals(searchKey)
+                || CSVTags.GROUP.getTag().equals(searchKey)
+                || CSVTags.SCRIPT_ASSOCIATION.getTag().equals(searchKey)
+                || CSVTags.TELEM_SCHEDULER_DATA.getTag().equals(searchKey)
+                || CSVTags.TELEM_SCHEDULER_COMMENTS.getTag().equals(searchKey)
+                || CSVTags.APP_SCHEDULER_DATA.getTag().equals(searchKey)
+                || CSVTags.APP_SCHEDULER_COMMENTS.getTag().equals(searchKey)
+                || CSVTags.RESERVED_MSG_IDS.getTag().equals(searchKey)
+                || CSVTags.PROJECT_DATA_FIELD.getTag().equals(searchKey)
+                || CSVTags.NAME_TYPE.getTag().equals(searchKey)
+                || CSVTags.DBU_INFO.getTag().equals(searchKey))
         {
             int beginIndex = data.toString().indexOf(searchKey + "\n");
 
@@ -3348,7 +3348,7 @@ public class CcddCSVHandler extends CcddImportExportSupportHandler implements Cc
                 // Next tag found
                 if (endIndex != -1)
                 {
-                    if (searchKey == CSVTags.NAME_TYPE.getTag())
+                    if (CSVTags.NAME_TYPE.getTag().equals(searchKey))
                     {
                         int lastIndex = data.toString().lastIndexOf(CSVTags.NAME_TYPE.getTag()
                                                                     + "\n");
@@ -3382,7 +3382,7 @@ public class CcddCSVHandler extends CcddImportExportSupportHandler implements Cc
                             endIndex = data.toString().indexOf("\n_", nextIndex);
                         }
                     }
-                    else if (searchKey == CSVTags.TABLE_TYPE.getTag())
+                    else if (CSVTags.TABLE_TYPE.getTag().equals(searchKey))
                     {
                         int lastIndex = data.toString().lastIndexOf(CSVTags.TABLE_TYPE.getTag() + "\n");
 
@@ -3400,7 +3400,7 @@ public class CcddCSVHandler extends CcddImportExportSupportHandler implements Cc
                             endIndex = data.toString().indexOf("\n_", nextIndex);
                         }
                     }
-                    else if (searchKey == CSVTags.GROUP.getTag())
+                    else if (CSVTags.GROUP.getTag().equals(searchKey))
                     {
                         int lastIndex = data.toString().lastIndexOf(CSVTags.GROUP.getTag() + "\n");
 
@@ -3418,7 +3418,7 @@ public class CcddCSVHandler extends CcddImportExportSupportHandler implements Cc
                             endIndex = data.toString().indexOf("\n_", nextIndex);
                         }
                     }
-                    else if (searchKey == CSVTags.TELEM_SCHEDULER_COMMENTS.getTag())
+                    else if (CSVTags.TELEM_SCHEDULER_COMMENTS.getTag().equals(searchKey))
                     {
                         int nextIndex = data.toString().indexOf(CSVTags.RATE_INFO.getTag() + "\n",
                                                                 endIndex + 1);
